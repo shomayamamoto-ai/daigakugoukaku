@@ -1,0 +1,93 @@
+/*
+ * Service Worker
+ *  ・オフラインでも使えるように、アプリのファイルをキャッシュします。
+ *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
+ *    学習がまだなら通知します(Periodic Background Sync)。
+ */
+var CACHE = 'wps-v1';
+var FILES = [
+  './', './index.html', './css/style.css',
+  './js/data/units.js', './js/data/schools.js',
+  './js/engine.js', './js/notify.js', './js/app.js',
+  './icons/icon.svg', './manifest.webmanifest'
+];
+
+self.addEventListener('install', function (e) {
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
+});
+
+self.addEventListener('activate', function (e) {
+  e.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+  }).then(function () { return self.clients.claim(); }));
+});
+
+// ネットワーク優先(最新版を使い、つながらないときはキャッシュ)
+self.addEventListener('fetch', function (e) {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request).then(function (res) {
+      var copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
+      return res;
+    }).catch(function () { return caches.match(e.request); })
+  );
+});
+
+function ymd(d) {
+  var m = d.getMonth() + 1, day = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+}
+
+function idb(mode, fn) {
+  return new Promise(function (resolve) {
+    var req = indexedDB.open('wps', 1);
+    req.onupgradeneeded = function () { req.result.createObjectStore('kv'); };
+    req.onsuccess = function () {
+      var db = req.result;
+      var tx = db.transaction('kv', mode);
+      var out = fn(tx.objectStore('kv'));
+      tx.oncomplete = function () { db.close(); resolve(out && out.result); };
+      tx.onerror = function () { resolve(null); };
+    };
+    req.onerror = function () { resolve(null); };
+  });
+}
+
+function checkStreak() {
+  return idb('readonly', function (st) { return st.get('status'); }).then(function (s) {
+    if (!s || !s.notify) return;
+    var now = new Date();
+    var today = ymd(now);
+    if (s.lastStudy === today) return;
+    var p = (s.reminder || '20:00').split(':');
+    var mins = now.getHours() * 60 + now.getMinutes();
+    if (mins < (+p[0]) * 60 + (+p[1] || 0)) return;
+    var kind = now.getHours() >= (s.lastCallHour || 22) ? 'last' : 'remind';
+    return idb('readonly', function (st) { return st.get('bg-notified'); }).then(function (flag) {
+      if (flag === today + ':' + kind || flag === today + ':last') return;
+      var y = new Date(now); y.setDate(y.getDate() - 1);
+      var alive = s.lastStudy === ymd(y) && s.streak > 0;
+      var hours = 24 - now.getHours();
+      var title = kind === 'last' && alive ? '🔥 あと' + hours + '時間で記録が切れちゃう…！' : 'ピンポより 🦉';
+      var body = alive
+        ? s.streak + '日連続の記録、今日もつなごう！ 単語帳を1分開くだけでOKだよ。'
+        : '今日の5分、いっしょにやってみない？ 小さな一歩が合格への近道だよ。';
+      return self.registration.showNotification(title, { body: body, tag: 'wps-' + kind, icon: 'icons/icon.svg' }).then(function () {
+        return idb('readwrite', function (st) { return st.put(today + ':' + kind, 'bg-notified'); });
+      });
+    });
+  });
+}
+
+self.addEventListener('periodicsync', function (e) {
+  if (e.tag === 'wps-streak') e.waitUntil(checkStreak());
+});
+
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+    for (var i = 0; i < list.length; i++) { if ('focus' in list[i]) return list[i].focus(); }
+    return self.clients.openWindow('./#cards');
+  }));
+});

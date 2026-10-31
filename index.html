@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Weak-Point Sniper</title>
+  <meta name="description" content="苦手をピンポイントで見つけて、志望校までの最短ルートを作る学習アプリ">
+  <meta name="theme-color" content="#2f5bd3">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="#home" class="logo"><span class="logo-mark">◎</span> Weak-Point Sniper</a>
+    <a href="#settings" class="gear" aria-label="設定">⚙️</a>
+  </header>
+
+  <main id="view" class="container" aria-live="polite">
+    <noscript>このアプリを使うには JavaScript を有効にしてください。</noscript>
+  </main>
+
+  <nav class="nav" aria-label="メインメニュー">
+    <a href="#home" data-r="home"><span>🏠</span>ホーム</a>
+    <a href="#test" data-r="test"><span>🎯</span>診断</a>
+    <a href="#roadmap" data-r="roadmap"><span>🗺️</span>ロードマップ</a>
+    <a href="#cards" data-r="cards"><span>🃏</span>単語帳</a>
+    <a href="#tutor" data-r="tutor"><span>👩‍🏫</span>先生用</a>
+  </nav>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="js/data/units.js"></script>
+  <script src="js/data/schools.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/notify.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

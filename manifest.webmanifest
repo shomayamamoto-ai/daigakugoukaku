@@ -1,0 +1,14 @@
+{
+  "name": "Weak-Point Sniper",
+  "short_name": "WP Sniper",
+  "description": "苦手をピンポイントで見つけて、志望校までの最短ルートを作る学習アプリ",
+  "start_url": "./#home",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#2f5bd3",
+  "lang": "ja",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
