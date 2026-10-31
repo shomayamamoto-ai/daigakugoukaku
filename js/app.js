@@ -34,6 +34,39 @@
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { el.classList.remove('show'); }, 2600);
   }
+  // ブラウザ標準の確認ダイアログが使えない環境(埋め込み表示など)でも動く、画面内のダイアログ
+  var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  function dialog(html, buttons) {
+    var wrap = document.createElement('div');
+    wrap.className = 'dlg-wrap';
+    wrap.innerHTML = '<div class="dlg" role="dialog" aria-modal="true">' + html + '<div class="btns dlg-btns"></div></div>';
+    var box = wrap.querySelector('.dlg-btns');
+    buttons.forEach(function (b) {
+      var el = document.createElement('button');
+      el.className = 'btn ' + (b.cls || '');
+      el.textContent = b.label;
+      el.addEventListener('click', function () { if (!b.keep) wrap.remove(); if (b.fn) b.fn(wrap); });
+      box.appendChild(el);
+    });
+    document.body.appendChild(wrap);
+    var last = box.querySelector('button:last-child');
+    if (last) last.focus();
+    return wrap;
+  }
+  function ask(msg, okLabel, fn) {
+    dialog('<p>' + h(msg) + '</p>', [{ label: 'やめる' }, { label: okLabel || 'OK', cls: 'primary', fn: fn }]);
+  }
+  // コピー用の文字を見せる(コピーボタン付き)
+  function showText(title, text, note) {
+    dialog('<h2>' + h(title) + '</h2><textarea class="copy-box" id="copyBox" readonly rows="4">' + h(text) + '</textarea>' + (note ? '<p class="hint">' + h(note) + '</p>' : ''),
+      [{ label: '閉じる' }, { label: 'コピーする', cls: 'primary', keep: true, fn: function (w) {
+        var ta = w.querySelector('textarea');
+        ta.select();
+        var p = navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+        p.then(function () { toast('コピーしたよ！'); w.remove(); }, function () { ta.select(); toast('選択したので、長押し(右クリック)でコピーしてね'); });
+      } }]);
+    setTimeout(function () { var t = document.getElementById('copyBox'); if (t) t.select(); }, 50);
+  }
   function go(hash) { if (location.hash === hash) render(); else location.hash = hash; }
   function subjChip(subj) {
     var sj = WPS.SUBJECTS[subj];
@@ -96,16 +129,16 @@
     var parts = hash.split('/');
     var route = parts[0] || 'home';
     // 共有リンクの閲覧中以外は、自分のデータに戻す
-    if (route !== 'share' && route !== 'cloud' && S.isView()) S.setView(null);
+    if (['share', 'cloud', 'tutor', 'parent'].indexOf(route) < 0 && S.isView()) S.setView(null);
     var p = S.get().profile;
-    if (!p.name && ['onboard', 'tutor', 'share', 'cloud'].indexOf(route) < 0) { route = 'onboard'; }
+    if (!p.name && ['onboard', 'tutor', 'share', 'cloud', 'parent'].indexOf(route) < 0) { route = 'onboard'; }
     document.querySelectorAll('.nav a').forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('data-r') === route);
     });
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent
     }[route] || renderHome;
     view.innerHTML = fn(parts[1]);
     if (fn.after) fn.after(parts[1]);
@@ -721,9 +754,9 @@
     for (var i = 0; i < 14; i++) { if (WPS.Streak.studiedDays()[D.add(D.today(), -i)] === 'study') last14++; }
 
     var viewing = S.isView();
-    var html = (viewing ? '<section class="info">👀 共有リンクから <b>' + h(p.name) + 'さん</b> のデータを表示しています(閲覧のみ・この端末には保存されません)。<a href="#home">自分の画面にもどる</a></section>' : '') +
+    var html = viewBanner(p) + '<div class="tabs"><a class="on" href="#tutor">👩‍🏫 先生用</a><a href="#parent">👪 保護者用</a></div>' +
       '<section class="card no-print-bg"><div class="row-between"><h1>👩‍🏫 指導分析レポート</h1><div class="btns">' +
-      '<button class="btn small" id="printBtn">🖨️ 印刷</button>' +
+      (EMBED ? '' : '<button class="btn small" id="printBtn">🖨️ 印刷</button>') +
       (viewing ? '' : '<button class="btn small" id="shareTutor">🔗 先生にリンクで送る</button><label class="btn small">📥 生徒データ読込<input type="file" id="importFile" accept="application/json" hidden></label>') + '</div></div>' +
       '<p class="muted">作成日:' + D.today() + ' ／ 生徒の解答データから自動で分析しています。</p>' +
       '<table class="kv"><tr><th>生徒</th><td>' + h(p.name || '(未設定)') + '(' + h(p.grade) + ')</td></tr>' +
@@ -842,10 +875,9 @@
     var r = new FileReader();
     r.onload = function () {
       try {
-        if (!confirm('この端末のデータを、読み込んだデータで置きかえます。よろしいですか?')) return;
-        S.importJSON(r.result);
-        toast('データを読み込みました');
-        cb && cb();
+        ask('この端末のデータを、読み込んだデータで置きかえます。よろしいですか?', '置きかえる', function () {
+          try { S.importJSON(r.result); toast('データを読み込みました'); if (cb) cb(); } catch (e) { toast('読み込めませんでした:' + e.message); }
+        });
       } catch (e) { alert('読み込めませんでした:' + e.message); }
     };
     r.readAsText(file);
@@ -921,7 +953,7 @@
       '<div class="btns"><button class="btn" id="testNotify">通知をテストする</button><button class="btn" id="icsBtn">📅 カレンダーに毎日のリマインドを登録</button></div>' +
       '<p class="hint">・アプリを開いている間、またはホーム画面に追加した場合(対応ブラウザ)に通知が届きます。<br>・iPhoneはSafariの「共有 → ホーム画面に追加」をしてから通知を許可してください(iOS 16.4以降)。<br>・確実に届けたい場合は「カレンダーに登録」がおすすめです。スマホのカレンダーアプリが毎日お知らせしてくれます。</p></section>';
     html += '<section class="card"><h2>📤 先生にデータを共有する</h2>' +
-      '<p class="muted">ボタンを押すとリンクができます。LINEやメールで先生に送ると、先生はリンクを開くだけで分析レポートを見られます(その時点のデータです)。</p>' +
+      '<p class="muted">ボタンを押すとリンクができます。LINEやメールで先生や保護者の方に送ると、リンクを開くだけで分析レポート(先生用・保護者用)を見られます(その時点のデータです)。</p>' +
       '<div class="btns"><button class="btn primary" id="shareBtn">🔗 先生に送るリンクを作る</button><a class="btn" href="#tutor">先生用レポートを見る</a></div>' +
       '<details><summary>ファイルでやり取りする</summary><div class="btns"><button class="btn" id="exportBtn">データを書き出す</button><label class="btn">データを読み込む<input type="file" id="importFile2" accept="application/json" hidden></label></div></details></section>';
     html += cloudSection();
@@ -978,11 +1010,12 @@
     document.getElementById('shareBtn').addEventListener('click', shareLink);
     bindCloudSection();
     document.getElementById('resetBtn').addEventListener('click', function () {
-      if (confirm('本当にすべてのデータを消しますか?(元に戻せません)')) { S.reset(); deck = null; quiz = null; go('#onboard'); }
+      ask('本当にすべてのデータを消しますか?(元に戻せません)', '消す', function () { S.reset(); deck = null; quiz = null; go('#onboard'); });
     });
   };
 
   function download(name, text, type) {
+    if (EMBED) { toast('この表示ではファイルを保存できません。アプリ単体で開くと使えます'); return; }
     var blob = new Blob([text], { type: type });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -990,6 +1023,66 @@
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function viewBanner(p) {
+    return S.isView() ? '<section class="info">👀 共有リンクから <b>' + h(p.name) + 'さん</b> のデータを表示しています(閲覧のみ・この端末には保存されません)。<a href="#home">自分の画面にもどる</a></section>' : '';
+  }
+
+  /* ========== 保護者向け 週間レポート ========== */
+  function renderParent() {
+    var s = S.get(), p = s.profile;
+    var rm = R.build(), t = rm.target, stats = rm.stats;
+    var today = D.today();
+    function inRange(a, from, to) { return a.d >= from && a.d <= to; }
+    var w1 = D.add(today, -6), w0 = D.add(today, -13), w0e = D.add(today, -7);
+    var thisW = s.attempts.filter(function (a) { return inRange(a, w1, today) && a.src !== 'school'; });
+    var lastW = s.attempts.filter(function (a) { return inRange(a, w0, w0e) && a.src !== 'school'; });
+    function acc(list) { var q = list.filter(function (a) { return a.src !== 'card'; }); return q.length ? q.filter(function (a) { return a.ok; }).length / q.length : null; }
+    var days = 0, set = WPS.Streak.studiedDays();
+    for (var i = 0; i < 7; i++) if (set[D.add(today, -i)] === 'study') days++;
+    // 克服した単元:以前に間違えたことがあり、いまは「得意」になった単元
+    var overcome = WPS.UNITS.filter(function (u) {
+      return stats[u.id].status === 'good' && s.attempts.some(function (a) { return a.u === u.id && !a.ok; });
+    });
+    var weakNow = rm.units.filter(function (id) { return stats[id].status === 'weak'; }).slice(0, 5);
+    var w = R.currentWeek(rm);
+    var phase = w ? WPS.PHASES.filter(function (x) { return x.key === w.phase; })[0] : null;
+    var a1 = acc(thisW), a0 = acc(lastW);
+    var trend = a1 === null || a0 === null ? '' : a1 > a0 + 0.02 ? '<span class="up">先週より ' + Math.round((a1 - a0) * 100) + 'ポイント上昇</span>' : a1 < a0 - 0.02 ? '<span class="down">先週より ' + Math.round((a0 - a1) * 100) + 'ポイント低下</span>' : '<span>先週と同じくらい</span>';
+    var recs = (s.records || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 3);
+
+    var comment;
+    var newbie = p.created && D.diff(p.created, today) < 7;
+    if (newbie && days < 5) comment = h(p.name) + 'さんは、学習を始めたばかりです。最初の1週間は「毎日少しでもアプリを開く」ことが目標です。始めたこと自体を、ぜひほめてあげてください。';
+    else if (days >= 5) comment = 'この1週間、' + h(p.name) + 'さんは' + days + '日も学習に取り組みました。習慣がしっかり身についてきています。ぜひ「よく続いているね」と声をかけてあげてください。';
+    else if (days >= 2) comment = 'この1週間の学習は' + days + '日でした。少しずつでも続けられています。「今日は何をやったの?」と、結果より取り組みに目を向けた声かけが効果的です。';
+    else comment = 'この1週間は学習できた日が少なめでした。忙しい時期かもしれません。「1日5分だけ」から再開できるよう、責めずに見守っていただけると安心です。';
+
+    var html = viewBanner(p) + '<div class="tabs"><a href="#tutor">👩‍🏫 先生用</a><a class="on" href="#parent">👪 保護者用</a></div>';
+    html += '<section class="card"><h1>👪 保護者の方へ 週間レポート</h1><p class="muted">' + D.label(w1) + '〜' + D.label(today) + ' ／ ' + h(p.name) + 'さん(' + h(p.grade) + ')</p>' +
+      '<div class="stat-row"><div><b>' + days + '<small>/7日</small></b><small>学習した日</small></div><div><b>' + thisW.length + '</b><small>解いた問題</small></div><div><b>' + pct(a1) + '</b><small>正答率</small></div></div>' +
+      (trend ? '<p class="trend">正答率:' + trend + '</p>' : '') +
+      say(comment, days >= 5 ? 'happy' : 'normal', 56) + '</section>';
+    html += '<section class="card"><h2>志望校までの道のり</h2><table class="kv">' +
+      '<tr><th>志望校</th><td>' + h(t.school ? t.school.name : '未設定') + ' ' + h(p.schoolName) + '</td></tr>' +
+      '<tr><th>本番まで</th><td>あと' + rm.days + '日(' + h(t.exam) + ')' + milestoneLine(t) + '</td></tr>' +
+      '<tr><th>いまの段階</th><td>' + (phase ? phase.emoji + ' ' + phase.name + '<br><small class="muted">' + h(phase.desc) + '</small>' : '—') + '</td></tr>' +
+      '<tr><th>連続学習</th><td>' + WPS.Streak.count() + '日(最高 ' + WPS.Streak.best() + '日)</td></tr></table></section>';
+    html += '<section class="card"><h2>🎉 克服した単元</h2>' + (overcome.length ? '<div class="chips">' + overcome.map(function (u) { return subjChip(u.subj) + ' <span class="ok-unit">' + h(u.name) + '</span>'; }).join('') + '</div><p class="hint">以前は間違えていたものの、最近の問題で8割以上正解できている単元です。</p>'
+      : '<p class="muted">まだありません。苦手単元の練習を続けると、ここに増えていきます。</p>') + '</section>';
+    html += '<section class="card"><h2>いま取り組んでいる苦手単元</h2>' + (weakNow.length ? '<div class="unit-list">' + weakNow.map(function (id) { return unitRow(id, stats); }).join('') + '</div>' : '<p class="muted">大きな苦手は見つかっていません。</p>') +
+      (w && w.units.length ? '<p class="hint">今週の重点:' + w.units.map(function (id) { return h(WPS.UNIT_MAP[id].name); }).join('、') + '</p>' : '') + '</section>';
+    if (recs.length) {
+      html += '<section class="card"><h2>学校のテスト・模試</h2><ul class="bullets">' + recs.map(function (r) {
+        return '<li>' + h(r.date) + ' ' + h(r.kind) + '・' + WPS.SUBJECTS[r.subj].name + ':' + r.score + '/' + r.max + '点</li>';
+      }).join('') + '</ul></section>';
+    }
+    html += '<section class="card"><h2>ご家庭でできること</h2><ul class="bullets">' +
+      '<li>点数よりも「続けていること」をほめてください。連続記録は本人の自信になります。</li>' +
+      '<li>夜' + h(p.reminder) + 'ごろに、学習がまだのときはアプリから本人に通知が届きます。声かけはその後で十分です。</li>' +
+      '<li>わからない問題は「先生への質問メモ」にたまり、30分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
+    return html;
   }
 
   /* ========== 学校のテスト・模試の記録 ========== */
@@ -1045,11 +1138,13 @@
       b.addEventListener('click', function () {
         var s = S.get(), id = +b.getAttribute('data-delrec');
         var r = (s.records || []).filter(function (x) { return x.id === id; })[0];
-        if (!r || !confirm('この記録を削除しますか?')) return;
-        var t = WPS.date.parse(r.date).getTime();
-        s.records = s.records.filter(function (x) { return x.id !== id; });
-        s.attempts = s.attempts.filter(function (a) { return !(a.src === 'school' && a.t === t && (r.wrong.concat(r.good)).indexOf(a.u) >= 0); });
-        S.save(); render();
+        if (!r) return;
+        ask('この記録を削除しますか?', '削除する', function () {
+          var t = WPS.date.parse(r.date).getTime();
+          s.records = s.records.filter(function (x) { return x.id !== id; });
+          s.attempts = s.attempts.filter(function (a) { return !(a.src === 'school' && a.t === t && (r.wrong.concat(r.good)).indexOf(a.u) >= 0); });
+          S.save(); render();
+        });
       });
     });
   };
@@ -1086,13 +1181,12 @@
 
   /* ========== 共有リンク・クラウド同期 ========== */
   function copyOrShare(url, title) {
-    if (navigator.share) {
-      return navigator.share({ title: title, url: url }).catch(function () { /* キャンセル */ });
+    if (navigator.share && !EMBED) {
+      return navigator.share({ title: title, url: url }).catch(function (e) {
+        if (!e || e.name !== 'AbortError') showText('共有リンク', url, 'このリンクをLINEやメールで送ってください。');
+      });
     }
-    if (navigator.clipboard) {
-      return navigator.clipboard.writeText(url).then(function () { toast('リンクをコピーしたよ！ 先生に送ってね'); }, function () { prompt('このリンクをコピーしてください', url); });
-    }
-    prompt('このリンクをコピーしてください', url);
+    showText('共有リンク', url, 'このリンクをLINEやメールで送ってください。開くと分析レポートが見られます。');
   }
   function shareLink() {
     var link = WPS.Sync.enabled() ? Promise.resolve(WPS.Sync.tutorLink()) : WPS.Share.link();
@@ -1156,8 +1250,8 @@
     on('syncNow', function () {
       WPS.Sync.push().then(function () { return WPS.Sync.pull(false); }).then(function () { toast('同期したよ'); render(); }, function (e) { toast('同期できませんでした:' + e.message); });
     });
-    on('showTransfer', function () { prompt('別の端末の「引き継ぎコード」に入力してください', WPS.Sync.transferCode()); });
-    on('syncStop', function () { if (confirm('この端末の同期をやめますか?(データはこの端末に残ります)')) { WPS.Sync.disable(); render(); } });
+    on('showTransfer', function () { showText('引き継ぎコード', WPS.Sync.transferCode(), '別の端末の「引き継ぎコード」に入力してください。先生や友だちには送らないでね。'); });
+    on('syncStop', function () { ask('この端末の同期をやめますか?(データはこの端末に残ります)', 'やめる', function () { WPS.Sync.disable(); render(); }); });
   }
 
   /* ---------- 起動 ---------- */

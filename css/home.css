@@ -26,7 +26,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; color-scheme: light; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0; font-family: var(--sans); color: var(--ink); background: var(--bg);
@@ -41,8 +41,8 @@ a { color: inherit; }
 
 /* ---------- ヘッダー ---------- */
 .hd {
-  position: fixed; inset: 0 0 auto 0; z-index: 50; height: 68px;
-  display: flex; align-items: center; gap: 16px; padding: 0 16px 0 20px;
+  position: fixed; inset: 0 0 auto 0; z-index: 50; height: calc(68px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px);
+  display: flex; align-items: center; gap: 16px; padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-left: max(20px, env(safe-area-inset-left, 0px));
   background: rgba(255, 255, 255, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(223, 230, 242, .8);
 }
@@ -71,7 +71,7 @@ a { color: inherit; }
 }
 .gnav.open a { padding: 14px 4px; border-bottom: 1px solid var(--line); text-decoration: none; font-weight: 500; }
 @media (min-width: 1100px) {
-  .hd { padding: 0 20px 0 28px; height: 76px; }
+  .hd { padding-right: 20px; padding-left: 28px; height: calc(76px + env(safe-area-inset-top, 0px)); }
   .hd-menu { display: none; }
   .gnav { display: flex; gap: 22px; }
   .gnav a { text-decoration: none; font-size: 13px; font-weight: 500; position: relative; white-space: nowrap; }
@@ -118,7 +118,7 @@ a { color: inherit; }
 
 /* ---------- ファーストビュー ---------- */
 .hero {
-  position: relative; min-height: 100svh; min-height: 640px; padding: 120px 20px 80px; overflow: hidden;
+  position: relative; min-height: 560px; padding: 120px 20px 80px; overflow: hidden;
   display: flex; align-items: center; background: var(--grad); color: #fff;
 }
 .hero-streaks {
@@ -382,13 +382,13 @@ a { color: inherit; }
 .ft-copy { text-align: center; margin: 40px 0 0; color: #7f8db0; }
 
 /* ---------- 右下の固定ボタン ---------- */
-.float { position: fixed; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 40; display: flex; gap: 8px; align-items: stretch; }
+.float { position: fixed; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: flex; gap: 8px; align-items: stretch; }
 .float-cta { background: var(--grad); color: #fff; text-decoration: none; font-weight: 700; font-size: 13px; padding: 12px 20px; border-radius: 10px; box-shadow: 0 8px 20px rgba(4, 20, 58, .3); white-space: nowrap; }
 .float-top { width: 46px; display: grid; place-items: center; background: #fff; color: var(--blue-600); text-decoration: none; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; }
 
 /* ---------- スクロールでふわっと表示 ---------- */
-.fade { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
-.fade.in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .fade { opacity: 1; transform: none; transition: none; } }
-.no-js .fade { opacity: 1; transform: none; }
+/* 最初から見える状態にしておき、画面に入ったときに少しだけ浮き上がる */
+.fade.in { animation: rise .7s ease both; }
+@keyframes rise { from { transform: translateY(14px); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .fade.in { animation: none; } }
 .point .ttl { position: relative; z-index: 1; }
