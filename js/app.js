@@ -95,15 +95,17 @@
     var hash = (location.hash || '#home').slice(1);
     var parts = hash.split('/');
     var route = parts[0] || 'home';
+    // 共有リンクの閲覧中以外は、自分のデータに戻す
+    if (route !== 'share' && route !== 'cloud' && S.isView()) S.setView(null);
     var p = S.get().profile;
-    if (!p.name && route !== 'onboard' && route !== 'tutor') { route = 'onboard'; }
+    if (!p.name && ['onboard', 'tutor', 'share', 'cloud'].indexOf(route) < 0) { route = 'onboard'; }
     document.querySelectorAll('.nav a').forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('data-r') === route);
     });
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords
     }[route] || renderHome;
     view.innerHTML = fn(parts[1]);
     if (fn.after) fn.after(parts[1]);
@@ -131,7 +133,11 @@
   function defaultExamDate(schoolId) {
     var s = WPS.SCHOOL_MAP[schoolId];
     if (!s) return '';
-    return WPS.EXAM_DATES[s.exams[0]].date;
+    return WPS.EXAM_DATES[s.exams[s.exams.length - 1]].date;
+  }
+  function usesKyotsu(schoolId) {
+    var s = WPS.SCHOOL_MAP[schoolId];
+    return !!(s && s.exams.indexOf('kyotsu') >= 0);
   }
   function profileForm(p, submitLabel) {
     return '<form id="profileForm" class="form">' +
@@ -142,7 +148,8 @@
       '<label>志望校<select name="schoolId" id="schoolSel">' + schoolOptions(p.schoolId) + '</select></label>' +
       '<label>志望校名(学部など・自由入力)<input name="schoolName" maxlength="40" value="' + h(p.schoolName) + '" placeholder="例:〇〇大学 経済学部"></label>' +
       '<label>文系/理系(受験科目)<select name="track" id="trackSel">' + trackOptions(p.schoolId, p.track) + '</select></label>' +
-      '<label>本番の日<input type="date" name="examDate" id="examDate" value="' + h(p.examDate || defaultExamDate(p.schoolId)) + '"></label>' +
+      '<label id="kyotsuRow"' + (usesKyotsu(p.schoolId) ? '' : ' hidden') + '>共通テストの日(中間目標)<input type="date" name="kyotsuDate" id="kyotsuDate" value="' + h(p.kyotsuDate || WPS.EXAM_DATES.kyotsu.date) + '"></label>' +
+      '<label>本番の日(最終目標:国公立は2次試験の日)<input type="date" name="examDate" id="examDate" value="' + h(p.examDate || defaultExamDate(p.schoolId)) + '"></label>' +
       '<p class="hint" id="examHint">志望校を選ぶと、目安の日付が入ります。正式な日程は必ず募集要項で確認してね。</p>' +
       '<label>1日に使える勉強時間<select name="minutes">' +
       [15, 30, 45, 60, 90, 120, 180, 240].map(function (m) { return '<option value="' + m + '"' + (+p.minutes === m ? ' selected' : '') + '>' + (m < 60 ? m + '分' : (m / 60) + '時間') + '</option>'; }).join('') +
@@ -156,6 +163,7 @@
       document.getElementById('trackSel').innerHTML = trackOptions(ss.value, '');
       var d = defaultExamDate(ss.value);
       if (d) document.getElementById('examDate').value = d;
+      document.getElementById('kyotsuRow').hidden = !usesKyotsu(ss.value);
       var s = WPS.SCHOOL_MAP[ss.value];
       if (s) document.getElementById('examHint').textContent = '目安:' + s.exams.map(function (e) { return WPS.EXAM_DATES[e].label + ' ' + WPS.EXAM_DATES[e].date; }).join(' ／ ') + '。正式な日程は必ず募集要項で確認してね。';
     });
@@ -163,7 +171,7 @@
       e.preventDefault();
       var fd = new FormData(f);
       var p = S.get().profile;
-      ['name', 'grade', 'schoolId', 'schoolName', 'track', 'examDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
+      ['name', 'grade', 'schoolId', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
       p.minutes = +fd.get('minutes');
       S.save();
       onDone();
@@ -173,11 +181,29 @@
     return '<section class="card hero">' + pinpo(110, 'cheer') +
       '<h1>はじめまして！ ぼくは<span class="brand">ピンポ</span></h1>' +
       '<p>きみの「本当の苦手」をピンポイントで見つけて、志望校までの近道をいっしょに作る、見習いスナイパーのフクロウだよ。<br>まずは、きみのことを教えてね。</p></section>' +
-      '<section class="card">' + profileForm(S.get().profile, 'はじめる 🎯') + '</section>';
+      '<section class="card">' + profileForm(S.get().profile, 'はじめる 🎯') + '</section>' +
+      '<section class="card"><details><summary>別の端末で使っていたデータを引き継ぐ</summary>' +
+      '<label>引き継ぎコード<input id="obTransfer" placeholder="前の端末の「設定 → 引き継ぎコード」"></label><button class="btn" id="obTransferBtn">引き継ぐ</button></details></section>';
   }
   renderOnboard.after = function () {
     bindProfileForm(function () { toast('よろしくね！ まずは診断テストから始めよう'); go('#test'); });
+    document.getElementById('obTransferBtn').addEventListener('click', function () {
+      try {
+        WPS.Sync.useTransferCode(document.getElementById('obTransfer').value).then(function () {
+          toast('おかえり！ データを引き継いだよ'); go('#home');
+        }, function (e) { toast('引き継げませんでした:' + e.message); });
+      } catch (e) { toast('コードが正しくありません'); }
+    });
   };
+
+  // 中間目標(共通テストなど)と最終目標の日付を並べて表示
+  function milestoneLine(t) {
+    if (!t.milestones || t.milestones.length < 2) return '';
+    return '<div class="milestones">' + t.milestones.map(function (m) {
+      var d = D.diff(D.today(), m.date);
+      return '<span class="ms' + (d < 0 ? ' past' : '') + '">' + h(m.label) + ' <b>' + (d < 0 ? '終了' : 'あと' + d + '日') + '</b></span>';
+    }).join('') + '</div>';
+  }
 
   /* ========== ホーム ========== */
   function renderHome() {
@@ -220,7 +246,7 @@
     var t = rm.target;
     var phase = tt.week ? WPS.PHASES.filter(function (x) { return x.key === tt.week.phase; })[0] : null;
     html += '<section class="card countdown"><div><div class="muted">' + h(t.school ? t.school.name : '志望校未設定') + (p.schoolName ? '<br>' + h(p.schoolName) : '') + '</div>' +
-      '<div class="big-num">あと ' + Math.max(0, D.diff(D.today(), t.exam)) + '<small>日</small></div><div class="muted">' + h(t.exam) + '</div></div>' +
+      '<div class="big-num">あと ' + Math.max(0, D.diff(D.today(), t.exam)) + '<small>日</small></div><div class="muted">' + h(t.exam) + '</div>' + milestoneLine(t) + '</div>' +
       (phase ? '<div class="phase-badge">' + phase.emoji + ' いまは<br><b>' + phase.name + '</b></div>' : '') + '</section>';
 
     // 診断がまだの場合
@@ -243,6 +269,7 @@
       }).join('') + '</ul>' +
       (doneN === tt.tasks.length ? say(pick(LINES.done), 'cheer', 48) : '') + '</section>';
 
+    html += '<section class="quick"><a href="#records">🏫 テスト結果を記録</a><a href="#memo">✏️ 質問メモ</a><a href="#roadmap">🗺️ ロードマップ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -306,8 +333,17 @@
       if (oa !== ob) return oa - ob;
       return Math.abs(a.level - prefLevel) - Math.abs(b.level - prefLevel);
     });
+    // 自動生成できる単元では、固定の問題を正解済みなら(または半分の確率で)新しい数字の問題を出す
+    if (WPS.UNIT_MAP[unitId].hasGen && (okSet[qs[0].id] || Math.random() < 0.5)) return WPS.genId(unitId);
     return qs[0].id;
   }
+  // 単元の練習セット(固定の問題＋自動生成5問)
+  function unitSet(u) {
+    var ids = u.questions.map(function (q) { return q.id; });
+    if (u.hasGen) for (var k = 0; k < 5; k++) ids.push(WPS.genId(u.id));
+    return ids;
+  }
+  function unitCount(u) { return u.questions.length + (u.hasGen ? '問＋自動生成で無制限' : '問'); }
 
   function renderTest() {
     var t = R.target();
@@ -319,6 +355,7 @@
       subs.map(function (k) { var sj = WPS.SUBJECTS[k]; return '<button class="btn subj" style="--c:' + sj.color + '" data-start="' + k + '">' + sj.name + '</button>'; }).join('') +
       '</div></section>';
     var stats = A.allStats();
+    html += '<section class="card"><h2>🏫 学校のテスト・模試の結果を記録</h2><p class="muted">定期テストや模試で間違えた単元を記録すると、分析とロードマップに反映されるよ。</p><a class="btn big" href="#records">結果を記録する</a></section>';
     html += '<section class="card"><h2>単元をえらんで練習</h2><p class="muted">中学1年の内容から順に並んでいるよ。気になる単元をタップしてね。</p>';
     Object.keys(WPS.SUBJECTS).forEach(function (k) {
       var us = WPS.UNITS.filter(function (u) { return u.subj === k; });
@@ -350,7 +387,7 @@
   function renderQuiz() {
     if (!quiz) return renderTest();
     var it = quiz.items[quiz.i];
-    var q = WPS.Q_MAP[it.q];
+    var q = WPS.Q(it.q);
     var u = WPS.UNIT_MAP[q.unit];
     if (!quiz.order) quiz.order = shuffle(q.choices.map(function (_, i) { return i; }));
     var html = '<div class="quiz-head"><span>' + h(quiz.title) + '</span><span>' + (quiz.i + 1) + ' / ' + quiz.items.length + '</span></div>' +
@@ -374,7 +411,7 @@
     if (quiz.answered) return;
     quiz.answered = true;
     var it = quiz.items[quiz.i];
-    var q = WPS.Q_MAP[it.q];
+    var q = WPS.Q(it.q);
     var ok = ci === 0;
     var unsure = ci === -1;
     var s = S.get();
@@ -392,7 +429,7 @@
       var u = WPS.UNIT_MAP[q.unit];
       for (var k = 0; k < u.prereq.length; k++) {
         var pid = u.prereq[k];
-        var already = quiz.items.some(function (x) { return WPS.Q_MAP[x.q].unit === pid; });
+        var already = quiz.items.some(function (x) { return WPS.Q(x.q).unit === pid; });
         if (already) continue;
         var nq = pickQuestion(pid, 1, quiz.asked);
         if (nq) {
@@ -437,7 +474,7 @@
     var n = r.results.length, c = r.results.filter(function (x) { return x.ok; }).length;
     var stats = A.allStats();
     var wrongUnits = {};
-    r.results.forEach(function (x) { if (!x.ok) wrongUnits[WPS.Q_MAP[x.q].unit] = true; });
+    r.results.forEach(function (x) { if (!x.ok) wrongUnits[WPS.Q(x.q).unit] = true; });
     var ratio = n ? c / n : 0;
     var mood = ratio >= 0.8 ? 'cheer' : ratio >= 0.5 ? 'happy' : 'normal';
     var msg = ratio >= 0.8 ? 'すごい！ ほとんど正解だよ。この調子で、応用問題にもチャレンジしよう！'
@@ -483,7 +520,7 @@
         '<div class="unit-list">' + u.prereq.map(function (p) { return unitRow(p, stats); }).join('') + '</div></section>';
     }
     html += '<section class="card"><div class="stack">' +
-      '<button class="btn primary big" id="practice">✏️ 問題を解く(' + u.questions.length + '問)</button>' +
+      '<button class="btn primary big" id="practice">✏️ 問題を解く(' + unitSet(u).length + '問)</button><p class="hint center">この単元の問題数:' + unitCount(u) + '</p>' +
       '<button class="btn big" id="toCards">🃏 この単元を単語帳で練習</button>' +
       '<a class="btn big" href="#memo/' + id + '">✏️ 先生に質問したいことを書く</a></div></section>';
     var methods = WPS.SUBJECT_METHODS[u.subj] || [];
@@ -494,14 +531,14 @@
     var u = WPS.UNIT_MAP[id];
     if (!u) return;
     document.getElementById('practice').addEventListener('click', function () {
-      startQuiz(shuffle(u.questions.map(function (q) { return q.id; })), 'study', u.name);
+      startQuiz(shuffle(unitSet(u)), 'study', u.name);
     });
     document.getElementById('toCards').addEventListener('click', function () {
       var s = S.get();
       s.extraUnits = s.extraUnits || [];
       if (s.extraUnits.indexOf(id) < 0) s.extraUnits.push(id);
       S.save();
-      startDeck(u.questions.map(function (q) { return q.id; }), u.name);
+      startDeck(shuffle(unitSet(u)), u.name);
     });
   };
 
@@ -513,12 +550,18 @@
     html += '<section class="card"><div class="row-between"><h1>🗺️ ' + h(p.name) + 'さん専用ロードマップ</h1><a class="btn small" href="#settings">志望校を変更</a></div>' +
       '<div class="target"><div><b>' + h(t.school ? t.school.name : '志望校未設定') + '</b>' + (p.schoolName ? '<br><span class="muted">' + h(p.schoolName) + '</span>' : '') +
       '<br><span class="muted">' + h(p.track || '') + ' ／ 本番 ' + h(t.exam) + '</span></div><div class="big-num">あと' + rm.days + '<small>日</small></div></div>';
+    html += milestoneLine(t);
     if (t.school) {
       html += '<h3>この学校の入試の特徴</h3><ul class="bullets">' + t.school.features.map(function (f) { return '<li>' + h(f) + '</li>'; }).join('') + '</ul>' +
         '<p class="hint">※ 入試科目・配点・日程は毎年変わります。必ず最新の募集要項で確認してください。</p>';
     }
+    html += '<h3>公式情報で確認しよう</h3><ul class="sources">' +
+      ((t.school && WPS.SCHOOL_LINKS[t.school.id]) || []).concat(WPS.COMMON_LINKS).map(function (l) {
+        return '<li><a href="' + h(l[1]) + '" target="_blank" rel="noopener">' + h(l[0]) + '</a></li>';
+      }).join('') + '</ul>';
     var w = t.weights;
-    html += '<h3>科目の重要度(ロードマップの優先順位に反映)</h3><div class="bars">' +
+    html += '<h3>科目の重要度(ロードマップの優先順位に反映)</h3>' +
+      '<p class="hint">' + (t.custom ? '✅ 募集要項の配点をもとに、あなたが入力した重要度を使っています。' : '一般的な傾向から設定しています。<a href="#settings">設定</a>で、募集要項の配点に合わせて調整できます。') + '</p><div class="bars">' +
       Object.keys(w).filter(function (k) { return w[k] > 0; }).sort(function (a, b) { return w[b] - w[a]; }).map(function (k) {
         return '<div class="bar"><span>' + WPS.SUBJECTS[k].name + '</span><i style="width:' + Math.round(w[k] * 100) + '%;background:' + WPS.SUBJECTS[k].color + '"></i></div>';
       }).join('') + '</div></section>';
@@ -593,7 +636,7 @@
     if (!units.length) html += '<p class="muted">まだありません。<a href="#test">診断テスト</a>を受けると、苦手単元が自動で入るよ。</p>';
     else html += '<p class="muted">タップすると、その単元だけをまとめて練習できるよ。</p><div class="unit-list">' + units.map(function (id) {
       var u = WPS.UNIT_MAP[id];
-      return '<button class="unit-row" data-unit="' + id + '">' + subjChip(u.subj) + '<span class="u-name">' + h(u.name) + '<small>' + u.stage + '・' + u.questions.length + '枚</small></span>' + statusChip(stats[id].status) + '</button>';
+      return '<button class="unit-row" data-unit="' + id + '">' + subjChip(u.subj) + '<span class="u-name">' + h(u.name) + '<small>' + u.stage + '・' + (u.hasGen ? u.questions.length + '枚＋自動生成' : u.questions.length + '枚') + '</small></span>' + statusChip(stats[id].status) + '</button>';
     }).join('') + '</div>';
     html += '</section>';
     return html;
@@ -605,7 +648,7 @@
     view.querySelectorAll('[data-unit]').forEach(function (x) {
       x.addEventListener('click', function () {
         var u = WPS.UNIT_MAP[x.getAttribute('data-unit')];
-        startDeck(shuffle(u.questions.map(function (q) { return q.id; })), u.name);
+        startDeck(shuffle(unitSet(u)), u.name);
       });
     });
   };
@@ -619,7 +662,7 @@
         '<div class="stack"><a class="btn primary big" href="#home" id="endDeck">ホームへもどる</a></div></section>';
       return html;
     }
-    var q = WPS.Q_MAP[deck.items[deck.i]];
+    var q = WPS.Q(deck.items[deck.i]);
     var u = WPS.UNIT_MAP[q.unit];
     return '<div class="quiz-head"><button class="btn small ghost" id="quitDeck">✕ やめる</button><span>' + h(deck.title) + '</span><span>' + (deck.i + 1) + ' / ' + deck.items.length + '</span></div>' +
       '<div class="progress"><i style="width:' + Math.round(deck.i / deck.items.length * 100) + '%"></i></div>' +
@@ -677,8 +720,11 @@
     var last14 = 0;
     for (var i = 0; i < 14; i++) { if (WPS.Streak.studiedDays()[D.add(D.today(), -i)] === 'study') last14++; }
 
-    var html = '<section class="card no-print-bg"><div class="row-between"><h1>👩‍🏫 指導分析レポート</h1><div class="btns">' +
-      '<button class="btn small" id="printBtn">🖨️ 印刷</button><label class="btn small">📥 生徒データ読込<input type="file" id="importFile" accept="application/json" hidden></label></div></div>' +
+    var viewing = S.isView();
+    var html = (viewing ? '<section class="info">👀 共有リンクから <b>' + h(p.name) + 'さん</b> のデータを表示しています(閲覧のみ・この端末には保存されません)。<a href="#home">自分の画面にもどる</a></section>' : '') +
+      '<section class="card no-print-bg"><div class="row-between"><h1>👩‍🏫 指導分析レポート</h1><div class="btns">' +
+      '<button class="btn small" id="printBtn">🖨️ 印刷</button>' +
+      (viewing ? '' : '<button class="btn small" id="shareTutor">🔗 先生にリンクで送る</button><label class="btn small">📥 生徒データ読込<input type="file" id="importFile" accept="application/json" hidden></label>') + '</div></div>' +
       '<p class="muted">作成日:' + D.today() + ' ／ 生徒の解答データから自動で分析しています。</p>' +
       '<table class="kv"><tr><th>生徒</th><td>' + h(p.name || '(未設定)') + '(' + h(p.grade) + ')</td></tr>' +
       '<tr><th>志望校</th><td>' + h(t.school ? t.school.name : '未設定') + ' ' + h(p.schoolName) + ' ' + h(p.track) + '</td></tr>' +
@@ -687,7 +733,7 @@
       '<tr><th>解答数</th><td>テスト・演習 ' + testAttempts.length + '問 ／ 単語帳 ' + (s.attempts.length - testAttempts.length) + '枚</td></tr></table></section>';
 
     if (!testAttempts.length) {
-      return html + '<section class="card">' + say('まだ診断データがありません。生徒に診断テストを受けてもらうか、生徒の端末の「設定 → データを書き出す」で出力したファイルを「生徒データ読込」から読み込んでください。', 'think', 56) + '</section>';
+      return html + '<section class="card">' + say('まだ診断データがありません。生徒に診断テストを受けてもらってから、生徒の端末の「先生にリンクで送る」で届いたリンクを開いてください。', 'think', 56) + '</section>';
     }
 
     // 科目別・思考レベル別
@@ -729,13 +775,18 @@
         '<dt>口頭試問(生徒に説明させる質問)</dt><dd><ul>' + u.oral.map(function (o) { return '<li>' + h(o) + '</li>'; }).join('') + '</ul></dd>';
       if (mis.length) {
         html += '<dt>誤答の記録(生徒が選んだ答え)</dt><dd><ul>' + mis.map(function (a) {
-          var q = WPS.Q_MAP[a.q];
+          var q = WPS.Q(a.q);
           return '<li>' + h(q.text) + '<br><span class="bad-t">生徒:' + (a.unsure ? 'わからない' : h(a.ch)) + '</span> ／ <span class="good-t">正解:' + h(q.answer) + '</span> <span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></li>';
         }).join('') + '</ul></dd>';
       }
+      var orals = s.attempts.filter(function (a) { return a.u === id && a.src === 'oral'; });
+      html += '<dt>口頭試問の結果を記録</dt><dd>' + (viewing ? '<small class="muted">記録は生徒の端末で行います(授業中に生徒の端末で、この画面を開いてください)。</small>'
+        : '<div class="btns"><button class="btn small g-good" data-oral="' + id + '" data-ok="1">⭕ 説明できた</button><button class="btn small g-again" data-oral="' + id + '" data-ok="0">✕ 説明できなかった</button></div>') +
+        (orals.length ? '<small class="muted">これまで:' + orals.slice(-5).map(function (a) { return (a.ok ? '⭕' : '✕') + a.d.slice(5).replace('-', '/'); }).join(' ') + '</small>' : '') + '</dd>';
       html += '</dl></div>';
     });
     html += '</section>';
+    html += recordsReport(s.records || []);
 
     // 質問メモ
     var memos = s.memos.filter(function (m) { return !m.done; });
@@ -766,6 +817,22 @@
   renderTutor.after = function () {
     var pb = document.getElementById('printBtn');
     if (pb) pb.addEventListener('click', function () { window.print(); });
+    var sb = document.getElementById('shareTutor');
+    if (sb) sb.addEventListener('click', shareLink);
+    view.querySelectorAll('[data-oral]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var uid = b.getAttribute('data-oral'), ok = b.getAttribute('data-ok') === '1';
+        var st = S.get();
+        st.attempts.push({ q: null, u: uid, s: WPS.UNIT_MAP[uid].subj, ok: ok, ch: null, unsure: !ok, src: 'oral', t: Date.now(), d: D.today() });
+        if (!ok) { // 説明できなかった単元は、次回までの宿題として単語帳に入れる
+          st.extraUnits = st.extraUnits || [];
+          if (st.extraUnits.indexOf(uid) < 0) st.extraUnits.push(uid);
+        }
+        S.save();
+        toast(ok ? '記録しました。克服に一歩近づきました！' : '記録しました。この単元を単語帳の宿題に追加しました');
+        render();
+      });
+    });
     var f = document.getElementById('importFile');
     if (f) f.addEventListener('change', function () { importFile(f.files[0], function () { render(); }); });
   };
@@ -837,6 +904,15 @@
     var perm = WPS.Notify.permission();
     var permLabel = { granted: '✅ 許可されています', denied: '⛔ ブロックされています(ブラウザの設定から許可してください)', default: '未設定', unsupported: 'このブラウザは通知に対応していません' }[perm];
     var html = '<section class="card"><h2>プロフィール・志望校</h2>' + profileForm(p, '保存する') + '</section>';
+    var tg = R.target();
+    html += '<section class="card"><h2>📊 配点を募集要項に合わせる</h2>' +
+      '<p class="muted">志望校・学部の募集要項にある配点を見て、科目ごとの重要度を入れてください。一番配点が高い科目を100にして、ほかを割合で入れます。<br>例:英語200点・数学200点・国語100点 → 英語100、数学100、国語50(受験しない科目は0)</p>' +
+      '<form id="weightsForm" class="weights-form">' + Object.keys(WPS.SUBJECTS).map(function (k) {
+        var v = Math.round(((tg.custom ? tg.weights[k] : tg.defaultWeights[k]) || 0) * 100);
+        return '<div class="wrow"><span>' + WPS.SUBJECTS[k].name + '</span><input type="range" min="0" max="100" step="5" name="' + k + '" value="' + v + '" aria-label="' + WPS.SUBJECTS[k].name + 'の重要度"><output>' + v + '</output></div>';
+      }).join('') +
+      '<div class="btns"><button class="btn primary" type="submit">この配点で保存</button><button class="btn" type="button" id="resetWeights">一般的な傾向に戻す</button></div></form>' +
+      '<p class="hint">' + (tg.custom ? '✅ いまは、あなたが入力した配点を使っています。' : 'いまは、一般的な傾向の配点を使っています。') + '</p></section>';
     html += '<section class="card"><h2>🔔 連続記録のリマインド通知</h2>' +
       say('設定した時刻になっても今日の勉強がまだなら、ぼくがお知らせするよ。夜22時を過ぎたら「記録が切れそう！」ってもう一度教えるね。', 'normal', 48) +
       '<p>通知の状態:' + permLabel + '</p>' +
@@ -844,18 +920,37 @@
       '<label>お知らせする時刻<input type="time" id="remindAt" value="' + h(p.reminder) + '"></label>' +
       '<div class="btns"><button class="btn" id="testNotify">通知をテストする</button><button class="btn" id="icsBtn">📅 カレンダーに毎日のリマインドを登録</button></div>' +
       '<p class="hint">・アプリを開いている間、またはホーム画面に追加した場合(対応ブラウザ)に通知が届きます。<br>・iPhoneはSafariの「共有 → ホーム画面に追加」をしてから通知を許可してください(iOS 16.4以降)。<br>・確実に届けたい場合は「カレンダーに登録」がおすすめです。スマホのカレンダーアプリが毎日お知らせしてくれます。</p></section>';
-    html += '<section class="card"><h2>📤 データの共有(家庭教師の先生へ)</h2><p class="muted">データはこの端末のブラウザの中だけに保存されています。先生に分析レポートを見てもらうときは、データを書き出して渡してください。</p>' +
-      '<div class="btns"><button class="btn" id="exportBtn">データを書き出す</button><label class="btn">データを読み込む<input type="file" id="importFile2" accept="application/json" hidden></label><a class="btn" href="#tutor">先生用レポートを見る</a></div></section>';
+    html += '<section class="card"><h2>📤 先生にデータを共有する</h2>' +
+      '<p class="muted">ボタンを押すとリンクができます。LINEやメールで先生に送ると、先生はリンクを開くだけで分析レポートを見られます(その時点のデータです)。</p>' +
+      '<div class="btns"><button class="btn primary" id="shareBtn">🔗 先生に送るリンクを作る</button><a class="btn" href="#tutor">先生用レポートを見る</a></div>' +
+      '<details><summary>ファイルでやり取りする</summary><div class="btns"><button class="btn" id="exportBtn">データを書き出す</button><label class="btn">データを読み込む<input type="file" id="importFile2" accept="application/json" hidden></label></div></details></section>';
+    html += cloudSection();
     html += '<section class="card"><h2>リセット</h2><button class="btn danger" id="resetBtn">すべてのデータを消す</button></section>';
     return html;
   }
   renderSettings.after = function () {
     var s = S.get();
     bindProfileForm(function () { toast('保存したよ！ ロードマップも更新したよ'); render(); });
+    var wf = document.getElementById('weightsForm');
+    wf.querySelectorAll('input[type=range]').forEach(function (r) {
+      r.addEventListener('input', function () { r.nextElementSibling.textContent = r.value; });
+    });
+    wf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var cw = {};
+      wf.querySelectorAll('input[type=range]').forEach(function (r) { cw[r.name] = +r.value; });
+      if (!Object.keys(cw).some(function (k) { return cw[k] > 0; })) { toast('どれか1つは0より大きくしてね'); return; }
+      s.profile.customWeights = cw;
+      S.save(); toast('配点を保存したよ！ ロードマップに反映したよ'); render();
+    });
+    document.getElementById('resetWeights').addEventListener('click', function () {
+      s.profile.customWeights = null; S.save(); toast('一般的な傾向に戻したよ'); render();
+    });
     document.getElementById('notifyOn').addEventListener('change', function (e) {
       if (e.target.checked) {
         WPS.Notify.request().then(function (perm) {
           s.profile.notify = perm === 'granted';
+          if (perm === 'granted') WPS.Sync.subscribePush();
           S.save();
           toast(perm === 'granted' ? '通知をオンにしたよ！' : '通知が許可されませんでした');
           render();
@@ -880,6 +975,8 @@
       download('weak-point-sniper_' + (s.profile.name || 'data') + '_' + D.today() + '.json', S.exportJSON(), 'application/json');
     });
     document.getElementById('importFile2').addEventListener('change', function (e) { importFile(e.target.files[0], render); });
+    document.getElementById('shareBtn').addEventListener('click', shareLink);
+    bindCloudSection();
     document.getElementById('resetBtn').addEventListener('click', function () {
       if (confirm('本当にすべてのデータを消しますか?(元に戻せません)')) { S.reset(); deck = null; quiz = null; go('#onboard'); }
     });
@@ -895,6 +992,174 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
+  /* ========== 学校のテスト・模試の記録 ========== */
+  function renderRecords() {
+    var s = S.get();
+    var subjOpts = Object.keys(WPS.SUBJECTS).map(function (k) { return '<option value="' + k + '">' + WPS.SUBJECTS[k].name + '</option>'; }).join('');
+    var html = say('学校の定期テストや模試の結果も、だいじな分析データだよ。<b>間違えた問題がどの単元か</b>を選んでね。わからなければ、点数だけでも大丈夫！', 'normal', 56);
+    html += '<section class="card"><h2>結果を記録する</h2><form id="recForm" class="form">' +
+      '<div class="form-2"><label>種類<select name="kind"><option>定期テスト</option><option>模試</option><option>小テスト</option><option>過去問</option></select></label>' +
+      '<label>日付<input type="date" name="date" value="' + D.today() + '" required></label></div>' +
+      '<div class="form-2"><label>科目<select name="subj" id="recSubj">' + subjOpts + '</select></label>' +
+      '<label>点数 / 満点<span class="score-in"><input type="number" name="score" min="0" max="1000" required inputmode="numeric"> / <input type="number" name="max" min="1" max="1000" value="100" required inputmode="numeric"></span></label></div>' +
+      '<fieldset><legend>間違えた・自信がなかった単元(いくつでも)</legend><div id="recUnits" class="check-grid"></div></fieldset>' +
+      '<details><summary>よくできた単元も記録する(任意)</summary><div id="recGood" class="check-grid"></div></details>' +
+      '<button class="btn primary big" type="submit">記録する</button></form></section>';
+    var recs = (s.records || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    html += '<section class="card"><h2>これまでの記録</h2>' + (recs.length ? recordsChart(s.records) + '<ul class="memos">' + recs.map(function (r) {
+      return '<li><div><small>' + h(r.date) + '・' + h(r.kind) + '</small><b>' + WPS.SUBJECTS[r.subj].name + ' ' + r.score + ' / ' + r.max + '点</b>(' + Math.round(r.score / r.max * 100) + '%)' +
+        (r.wrong.length ? '<br><span class="muted">間違えた単元:' + r.wrong.map(function (id) { return h(WPS.UNIT_MAP[id].name); }).join('、') + '</span>' : '') + '</div>' +
+        '<button class="btn small ghost" data-delrec="' + r.id + '" aria-label="削除">🗑</button></li>';
+    }).join('') + '</ul>' : '<p class="muted">まだ記録がありません。</p>') + '</section>';
+    return html;
+  }
+  renderRecords.after = function () {
+    var sel = document.getElementById('recSubj');
+    function fill() {
+      var us = WPS.UNITS.filter(function (u) { return u.subj === sel.value; });
+      ['recUnits', 'recGood'].forEach(function (box, bi) {
+        document.getElementById(box).innerHTML = us.map(function (u) {
+          return '<label class="ck"><input type="checkbox" name="' + (bi ? 'good' : 'wrong') + '" value="' + u.id + '"> ' + h(u.name) + '<small>' + u.stage + '</small></label>';
+        }).join('');
+      });
+    }
+    sel.addEventListener('change', fill);
+    fill();
+    document.getElementById('recForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var fd = new FormData(e.target), s = S.get();
+      var score = +fd.get('score'), max = +fd.get('max');
+      if (score > max) { toast('点数が満点をこえているよ'); return; }
+      var rec = { id: Date.now(), date: fd.get('date'), kind: fd.get('kind'), subj: fd.get('subj'), score: score, max: max, wrong: fd.getAll('wrong'), good: fd.getAll('good') };
+      s.records = s.records || [];
+      s.records.push(rec);
+      var t = WPS.date.parse(rec.date).getTime();
+      rec.wrong.forEach(function (id) { s.attempts.push({ q: null, u: id, s: rec.subj, ok: false, ch: null, unsure: false, src: 'school', t: t, d: rec.date }); });
+      rec.good.forEach(function (id) { s.attempts.push({ q: null, u: id, s: rec.subj, ok: true, ch: null, unsure: false, src: 'school', t: t, d: rec.date }); });
+      s.attempts.sort(function (a, b) { return a.t - b.t; });
+      S.save();
+      toast(rec.wrong.length ? '記録したよ！ 間違えた単元をロードマップに入れたよ' : '記録したよ！');
+      render();
+    });
+    view.querySelectorAll('[data-delrec]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var s = S.get(), id = +b.getAttribute('data-delrec');
+        var r = (s.records || []).filter(function (x) { return x.id === id; })[0];
+        if (!r || !confirm('この記録を削除しますか?')) return;
+        var t = WPS.date.parse(r.date).getTime();
+        s.records = s.records.filter(function (x) { return x.id !== id; });
+        s.attempts = s.attempts.filter(function (a) { return !(a.src === 'school' && a.t === t && (r.wrong.concat(r.good)).indexOf(a.u) >= 0); });
+        S.save(); render();
+      });
+    });
+  };
+  // 科目ごとの得点率の推移(折れ線)
+  function recordsChart(recs) {
+    var bySubj = {};
+    recs.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).forEach(function (r) {
+      (bySubj[r.subj] = bySubj[r.subj] || []).push(r);
+    });
+    var W = 320, H = 140, P = 24;
+    var lines = Object.keys(bySubj).map(function (k) {
+      var list = bySubj[k].slice(-8);
+      var pts = list.map(function (r, i) {
+        var x = P + (list.length === 1 ? (W - 2 * P) / 2 : i * (W - 2 * P) / (list.length - 1));
+        var y = H - P - (r.score / r.max) * (H - 2 * P);
+        return [x, y];
+      });
+      return '<polyline fill="none" stroke="' + WPS.SUBJECTS[k].color + '" stroke-width="2.5" points="' + pts.map(function (p) { return p.join(','); }).join(' ') + '"/>' +
+        pts.map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.5" fill="' + WPS.SUBJECTS[k].color + '"/>'; }).join('');
+    }).join('');
+    var grid = [0, 50, 100].map(function (v) { var y = H - P - v / 100 * (H - 2 * P); return '<line x1="' + P + '" x2="' + (W - 8) + '" y1="' + y + '" y2="' + y + '" class="gridline"/><text x="2" y="' + (y + 4) + '" class="axis">' + v + '%</text>'; }).join('');
+    var legend = Object.keys(bySubj).map(function (k) { return '<span class="chip" style="--c:' + WPS.SUBJECTS[k].color + '">' + WPS.SUBJECTS[k].name + '</span>'; }).join(' ');
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" role="img" aria-label="得点率の推移">' + grid + lines + '</svg><div class="legend">' + legend + '</div>';
+  }
+  // 先生用レポートの「学校のテスト・模試」欄
+  function recordsReport(recs) {
+    if (!recs.length) return '';
+    var list = recs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 10);
+    return '<section class="card"><h2>学校のテスト・模試の結果</h2>' + recordsChart(recs) + '<table class="plan">' + list.map(function (r) {
+      return '<tr><th>' + h(r.date.slice(5).replace('-', '/')) + '</th><td>' + h(r.kind) + '・' + WPS.SUBJECTS[r.subj].name + ' <b>' + r.score + '/' + r.max + '</b>' +
+        (r.wrong.length ? '<br><small>間違えた単元:' + r.wrong.map(function (id) { return h(WPS.UNIT_MAP[id].name); }).join('、') + '</small>' : '') + '</td></tr>';
+    }).join('') + '</table></section>';
+  }
+
+  /* ========== 共有リンク・クラウド同期 ========== */
+  function copyOrShare(url, title) {
+    if (navigator.share) {
+      return navigator.share({ title: title, url: url }).catch(function () { /* キャンセル */ });
+    }
+    if (navigator.clipboard) {
+      return navigator.clipboard.writeText(url).then(function () { toast('リンクをコピーしたよ！ 先生に送ってね'); }, function () { prompt('このリンクをコピーしてください', url); });
+    }
+    prompt('このリンクをコピーしてください', url);
+  }
+  function shareLink() {
+    var link = WPS.Sync.enabled() ? Promise.resolve(WPS.Sync.tutorLink()) : WPS.Share.link();
+    link.then(function (url) {
+      if (url.length > 60000) toast('データが多いため、リンクが長くなっています。届かない場合は「ファイルでやり取り」を使ってね');
+      copyOrShare(url, (S.get().profile.name || '生徒') + 'さんの学習レポート');
+    }).catch(function () { toast('リンクを作れませんでした'); });
+  }
+
+  // 共有リンクで開いたとき(#share/データ または #cloud/コード@サーバー)
+  function renderShared() {
+    return '<section class="card center">' + pinpo(80, 'think') + '<p>共有されたデータを読み込んでいます…</p></section>';
+  }
+  renderShared.after = function (arg) {
+    var route = (location.hash.slice(1).split('/')[0]);
+    var data = location.hash.slice(route.length + 2);
+    var p;
+    if (route === 'share') p = WPS.Share.decode(data);
+    else {
+      var at = data.lastIndexOf('@');
+      p = WPS.Sync.fetchShared(data.slice(0, at), decodeURIComponent(data.slice(at + 1)));
+    }
+    p.then(function (st) {
+      S.setView(st);
+      view.innerHTML = renderTutor();
+      renderTutor.after();
+    }).catch(function () {
+      view.innerHTML = '<section class="card">' + say('ごめんね、共有データを読み込めませんでした。リンクが途中で切れていないか、生徒さんにもう一度送ってもらってね。', 'sad', 56) + '</section>';
+    });
+  };
+
+  function cloudSection() {
+    var c = WPS.Sync.cfg();
+    var html = '<section class="card"><h2>☁️ クラウド同期(任意)</h2>';
+    if (!c) {
+      html += '<p class="muted">同期サーバー(server フォルダ)を動かしている場合に使えます。オンにすると、<br>・スマホとPCなど、複数の端末で同じデータを使えます<br>・先生用リンクが、いつでも最新のレポートになります<br>・アプリを閉じていても「記録が切れそう！」通知が届きます</p>' +
+        '<label>同期サーバーのURL<input id="syncServer" placeholder="例:https://wps.example.com" inputmode="url"></label>' +
+        '<div class="btns"><button class="btn primary" id="syncStart">同期を始める</button></div>' +
+        '<details><summary>別の端末とつなぐ(引き継ぎコード)</summary><label>引き継ぎコード<input id="transferIn" placeholder="もう一方の端末に表示されたコード"></label><button class="btn" id="transferBtn">つなぐ</button></details>';
+    } else {
+      html += '<p>✅ 同期中:' + h(c.server) + '<br><span class="muted">最終同期:' + (c.last ? new Date(c.last).toLocaleString('ja-JP') : 'まだ') + '</span></p>' +
+        '<div class="btns"><button class="btn" id="syncNow">今すぐ同期</button><button class="btn" id="showTransfer">引き継ぎコードを表示</button><button class="btn danger" id="syncStop">同期をやめる</button></div>' +
+        '<p class="hint">引き継ぎコードは、あなたのデータの合言葉です。先生や友だちには送らないでね(先生には「先生に送るリンク」を使ってね)。</p>';
+    }
+    return html + '</section>';
+  }
+  function bindCloudSection() {
+    function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+    var input = document.getElementById('syncServer');
+    if (input) WPS.Sync.detect().then(function (u) { if (u && !input.value) input.value = u; });
+    on('syncStart', function () {
+      var url = input.value.trim();
+      if (!/^https?:\/\//.test(url)) { toast('URLを入力してね(https:// から)'); return; }
+      WPS.Sync.setup(url).then(function () { toast('同期を始めたよ！'); render(); }, function (e) { toast('つなげませんでした:' + e.message); });
+    });
+    on('transferBtn', function () {
+      try {
+        WPS.Sync.useTransferCode(document.getElementById('transferIn').value).then(function () { toast('つながったよ！ データを読み込んだよ'); render(); }, function (e) { toast('つなげませんでした:' + e.message); });
+      } catch (e) { toast('コードが正しくありません'); }
+    });
+    on('syncNow', function () {
+      WPS.Sync.push().then(function () { return WPS.Sync.pull(false); }).then(function () { toast('同期したよ'); render(); }, function (e) { toast('同期できませんでした:' + e.message); });
+    });
+    on('showTransfer', function () { prompt('別の端末の「引き継ぎコード」に入力してください', WPS.Sync.transferCode()); });
+    on('syncStop', function () { if (confirm('この端末の同期をやめますか?(データはこの端末に残ります)')) { WPS.Sync.disable(); render(); } });
+  }
+
   /* ---------- 起動 ---------- */
   function boot() {
     view = document.getElementById('view');
@@ -906,6 +1171,7 @@
     });
     render();
     WPS.Notify.start();
+    WPS.Sync.boot().then(function (changed) { if (changed) { toast('クラウドの最新データを読み込んだよ'); render(); } });
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       navigator.serviceWorker.register('sw.js').catch(function () { /* オフライン機能なしでも動作する */ });
     }

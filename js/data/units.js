@@ -674,25 +674,3 @@ WPS.UNITS = [
   }
 ];
 
-// 問題に ID を振り、扱いやすい形に変換する
-WPS.QUESTIONS = [];
-WPS.UNIT_MAP = {};
-WPS.UNITS.forEach(function (u) {
-  WPS.UNIT_MAP[u.id] = u;
-  u.questions = u.qs.map(function (q, i) {
-    var obj = {
-      id: u.id + '-' + (i + 1),
-      unit: u.id,
-      subj: u.subj,
-      level: q[0],
-      text: q[1],
-      choices: q[2],
-      answer: q[2][0],
-      exp: q[3]
-    };
-    WPS.QUESTIONS.push(obj);
-    return obj;
-  });
-});
-WPS.Q_MAP = {};
-WPS.QUESTIONS.forEach(function (q) { WPS.Q_MAP[q.id] = q; });

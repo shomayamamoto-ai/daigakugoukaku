@@ -45,7 +45,7 @@ WPS.Store = (function () {
       v: 1,
       profile: {
         name: '', grade: '高2', schoolId: '', schoolName: '', track: '',
-        examDate: '', minutes: 60, reminder: '20:00', notify: false,
+        examDate: '', kyotsuDate: '', customWeights: null, minutes: 60, reminder: '20:00', notify: false,
         created: WPS.date.today()
       },
       attempts: [],   // {q, u, s, ok, ch, unsure, src, t, d}
@@ -55,7 +55,8 @@ WPS.Store = (function () {
       frozen: [],
       grantedAt: 0,
       notified: {},   // 'YYYY-MM-DD' -> {remind:true, last:true}
-      memos: []       // {id, text, unit, t, done}
+      memos: [],      // {id, text, unit, t, done}
+      records: []     // 学校の定期テスト・模試の結果 {id, date, kind, subj, score, max, wrong:[], good:[]}
     };
   }
 
@@ -71,19 +72,33 @@ WPS.Store = (function () {
     }
     return state;
   }
-  function save() {
+  var view = null; // 先生が共有リンクで開いた「他の生徒のデータ」(閲覧のみ)
+  function save(keepTime) {
+    if (view) return; // 閲覧中のデータは保存しない
+    if (!keepTime) state.updatedAt = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 容量不足などは無視 */ }
     if (WPS.Notify && WPS.Notify.syncToSW) WPS.Notify.syncToSW();
+    if (!keepTime && WPS.Sync && WPS.Sync.onSave) WPS.Sync.onSave();
   }
-  function get() { return state || load(); }
+  function get() { return view || state || load(); }
+  function setView(v) {
+    if (v) {
+      var d = defaults();
+      Object.keys(d).forEach(function (k) { if (v[k] === undefined) v[k] = d[k]; });
+      Object.keys(d.profile).forEach(function (k) { if (v.profile[k] === undefined) v.profile[k] = d.profile[k]; });
+    }
+    view = v || null;
+  }
+  function isView() { return !!view; }
   function reset() { state = defaults(); save(); }
-  function exportJSON() { return JSON.stringify(get(), null, 2); }
-  function importJSON(text) {
+  function exportJSON() { return JSON.stringify(state || load(), null, 2); }
+  // keepTime=true … クラウドから取り込むとき(更新日時をそのまま残し、送り返さない)
+  function importJSON(text, keepTime) {
     var obj = JSON.parse(text);
     if (!obj || !obj.profile || !Array.isArray(obj.attempts)) throw new Error('形式が正しくありません');
     localStorage.setItem(KEY, JSON.stringify(obj));
     load(); // 不足しているキーを補完
-    save();
+    save(keepTime);
   }
   function day(ds) {
     var s = get();
@@ -91,7 +106,7 @@ WPS.Store = (function () {
     if (!s.days[ds]) s.days[ds] = { checks: {}, cards: 0 };
     return s.days[ds];
   }
-  return { load: load, save: save, get: get, reset: reset, exportJSON: exportJSON, importJSON: importJSON, day: day };
+  return { load: load, save: save, get: get, reset: reset, exportJSON: exportJSON, importJSON: importJSON, day: day, setView: setView, isView: isView };
 })();
 
 /* ========== 2. Analysis ========== */
@@ -127,7 +142,7 @@ WPS.Analysis = (function () {
     var res = { 1: { n: 0, c: 0 }, 2: { n: 0, c: 0 }, 3: { n: 0, c: 0 } };
     WPS.Store.get().attempts.forEach(function (a) {
       if (subj && a.s !== subj) return;
-      var q = WPS.Q_MAP[a.q];
+      var q = WPS.Q(a.q);
       if (!q) return;
       res[q.level].n++;
       if (a.ok) res[q.level].c++;
@@ -205,7 +220,7 @@ WPS.Analysis = (function () {
   // 誤答の一覧(どの選択肢を選んだか)
   function mistakes(unitId) {
     var seen = {};
-    return attemptsOf(unitId).filter(function (a) { return !a.ok && a.src !== 'card'; }).reverse().filter(function (a) {
+    return attemptsOf(unitId).filter(function (a) { return !a.ok && a.q && a.src !== 'card'; }).reverse().filter(function (a) {
       if (seen[a.q]) return false;
       seen[a.q] = true;
       return true;
@@ -240,13 +255,24 @@ WPS.Roadmap = (function () {
       weights = isJH ? { eng: 1, math: 1, jpn: 1, sci: 0.9, soc: 0.9, info: 0 }
                      : { eng: 1, math: 1, jpn: 1, sci: 0.7, soc: 0.7, info: 0.4 };
     }
-    var isHigh = school ? school.kind === 'high' : gradeIndex(p.grade) <= 2;
-    var exam = p.examDate;
-    if (!exam) {
-      var key = school ? school.exams[0] : (isHigh ? 'high' : 'kyotsu');
-      exam = WPS.EXAM_DATES[key].date;
+    var defaultWeights = weights;
+    // 募集要項の配点を生徒が入力していれば、そちらを優先する
+    var custom = false;
+    if (p.customWeights && Object.keys(p.customWeights).length) {
+      weights = {};
+      Object.keys(WPS.SUBJECTS).forEach(function (k) { weights[k] = Math.max(0, Math.min(1, (+p.customWeights[k] || 0) / 100)); });
+      custom = true;
     }
-    return { profile: p, school: school, weights: weights, isHigh: isHigh, exam: exam };
+    var isHigh = school ? school.kind === 'high' : gradeIndex(p.grade) <= 2;
+    var keys = school ? school.exams : [isHigh ? 'high' : 'kyotsu'];
+    // 最終目標は「最後の試験」(国公立なら2次試験)。途中の試験は「中間目標」として扱う
+    var exam = p.examDate || WPS.EXAM_DATES[keys[keys.length - 1]].date;
+    var milestones = keys.map(function (k) {
+      var d = (k === 'kyotsu' && p.kyotsuDate) ? p.kyotsuDate : WPS.EXAM_DATES[k].date;
+      if (k === keys[keys.length - 1] && p.examDate) d = p.examDate;
+      return { key: k, label: WPS.EXAM_DATES[k].label, date: d };
+    });
+    return { profile: p, school: school, weights: weights, defaultWeights: defaultWeights, custom: custom, isHigh: isHigh, exam: exam, milestones: milestones };
   }
 
   // 対象となる単元を選ぶ
@@ -415,7 +441,12 @@ WPS.Roadmap = (function () {
     var phase = w ? w.phase : 'standard';
     var dow = new Date().getDay();
     if (phase === 'practice') {
-      tasks.push({ key: 'past', kind: 'manual', icon: '📝', title: '志望校の過去問を1科目、時間を計って解く', sub: '解いた後は、間違えた問題の単元をこのアプリで復習しよう' });
+      var kt = rm.target.milestones.filter(function (m) { return m.key === 'kyotsu'; })[0];
+      if (kt && D.diff(today, kt.date) >= 0) {
+        tasks.push({ key: 'past', kind: 'manual', icon: '📝', title: '共通テストの過去問・予想問題を1科目、時間を計って解く', sub: '共通テストまであと' + D.diff(today, kt.date) + '日。間違えた単元はこのアプリで復習しよう' });
+      } else {
+        tasks.push({ key: 'past', kind: 'manual', icon: '📝', title: '志望校の過去問を1科目、時間を計って解く', sub: '記述問題は、答案を家庭教師の先生に添削してもらおう' });
+      }
     } else if (phase === 'final') {
       tasks.push({ key: 'review', kind: 'manual', icon: '🌸', title: '本番と同じ時間割で、1科目解いてみる', sub: '新しいことより、今まで間違えた問題の見直しを優先しよう' });
     } else if (dow === 0 || dow === 3) {
@@ -461,7 +492,7 @@ WPS.SRS = (function () {
     var s = WPS.Store.get();
     var today = WPS.date.today();
     return Object.keys(s.cards).filter(function (qid) {
-      return WPS.Q_MAP[qid] && s.cards[qid].due <= today;
+      return WPS.Q(qid) && s.cards[qid].due <= today;
     });
   }
 
@@ -470,19 +501,29 @@ WPS.SRS = (function () {
     var today = WPS.date.today();
     var introduced = Object.keys(s.cards).filter(function (q) { return s.cards[q].added === today; }).length;
     var room = Math.max(0, NEW_PER_DAY - introduced);
-    var out = [];
-    (units || deckUnits()).forEach(function (uid) {
-      WPS.UNIT_MAP[uid].questions.forEach(function (q) {
-        if (!s.cards[q.id]) out.push(q.id);
-      });
+    // 単元ごとの候補(固定の問題＋自動生成なら今日の3問)を作り、
+    // 1つの単元にかたよらないよう、順番に1問ずつ取り出す
+    var lists = (units || deckUnits()).map(function (uid) {
+      var u = WPS.UNIT_MAP[uid];
+      var ids = u.questions.map(function (q) { return q.id; });
+      if (u.hasGen) {
+        for (var k = 0; k < 3; k++) ids.push(WPS.genId(uid, WPS.daySeed(uid, today, k)));
+      }
+      return ids.filter(function (id) { return !s.cards[id]; });
     });
-    return out.slice(0, room);
+    var out = [];
+    for (var round = 0; out.length < room; round++) {
+      var any = false;
+      lists.forEach(function (l) { if (l[round] && out.length < room) { out.push(l[round]); any = true; } });
+      if (!any) break;
+    }
+    return out;
   }
 
   // 今日のセッション(復習 → 新規)
   function session(units) {
     var due = dueCards();
-    if (units) due = due.filter(function (q) { return units.indexOf(WPS.Q_MAP[q].unit) >= 0; });
+    if (units) due = due.filter(function (q) { return units.indexOf(WPS.Q(q).unit) >= 0; });
     return due.concat(newCards(units));
   }
 
@@ -496,7 +537,7 @@ WPS.SRS = (function () {
     else if (g === 'hard') { c.box = Math.max(1, c.box); c.due = WPS.date.add(today, 1); }
     else { c.box = Math.min(INTERVALS.length - 1, c.box + 1); c.due = WPS.date.add(today, INTERVALS[c.box]); }
     s.cards[qid] = c;
-    var q = WPS.Q_MAP[qid];
+    var q = WPS.Q(qid);
     s.attempts.push({ q: qid, u: q.unit, s: q.subj, ok: g === 'good', ch: null, unsure: g === 'again', src: 'card', t: Date.now(), d: today });
     WPS.Store.day(today).cards = (WPS.Store.day(today).cards || 0) + 1;
     WPS.Streak.touch();

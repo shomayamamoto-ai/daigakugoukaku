@@ -4,11 +4,11 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v1';
+var CACHE = 'wps-v2';
 var FILES = [
   './', './index.html', './css/style.css',
-  './js/data/units.js', './js/data/schools.js',
-  './js/engine.js', './js/notify.js', './js/app.js',
+  './js/data/units.js', './js/data/units_extra.js', './js/data/generators.js', './js/data/build.js', './js/data/schools.js',
+  './js/engine.js', './js/notify.js', './js/sync.js', './js/app.js',
   './icons/icon.svg', './manifest.webmanifest'
 ];
 
@@ -82,6 +82,15 @@ function checkStreak() {
 
 self.addEventListener('periodicsync', function (e) {
   if (e.tag === 'wps-streak') e.waitUntil(checkStreak());
+});
+
+// サーバーからのプッシュ通知(server/ を動かしている場合)
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'ピンポより 🦉', {
+    body: d.body || '今日の勉強、いっしょにやろう！', tag: d.tag || 'wps-push', icon: 'icons/icon.svg', renotify: true
+  }));
 });
 
 self.addEventListener('notificationclick', function (e) {

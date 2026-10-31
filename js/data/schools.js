@@ -211,3 +211,36 @@ WPS.SUBJECT_METHODS = {
   soc: ['まず時代や地域の大きな流れをつかみ、その後で細かい用語を覚える。', '「なぜ起きたか」「その結果どうなったか」をセットで覚える。', '資料の読み取り問題に慣れておく。'],
   info: ['2進数などの計算は、手を動かして練習する。', 'プログラム問題は、変数の値を表に書いて1行ずつ追いかける(トレース)。']
 };
+
+/*
+ * 公式サイト(入試情報は各大学の公式サイト・募集要項が最も正確です)
+ * グループ(MARCH など)は、各大学の公式サイトを並べています。
+ */
+WPS.SCHOOL_LINKS = {
+  todai: [['東京大学', 'https://www.u-tokyo.ac.jp/']],
+  kyodai: [['京都大学', 'https://www.kyoto-u.ac.jp/']],
+  hitotsubashi: [['一橋大学', 'https://www.hit-u.ac.jp/']],
+  sciencetokyo: [['東京科学大学', 'https://www.isct.ac.jp/']],
+  hokudai: [['北海道大学', 'https://www.hokudai.ac.jp/']],
+  tohoku: [['東北大学', 'https://www.tohoku.ac.jp/']],
+  nagoya: [['名古屋大学', 'https://www.nagoya-u.ac.jp/']],
+  osaka: [['大阪大学', 'https://www.osaka-u.ac.jp/']],
+  kyushu: [['九州大学', 'https://www.kyushu-u.ac.jp/']],
+  kobe: [['神戸大学', 'https://www.kobe-u.ac.jp/']],
+  tsukuba: [['筑波大学', 'https://www.tsukuba.ac.jp/']],
+  yokokoku: [['横浜国立大学', 'https://www.ynu.ac.jp/']],
+  chiba: [['千葉大学', 'https://www.chiba-u.jp/']],
+  hiroshima: [['広島大学', 'https://www.hiroshima-u.ac.jp/']],
+  waseda: [['早稲田大学', 'https://www.waseda.jp/']],
+  keio: [['慶應義塾大学', 'https://www.keio.ac.jp/']],
+  sophia: [['上智大学', 'https://www.sophia.ac.jp/']],
+  march: [['明治大学', 'https://www.meiji.ac.jp/'], ['青山学院大学', 'https://www.aoyama.ac.jp/'], ['立教大学', 'https://www.rikkyo.ac.jp/'], ['中央大学', 'https://www.chuo-u.ac.jp/'], ['法政大学', 'https://www.hosei.ac.jp/']],
+  kankandoritsu: [['関西大学', 'https://www.kansai-u.ac.jp/'], ['関西学院大学', 'https://www.kwansei.ac.jp/'], ['同志社大学', 'https://www.doshisha.ac.jp/'], ['立命館大学', 'https://www.ritsumei.ac.jp/']],
+  nittoukomasen: [['日本大学', 'https://www.nihon-u.ac.jp/'], ['東洋大学', 'https://www.toyo.ac.jp/'], ['駒澤大学', 'https://www.komazawa-u.ac.jp/'], ['専修大学', 'https://www.senshu-u.ac.jp/']],
+  sankinkouryu: [['京都産業大学', 'https://www.kyoto-su.ac.jp/'], ['近畿大学', 'https://www.kindai.ac.jp/'], ['甲南大学', 'https://www.konan-u.ac.jp/'], ['龍谷大学', 'https://www.ryukoku.ac.jp/']]
+};
+// どの学校にも共通して使える公式・準公式の情報源
+WPS.COMMON_LINKS = [
+  ['大学入試センター(共通テストの公式情報)', 'https://www.dnc.ac.jp/'],
+  ['河合塾 Kei-Net(大学ごとの入試科目・配点を検索)', 'https://search.keinet.ne.jp/']
+];
