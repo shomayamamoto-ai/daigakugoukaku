@@ -5,6 +5,7 @@
 (function () {
   var H = WPS.GENH, G = WPS.GEN;
   var ri = H.ri, nz = H.nz, pk = H.pk, shuffle = H.shuffle, frac = H.frac, poly = H.poly, sgn = H.sgn, choices = H.choices, numChoices = H.numChoices, Q = H.Q, gcd = H.gcd;
+  function PI(f) { return f === '1' ? 'π' : f.indexOf('/') > 0 ? f.split('/')[0] + 'π/' + f.split('/')[1] : f + 'π'; }
   function C(n, k) { var r = 1; for (var i = 0; i < k; i++) r = r * (n - i) / (i + 1); return Math.round(r); }
   function bin(a, b) { return '(' + poly([[1, 'x'], [a, '']]) + ')(' + poly([[1, 'x'], [b, '']]) + ')'; }
   function ratio(a, b) { var g = gcd(a, b); return (a / g) + ':' + (b / g); }
@@ -249,6 +250,62 @@
     var r1 = ri(r, 1, 5), r2 = ri(r, 1, 5), t1 = pk(r, [30, 45, 60, 90, 120]), t2 = pk(r, [30, 45, 60, 90, 150]);
     return Q(2, '絶対値 ' + r1 + '・偏角 ' + t1 + '° の複素数と、絶対値 ' + r2 + '・偏角 ' + t2 + '° の複素数の積の絶対値と偏角は?', choices('絶対値 ' + (r1 * r2) + '、偏角 ' + ((t1 + t2) % 360) + '°', ['絶対値 ' + (r1 + r2) + '、偏角 ' + ((t1 + t2) % 360) + '°', '絶対値 ' + (r1 * r2) + '、偏角 ' + (t1 * t2 % 360) + '°', '絶対値 ' + (r1 * r2) + '、偏角 ' + Math.abs(t1 - t2) + '°']),
       '複素数のかけ算は「絶対値はかけ算、偏角はたし算」\n→ 絶対値 ' + r1 + '×' + r2 + '＝' + (r1 * r2) + '、偏角 ' + t1 + '°＋' + t2 + '°＝' + ((t1 + t2) % 360) + '°\n💡 複素数平面では、回転と拡大を表す。');
+  };
+  /* ---------- 数学Ⅲ ---------- */
+  G.m3_lim = function (r) {
+    var t = ri(r, 0, 3);
+    if (t === 0) { var a = nz(r, -6, 6), b = ri(r, -9, 9), c = nz(r, 1, 6), d = ri(r, -9, 9);
+      return Q(2, 'lim(n→∞) (' + poly([[a, 'n²'], [b, 'n']]) + ')/(' + poly([[c, 'n²'], [d, '']]) + ') の値は?', choices(frac(a, c), [frac(c, Math.abs(a)) === frac(a, c) ? frac(a + 1, c) : frac(c, Math.abs(a)), '∞', '0']),
+        '分子・分母を n² で割る → (' + a + '＋' + sgn(b) + '/n)/(' + c + '＋' + sgn(d) + '/n²)\nn→∞ で 1/n→0 なので ' + a + '/' + c + '＝' + frac(a, c) + '\n💡 最高次の係数の比になる。'); }
+    if (t === 1) { var a1 = ri(r, 1, 9), R = pk(r, [[1, 2], [1, 3], [-1, 2], [2, 3], [1, 4], [-1, 3], [3, 4]]);
+      var num = a1 * R[1], den = R[1] - R[0];
+      return Q(2, '初項 ' + a1 + '、公比 ' + frac(R[0], R[1]) + ' の無限等比級数の和は?', choices(frac(num, den), [frac(a1 * R[1], R[1] + R[0]), frac(a1, den), '発散する']),
+        '|r|＜1 なので収束し、和＝a/(1−r)＝' + a1 + '÷(1−' + frac(R[0], R[1]) + ')＝' + frac(num, den)); }
+    if (t === 2) { var k = nz(r, 2, 9), m = ri(r, 1, 5);
+      return Q(2, 'lim(x→0) sin' + k + 'x/' + (m === 1 ? '' : m) + 'x の値は?', choices(frac(k, m), [frac(m, k), '1', '0']),
+        'sin' + k + 'x/' + (m === 1 ? '' : m) + 'x ＝ (' + k + '/' + m + ')×(sin' + k + 'x/' + k + 'x)\nlim(θ→0) sinθ/θ＝1 を使って → ' + frac(k, m)); }
+    var a = nz(r, -6, 6);
+    return Q(1, 'lim(x→' + a + ') (x²−' + (a * a) + ')/(x' + (a < 0 ? '＋' + (-a) : '−' + a) + ') の値は?', numChoices(2 * a, [a, 0, a * a]),
+      '分子を因数分解:(x' + (a < 0 ? '＋' + (-a) : '−' + a) + ')(x' + (a < 0 ? '−' + (-a) : '＋' + a) + ')\n約分して x' + (a < 0 ? '−' + (-a) : '＋' + a) + ' に x＝' + a + ' を代入 → ' + (2 * a));
+  };
+  G.m3_diff = function (r) {
+    var t = ri(r, 0, 4), k = nz(r, 2, 9);
+    if (t === 0) { var f = pk(r, [['sin', 'cos', ''], ['cos', 'sin', '−']]);
+      return Q(1, 'y＝' + f[0] + k + 'x を微分すると?', choices('y′＝' + f[2] + k + f[1] + k + 'x', ['y′＝' + f[2] + f[1] + k + 'x', 'y′＝' + (f[2] ? '' : '−') + k + f[1] + k + 'x', 'y′＝' + k + f[0] + k + 'x']),
+        '合成関数の微分:外(' + f[0] + ')の微分 × 中(' + k + 'x)の微分\n(' + f[0] + 'u)′＝' + f[2] + f[1] + 'u、(' + k + 'x)′＝' + k + ' → y′＝' + f[2] + k + f[1] + k + 'x'); }
+    if (t === 1) return Q(1, 'y＝e^(' + k + 'x) を微分すると?', choices('y′＝' + k + 'e^(' + k + 'x)', ['y′＝e^(' + k + 'x)', 'y′＝' + k + 'x·e^(' + (k === 2 ? '' : k - 1) + 'x)', 'y′＝e^(' + k + 'x)/' + k]), '(eᵘ)′＝eᵘ × u′、u＝' + k + 'x なので u′＝' + k + ' → ' + k + 'e^(' + k + 'x)');
+    if (t === 2) return Q(2, 'y＝log(' + k + 'x)(x＞0)を微分すると?', choices('y′＝1/x', ['y′＝1/(' + k + 'x)', 'y′＝' + k + '/x', 'y′＝' + k + 'x']), 'log(' + k + 'x)＝log' + k + '＋log x と分けると、定数 log' + k + ' の微分は0\n→ y′＝1/x(合成関数の微分でも ' + k + '/(' + k + 'x)＝1/x)');
+    if (t === 3) { var n = ri(r, 2, 5), a = nz(r, 2, 4), b = ri(r, -5, 5), c0 = ri(r, -2, 2), val = n * a * Math.pow(a * c0 + b, n - 1);
+      return Q(2, 'f(x)＝(' + poly([[a, 'x'], [b, '']]) + ')^' + n + ' のとき、f′(' + c0 + ') の値は?', numChoices(val, [n * Math.pow(a * c0 + b, n - 1), Math.pow(a * c0 + b, n), val + a]),
+        "f′(x)＝" + n + '×(' + poly([[a, 'x'], [b, '']]) + ')^' + (n - 1) + '×' + a + '(中の微分 ' + a + ' を忘れない)\nf′(' + c0 + ')＝' + n + '×' + sgn(a * c0 + b) + '^' + (n - 1) + '×' + a + '＝' + val); }
+    var m = ri(r, 1, 4);
+    var xp = function (n) { return n === 0 ? '' : n === 1 ? 'x' : 'x' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[n]; };
+    var d1 = (m === 1 ? '' : m) + xp(m - 1), f0 = xp(m);
+    var ans = 'y′＝' + (m === 1 ? 'eˣ' : d1 + 'eˣ') + '＋' + f0 + 'eˣ';
+    return Q(3, 'y＝' + f0 + 'eˣ を微分すると?', choices(ans, ['y′＝' + (m === 1 ? 'eˣ' : d1 + 'eˣ'), 'y′＝' + f0 + 'eˣ', 'y′＝' + (m === 1 ? '' : d1) + (m === 1 ? 'eˣ' : 'eˣ') + '−' + f0 + 'eˣ']),
+      '積の微分:(fg)′＝f′g＋fg′\nf＝' + f0 + '(f′＝' + (m === 1 ? '1' : d1) + ')、g＝eˣ(g′＝eˣ)\n→ ' + ans.slice(3));
+  };
+  G.m3_int = function (r) {
+    var t = ri(r, 0, 6);
+    if (t === 5) { var kk = ri(r, 1, 6);
+      return Q(2, '∫[0→' + (kk * kk) + '] √x dx の値は?', choices(frac(2 * kk * kk * kk, 3), [frac(kk * kk * kk, 3), String(kk * kk * kk), frac(kk * kk, 2)]), '∫x^(1/2)dx＝(2/3)x^(3/2)\n(2/3)×(' + (kk * kk) + ')^(3/2)＝(2/3)×' + (kk * kk * kk) + '＝' + frac(2 * kk * kk * kk, 3)); }
+    if (t === 6) { var cc = ri(r, 1, 9);
+      return Q(3, '放物線 y＝x² と直線 y＝' + (cc === 1 ? '' : cc) + 'x で囲まれた部分の面積は?', choices(frac(cc * cc * cc, 6), [frac(cc * cc * cc, 3), frac(cc * cc, 2) === frac(cc * cc * cc, 6) ? frac(cc * cc, 3) : frac(cc * cc, 2), frac(cc * cc * cc, 2)]), '交点は x＝0, ' + cc + '。S＝∫[0→' + cc + '](' + (cc === 1 ? '' : cc) + 'x−x²)dx\n＝' + cc + '³/6＝' + frac(cc * cc * cc, 6) + '\n💡 放物線と直線の面積は (β−α)³/6 で求められる。'); }
+    if (t === 0) { var a = ri(r, 2, 9);
+      return Q(1, '∫[0→log' + a + '] eˣ dx の値は?', numChoices(a - 1, [a, Math.log(a) > 1 ? a + 1 : a + 2, 1]), '∫eˣdx＝eˣ → [eˣ] を 0 から log' + a + ' まで\n＝e^(log' + a + ')−e⁰＝' + a + '−1＝' + (a - 1)); }
+    if (t === 1) { var k = ri(r, 1, 4);
+      return Q(2, '∫[1→e' + (k === 1 ? '' : '⁰¹²³⁴⁵⁶⁷⁸⁹'[k]) + '] (1/x) dx の値は?', numChoices(k, [k + 1, Math.pow(2, k), 1]), '∫(1/x)dx＝log x → log e' + (k === 1 ? '' : '⁰¹²³⁴⁵⁶⁷⁸⁹'[k]) + '−log1＝' + k + '−0＝' + k); }
+    if (t === 2) { var c = pk(r, [1, 2, 3]), F = pk(r, [['sin', 'cos', 'π/' + (2 * c), '1/' + c], ['cos', 'sin', 'π/' + (2 * c), '1/' + c]]);
+      var cf = c === 1 ? '' : c;
+      return Q(2, '∫[0→' + F[2] + '] ' + F[0] + cf + 'x dx の値は?', choices(c === 1 ? '1' : F[3], ['0', String(c), c === 1 ? '2' : frac(2, c)]),
+        F[0] === 'sin' ? '∫sin' + cf + 'x dx＝−(1/' + c + ')cos' + cf + 'x → −(1/' + c + ')(cos(π/2)−cos0)＝1/' + c : '∫cos' + cf + 'x dx＝(1/' + c + ')sin' + cf + 'x → (1/' + c + ')(sin(π/2)−sin0)＝1/' + c); }
+    if (t === 3) { var b = ri(r, 1, 3), E = function (n) { return n === 1 ? 'e' : 'e' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[n]; };
+      var ans3 = b === 1 ? '1' : (b === 2 ? '' : (b - 1)) + E(b) + '＋1';
+      return Q(3, '∫[0→' + b + '] x eˣ dx の値は?(部分積分)', choices(ans3, [(b === 1 ? '' : b) + E(b), E(b) + '−1', (b + 1) + E(b) + '−1']),
+        '部分積分:∫x eˣ dx＝x eˣ−∫eˣ dx＝(x−1)eˣ\n[(x−1)eˣ] を 0 から ' + b + ' まで ＝ ' + (b - 1) + '×' + E(b) + '−(−1) ＝ ' + ans3); }
+    var a2 = ri(r, 1, 6), k2 = ri(r, 1, 3);
+    return Q(3, '直線 y＝' + (k2 === 1 ? '' : k2) + 'x(0≦x≦' + a2 + ')と x軸の間の部分を、x軸のまわりに1回転させた立体の体積は?', choices(PI(frac(k2 * k2 * a2 * a2 * a2, 3)), [PI(frac(k2 * a2 * a2, 2)), PI(String(k2 * k2 * a2 * a2 * a2)), PI(frac(k2 * k2 * a2 * a2 * a2, 2))]),
+      'V＝π∫[0→' + a2 + '] y² dx＝π∫' + (k2 * k2) + 'x² dx＝π×' + (k2 * k2) + '×' + a2 + '³/3＝' + frac(k2 * k2 * a2 * a2 * a2, 3) + 'π\n💡 底面の半径 ' + (k2 * a2) + '・高さ ' + a2 + ' の円すいの体積と一致する。');
   };
   G.mc_matrix = function (r) {
     var a = ri(r, -3, 4), b = ri(r, -3, 4), c = ri(r, -3, 4), d = ri(r, -3, 4), t = ri(r, 0, 2), M = function (p, q, s, u) { return '(' + p + ' ' + q + ' ／ ' + s + ' ' + u + ')'; };
