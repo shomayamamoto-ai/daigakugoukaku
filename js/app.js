@@ -138,7 +138,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv
     }[route] || renderHome;
     view.innerHTML = fn(parts[1]);
     if (fn.after) fn.after(parts[1]);
@@ -281,6 +281,7 @@
     html += '<section class="card countdown"><div><div class="muted">' + h(t.school ? t.school.name : '志望校未設定') + (p.schoolName ? '<br>' + h(p.schoolName) : '') + '</div>' +
       '<div class="big-num">あと ' + Math.max(0, D.diff(D.today(), t.exam)) + '<small>日</small></div><div class="muted">' + h(t.exam) + '</div>' + milestoneLine(t) + '</div>' +
       (phase ? '<div class="phase-badge">' + phase.emoji + ' いまは<br><b>' + phase.name + '</b></div>' : '') + '</section>';
+    html += goalCard(p);
 
     // 診断がまだの場合
     if (!s.attempts.some(function (a) { return a.src === 'test'; })) {
@@ -302,7 +303,7 @@
       }).join('') + '</ul>' +
       (doneN === tt.tasks.length ? say(pick(LINES.done), 'cheer', 48) : '') + '</section>';
 
-    html += '<section class="quick"><a href="#records">🏫 テスト結果を記録</a><a href="#memo">✏️ 質問メモ</a><a href="#roadmap">🗺️ ロードマップ</a></section>';
+    html += '<section class="quick"><a href="#records">🏫 テスト結果を記録</a><a href="#memo">✏️ 質問メモ</a><a href="#univ">🏫 大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -583,7 +584,7 @@
     html += '<section class="card"><div class="row-between"><h1>🗺️ ' + h(p.name) + 'さん専用ロードマップ</h1><a class="btn small" href="#settings">志望校を変更</a></div>' +
       '<div class="target"><div><b>' + h(t.school ? t.school.name : '志望校未設定') + '</b>' + (p.schoolName ? '<br><span class="muted">' + h(p.schoolName) + '</span>' : '') +
       '<br><span class="muted">' + h(p.track || '') + ' ／ 本番 ' + h(t.exam) + '</span></div><div class="big-num">あと' + rm.days + '<small>日</small></div></div>';
-    html += milestoneLine(t);
+    html += milestoneLine(t) + goalCard(p, true);
     if (t.school) {
       html += '<h3>この学校の入試の特徴</h3><ul class="bullets">' + t.school.features.map(function (f) { return '<li>' + h(f) + '</li>'; }).join('') + '</ul>' +
         '<p class="hint">※ 入試科目・配点・日程は毎年変わります。必ず最新の募集要項で確認してください。</p>';
@@ -640,9 +641,7 @@
     // 勉強法
     html += '<section class="card"><h2>📖 科目別の勉強法</h2>' + Object.keys(w).filter(function (k) { return w[k] > 0; }).map(function (k) {
       return '<details><summary>' + subjChip(k) + '</summary><ul class="bullets">' + (WPS.SUBJECT_METHODS[k] || []).map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></details>';
-    }).join('') + '<h3>参考にした情報</h3><ul class="sources">' + WPS.METHOD_SOURCES.map(function (x) {
-      return '<li><a href="' + h(x.url) + '" target="_blank" rel="noopener">' + h(x.title) + '</a></li>';
-    }).join('') + '</ul></section>';
+    }).join('') + '</section>';
     return html;
   }
   renderRoadmap.after = function () {
@@ -1084,6 +1083,76 @@
       '<li>わからない問題は「先生への質問メモ」にたまり、30分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
     return html;
   }
+
+  /* ========== 大学データ(偏差値・共通テスト得点率) ========== */
+  function goalLabel(g) { return g.univ + ' ' + g.dept + '(' + g.sched + ')'; }
+  // 目標とのちがいを表示するカード
+  function goalCard(p, inline) {
+    var g = p.goal, est = A.estimate();
+    var body;
+    if (!g) {
+      body = '<p class="muted">目標の大学・学部を設定すると、合格の目安(共通テスト得点率・偏差値)と、いまの推定位置を比べられるよ。</p><a class="btn small" href="#univ">🏫 大学データから目標を選ぶ</a>';
+    } else {
+      var rows = '<tr><th></th><th>目標(目安)</th><th>いまの推定</th><th>差</th></tr>';
+      function row(label, goal, now, unit) {
+        var diff = (goal !== null && now !== null) ? Math.round((now - goal) * 10) / 10 : null;
+        return '<tr><th>' + label + '</th><td>' + (goal !== null ? goal + unit : '—') + '</td><td>' + (now !== null ? now + unit : '—') + '</td><td class="' + (diff === null ? '' : diff >= 0 ? 'good-t' : 'bad-t') + '">' + (diff === null ? '—' : (diff >= 0 ? '+' : '') + diff + unit) + '</td></tr>';
+      }
+      rows += row('共通テスト得点率', g.kyotsu, est.kyotsu, '%') + row('偏差値', g.hensa, est.hensa, '');
+      body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p><div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
+        (est.hensa === null ? '<p class="hint">推定には、テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問の解答が必要です。</p>' :
+          '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
+        '<p class="hint">目安の出典:' + h(WPS.UNIV_SOURCES[g.year] || '') + '</p>';
+    }
+    return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + '</section>';
+  }
+  var univState = { q: '', field: '', sched: '', year: '' };
+  function renderUniv() {
+    var years = WPS.univYears();
+    if (!univState.year) univState.year = years[0];
+    var rows = WPS.univRows(univState.year);
+    var fields = rows.map(function (r) { return r.field; }).filter(function (x, i, a) { return a.indexOf(x) === i; });
+    var est = A.estimate(), goal = S.get().profile.goal;
+    var list = rows.filter(function (r) {
+      return (!univState.field || r.field === univState.field) && (!univState.sched || r.sched === univState.sched) &&
+        (!univState.q || (r.univ + r.dept).indexOf(univState.q) >= 0);
+    }).sort(function (a, b) { return b.kyotsu - a.kyotsu || (b.hensa || 0) - (a.hensa || 0); });
+    var html = say('志望校の「合格の目安」を調べられるよ。気になる学部の「目標にする」を押すと、ホームとロードマップに、いまの自分との差が出るようになるよ。', 'normal', 56);
+    html += '<section class="card"><h1>🏫 大学データ(国公立大)</h1>' +
+      '<div class="filters"><label>年度<select id="uYear">' + years.map(function (y) { return '<option' + (y === univState.year ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></label>' +
+      '<label>系統<select id="uField"><option value="">すべて</option>' + fields.map(function (f) { return '<option' + (f === univState.field ? ' selected' : '') + '>' + h(f) + '</option>'; }).join('') + '</select></label>' +
+      '<label>日程<select id="uSched"><option value="">すべて</option><option' + (univState.sched === '前期' ? ' selected' : '') + '>前期</option><option' + (univState.sched === '中期・後期' ? ' selected' : '') + '>中期・後期</option></select></label>' +
+      '<label class="grow">大学名・学部で検索<input id="uQ" value="' + h(univState.q) + '" placeholder="例:大阪、データ"></label></div>' +
+      (est.hensa !== null ? '<p class="hint">あなたの推定:共通テスト得点率 約' + est.kyotsu + '% ／ 偏差値 約' + est.hensa + '(アプリ内の問題からの目安)</p>' : '') +
+      '<p class="muted">' + list.length + '件(共通テスト得点率の高い順)</p>' +
+      '<div class="table-scroll"><table class="univ-t"><thead><tr><th>大学・学部</th><th>日程</th><th>共テ</th><th>偏差値</th><th></th></tr></thead><tbody>' +
+      list.slice(0, 300).map(function (r) {
+        var me = goal && goal.univ === r.univ && goal.dept === r.dept && goal.sched === r.sched;
+        var reach = est.kyotsu !== null ? (est.kyotsu >= r.kyotsu ? 'reach-ok' : est.kyotsu >= r.kyotsu - 5 ? 'reach-near' : '') : '';
+        return '<tr class="' + reach + (me ? ' is-goal' : '') + '"><td><b>' + h(r.univ) + '</b><br><small>' + h(r.dept) + '</small><br><small class="muted">' + h(r.field) + '・' + r.area + '</small></td><td>' + r.sched + '</td><td class="num">' + r.kyotsu + '%</td><td class="num">' + (r.hensa !== null ? r.hensa.toFixed(1) : '—') + '</td>' +
+          '<td>' + (me ? '<span class="status st-good">目標</span>' : '<button class="btn small" data-goal="' + r.id + '">目標にする</button>') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      (list.length > 300 ? '<p class="hint">上位300件を表示しています。検索でしぼりこんでください。</p>' : '') +
+      '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '<br>※ 現在登録しているのは一部の系統です(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)。</p></section>';
+    return html;
+  }
+  renderUniv.after = function () {
+    function bind(id, key, ev) { var el = document.getElementById(id); el.addEventListener(ev || 'change', function () { univState[key] = el.value.trim(); if (key === 'q') { clearTimeout(bind.t); bind.t = setTimeout(rerender, 250); } else rerender(); }); }
+    function rerender() { var y = window.scrollY; var f = document.activeElement && document.activeElement.id; view.innerHTML = renderUniv(); renderUniv.after(); if (f) { var el = document.getElementById(f); if (el) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } } window.scrollTo(0, y); }
+    bind('uYear', 'year'); bind('uField', 'field'); bind('uSched', 'sched'); bind('uQ', 'q', 'input');
+    view.querySelectorAll('[data-goal]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var r = WPS.univRows(univState.year).filter(function (x) { return x.id === b.getAttribute('data-goal'); })[0];
+        if (!r) return;
+        var p = S.get().profile;
+        p.goal = { univ: r.univ, dept: r.dept, sched: r.sched, kyotsu: r.kyotsu, hensa: r.hensa, year: r.year, field: r.field };
+        if (!p.schoolName) p.schoolName = r.univ + ' ' + r.dept;
+        S.save();
+        toast('「' + r.univ + ' ' + r.dept + '」を目標にしたよ！');
+        rerender();
+      });
+    });
+  };
 
   /* ========== 学校のテスト・模試の記録 ========== */
   function renderRecords() {

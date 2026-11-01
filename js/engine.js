@@ -227,9 +227,25 @@ WPS.Analysis = (function () {
     });
   }
 
+  // アプリ内の問題の正答状況から、偏差値と共通テスト得点率を「推定」する(あくまで目安)
+  function estimate(subj) {
+    var list = WPS.Store.get().attempts.filter(function (a) { return a.src !== 'card' && a.q && (!subj || a.s === subj); }).slice(-200);
+    if (list.length < 15) return { n: list.length, hensa: null, kyotsu: null };
+    var W = { 1: 0.8, 2: 1, 3: 1.3 }, sum = 0, ok = 0, basic = 0, basicOk = 0;
+    list.forEach(function (a) {
+      var q = WPS.Q(a.q), lv = q ? q.level : 2, w = W[lv] || 1;
+      sum += w; if (a.ok) ok += w;
+      if (lv <= 2) { basic++; if (a.ok) basicOk++; }
+    });
+    var acc = ok / sum;
+    var hensa = Math.max(30, Math.min(75, Math.round((50 + 10 * (acc - 0.6) / 0.18) * 2) / 2));
+    var kyotsu = basic ? Math.max(20, Math.min(95, Math.round(basicOk / basic * 100))) : null;
+    return { n: list.length, hensa: hensa, kyotsu: kyotsu };
+  }
+
   return {
     unitStat: unitStat, allStats: allStats, levelStats: levelStats, subjectStats: subjectStats,
-    rootCauses: rootCauses, priority: priority, depth: depth, levelDiagnosis: levelDiagnosis,
+    rootCauses: rootCauses, priority: priority, depth: depth, levelDiagnosis: levelDiagnosis, estimate: estimate,
     mistakes: mistakes, dependents: dependents
   };
 })();

@@ -359,3 +359,16 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
 .ok-unit { font-weight: 700; margin-right: 6px; }
 .home-link { font-size: .8rem; text-decoration: none; margin-left: auto; margin-right: 12px; color: var(--muted); }
+/* ---------- 大学データ ---------- */
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 8px; }
+.filters label { display: grid; gap: 2px; font-size: .8rem; font-weight: 700; }
+.filters .grow { grid-column: 1 / -1; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.univ-t { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.univ-t th, .univ-t td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: middle; }
+.univ-t th { background: var(--primary-weak); white-space: nowrap; }
+.univ-t td.num { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; }
+.univ-t tr.reach-ok td:first-child { box-shadow: inset 4px 0 0 var(--ok); }
+.univ-t tr.reach-near td:first-child { box-shadow: inset 4px 0 0 var(--warn); }
+.univ-t tr.is-goal { background: var(--ok-weak); }
+.goal-t td, .goal-t th { text-align: center; font-variant-numeric: tabular-nums; }
