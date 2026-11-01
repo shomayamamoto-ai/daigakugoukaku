@@ -211,28 +211,58 @@
     return s0 ? s0.kind : (WPS.isJHStudent(p.grade) ? 'high' : 'national');
   }
   function schoolPicker(p) {
-    var main = schoolKindOf(p);
+    var main = schoolKindOf(p), isHigh = main === 'high';
     var natId = p.schoolNat || (WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'national' ? p.schoolId : '');
     var priId = p.schoolPri || (WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'private' ? p.schoolId : '');
     var highId = WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'high' ? p.schoolId : '';
+    var both = !!(WPS.SCHOOL_MAP[natId] && WPS.SCHOOL_MAP[priId]);
     function block(kind, label, id, ph) {
-      return '<div class="sp-block" data-spblock="' + kind + '"' + (main === 'high' ? ' hidden' : '') + '><b class="sp-label">' + label + '</b>' +
+      return '<div class="sp-block" data-spblock="' + kind + '"' + (isHigh ? ' hidden' : '') + '><b class="sp-label">' + label + '</b>' +
         '<input class="sp-q" data-spq="' + kind + '" type="search" maxlength="20" placeholder="' + ph + '" autocomplete="off" aria-label="' + label + 'をさがす">' +
         '<select name="school_' + kind + '" data-spsel="' + kind + '" aria-label="' + label + '">' + schoolOptions(id, '', kind) + '</select></div>';
     }
     return '<fieldset class="sp"><legend>志望校</legend>' +
-      '<div class="seg" role="group" aria-label="本命の区分">' + [['national', '国公立が本命'], ['private', '私立が本命'], ['high', '高校受験']].map(function (k) {
-        return '<button type="button" class="seg-btn' + (main === k[0] ? ' on' : '') + '" data-spmain="' + k[0] + '" aria-pressed="' + (main === k[0]) + '">' + k[1] + '</button>';
-      }).join('') + '</div><input type="hidden" name="schoolMain" value="' + main + '">' +
+      '<div class="seg" role="group" aria-label="受験の種類">' + [['univ', '大学受験'], ['high', '高校受験']].map(function (k) {
+        var on = (k[0] === 'high') === isHigh;
+        return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-sptype="' + k[0] + '" aria-pressed="' + on + '">' + k[1] + '</button>';
+      }).join('') + '</div>' +
+      '<input type="hidden" name="schoolMain" value="' + main + '">' +
       block('national', '国公立の第一志望', natId, '大学名で絞りこむ(例:岩手、北海道)') +
       block('private', '私立の第一志望', priId, '大学名で絞りこむ(例:法政、湘南)') +
-      '<div class="sp-block" data-spblock="high"' + (main === 'high' ? '' : ' hidden') + '><b class="sp-label">志望校(高校受験)</b><select name="school_high" data-spsel="high">' + schoolOptions(highId, '', 'high') + '</select></div>' +
-      '<p class="hint">本命の区分の第一志望をもとに、ロードマップと試験日を決めます。もう一方は併願として試験日を中間目標に入れます。( )内は偏差値の目安(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。リストにない大学は「その他」を選び、下の欄に大学名を書いてください。</p></fieldset>';
+      // 本命は、国公立と私立の両方を選んだときだけ聞く(片方だけなら、そちらが自動で本命になる)
+      '<div class="sp-block sp-main" data-spblock="main"' + (isHigh || !both ? ' hidden' : '') + '><b class="sp-label">どちらが本命?</b><div class="seg" role="group" aria-label="本命">' +
+      [['national', '国公立が本命'], ['private', '私立が本命']].map(function (k) {
+        return '<button type="button" class="seg-btn' + (main === k[0] ? ' on' : '') + '" data-spmain="' + k[0] + '" aria-pressed="' + (main === k[0]) + '">' + k[1] + '</button>';
+      }).join('') + '</div><small class="muted">本命の試験日をゴールにして、もう一方は併願として中間目標に入れます。</small></div>' +
+      '<div class="sp-block" data-spblock="high"' + (isHigh ? '' : ' hidden') + '><b class="sp-label">志望校(高校受験)</b><select name="school_high" data-spsel="high">' + schoolOptions(highId, '', 'high') + '</select></div>' +
+      '<p class="hint" id="spNote"></p>' +
+      '<p class="hint">片方しか受けない場合は「受けない」のままで大丈夫です。まだ決まっていなければ空欄のままでも保存でき、あとから設定で変えられます。( )内は偏差値の目安(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。</p></fieldset>';
+  }
+  function spValid(v) { return !!(v && v !== 'none' && WPS.SCHOOL_MAP[v]); }
+  // 選ばれている学校から、本命を自動で決める
+  function spResolve(f) {
+    var mainEl = f.querySelector('[name=schoolMain]');
+    if (mainEl.value === 'high') return 'high';
+    var n = spValid(f.querySelector('[data-spsel=national]').value), pr = spValid(f.querySelector('[data-spsel=private]').value);
+    if (n && !pr) mainEl.value = 'national';
+    else if (pr && !n) mainEl.value = 'private';
+    else if (!n && !pr) mainEl.value = mainEl.value === 'private' ? 'private' : 'national';
+    var box = f.querySelector('[data-spblock=main]');
+    if (box) {
+      box.hidden = !(n && pr);
+      box.querySelectorAll('[data-spmain]').forEach(function (x) { var on = x.getAttribute('data-spmain') === mainEl.value; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+    }
+    var note = f.querySelector('#spNote');
+    if (note) {
+      var sel = f.querySelector('[data-spsel="' + mainEl.value + '"]'), nm = sel && spValid(sel.value) ? WPS.SCHOOL_MAP[sel.value].name : '';
+      note.textContent = nm ? '本命:' + nm + '(この学校の試験日をゴールにします)' : '';
+    }
+    return mainEl.value;
   }
   function pickedSchool(f) {
-    var main = f.querySelector('[name=schoolMain]').value;
+    var main = spResolve(f);
     var v = f.querySelector('[data-spsel="' + main + '"]').value;
-    return v === 'none' ? '' : v;
+    return spValid(v) ? v : '';
   }
   function profileForm(p, submitLabel) {
     return '<form id="profileForm" class="form">' +
@@ -268,21 +298,27 @@
       var s0 = WPS.SCHOOL_MAP[id];
       if (s0) document.getElementById('examHint').textContent = '目安:' + s0.exams.map(function (e) { return WPS.EXAM_DATES[e].label + ' ' + WPS.EXAM_DATES[e].date; }).join(' ／ ') + '。正式な日程は必ず募集要項で確認してね。';
     }
-    f.querySelectorAll('[data-spmain]').forEach(function (b) {
+    f.querySelectorAll('[data-sptype]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var k = b.getAttribute('data-spmain');
-        f.querySelector('[name=schoolMain]').value = k;
-        f.querySelectorAll('[data-spmain]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
-        f.querySelectorAll('[data-spblock]').forEach(function (x) { var kb = x.getAttribute('data-spblock'); x.hidden = k === 'high' ? kb !== 'high' : kb === 'high'; });
+        var high = b.getAttribute('data-sptype') === 'high';
+        f.querySelector('[name=schoolMain]').value = high ? 'high' : 'national';
+        f.querySelectorAll('[data-sptype]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        f.querySelectorAll('[data-spblock]').forEach(function (x) { var kb = x.getAttribute('data-spblock'); x.hidden = high ? kb !== 'high' : kb === 'high'; });
         onSchool();
       });
     });
+    f.querySelectorAll('[data-spmain]').forEach(function (b) {
+      b.addEventListener('click', function () { f.querySelector('[name=schoolMain]').value = b.getAttribute('data-spmain'); onSchool(); });
+    });
+    spResolve(f);
     f.querySelectorAll('[data-spq]').forEach(function (q) {
       q.addEventListener('input', function () {
         var kind = q.getAttribute('data-spq'), sel = f.querySelector('[data-spsel="' + kind + '"]'), cur = sel.value;
         sel.innerHTML = schoolOptions(cur, q.value, kind);
         var opts = sel.querySelectorAll('option[value]:not([value=""]):not([value="none"])');
-        if (opts.length === 1 && sel.value !== opts[0].value) { sel.value = opts[0].value; onSchool(); }
+        // 候補が1つ、またはまだ何も選んでいないときは、いちばん上の候補を選ぶ
+        if (opts.length && (opts.length === 1 || !spValid(cur)) && sel.value !== opts[0].value) sel.value = opts[0].value;
+        onSchool();
       });
     });
     f.querySelectorAll('[data-spsel]').forEach(function (sel) { sel.addEventListener('change', onSchool); });
@@ -290,8 +326,7 @@
       e.preventDefault();
       var fd = new FormData(f);
       var p = S.get().profile;
-      var mainK = fd.get('schoolMain');
-      if (mainK !== 'high' && !pickedSchool(f)) { toast((mainK === 'national' ? '国公立' : '私立') + 'の第一志望を選んでね(未定なら「その他」を選んでね)'); return; }
+      pickedSchool(f); fd = new FormData(f);
       ['name', 'grade', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
       p.schoolMain = fd.get('schoolMain');
       p.schoolNat = fd.get('school_national') || '';
