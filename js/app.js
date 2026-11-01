@@ -1012,11 +1012,12 @@
     return map;
   }
   function weekOf(rm, d) { return rm.weeks.filter(function (w) { return w.start <= d && d <= w.end; })[0]; }
-  function calendarSection(rm) {
+  function calendarSection(rm, plan) {
     var t = rm.target, today = D.today();
     if (!cal.month) cal.month = today.slice(0, 7);
     if (!cal.sel) cal.sel = today;
     var map = calData(rm), studied = WPS.Streak.studiedDays();
+    (plan || []).forEach(function (x) { if (x.kind !== 'goal' && x.kind !== 'exam') (map[x.date] = map[x.date] || []).push({ kind: 'ms', text: x.title + ':' + x.detail }); });
     var y = +cal.month.slice(0, 4), m = +cal.month.slice(5, 7);
     var first = new Date(y, m - 1, 1), startDow = first.getDay(), nDays = new Date(y, m, 0).getDate();
     var lastMonth = t.exam.slice(0, 7), firstMonth = today.slice(0, 7);
@@ -1034,16 +1035,18 @@
       if (WPS.Time.isHoliday(ds)) cls.push('hol');
       var marks = '';
       if (items.some(function (x) { return x.kind === 'exam'; })) marks += '<i class="mk exam"></i>';
+      if (items.some(function (x) { return x.kind === 'ms'; })) marks += '<i class="mk ms"></i>';
       if (items.some(function (x) { return x.kind === 'week'; })) marks += '<i class="mk week"></i>';
       if (items.some(function (x) { return x.kind === 'todo'; })) marks += '<i class="mk todo"></i>';
       if (studied[ds] === 'study') marks += '<i class="mk done"></i>';
       html += '<button type="button" class="' + cls.join(' ') + '" data-calday="' + ds + '" aria-label="' + m + '月' + d + '日"><span>' + d + '</span><span class="mks">' + marks + '</span></button>';
     }
-    html += '</div><div class="cal-legend"><span><i class="mk exam"></i>試験日</span><span><i class="mk week"></i>週の目標の開始</span><span><i class="mk todo"></i>自分の予定</span><span><i class="mk done"></i>勉強した日</span></div>';
+    html += '</div><div class="cal-legend"><span><i class="mk exam"></i>試験日</span><span><i class="mk ms"></i>マイルストーン</span><span><i class="mk week"></i>週の目標の開始</span><span><i class="mk todo"></i>自分の予定</span><span><i class="mk done"></i>勉強した日</span></div>';
     // 選んだ日のくわしい予定
     var sd = cal.sel, items2 = map[sd] || [], w = weekOf(rm, sd), todos = calTodos()[sd] || [];
     html += '<div class="cal-day"><h3>' + D.label(sd) + (sd === today ? '(今日)' : '') + ' の予定</h3>';
     items2.filter(function (x) { return x.kind === 'exam'; }).forEach(function (x) { html += '<p class="cal-exam">試験:' + h(x.text) + '</p>'; });
+    items2.filter(function (x) { return x.kind === 'ms'; }).forEach(function (x) { html += '<p class="cal-ms">マイルストーン:' + h(x.text) + '</p>'; });
     if (w && sd <= t.exam) {
       var ph = WPS.PHASES.filter(function (x) { return x.key === w.phase; })[0];
       html += '<p class="muted small">この週(' + D.label(w.start) + '〜' + D.label(w.end) + ')' + (ph ? '・' + h(ph.name) : '') + '</p>' +
@@ -1128,8 +1131,74 @@
     view.querySelectorAll('[data-pset]').forEach(function (sel) { sel.addEventListener('change', function () { pomo[sel.getAttribute('data-pset')] = +sel.value; if (!pomo.run) pomo.left = pomoLen(pomo.mode); re(); }); });
   };
 
+  /* ========== ゴールから逆算したマイルストーン ========== */
+  // 本番(ゴール)を起点に、さかのぼって「いつまでに・何を・どれだけ」を決める。
+  function backPlan(rm) {
+    var t = rm.target, p = t.profile, today = D.today(), exam = t.exam, est = A.estimate();
+    var goal = p.goal || {}, nat = t.school && t.school.kind === 'national', high = t.isHigh;
+    var gH = goal.hensa || (t.school && t.school.hensaMax) || null, gK = goal.kyotsu || null;
+    var ph = {}; rm.phases.forEach(function (x) { ph[x.key] = x; });
+    var kyo = (t.milestones.filter(function (m) { return m.key === 'kyotsu'; })[0] || {}).date;
+    var plan = [];
+    function add(date, title, detail, kind, check) { if (date && date >= today && date <= exam) plan.push({ date: date, title: title, detail: detail, kind: kind, check: check }); }
+    // 進み具合:その日までに仕上げる予定の単元数(ロードマップの週の割り当てから数える)
+    var known = rm.units.filter(function (id) { return rm.stats[id].status !== 'untested'; });
+    function plannedBy(d) { var n = 0; rm.weeks.forEach(function (w) { if (w.end <= d) n += w.units.filter(function (id) { return known.indexOf(id) >= 0; }).length; }); return n; }
+    var goodNow = known.filter(function (id) { return rm.stats[id].status === 'good'; }).length;
+    // 偏差値の中間目標:いまの推定から目標まで、残り期間で直線的に上げる
+    function hensaAt(d) {
+      if (!gH || est.hensa === null) return null;
+      var r = Math.min(1, Math.max(0, D.diff(today, d) / Math.max(1, D.diff(today, ph.practice ? ph.practice.start : exam))));
+      return Math.round((est.hensa + (gH - est.hensa) * r) * 2) / 2;
+    }
+    // ① ゴール
+    add(exam, '本番(ゴール)', (t.school ? t.school.name : '志望校') + (gH ? '・目標偏差値 ' + gH + (goal.hensa ? '' : '(大学データの目安)') : '') + (gK ? '・共テ ' + gK + '%' : ''), 'goal');
+    // ② 共通テスト
+    if (kyo && kyo !== exam) add(kyo, '共通テスト本番', gK ? '目標得点率 ' + gK + '%' : '基礎〜標準問題を取りこぼさない', 'exam');
+    t.milestones.forEach(function (m) { if (m.key !== 'kyotsu' && m.date !== exam) add(m.date, m.label, '併願校の試験。ここで合格を確保して、本命に集中できる状態をつくる', 'exam'); });
+    // ③ 直前期の開始(新しい教材に手を出さず、総復習と体調管理)
+    if (ph.final) add(ph.final.start, '直前期スタート', '新しい問題集には手を出さない。間違えた問題の解き直し・暗記ものの総復習・本番と同じ時間帯での演習', 'phase');
+    // ④ 過去問の進み具合(本番から逆算)
+    if (!high) {
+      var fin = ph.final ? ph.final.start : D.add(exam, -14);
+      add(D.add(exam, -100), '志望校の過去問 1年分', '時間を計って解き、配点と自分の得点の差を確認する(ゴールとの距離を知る)', 'past');
+      add(D.add(exam, -60), '志望校の過去問 3年分', '大問ごとの得点を記録し、毎年落としている分野を単元の復習に戻す', 'past');
+      add(D.add(fin, -1), '志望校の過去問 5年分', '出題傾向をつかみ、時間配分を決める', 'past');
+      if (kyo) { add(D.add(kyo, -45), '共通テスト形式の演習 開始', '過去問・予想問題を全教科1回ずつ', 'past'); add(D.add(kyo, -14), '共通テスト形式 5回分', '本番と同じ時間割で通して解く', 'past'); }
+    }
+    // ⑤ 実戦期の開始=基礎〜標準の完成
+    if (ph.practice) add(D.add(ph.practice.start, -1), '基礎〜標準の完成', '苦手単元をひととおり仕上げる(' + plannedBy(D.add(ph.practice.start, -1)) + '単元)' + (hensaAt(ph.practice.start) ? '・模試で偏差値 ' + hensaAt(ph.practice.start) + ' を目標' : ''), 'base', { need: plannedBy(D.add(ph.practice.start, -1)) });
+    // ⑥ 土台の修復の完了
+    if (ph.repair) add(ph.repair.end, '中学範囲の土台の修復 完了', '診断でさかのぼった中学の苦手単元を「得意」にする', 'base');
+    // ⑦ 毎月の中間目標(月末ごと)
+    var limit = ph.practice ? ph.practice.start : exam, d0 = today, prevNeed = -1;
+    for (var i = 0; i < 24; i++) {
+      var y = +d0.slice(0, 4), m = +d0.slice(5, 7) + 1; if (m > 12) { m = 1; y++; }
+      var me = D.add(y + '-' + (m < 10 ? '0' : '') + m + '-01', -1);
+      if (me >= limit) break;
+      var needM = plannedBy(me);
+      if (D.diff(today, me) >= 7 && (needM !== prevNeed || hensaAt(me))) add(me, (+me.slice(5, 7)) + '月の中間目標', '累計 ' + plannedBy(me) + ' 単元を仕上げる' + (hensaAt(me) ? '・模試の偏差値 ' + hensaAt(me) + ' 前後' : ''), 'month', { need: plannedBy(me) });
+      prevNeed = needM;
+      d0 = D.add(me, 1);
+    }
+    plan.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    plan.goodNow = goodNow;
+    return plan;
+  }
+  function backPlanSection(rm, plan) {
+    var today = D.today();
+    var html = '<section class="card" id="backplan"><h2>ゴールから逆算したマイルストーン</h2><p class="muted small">本番の日から逆にさかのぼって、「いつまでに何を終えるか」を決めています。いちばん近い目標から順に達成していこう。</p><ol class="bp">';
+    var next = plan.filter(function (x) { return x.date >= today; })[0];
+    plan.slice().reverse().forEach(function (x) {
+      var dd = D.diff(today, x.date), prog = '';
+      if (x.check && x.check.need) { var r = Math.min(1, plan.goodNow / x.check.need); prog = '<div class="bp-prog"><i style="width:' + Math.round(r * 100) + '%"></i></div><small class="muted">いま ' + plan.goodNow + ' / ' + x.check.need + ' 単元</small>'; }
+      html += '<li class="bp-' + x.kind + (x === next ? ' next' : '') + '"><div class="bp-date"><b>' + D.label(x.date) + '</b><small>あと' + dd + '日</small></div><div class="bp-body"><b>' + h(x.title) + (x === next ? ' <span class="status st-soso">次の目標</span>' : '') + '</b><p>' + h(x.detail) + '</p>' + prog + '</div></li>';
+    });
+    html += '</ol><p class="hint">上がゴール、下が今日に近い目標です。目標偏差値は「大学データ」で志望学部を「目標にする」と入ります。診断を進めると、単元の数と時期が自動で更新されます。</p></section>';
+    return html;
+  }
   /* ========== ロードマップのタイムライン(ガントチャート形式) ========== */
-  function ganttSection(rm) {
+  function ganttSection(rm, plan) {
     var t = rm.target, today = D.today(), start = today.slice(0, 7) + '-01', end = t.exam;
     var total = Math.max(1, D.diff(start, end) + 1);
     var pos = function (d) { return Math.max(0, Math.min(100, D.diff(start, d) / total * 100)); };
@@ -1142,7 +1211,8 @@
     }
     var lanes = [];
     // マイルストーン
-    lanes.push(['試験日', 'ms', t.milestones.map(function (mi) { return '<span class="gt-ms" style="left:' + pos(mi.date).toFixed(2) + '%" title="' + h(mi.label + ' ' + mi.date) + '"><i></i>' + h(mi.label.replace(/\(.*?\)/g, '').replace('大学入学', '').replace('(目安)', '')) + '</span>'; }).join('')]);
+    lanes.push(['マイルストーン', 'ms2', (plan || []).filter(function (x) { return x.kind !== 'goal' && x.kind !== 'exam'; }).map(function (x) { return '<span class="gt-ms gt-ms2 bp-' + x.kind + '" style="left:' + pos(x.date).toFixed(2) + '%" title="' + h(x.date + ' ' + x.title + ':' + x.detail) + '"><i></i>' + h(x.title.replace('の中間目標', '').replace('志望校の', '')) + '</span>'; }).join('')]);
+    lanes.unshift(['試験日', 'ms', t.milestones.map(function (mi) { return '<span class="gt-ms" style="left:' + pos(mi.date).toFixed(2) + '%" title="' + h(mi.label + ' ' + mi.date) + '"><i></i>' + h(mi.label.replace(/\(.*?\)/g, '').replace('大学入学', '').replace('(目安)', '')) + '</span>'; }).join('')]);
     // フェーズ
     lanes.push(['フェーズ', 'ph', rm.phases.map(function (ph) { return bar(ph.start, ph.end, ph.name, 'ph-' + ph.key); }).join('')]);
     // 教科ごとの単元(週ごと)
@@ -1190,7 +1260,8 @@
         return '<div class="bar"><span>' + WPS.SUBJECTS[k].name + '</span><i style="width:' + Math.round(w[k] * 100) + '%;background:' + WPS.SUBJECTS[k].color + '"></i></div>';
       }).join('') + '</div></section>';
 
-    html += ganttSection(rm) + calendarSection(rm);
+    var plan = backPlan(rm);
+    html += backPlanSection(rm, plan) + ganttSection(rm, plan) + calendarSection(rm, plan);
     rm.warnings.forEach(function (x) { html += '<section class="info">💡 ' + h(x) + '</section>'; });
 
     html += seasonSection(t);
