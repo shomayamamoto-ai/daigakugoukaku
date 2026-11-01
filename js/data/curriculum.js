@@ -11,69 +11,179 @@
 window.WPS = window.WPS || {};
 
 WPS.CURRICULUM = [
+  /*
+   * 教科・科目の分け方は、大学入試の科目表記(旺文社 パスナビ「入試科目の凡例」)に合わせています。
+   *  国語 … 現代文・古文・漢文 ／ 地歴 … 世界史・日本史・地理 ／ 公民 … 公共・倫理・政経
+   *  数学 … Ⅰ・Ⅱ・Ⅲ・A・B・C ／ 理科 … 基礎4科目と専門4科目 ／ 外国語 … 英語・リスニング・英語資格・英語以外 ／ 情報
+   * areas … 科目の中の「項目」(数A=図形の性質・場合の数と確率・数学と人間の活動 など)。
+   */
   {
-    id: 'eng', name: '外国語(英語)', subj: 'eng',
-    mext: ['「聞く・読む・話す・書く」の4技能を統合した言語活動', '特に「話すこと」「書くこと」の発信力の強化(スピーチ・プレゼン・ディベートなど)', '国際的な基準(CEFR)を参考にした目標設定'],
+    id: 'jpn', name: '国語', subj: 'jpn',
+    mext: ['実社会で使う国語の力(話す・聞く・書く、話し合い・論述)', '資料や図表なども含めて読み取る力', '古典を「日本の言語文化」として理解し、今に生かす'],
     courses: [
-      { id: 'eng_jh', name: '中学 英語', stage: 'jh' },
-      { id: 'eng_ec', name: '英語コミュニケーション', units: ['e_h5', 'e_idiom', 'e_h6'] },
-      { id: 'eng_lr', name: '論理・表現(文法・作文)', units: ['e_h1', 'e_pastperf', 'e_futperf', 'e_tense', 'e_h2', 'e_h3', 'e_h4'] }
+      { id: 'jpn_jh', short: '中学国語', name: '中学 国語', stage: 'jh' },
+      { id: 'jpn_ron', short: '現代文', name: '現代文(現代の国語・論理国語・文学国語)', units: ['j_hyoron'] },
+      { id: 'jpn_ko', short: '古文', name: '古文(言語文化・古典探究)', areas: [
+        { name: '仮名遣い・単語', units: ['j_h1', 'j_kogo'] },
+        { name: '文法(活用・助動詞)', units: ['j_katsuyo', 'j_h2'] },
+        { name: '敬語', units: ['j_h3'] }
+      ] },
+      { id: 'jpn_kan', short: '漢文', name: '漢文(言語文化・古典探究)', areas: [
+        { name: '句法', units: ['j_h4'] },
+        { name: '重要語', units: ['j_kanword'] }
+      ] }
+    ]
+  },
+  {
+    id: 'chireki', name: '地理歴史', subj: 'soc',
+    mext: ['歴史:日本と世界を関連づけて近現代を考える。「継続と変化」「原因と結果」「類似と差異」で歴史をとらえる', '地理:地図・GIS(地理情報システム)を使い、地球規模や地域の課題の解決を考える'],
+    courses: [
+      { id: 'soc_jgeo', short: '中学地理', name: '中学 地理', stage: 'jh', units: ['c_m1', 'c_jgeo'] },
+      { id: 'soc_jhis', short: '中学歴史', name: '中学 歴史', stage: 'jh', areas: [
+        { name: '古代', units: ['c_ancient'] },
+        { name: '中世', units: ['c_medieval'] },
+        { name: '近世', units: ['c_early'] },
+        { name: '近代', units: ['c_modern'] },
+        { name: '現代', units: ['c_contemp'] },
+        { name: '総まとめ', units: ['c_m2'] }
+      ] },
+      { id: 'soc_wh', short: '世界史', name: '世界史(歴史総合・世界史探究)', units: ['c_h2'] },
+      { id: 'soc_jh', short: '日本史', name: '日本史(歴史総合・日本史探究)', units: ['c_h1'] },
+      { id: 'soc_geo', short: '地理', name: '地理(地理総合・地理探究)', guide: {
+        exam: ['共通テストでは「地理総合,地理探究」として出題されます。地図・統計・写真の読み取りが中心です(一般に知られている傾向)。', '大学によっては「地理総合,歴史総合,公共」のように、総合科目を組み合わせた選択科目もあります。必ず募集要項で確認しましょう。'],
+        how: ['用語の暗記より「なぜその場所でそうなるか(気候・地形・産業の理由)」を説明できるようにする。', '統計資料(生産量の上位国など)は、上位の国と理由をセットで覚える。', '中学の世界地理・日本地理が土台。不安なら中学の単元から復習しよう。'],
+        ng: ['統計の数字だけを丸暗記して、理由を考えない']
+      } }
+    ]
+  },
+  {
+    id: 'komin', name: '公民', subj: 'soc',
+    mext: ['主権者・消費者・労働者として、根拠をもって選択・判断する', '現代社会の課題を、多面的・多角的に考察する'],
+    courses: [
+      { id: 'soc_jciv', short: '中学公民', name: '中学 公民', stage: 'jh', areas: [
+        { name: '政治', units: ['c_m3'] },
+        { name: '経済', units: ['c_econ'] }
+      ] },
+      { id: 'soc_kokyo', short: '公共・政経', name: '公共・政治経済', units: ['c_h3'] },
+      { id: 'soc_rinri', short: '倫理', name: '倫理(公共,倫理)', guide: {
+        exam: ['共通テストでは「公共,倫理」として出題されます。思想家の考え方を、資料文や具体例に当てはめる問題が多いです(一般に知られている傾向)。'],
+        how: ['思想家ごとに「キーワード・主著・何を問題にしたか」を表にまとめる。', '原典資料の短い文を読んで、誰の考え方か判断する練習をする。', '「公共」の内容(民主政治・経済・国際社会)とセットで勉強する。'],
+        ng: ['人名とキーワードだけを覚えて、考え方の中身を説明できない']
+      } }
     ]
   },
   {
     id: 'math', name: '数学', subj: 'math',
     mext: ['数学と理科の知識を組み合わせて、課題を探究する力', '日常生活や社会と数学を関連づけて考える力'],
     courses: [
-      { id: 'math_jh', name: '中学 数学', stage: 'jh' },
-      { id: 'math_1', name: '数学Ⅰ', units: ['m_h1', 'm_qmax', 'm_disc', 'm_h2', 'm_sincos'] },
-      { id: 'math_a', name: '数学A', units: ['m_h3', 'm_prob', 'm_int'] },
-      { id: 'math_2', name: '数学Ⅱ', units: ['m_exp', 'm_h4', 'm_h5', 'm_h6', 'm_h7'] },
-      { id: 'math_b', name: '数学B', units: ['m_h8', 'm_sigma'] },
-      { id: 'math_c', name: '数学C', units: ['m_h9'] }
-    ]
-  },
-  {
-    id: 'jpn', name: '国語', subj: 'jpn',
-    mext: ['実社会で使う国語の力(話す・聞く・書く、話し合い・論述)', '資料や図表なども含めて読み取る力', '古典を「日本の言語文化」として理解し、今に生かす'],
-    courses: [
-      { id: 'jpn_jh', name: '中学 国語', stage: 'jh' },
-      { id: 'jpn_ron', name: '現代の国語・論理国語(現代文)', units: ['j_hyoron'] },
-      { id: 'jpn_ko', name: '言語文化・古典探究(古文)', units: ['j_h1', 'j_kogo', 'j_katsuyo', 'j_h2', 'j_h3'] },
-      { id: 'jpn_kan', name: '言語文化・古典探究(漢文)', units: ['j_h4', 'j_kanword'] }
+      { id: 'math_jh', short: '中学数学', name: '中学 数学', stage: 'jh' },
+      { id: 'math_1', short: '数Ⅰ', name: '数学Ⅰ', areas: [
+        { name: '数と式', units: [] },
+        { name: '二次関数', units: ['m_h1', 'm_qmax', 'm_disc'] },
+        { name: '図形と計量', units: ['m_h2', 'm_sincos'] },
+        { name: 'データの分析', units: [] }
+      ] },
+      { id: 'math_a', short: '数A', name: '数学A', areas: [
+        { name: '図形の性質', units: [] },
+        { name: '場合の数と確率', units: ['m_h3', 'm_prob'] },
+        { name: '数学と人間の活動', units: ['m_int'] }
+      ] },
+      { id: 'math_2', short: '数Ⅱ', name: '数学Ⅱ', areas: [
+        { name: 'いろいろな式', units: [] },
+        { name: '図形と方程式', units: [] },
+        { name: '指数関数・対数関数', units: ['m_exp', 'm_h4'] },
+        { name: '三角関数', units: ['m_h5'] },
+        { name: '微分・積分の考え', units: ['m_h6', 'm_h7'] }
+      ] },
+      { id: 'math_b', short: '数B', name: '数学B', areas: [
+        { name: '数列', units: ['m_h8', 'm_sigma'] },
+        { name: '統計的な推測', units: [] },
+        { name: '数学と社会生活', units: [] }
+      ] },
+      { id: 'math_c', short: '数C', name: '数学C', areas: [
+        { name: 'ベクトル', units: ['m_h9'] },
+        { name: '平面上の曲線と複素数平面', units: [] },
+        { name: '数学的な表現の工夫', units: [] }
+      ] },
+      { id: 'math_3', short: '数Ⅲ', name: '数学Ⅲ', guide: {
+        exam: ['数学Ⅲ(極限・微分法・積分法)は、主に国公立・私立の理系学部の個別試験で出題されます。共通テストの範囲には入っていません。', '出題範囲は大学・学部ごとに違うので、募集要項で「数Ⅲ」が入っているか確認しましょう。'],
+        how: ['数学Ⅱの微分・積分が土台。ここが不安なら先に数Ⅱを固める。', '計算量が多いので、典型問題を「手が止まらずに最後まで解ける」まで繰り返す。', '記述式の答案では、途中の式と理由を省略せずに書く練習をする。'],
+        ng: ['公式だけ覚えて、なぜそうなるかの導き方を確認しない']
+      } }
     ]
   },
   {
     id: 'sci', name: '理科', subj: 'sci',
     mext: ['数学と理科の資質・能力を統合した、科学的に探究する力', '実験や資料をもとに考察し、表現する力'],
     courses: [
-      { id: 'sci_jh1', name: '中学 理科(第1分野:物理・化学)', stage: 'jh', units: ['s_m1', 's_force', 's_light', 's_m2', 's_ion'] },
-      { id: 'sci_jh2', name: '中学 理科(第2分野:生物・地学)', stage: 'jh', units: ['s_m3', 's_cell', 's_m4', 's_space'] },
-      { id: 'sci_phy', name: '物理基礎', units: ['s_h2', 's_energy'] },
-      { id: 'sci_chem', name: '化学基礎', units: ['s_struct', 's_h1', 's_acid'] },
-      { id: 'sci_bio', name: '生物基礎', units: ['s_h3', 's_eco'] },
-      { id: 'sci_geo', name: '地学基礎', units: ['s_geo'] }
+      { id: 'sci_jh1', short: '中学理科1', name: '中学 理科(第1分野:物理・化学)', stage: 'jh', areas: [
+        { name: '物理分野', units: ['s_force', 's_light', 's_m1'] },
+        { name: '化学分野', units: ['s_m2', 's_ion'] }
+      ] },
+      { id: 'sci_jh2', short: '中学理科2', name: '中学 理科(第2分野:生物・地学)', stage: 'jh', areas: [
+        { name: '生物分野', units: ['s_m3', 's_cell'] },
+        { name: '地学分野', units: ['s_m4', 's_space'] }
+      ] },
+      { id: 'sci_phy', short: '物基', name: '物理基礎', units: ['s_h2', 's_energy'] },
+      { id: 'sci_chem', short: '化基', name: '化学基礎', units: ['s_struct', 's_h1', 's_acid'] },
+      { id: 'sci_bio', short: '生基', name: '生物基礎', units: ['s_h3', 's_eco'] },
+      { id: 'sci_geo', short: '地基', name: '地学基礎', units: ['s_geo'] },
+      { id: 'sci_adv', short: '物・化・生・地', name: '物理・化学・生物・地学(専門)', guide: {
+        exam: ['理系学部の多くは「物理・化学・生物・地学」から1〜2科目を指定します。医・歯・薬・看護などは化学や生物を指定することが多い傾向です(大学ごとに要確認)。', '文系や看護などでは「基礎2科目」で受けられる場合もあります。必ず募集要項で確認しましょう。'],
+        how: ['まず同じ分野の「基礎」科目を固める(物理なら物理基礎)。', '用語は「定義を自分の言葉で言える」まで。計算問題は単位を必ず書く。', '実験問題は「何を変えて、何を測り、何がわかるか」を図にして整理する。'],
+        ng: ['基礎科目があいまいなまま専門科目に進む', '公式の暗記だけで、グラフや実験の読み取りを練習しない']
+      } }
     ]
   },
   {
-    id: 'soc', name: '社会(地理歴史・公民)', subj: 'soc',
-    mext: ['歴史:日本と世界を関連づけて近現代を考える。「継続と変化」「原因と結果」「類似と差異」で歴史をとらえる', '地理:地図・GIS(地理情報システム)を使い、地球規模や地域の課題の解決を考える', '公民:主権者・消費者・労働者として、根拠をもって選択・判断する'],
+    id: 'eng', name: '外国語', subj: 'eng',
+    mext: ['「聞く・読む・話す・書く」の4技能を統合した言語活動', '特に「話すこと」「書くこと」の発信力の強化(スピーチ・プレゼン・ディベートなど)', '国際的な基準(CEFR)を参考にした目標設定'],
     courses: [
-      { id: 'soc_jgeo', name: '中学 地理', stage: 'jh', units: ['c_m1', 'c_jgeo'] },
-      { id: 'soc_jhis', name: '中学 歴史', stage: 'jh', units: ['c_ancient', 'c_medieval', 'c_early', 'c_modern', 'c_contemp', 'c_m2'] },
-      { id: 'soc_jciv', name: '中学 公民', stage: 'jh', units: ['c_m3', 'c_econ'] },
-      { id: 'soc_jh', name: '日本史探究', units: ['c_h1'] },
-      { id: 'soc_wh', name: '世界史探究', units: ['c_h2'] },
-      { id: 'soc_kokyo', name: '公共・政治経済', units: ['c_h3'] }
+      { id: 'eng_jh', short: '中学英語', name: '中学英語', stage: 'jh', areas: [
+        { name: '中1の文法', units: ['e_m1', 'e_pres', 'e_prog', 'e_can', 'e_wh', 'e_m2'] },
+        { name: '中2の文法', units: ['e_pprog', 'e_fut', 'e_m3', 'e_m4', 'e_ger', 'e_m5', 'e_m6', 'e_conj'] },
+        { name: '中3の文法', units: ['e_m7', 'e_pperfprog', 'e_partm', 'e_m8', 'e_indq'] },
+        { name: '中学英単語', units: ['e_vocab_m'] }
+      ] },
+      { id: 'eng_lr', short: '高校英語(文法)', name: '高校英語(文法・語法)', areas: [
+        { name: '文型・時制', units: ['e_h1', 'e_pastperf', 'e_futperf', 'e_tense'] },
+        { name: '仮定法・分詞構文', units: ['e_h2', 'e_h3'] },
+        { name: '関係詞', units: ['e_h4'] }
+      ] },
+      { id: 'eng_ec', short: '高校英語(語彙・読解)', name: '高校英語(単語・熟語・長文)', areas: [
+        { name: '単語', units: ['e_h5'] },
+        { name: '熟語', units: ['e_idiom'] },
+        { name: '長文読解', units: ['e_h6'] }
+      ] },
+      { id: 'eng_lis', short: 'リスニング', name: 'リスニング', guide: {
+        exam: ['共通テストの英語は「リーディング」と「リスニング」に分かれ、どちらも100点満点です。リスニングの配点の扱い(比率)は大学ごとに違います。'],
+        how: ['音声を聞く → スクリプトで確認 → 音声に合わせて声に出す(シャドーイング)を毎日10分。', '設問と選択肢を先に読んで、聞くポイントを決めてから聞く。', '単語は「発音」とセットで覚える(このアプリの単語一覧の🔊を使おう)。'],
+        ng: ['聞き流すだけで、聞き取れなかった部分をスクリプトで確認しない']
+      } },
+      { id: 'eng_shikaku', short: '英語資格', name: '英語資格・検定試験(英検など)', guide: {
+        exam: ['英検などの外部試験のスコアを、出願資格・得点換算・加点に使う大学があります。使い方と必要な級・スコアは大学ごとに違うので、募集要項で確認しましょう。', '総合型・学校推薦型選抜で、出願条件になっていることもあります。'],
+        how: ['受験したい大学が求める級・スコアと、有効期限(取得時期)を先に確認する。', '高2までに目標の級を一度受けておくと、高3で受験勉強に集中しやすい(推測を含む一般的な考え方です)。'],
+        ng: ['出願の締切までに結果が出ない時期に受験してしまう']
+      } },
+      { id: 'eng_other', short: '英語以外', name: '英語以外の外国語', guide: {
+        exam: ['ドイツ語・フランス語・中国語・韓国語などで受験できる大学・入試もあります。共通テストにも英語以外の外国語の科目があります。', '選べる言語は大学ごとに違うので、必ず募集要項で確認しましょう。'],
+        how: ['学校で学んでいる・家庭で使っているなど、得意な言語がある場合は選択肢に入れて比べてみる。'],
+        ng: ['受験できる大学が少ないことを確認せずに選んでしまう']
+      } }
     ]
   },
   {
     id: 'info', name: '情報', subj: 'info',
     mext: ['情報社会に主体的に参画する力', 'データやプログラムを使って問題を解決する力'],
     courses: [
-      { id: 'info_1', name: '情報Ⅰ', units: ['i_h1', 'i_h2', 'i_net'] }
+      { id: 'info_1', short: '情報Ⅰ', name: '情報Ⅰ', areas: [
+        { name: '情報のデジタル化', units: ['i_h1'] },
+        { name: 'ネットワーク・情報社会', units: ['i_net'] },
+        { name: 'アルゴリズム・プログラミング', units: ['i_h2'] }
+      ] }
     ]
   },
-  /* ---------- 問題は作らず、勉強法・入試での使われ方を表示する教科 ---------- */
+  /* ---------- 他(問題は作らず、勉強法・入試での使われ方を表示する教科) ---------- */
   {
     id: 'riso', name: '理数(探究)', guideOnly: true,
     mext: ['数学と理科の知識・技能を総合的に活用して、主体的に探究する', '課題に徹底的に向き合い、考え抜いて行動する力'],
@@ -150,15 +260,32 @@ WPS.CURRICULUM = [
 (function () {
   WPS.COURSE_OF = {};
   WPS.CURRICULUM.forEach(function (g) {
-    g.courses.forEach(function (c) { (c.units || []).forEach(function (id) { WPS.COURSE_OF[id] = c.id; }); });
+    g.courses.forEach(function (c) {
+      if (c.areas) c.units = [].concat.apply([], c.areas.map(function (a) { return a.units; }));
+      (c.units || []).forEach(function (id) { WPS.COURSE_OF[id] = c.id; });
+    });
   });
   WPS.courseUnits = function (g, c) {
     if (c.guide) return [];
     return WPS.UNITS.filter(function (u) {
-      if (u.subj !== g.subj) return false;
       if (c.units) return c.units.indexOf(u.id) >= 0;
+      if (u.subj !== g.subj) return false;
       if (c.stage === 'jh') return WPS.STAGES.indexOf(u.stage) <= 2 && !WPS.COURSE_OF[u.id];
       return false;
     });
+  };
+  // 単元のリストがない中学の科目は、教科と学年から単元を割り当てる
+  WPS.CURRICULUM.forEach(function (g) {
+    g.courses.forEach(function (c) {
+      if (c.stage !== 'jh' || c.units || c.guide) return;
+      c.units = (WPS.UNITS || []).filter(function (u) { return u.subj === g.subj && WPS.STAGES.indexOf(u.stage) <= 2 && !WPS.COURSE_OF[u.id]; }).map(function (u) { return u.id; });
+      c.units.forEach(function (id) { WPS.COURSE_OF[id] = c.id; });
+    });
+  });
+  // 単元 → 科目(表示用)
+  WPS.courseOfUnit = function (id) {
+    var cid = WPS.COURSE_OF[id], hit = null;
+    WPS.CURRICULUM.forEach(function (g) { g.courses.forEach(function (c) { if (c.id === cid) hit = c; }); });
+    return hit;
   };
 })();

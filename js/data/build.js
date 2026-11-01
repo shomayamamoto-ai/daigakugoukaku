@@ -10,13 +10,26 @@ WPS.QUESTIONS = [];
 WPS.UNIT_MAP = {};
 WPS.Q_MAP = {};
 
+// 歴史の問題には「なぜ起きた? → どうなった?」を自動で付け足す(history_ctx.js)
+var HIST_UNITS = { c_ancient: 'j', c_medieval: 'j', c_early: 'j', c_modern: 'j', c_contemp: 'j', c_m2: 'j', c_h1: 'j', c_h2: 'w' };
+function addHistCtx(u, hay, exp) {
+  var k = HIST_UNITS[u.id];
+  if (!k || !WPS.HCTX) return exp;
+  var m = hay.match(/(\d{3,4})年/);
+  var c = m && WPS.HCTX[k + ':' + m[1]];
+  if (!c && WPS.BANK) { // 年がない問題は、できごとの名前から探す
+    var bank = WPS.BANK[k === 'w' ? 'whistory' : 'jhistory'] || [];
+    bank.some(function (x) { var key = x.m.replace(/[(（].*$/, '').split(/[・が]/)[0]; if (key.length >= 3 && hay.indexOf(key) >= 0) { c = WPS.HCTX[k + ':' + x.t]; return true; } return false; });
+  }
+  return c ? exp + '\n\n【なぜ起きた?】' + c[0] + '\n【どうなった?】' + c[1] : exp;
+}
 WPS.UNITS.forEach(function (u) {
   WPS.UNIT_MAP[u.id] = u;
   var all = u.qs.concat((WPS.EXTRA_QS && WPS.EXTRA_QS[u.id]) || []);
   u.questions = all.map(function (q, i) {
     var obj = {
       id: u.id + '-' + (i + 1), unit: u.id, subj: u.subj,
-      level: q[0], text: q[1], choices: q[2], answer: q[2][0], exp: q[3]
+      level: q[0], text: q[1], choices: q[2], answer: q[2][0], exp: addHistCtx(u, q[1] + ' ' + q[2][0] + ' ' + q[3], q[3])
     };
     WPS.QUESTIONS.push(obj);
     WPS.Q_MAP[obj.id] = obj;
@@ -52,7 +65,7 @@ WPS.Q = function (id) {
     GEN_CACHE[id] = {
       id: id, unit: u.id, subj: u.subj, level: q.lv, text: q.text,
       choices: q.choices, answer: q.choices[0], exp: q.exp, why: q.why || {},
-      say: q.say, pic: q.pic, pics: q.pics, fig: q.fig, sayChoices: q.sayChoices, generated: true
+      say: q.say, fig: q.fig, sayChoices: q.sayChoices, generated: true
     };
     return GEN_CACHE[id];
   } catch (e) { return null; }

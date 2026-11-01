@@ -73,19 +73,14 @@ window.WPS = window.WPS || {};
     o = o || {};
     return function (r, seed) {
       var bank = WPS.BANK[bankKey], N = bank.length;
-      var idx = seed % N, type = Math.floor(seed / N) % (o.noTF ? 2 : 4);
+      var idx = seed % N, type = Math.floor(seed / N) % 2; // 正誤(○×)問題は出さず、日本語→英語/英語→日本語 の4択だけ
       var it = bank[idx];
       var others = uniqBy(shuffle(r, bank.filter(function (x) { return x.m !== it.m && x.t !== it.t; })), 'm');
-      if (o.preferPic && WPS.EMOJI[it.t]) {
-        var withPic = others.filter(function (x) { return WPS.EMOJI[x.t]; });
-        if (withPic.length >= 3) others = withPic.concat(others);
-      }
       var ds = others.slice(0, 3);
       var tip = it.h ? '\n💡 ' + it.h : '';
       var note = o.note ? '\n' + o.note : '';
       var extra = {};
       if (o.en) extra.say = it.t;
-      if (WPS.EMOJI[it.t]) extra.pic = WPS.EMOJI[it.t];
       var q;
       if (type === 0) {
         q = Q(o.lv || 1, o.q0 ? o.q0(it) : '「' + it.t + '」の意味は?', [it.m].concat(ds.map(function (d) { return d.m; })),
@@ -96,9 +91,6 @@ window.WPS = window.WPS || {};
           '「' + it.m + '」＝「' + it.t + '」' + tip + note, extra);
         ds.forEach(function (d) { q.why[d.t] = '「' + d.t + '」は「' + d.m + '」のことです。'; });
         if (o.en) {
-          q.pics = {};
-          [it].concat(ds).forEach(function (d) { if (WPS.EMOJI[d.t]) q.pics[d.t] = WPS.EMOJI[d.t]; });
-          if (Object.keys(q.pics).length < 4) delete q.pics;
           q.sayChoices = true;
         }
       } else {
@@ -126,7 +118,10 @@ window.WPS = window.WPS || {};
       var eraList = bankKey === 'whistory' ? ERA_WH : ERA_JH;
       var sorted = all.slice().sort(function (a, b) { return a.t - b.t; });
       var pos = sorted.indexOf(it);
-      var ctx = '\n📅 前後のできごと:' + (sorted[pos - 1] ? '\n・' + yl(sorted[pos - 1].t) + ' ' + sorted[pos - 1].m : '') + '\n・' + yl(it.t) + ' ' + it.m + ' ←これ' + (sorted[pos + 1] ? '\n・' + yl(sorted[pos + 1].t) + ' ' + sorted[pos + 1].m : '');
+      // 流れで覚えられるように「なぜ起きたか → どうなったか」と前後のできごとを解説に入れる
+      var hc = (WPS.HCTX || {})[(bankKey === 'whistory' ? 'w:' : 'j:') + it.t];
+      var ctx = (hc ? '\n\n【なぜ起きた?】' + hc[0] + '\n【どうなった?】' + hc[1] : '') +
+        '\n\n【前後のできごと】' + (sorted[pos - 1] ? '\n・' + yl(sorted[pos - 1].t) + ' ' + sorted[pos - 1].m : '') + '\n・' + yl(it.t) + ' ' + it.m + ' ←これ' + (sorted[pos + 1] ? '\n・' + yl(sorted[pos + 1].t) + ' ' + sorted[pos + 1].m : '');
       var others = shuffle(r, bank.filter(function (x) { return x.t !== it.t; }));
       var q;
       if (type === 0) {
@@ -147,7 +142,7 @@ window.WPS = window.WPS || {};
         function lab(list) { return list.map(function (x) { return x.m.length > 14 ? x.m.slice(0, 14) + '…' : x.m; }).join(' → '); }
         var perms = [[0, 2, 1], [1, 0, 2], [2, 1, 0], [1, 2, 0], [2, 0, 1]].map(function (p) { return lab(p.map(function (i) { return right[i]; })); });
         q = Q(3, '古い順に正しく並べたものは?', [lab(right)].concat(shuffle(r, perms).slice(0, 3)),
-          '古い順:\n' + right.map(function (x) { return '・' + yl(x.t) + ' ' + x.m; }).join('\n') + '\n💡 年号を覚えていなくても、時代の順番がわかれば並べられます。');
+          '古い順:\n' + right.map(function (x) { var c = (WPS.HCTX || {})[(bankKey === 'whistory' ? 'w:' : 'j:') + x.t]; return '・' + yl(x.t) + ' ' + x.m + (c ? '\n　→ ' + c[1] : ''); }).join('\n') + '\n年号を覚えていなくても、「何が原因で、次に何が起きたか」の流れがわかれば並べられます。');
       }
       return q;
     };

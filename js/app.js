@@ -29,7 +29,7 @@
   function pct(x) { return x === null || x === undefined ? '—' : Math.round(x * 100) + '%'; }
   function toast(msg) {
     var el = document.getElementById('toast');
-    el.textContent = msg;
+    el.textContent = noEmoji(msg);
     el.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { el.classList.remove('show'); }, 2600);
@@ -39,7 +39,7 @@
   function dialog(html, buttons) {
     var wrap = document.createElement('div');
     wrap.className = 'dlg-wrap';
-    wrap.innerHTML = '<div class="dlg" role="dialog" aria-modal="true">' + html + '<div class="btns dlg-btns"></div></div>';
+    wrap.innerHTML = noEmoji('<div class="dlg" role="dialog" aria-modal="true">' + html + '<div class="btns dlg-btns"></div></div>');
     var box = wrap.querySelector('.dlg-btns');
     buttons.forEach(function (b) {
       var el = document.createElement('button');
@@ -110,6 +110,10 @@
       '<path d="M48 113 l-4 5 M52 113 l0 6 M68 113 l0 6 M72 113 l4 5" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>' +
       extra + '</svg>';
   }
+  // 装飾の絵文字は表示しない(「AIっぽい」装飾を減らし、文字だけで伝わる画面にする)
+  var EMOJI_RE;
+  try { EMOJI_RE = new RegExp('(?:\\p{Extended_Pictographic}|[\\u{1F1E6}-\\u{1F1FF}])(?:\\uFE0F|\\u200D\\p{Extended_Pictographic}|[\\u{1F3FB}-\\u{1F3FF}])*\\uFE0F?[ 　]?', 'gu'); } catch (e) { EMOJI_RE = null; }
+  function noEmoji(html) { return EMOJI_RE ? String(html).replace(EMOJI_RE, '') : html; }
   function say(text, mood, size) {
     return '<div class="say">' + pinpo(size || 64, mood) + '<div class="bubble">' + text + '</div></div>';
   }
@@ -141,7 +145,7 @@
       memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' ? '' : pageBand(route);
-    view.innerHTML = band + fn(parts[1]);
+    view.innerHTML = noEmoji(band + fn(parts[1]));
     if (fn.after) fn.after(parts[1]);
     window.scrollTo(0, 0);
   }
@@ -213,7 +217,7 @@
     var f = document.getElementById('profileForm');
     var ss = document.getElementById('schoolSel');
     ss.addEventListener('change', function () {
-      document.getElementById('trackSel').innerHTML = trackOptions(ss.value, '');
+      document.getElementById('trackSel').innerHTML = noEmoji(trackOptions(ss.value, ''));
       var d = defaultExamDate(ss.value);
       if (d) document.getElementById('examDate').value = d;
       document.getElementById('kyotsuRow').hidden = !usesKyotsu(ss.value);
@@ -452,6 +456,12 @@
     go('#quiz');
   }
 
+  // 問題を解いている間は単元名を出さない(「未来完了」などの単元名で答えがわかってしまうため)。
+  // 科目名と学年だけを表示し、単元名は答えた後の解説で見せる。
+  function qLabel(u) {
+    var c = WPS.courseOfUnit(u.id);
+    return (c ? c.short : WPS.SUBJECTS[u.subj].name) + '・' + u.stage;
+  }
   function renderQuiz() {
     if (!quiz) return renderTest();
     var it = quiz.items[quiz.i];
@@ -462,13 +472,11 @@
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
     html += modeSwitch();
-    html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '（' + u.stage + '）</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></div>' +
-      (q.pic ? '<div class="q-pic" aria-hidden="true">' + q.pic + '</div>' : '') +
+    html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></div>' +
       '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') +
       (useWrite(q) ? writeBox('qWrite') : '<div class="choices">' +
       quiz.order.map(function (ci, k) {
-        var pic = q.pics && q.pics[q.choices[ci]] ? '<span class="c-pic" aria-hidden="true">' + q.pics[q.choices[ci]] + '</span>' : '';
-        return '<button class="choice" data-ci="' + ci + '"><b>' + 'ABCD'[k] + '</b>' + pic + '<span>' + h(q.choices[ci]) + '</span></button>';
+        return '<button class="choice" data-ci="' + ci + '"><b>' + 'ABCD'[k] + '</b><span>' + h(q.choices[ci]) + '</span></button>';
       }).join('') + '</div>') +
       '<button class="btn ghost unsure" data-ci="-1">🤔 わからない(先生に聞きたい)</button><div id="feedback"></div></section>';
     return html;
@@ -533,10 +541,10 @@
     var mood = ok ? 'happy' : 'normal';
     var line = ok ? pick(LINES.correct) : unsure ? LINES.unsure[0] : pick(LINES.wrong);
     var last = quiz.i + 1 >= quiz.items.length;
-    document.getElementById('feedback').innerHTML =
+    document.getElementById('feedback').innerHTML = noEmoji(
       explainBox(q, ok, chosen) +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
-      '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>';
+      '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>');
     document.getElementById('nextQ').addEventListener('click', function () {
       if (last) { finishQuiz(); return; }
       quiz.i++; quiz.answered = false; quiz.order = null;
@@ -588,7 +596,7 @@
   function selfCheck(id, text, ans, done) {
     var f = document.getElementById(id), box = f.querySelector('.self-check');
     f.querySelectorAll('input,button[type=submit]').forEach(function (x) { x.disabled = true; });
-    box.innerHTML = '<p>正解は「<b>' + h(ans) + '</b>」。あなたの答え「' + h(text) + '」は合っていた?</p><div class="btns"><button type="button" class="btn g-good" data-sc="1">⭕ 合っていた</button><button type="button" class="btn g-again" data-sc="0">❌ まちがい</button></div>';
+    box.innerHTML = noEmoji('<p>正解は「<b>' + h(ans) + '</b>」。あなたの答え「' + h(text) + '」は合っていた?</p><div class="btns"><button type="button" class="btn g-good" data-sc="1">⭕ 合っていた</button><button type="button" class="btn g-again" data-sc="0">❌ まちがい</button></div>');
     box.querySelectorAll('[data-sc]').forEach(function (b) { b.addEventListener('click', function () { done(b.getAttribute('data-sc') === '1'); }); });
   }
   // 表記ゆれ(全角/半角・大文字/小文字・空白・記号)を無視して比べる
@@ -618,7 +626,7 @@
     html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
     html += WPS.Fig.draw(q.fig);
     if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';
-    html += '<details class="fb-point"><summary>📌 この単元のポイント</summary><p>' + h(u.point) + '</p></details>';
+    html += '<details class="fb-point"><summary>📌 この単元(' + h(u.name) + ')のポイント</summary><p>' + h(u.point) + '</p></details>';
     if (!ok && u.prereq.length) {
       html += '<div class="fb-review"><small>🔍 つまずいたら、この単元にもどって復習しよう</small><div class="chips">' + u.prereq.map(function (pid) {
         var pu = WPS.UNIT_MAP[pid];
@@ -820,35 +828,45 @@
     var g = C.filter(function (x) { return x.id === cardFilter.group; })[0] || C[0];
     cardFilter.group = g.id;
     var c = g.courses.filter(function (x) { return x.id === cardFilter.course; })[0];
-    var html = '<div class="tier"><span class="f-label">教科</span>' + seg('group', C.map(function (x) { return [x.id, (x.guideOnly ? '📘 ' : '') + x.name]; }), g.id) + '</div>';
+    var html = '<div class="tier"><span class="f-label">教科</span>' + seg('group', C.map(function (x) { return [x.id, x.guideOnly ? '他:' + x.name : x.name]; }), g.id) + '</div>';
     html += '<div class="tier tier2"><span class="f-label">科目</span>' + seg('course', [['all', g.guideOnly ? '概要' : 'すべて']].concat(g.courses.map(function (x) {
       var n = WPS.courseUnits(g, x).length;
-      return [x.id, h(x.name) + (x.guide ? '' : '<small> ' + n + '</small>')];
+      return [x.id, h(x.short || x.name) + (x.guide ? '' : '<small> ' + n + '</small>')];
     })), c ? c.id : 'all') + '</div>';
     // 文部科学省が求めている力
     html += '<details class="mext"><summary>📘 文部科学省が「' + h(g.name) + '」で求めている力</summary><ul class="bullets">' + g.mext.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul><p class="hint">出典:文部科学省 中央教育審議会 教育課程企画特別部会 資料(平成27年)の検討素案より要約</p></details>';
+    function guideBox(x) {
+      var gd = x.guide;
+      return '<div class="guide-box"><h3>' + h(x.name) + '</h3><b>入試での使われ方</b><ul class="bullets">' + gd.exam.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
+        '<b>勉強のしかた</b><ol class="steps">' + gd.how.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ol>' +
+        '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + gd.ng.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
+    }
     if (g.guideOnly) {
-      var cs = c ? [c] : g.courses;
       html += '<p class="muted">この教科は共通テストの科目ではないため、問題はありません。入試での使われ方と勉強法を確認しよう。</p>';
-      cs.forEach(function (x) {
-        var gd = x.guide;
-        html += '<div class="guide-box"><h3>' + h(x.name) + '</h3><b>🎓 入試での使われ方</b><ul class="bullets">' + gd.exam.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
-          '<b>✏️ 勉強のしかた</b><ul class="bullets">' + gd.how.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
-          '<div class="guide-ng"><b>⚠️ よくある失敗</b><ul class="bullets">' + gd.ng.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
-      });
+      (c ? [c] : g.courses).forEach(function (x) { html += guideBox(x); });
       return html;
     }
     var courses = c ? [c] : g.courses;
     var total = 0, body = '';
+    function unitRow(u) {
+      return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? '50問以上' : u.questions.length + '問') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
+    }
     courses.forEach(function (x) {
-      var us = WPS.courseUnits(g, x).filter(function (u) { return mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]; });
-      if (!us.length) return;
+      if (x.guide) { if (c) body += guideBox(x); else body += '<details class="guide-mini"><summary>' + h(x.name) + '(勉強法・入試での使われ方)</summary>' + guideBox(x) + '</details>'; return; }
+      var ok = function (u) { return mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]; };
+      var us = WPS.courseUnits(g, x).filter(ok);
+      if (!us.length && !(c && x.areas)) return;
       total += us.length;
-      body += '<h3 class="subj-head">' + h(x.name) + ' <span class="muted">' + us.length + '単元</span></h3><div class="unit-list">' + us.map(function (u) {
-        return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? '50問以上' : u.questions.length + '問') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
-      }).join('') + '</div>';
+      body += '<h3 class="subj-head">' + h(x.name) + ' <span class="muted">' + us.length + '単元</span></h3>';
+      if (x.areas) {
+        x.areas.forEach(function (a) {
+          var au = a.units.map(function (id) { return WPS.UNIT_MAP[id]; }).filter(function (u) { return u && ok(u); });
+          if (!au.length && !c) return;
+          body += '<p class="area-head">' + h(a.name) + '</p>' + (au.length ? '<div class="unit-list">' + au.map(unitRow).join('') + '</div>' : '<p class="muted small">この項目の問題は準備中です。</p>');
+        });
+      } else body += '<div class="unit-list">' + us.map(unitRow).join('') + '</div>';
     });
-    if (!total) return html + '<p class="muted">' + (mode === 'cards' && cardFilter.scope === 'weak' ? 'この科目の苦手単元はないよ。「すべての単元」に切りかえると、ほかの単元も練習できるよ。' : 'この科目の単元はまだありません。') + '</p>';
+    if (!total) return html + body + '<p class="muted">' + (mode === 'cards' && cardFilter.scope === 'weak' ? 'この科目の苦手単元はないよ。「すべての単元」に切りかえると、ほかの単元も練習できるよ。' : 'この科目の単元はまだありません。') + '</p>';
     return html + '<div class="row-between list-head"><span class="muted">' + total + '単元</span><button class="btn small primary" id="startFiltered">この' + total + '単元をまとめて' + (mode === 'cards' ? '単語帳で練習' : '練習') + '</button></div>' + body;
   }
   function cardUnitList(weakUnits, stats) {
@@ -927,7 +945,7 @@
       '<div class="deck-nav"><button class="btn small" id="prevCard"' + (deck.i === 0 ? ' disabled' : '') + '>← 前のカード</button>' + (deck.back ? '<span class="muted">もどって見直し中(評価すると次へ進むよ)</span>' : '') + '</div>' +
       '<div class="progress"><i style="width:' + Math.round(deck.i / deck.items.length * 100) + '%"></i></div>' + modeSwitch(true) +
       '<div class="flash' + (deck.flipped ? ' flipped' : '') + '" id="flash" tabindex="0" role="button" aria-label="カードをめくる">' +
-      '<div class="face front"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '</span></div><p class="q-text">' + h(q.text) + '</p>' +
+      '<div class="face front"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span></div><p class="q-text">' + h(q.text) + '</p>' +
       '<span class="tap">' + (dm === 'flip' ? 'タップしてめくる' : '下で答えてね') + '</span></div>' +
       '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p>' + (deck.my ? '<p class="my-ans ' + (deck.my.ok ? 'ok' : 'ng') + '">あなたの答え:' + h(deck.my.text) + (deck.my.ok ? ' ⭕' : ' ❌') + '</p>' : '') + '<small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
       (speakText(q) ? '<button class="btn small say-btn" id="sayBtn">🔊 発音を聞く</button>' : '') +
@@ -1022,7 +1040,7 @@
 
     // 科目別・思考レベル別
     var ss = A.subjectStats();
-    html += '<section class="card"><h2>① 教科・科目別、思考レベル別の正答率</h2><div class="table-scroll"><table class="grid grid2"><thead><tr><th>教科</th><th>科目</th><th>全体</th><th>知識</th><th>理解</th><th>応用</th></tr></thead><tbody>';
+    html += '<section class="card"><h2>① 教科・科目別、思考レベル別の正答率</h2><div class="table-scroll"><table class="grid grid2"><thead><tr><th>科目</th><th>全体</th><th>知識</th><th>理解</th><th>応用</th></tr></thead><tbody>';
     var diags = '';
     function cell(x) { var v = x.n ? x.c / x.n : null; return '<td class="' + (v === null ? '' : v < 0.5 ? 'bad' : v < 0.8 ? 'mid' : 'good') + '">' + pct(v) + '<small>' + (x.n ? '(' + x.n + ')' : '') + '</small></td>'; }
     // 科目ごとに、全体と思考レベル別の正答数を数える
@@ -1037,19 +1055,46 @@
       });
       return r;
     }
-    WPS.CURRICULUM.filter(function (g) { return !g.guideOnly && ss[g.subj] && ss[g.subj].n; }).forEach(function (g) {
-      var rows = g.courses.map(function (c) { return { c: c, st: courseStats(g, c) }; }).filter(function (x) { return x.st.all.n; });
-      if (!rows.length) return;
-      var ls = A.levelStats(g.subj);
-      rows.forEach(function (x, ri) {
-        html += '<tr>' + (ri === 0 ? '<th rowspan="' + (rows.length + (rows.length > 1 ? 1 : 0)) + '" class="g-name">' + h(WPS.SUBJECTS[g.subj].name) + '</th>' : '') +
-          '<td class="c-name">' + h(x.c.name) + '</td>' + cell(x.st.all) + cell(x.st[1]) + cell(x.st[2]) + cell(x.st[3]) + '</tr>';
+    function unitStats(ids) {
+      var set = {}; ids.forEach(function (id) { set[id] = true; });
+      var r = { all: { n: 0, c: 0 }, 1: { n: 0, c: 0 }, 2: { n: 0, c: 0 }, 3: { n: 0, c: 0 } };
+      s.attempts.forEach(function (a) {
+        if (!set[a.u] || a.src === 'card') return;
+        r.all.n++; if (a.ok) r.all.c++;
+        var q = a.q && WPS.Q(a.q);
+        if (q) { r[q.level].n++; if (a.ok) r[q.level].c++; }
       });
-      if (rows.length > 1) html += '<tr class="g-total"><td class="c-name">教科の合計</td>' + cell(ss[g.subj]) + cell(ls[1]) + cell(ls[2]) + cell(ls[3]) + '</tr>';
-      diags += '<li><b>' + h(g.name) + '</b>:' + h(A.levelDiagnosis(ls)) + '</li>';
+      return r;
+    }
+    var diagDone = {};
+    WPS.CURRICULUM.filter(function (g) { return !g.guideOnly && ss[g.subj] && ss[g.subj].n; }).forEach(function (g) {
+      var rows = g.courses.filter(function (c) { return !c.guide; }).map(function (c) { return { c: c, st: courseStats(g, c) }; }).filter(function (x) { return x.st.all.n; });
+      if (!rows.length) return;
+      var gIds = []; rows.forEach(function (x) { gIds = gIds.concat(x.c.units || []); });
+      var gst = unitStats(gIds);
+      html += '<tr class="g-head"><th colspan="5">' + h(g.name) + '</th></tr>';
+      rows.forEach(function (x) {
+        var tg = 'tg_' + x.c.id;
+        html += '<tr class="c-row" data-tg="' + tg + '" tabindex="0" role="button" aria-expanded="false">' +
+          '<td class="c-name"><span class="tg-arrow" aria-hidden="true">▸</span>' + h(x.c.short || x.c.name) + '</td>' + cell(x.st.all) + cell(x.st[1]) + cell(x.st[2]) + cell(x.st[3]) + '</tr>';
+        // クリックで開く:項目 → 単元ごとの正答率
+        var groups = x.c.areas || [{ name: '', units: x.c.units || [] }];
+        var sub = '';
+        groups.forEach(function (ar) {
+          var us = ar.units.filter(function (id) { return unitStats([id]).all.n; });
+          if (ar.name) sub += '<div class="u-area">' + h(ar.name) + (us.length ? '' : '<small>(未解答)</small>') + '</div>';
+          us.forEach(function (id) {
+            var st = unitStats([id]);
+            sub += '<div class="u-line"><span>' + h(WPS.UNIT_MAP[id].name) + '</span>' + ['all', 1, 2, 3].map(function (k) { var v = st[k].n ? st[k].c / st[k].n : null; return '<i class="' + (v === null ? '' : v < 0.5 ? 'bad' : v < 0.8 ? 'mid' : 'good') + '">' + pct(v) + '</i>'; }).join('') + '</div>';
+          });
+        });
+        html += '<tr class="u-rows" id="' + tg + '" hidden><td colspan="5"><div class="u-head"><span>単元</span><i>全体</i><i>知識</i><i>理解</i><i>応用</i></div>' + sub + '</td></tr>';
+      });
+      if (rows.length > 1) html += '<tr class="g-total"><td class="c-name">' + h(g.name) + 'の合計</td>' + cell(gst.all) + cell(gst[1]) + cell(gst[2]) + cell(gst[3]) + '</tr>';
+      if (!diagDone[g.subj]) { diagDone[g.subj] = 1; diags += '<li><b>' + h(WPS.SUBJECTS[g.subj].name) + '</b>:' + h(A.levelDiagnosis(A.levelStats(g.subj))) + '</li>'; }
     });
     html += '</tbody>';
-    html += '</table></div><h3>指導方針の診断</h3><ul class="bullets">' + diags + '</ul><p class="hint">知識=用語・公式を覚えているか／理解=それを使えるか／応用=組み合わせて解けるか。( )内は解答数。</p></section>';
+    html += '</table></div><h3>指導方針の診断</h3><ul class="bullets">' + diags + '</ul><p class="hint">科目名(数A など)をタップすると、項目・単元ごとの正答率が開きます。知識=用語・公式を覚えているか／理解=それを使えるか／応用=組み合わせて解けるか。( )内は解答数。</p></section>';
 
     // 最優先単元
     var focus = rm.units.filter(function (id) { return stats[id].status === 'weak' || stats[id].status === 'soso'; })
@@ -1121,6 +1166,16 @@
     if (pb) pb.addEventListener('click', function () { window.print(); });
     var sb = document.getElementById('shareTutor');
     if (sb) sb.addEventListener('click', shareLink);
+    // 科目の行をタップすると、項目・単元ごとの正答率を開く
+    view.querySelectorAll('.c-row[data-tg]').forEach(function (r) {
+      function tog() {
+        var t = document.getElementById(r.getAttribute('data-tg'));
+        var open = t.hidden; t.hidden = !open;
+        r.setAttribute('aria-expanded', open); r.classList.toggle('open', open);
+      }
+      r.addEventListener('click', tog);
+      r.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tog(); } });
+    });
     view.querySelectorAll('[data-oral]').forEach(function (b) {
       b.addEventListener('click', function () {
         var uid = b.getAttribute('data-oral'), ok = b.getAttribute('data-ok') === '1';
@@ -1404,7 +1459,7 @@
     return html;
   }
   renderWords.after = function () {
-    function re() { var y = window.scrollY, f = document.activeElement && document.activeElement.id; view.innerHTML = renderWords(); renderWords.after(); if (f === 'wq') { var el = document.getElementById('wq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); } window.scrollTo(0, y); }
+    function re() { var y = window.scrollY, f = document.activeElement && document.activeElement.id; view.innerHTML = noEmoji(renderWords()); renderWords.after(); if (f === 'wq') { var el = document.getElementById('wq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); } window.scrollTo(0, y); }
     view.querySelectorAll('[data-f="wsubj"]').forEach(function (b) { b.addEventListener('click', function () { wordState.subj = b.getAttribute('data-v'); wordState.list = -1; wordState.q = ''; re(); }); });
     view.querySelectorAll('[data-wlist]').forEach(function (b) { b.addEventListener('click', function () { wordState.list = +b.getAttribute('data-wlist'); re(); }); });
     var wq = document.getElementById('wq'), tm;
@@ -1538,7 +1593,7 @@
   }
   renderUniv.after = function () {
     function bind(id, key, ev) { var el = document.getElementById(id); el.addEventListener(ev || 'change', function () { univState[key] = el.value.trim(); if (key === 'q') { clearTimeout(bind.t); bind.t = setTimeout(rerender, 250); } else rerender(); }); }
-    function rerender() { var y = window.scrollY; var f = document.activeElement && document.activeElement.id; view.innerHTML = renderUniv(); renderUniv.after(); if (f) { var el = document.getElementById(f); if (el) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } } window.scrollTo(0, y); }
+    function rerender() { var y = window.scrollY; var f = document.activeElement && document.activeElement.id; view.innerHTML = noEmoji(renderUniv()); renderUniv.after(); if (f) { var el = document.getElementById(f); if (el) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } } window.scrollTo(0, y); }
     bind('uYear', 'year'); bind('uField', 'field'); if (document.getElementById('uSched')) bind('uSched', 'sched'); bind('uQ', 'q', 'input');
     view.querySelectorAll('[data-ukind]').forEach(function (b) { b.addEventListener('click', function () { univState.kind = b.getAttribute('data-ukind'); univState.field = ''; rerender(); }); });
     view.querySelectorAll('[data-goal]').forEach(function (b) {
@@ -1681,10 +1736,10 @@
     }
     p.then(function (st) {
       S.setView(st);
-      view.innerHTML = renderTutor();
+      view.innerHTML = noEmoji(renderTutor());
       renderTutor.after();
     }).catch(function () {
-      view.innerHTML = '<section class="card">' + say('ごめんね、共有データを読み込めませんでした。リンクが途中で切れていないか、生徒さんにもう一度送ってもらってね。', 'sad', 56) + '</section>';
+      view.innerHTML = noEmoji('<section class="card">' + say('ごめんね、共有データを読み込めませんでした。リンクが途中で切れていないか、生徒さんにもう一度送ってもらってね。', 'sad', 56) + '</section>');
     });
   };
 
