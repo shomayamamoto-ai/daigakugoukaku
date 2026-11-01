@@ -288,9 +288,10 @@
   }
 
   /* ========== ホーム ========== */
-  /* ========== 入試のしくみ・日程(パスナビの記事をもとに) ========== */
+  /* ========== 入試のしくみ・日程 ========== */
   function renderExam() {
     var E = WPS.EXAM_INFO, today = D.today();
+    var apDone = {}; try { apDone = JSON.parse(localStorage.getItem('wps_apply_ck') || '{}'); } catch (e) { apDone = {}; }
     var md = function (d) { return (+d.slice(5, 7)) + '月' + (+d.slice(8)) + '日'; };
     var kd = WPS.EXAM_DATES.kyotsu.date;
     var html = '<section class="card focal"><span class="pb-en">Next</span><h2>共通テスト本試験まで あと ' + Math.max(0, D.diff(today, kd)) + '日</h2>' +
@@ -330,13 +331,22 @@
         return '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
           return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + (i + 1) + '. ' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
         }).join('') +
+        '<h3>面接での話し方・ふるまい</h3>' + M.tips.map(function (f) {
+          return '<details class="guide-mini"><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
+        }).join('') +
+        '<h3>服装・身だしなみチェック</h3>' + M.dress.map(function (g, gi) {
+          return '<b>' + h(g.name) + '</b><ul class="checklist">' + g.items.map(function (it, ii) {
+            var k = 'd' + gi + '-' + ii;
+            return '<li><label><input type="checkbox" data-apck="' + k + '"' + (apDone[k] ? ' checked' : '') + '> <span>' + h(it) + '</span></label></li>';
+          }).join('') + '</ul>';
+        }).join('') + '<p class="hint">本番の3日前までにすべてそろえ、前日と当日の朝にもう一度確認しましょう。</p>' +
         '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>おじぎ</th><th>使う場面</th></tr></thead><tbody>' + M.bow.map(function (b) { return '<tr><th>' + h(b[0]) + '</th><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>避けたい言い方</th><th>言いかえ</th></tr></thead><tbody>' + M.words.map(function (b) { return '<tr><td>' + h(b[0]) + '</td><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
-        '<p class="hint">' + h(M.source) + '。</p>';
+        '';
       })(WPS.INTERVIEW_MANNER) : '') +
       '<h3>小論文の書き方</h3><ol class="steps">' + I.shoronbun.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
       '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + I.ng.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' +
-      '<p class="hint">「どんな入試で課されるか」の1・2つめは下の出典の記事、それ以外の面接・小論文の対策は一般に知られている方法をまとめたものです(出典なし)。</p></section>';
+      '<p class="hint">面接の形式や会場のルールは大学によって違います。当日は係の人や面接官の指示を優先しましょう。</p></section>';
     // 学部・学科の選び方
     var F = WPS.FACULTY_GUIDE;
     if (F) {
@@ -346,7 +356,7 @@
         '<h3>学部・学科で学ぶこと(要約)</h3><div class="table-scroll"><table class="grid cmp"><thead><tr><th>学部・学科</th><th>学ぶこと</th><th>関係する主な資格・進路</th></tr></thead><tbody>' + F.details.map(function (d) {
           return '<tr><th>' + h(d[0]) + '</th><td>' + h(d[1]) + '</td><td>' + h(d[2]) + '</td></tr>';
         }).join('') + '</tbody></table></div>' +
-        '<p class="hint">' + h(F.source) + '。記事の文章は載せず、要約しています。くわしくは記事や各大学の公式サイトで確認してください。</p></section>';
+        '<p class="hint">くわしい内容は、各大学の公式サイトやパンフレット、オープンキャンパスで確認しましょう。</p></section>';
     }
     // 出願チェックリスト(チェックはこの端末に保存)
     var AC = WPS.APPLY_CHECK;
@@ -360,7 +370,7 @@
         }).join('') + '</ul>';
       }).join('');
       html += '<section class="card" id="apply"><div class="row-between"><h2>出願(願書)チェックリスト</h2><span class="time-pill" id="apCount">' + cnt + ' / ' + total + '</span></div>' + body +
-        '<p class="hint">' + h(AC.source) + '。細かいルールは大学によって違うので、必ず募集要項に従ってください。チェックはこの端末に保存されます。</p></section>';
+        '<p class="hint">細かいルールは大学によって違うので、必ず募集要項に従ってください。チェックはこの端末に保存されます。</p></section>';
     }
     // 検定料
     html += '<section class="card" id="fees"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
@@ -368,7 +378,7 @@
     // 傾向・共テとセンターの違い
     html += '<section class="card"><h2>最近の傾向</h2><ul class="bullets">' + E.trends.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
       '<h3>共通テストとセンター試験の違い</h3><ul class="bullets">' + E.kyotsuVsCenter.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
-      '<p class="hint">出典:' + h(E.source) + ' <a href="' + E.sourceUrl + '" target="_blank" rel="noopener">' + E.sourceUrl + '</a>。日程・金額は年度で変わるので、必ず大学入試センター・各大学の発表で確認してください。</p></section>';
+      '<p class="hint">' + h(E.source) + '。年度ごとに変わるので、必ず大学入試センター・各大学の最新の発表で確認してください。</p></section>';
     return html;
   }
   renderExam.after = function () {
@@ -380,7 +390,7 @@
         var d = {}; try { d = JSON.parse(localStorage.getItem('wps_apply_ck') || '{}'); } catch (e) { d = {}; }
         if (c.checked) d[c.getAttribute('data-apck')] = 1; else delete d[c.getAttribute('data-apck')];
         try { localStorage.setItem('wps_apply_ck', JSON.stringify(d)); } catch (e) { /* 保存できない環境でも動く */ }
-        var n = view.querySelectorAll('[data-apck]:checked').length, t = view.querySelectorAll('[data-apck]').length;
+        var n = view.querySelectorAll('#apply [data-apck]:checked').length, t = view.querySelectorAll('#apply [data-apck]').length;
         document.getElementById('apCount').textContent = n + ' / ' + t;
       });
     });
