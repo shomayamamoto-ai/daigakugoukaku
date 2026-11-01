@@ -182,7 +182,7 @@
       var list = us.filter(function (s) { return s.kind === g[0] && (hit(s) || s.id === selected); });
       if (!list.length) return;
       html += '<optgroup label="' + g[1] + '">' + list.map(function (s) {
-        return '<option value="' + h(s.id) + '"' + (s.id === selected ? ' selected' : '') + '>' + h(s.name) + (s.hensaMax ? '(' + (s.hensaMin === s.hensaMax ? s.hensaMax.toFixed(1) : s.hensaMin.toFixed(1) + '〜' + s.hensaMax.toFixed(1)) + ')' : '') + '</option>';
+        return '<option value="' + h(s.id) + '"' + (s.id === selected ? ' selected' : '') + '>' + h(s.name) + (s.hensaMax ? '(' + (s.bf ? 'BF〜' + s.hensaMax.toFixed(1) : s.hensaMin === s.hensaMax ? s.hensaMax.toFixed(1) : s.hensaMin.toFixed(1) + '〜' + s.hensaMax.toFixed(1)) + ')' : '') + '</option>';
       }).join('') + '</optgroup>';
     });
     return html;
@@ -209,7 +209,7 @@
       '</select></label>' +
       '<label>志望校をさがす<input id="schoolQ" type="search" maxlength="20" placeholder="大学名の一部を入力(例:法政、岩手、湘南)" autocomplete="off"></label>' +
       '<label>志望校<select name="schoolId" id="schoolSel">' + schoolOptions(p.schoolId) + '</select></label>' +
-      '<p class="hint">( )内は、大学データに登録した学部・方式の偏差値の範囲です(河合塾 2027年度入試難易予想)。リストにない大学は、近いグループか「その他」を選び、下の欄に大学名を書いてください。</p>' +
+      '<p class="hint">( )内は、大学データに登録した学部・方式の偏差値の範囲です(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。リストにない大学は、近いグループか「その他」を選び、下の欄に大学名を書いてください。</p>' +
       '<label>志望校名(学部など・自由入力)<input name="schoolName" maxlength="40" value="' + h(p.schoolName) + '" placeholder="例:〇〇大学 経済学部"></label>' +
       '<label>文系/理系(受験科目)<select name="track" id="trackSel">' + trackOptions(p.schoolId, p.track) + '</select></label>' +
       '<label id="kyotsuRow"' + (usesKyotsu(p.schoolId) ? '' : ' hidden') + '>共通テストの日(中間目標)<input type="date" name="kyotsuDate" id="kyotsuDate" value="' + h(p.kyotsuDate || WPS.EXAM_DATES.kyotsu.date) + '"></label>' +
@@ -294,12 +294,15 @@
     var md = function (d) { return (+d.slice(5, 7)) + '月' + (+d.slice(8)) + '日'; };
     var kd = WPS.EXAM_DATES.kyotsu.date;
     var html = '<section class="card focal"><span class="pb-en">Next</span><h2>共通テスト本試験まで あと ' + Math.max(0, D.diff(today, kd)) + '日</h2>' +
-      '<p class="muted">2027年1月16日・17日 ／ 出願期間は2026年9月15日(10時)〜10月2日(17時)のWeb出願</p></section>';
+      '<p class="muted">2027年1月16日・17日 ／ 出願期間は2026年9月15日(10時)〜10月2日(17時)のWeb出願</p></section>' +
+      '<nav class="toc card"><b>このページの内容</b><ol class="steps">' + [['sched', 'スケジュール'], ['types', '入試方式の比較'], ['advice', '方式ごとの対策'], ['interview', '面接・小論文'], ['faculty', '学部・学科の選び方'], ['apply', '出願チェックリスト'], ['fees', '検定料・傾向']].map(function (x) {
+        return '<li><a href="#exam" data-jump="' + x[0] + '">' + x[1] + '</a></li>';
+      }).join('') + '</ol></nav>';
     // ロードマップ型のスケジュール(9月〜3月)
     var months = ['2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
     var pos = function (d) { var i = months.indexOf(d.slice(0, 7)); return i < 0 ? null : (i + (+d.slice(8) - 1) / 31) / months.length * 100; };
     var nowPos = pos(today);
-    html += '<section class="card"><h2>2027年度入試のスケジュール</h2><div class="gantt">' +
+    html += '<section class="card" id="sched"><h2>2027年度入試のスケジュール</h2><div class="gantt">' +
       '<div class="g-row g-head"><span></span><div class="g-track">' + months.map(function (m) { return '<i>' + (+m.slice(5)) + '月</i>'; }).join('') + '</div></div>' +
       E.schedule.map(function (r) {
         return '<div class="g-row"><span class="g-name">' + h(r.name) + '</span><div class="g-track">' + (nowPos !== null ? '<b class="g-now" style="left:' + nowPos.toFixed(1) + '%"></b>' : '') +
@@ -312,11 +315,11 @@
         }).join('') + '</ul>' + (r.note ? '<p class="hint">' + h(r.note) + '</p>' : '');
       }).join('') + '</section>';
     // 入試方式の比較
-    html += '<section class="card"><h2>入試方式の比較</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>方式</th><th>特徴</th><th>共通テスト</th><th>選考方法</th><th>個別試験の時期</th></tr></thead><tbody>' +
+    html += '<section class="card" id="types"><h2>入試方式の比較</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>方式</th><th>特徴</th><th>共通テスト</th><th>選考方法</th><th>個別試験の時期</th></tr></thead><tbody>' +
       E.types.map(function (t) { return '<tr><th>' + h(t.name) + '</th><td>' + h(t.feature) + '</td><td>' + h(t.kyotsu) + '</td><td>' + h(t.method) + '</td><td>' + h(t.when) + '</td></tr>'; }).join('') +
       '</tbody></table></div>' + E.details.map(function (d) { return '<details class="guide-mini"><summary>' + h(d.name) + 'のくわしい特徴</summary><ul class="bullets">' + d.points.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') + '</section>';
     // 対策
-    html += '<section class="card"><h2>方式ごとの対策</h2>' + E.advice.map(function (a) {
+    html += '<section class="card" id="advice"><h2>方式ごとの対策</h2>' + E.advice.map(function (a) {
       return '<h3>' + h(a.name) + '</h3><ol class="steps">' + a.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>';
     }).join('') + '</section>';
     // 面接・小論文
@@ -332,15 +335,27 @@
       html += '<section class="card" id="faculty"><h2>学部・学科の選び方</h2><ol class="steps">' + F.howTo.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
         '<h3>学部の5つの系統</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.systems.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         '<h3>分野と主な学部・学科</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.fields.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
-        '<h3>学部のくわしい解説</h3>' + F.details.map(function (d) {
-          return '<details class="guide-mini"><summary>' + h(d.name) + '</summary><p>' + h(d.lead) + '</p><b>こんな人に向いているかも</b><ul class="bullets">' + d.fit.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
-            '<b>大学選びのヒント</b><ul class="bullets">' + d.hint.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' + (d.related ? '<p class="muted">関連する主な学科:' + h(d.related) + '</p>' : '') + '</details>';
-        }).join('') +
-        '<h3>就職先の傾向</h3><ul class="bullets">' + F.careers.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
-        '<p class="hint">出典:' + h(F.source) + '(5系統は記事中の「文部科学省『学科系統分類表』」参照による)。くわしい解説は、いただいた記事画像で読めた学部だけを載せています。</p></section>';
+        '<h3>学部・学科で学ぶこと(要約)</h3><div class="table-scroll"><table class="grid cmp"><thead><tr><th>学部・学科</th><th>学ぶこと</th><th>関係する主な資格・進路</th></tr></thead><tbody>' + F.details.map(function (d) {
+          return '<tr><th>' + h(d[0]) + '</th><td>' + h(d[1]) + '</td><td>' + h(d[2]) + '</td></tr>';
+        }).join('') + '</tbody></table></div>' +
+        '<p class="hint">' + h(F.source) + '。記事の文章は載せず、要約しています。くわしくは記事や各大学の公式サイトで確認してください。</p></section>';
+    }
+    // 出願チェックリスト(チェックはこの端末に保存)
+    var AC = WPS.APPLY_CHECK;
+    if (AC) {
+      var done = {}; try { done = JSON.parse(localStorage.getItem('wps_apply_ck') || '{}'); } catch (e) { done = {}; }
+      var total = 0, cnt = 0;
+      var body = AC.groups.map(function (g, gi) {
+        return '<h3>' + h(g.name) + '</h3><ul class="checklist">' + g.items.map(function (it, ii) {
+          var k = gi + '-' + ii; total++; if (done[k]) cnt++;
+          return '<li><label><input type="checkbox" data-apck="' + k + '"' + (done[k] ? ' checked' : '') + '> <span>' + h(it) + '</span></label></li>';
+        }).join('') + '</ul>';
+      }).join('');
+      html += '<section class="card" id="apply"><div class="row-between"><h2>出願(願書)チェックリスト</h2><span class="time-pill" id="apCount">' + cnt + ' / ' + total + '</span></div>' + body +
+        '<p class="hint">' + h(AC.source) + '。細かいルールは大学によって違うので、必ず募集要項に従ってください。チェックはこの端末に保存されます。</p></section>';
     }
     // 検定料
-    html += '<section class="card"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
+    html += '<section class="card" id="fees"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
       E.fees.map(function (f) { return '<tr><th>' + h(f[0]) + '</th><td class="num">' + h(f[1]) + '</td><td>' + h(f[2]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
     // 傾向・共テとセンターの違い
     html += '<section class="card"><h2>最近の傾向</h2><ul class="bullets">' + E.trends.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
@@ -348,6 +363,20 @@
       '<p class="hint">出典:' + h(E.source) + ' <a href="' + E.sourceUrl + '" target="_blank" rel="noopener">' + E.sourceUrl + '</a>。日程・金額は年度で変わるので、必ず大学入試センター・各大学の発表で確認してください。</p></section>';
     return html;
   }
+  renderExam.after = function () {
+    view.querySelectorAll('[data-jump]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); var t = document.getElementById(a.getAttribute('data-jump')); if (t) window.scrollTo(0, t.getBoundingClientRect().top + window.scrollY - 70); });
+    });
+    view.querySelectorAll('[data-apck]').forEach(function (c) {
+      c.addEventListener('change', function () {
+        var d = {}; try { d = JSON.parse(localStorage.getItem('wps_apply_ck') || '{}'); } catch (e) { d = {}; }
+        if (c.checked) d[c.getAttribute('data-apck')] = 1; else delete d[c.getAttribute('data-apck')];
+        try { localStorage.setItem('wps_apply_ck', JSON.stringify(d)); } catch (e) { /* 保存できない環境でも動く */ }
+        var n = view.querySelectorAll('[data-apck]:checked').length, t = view.querySelectorAll('[data-apck]').length;
+        document.getElementById('apCount').textContent = n + ' / ' + t;
+      });
+    });
+  };
   /* ========== 学習ダッシュボード(KPI・推移・内訳・ランキング) ========== */
   // 数字は「直近7日」と「その前の7日」を比べて、増減を出す
   function dashData(s, stats) {
@@ -1726,6 +1755,8 @@
       return (!univState.field || r.field === univState.field) && (pri || !univState.sched || r.schedKey === univState.sched) &&
         (!univState.q || (r.univ + r.dept).indexOf(univState.q) >= 0);
     }).sort(pri ? function (a, b) { return b.hensa - a.hensa; } : function (a, b) { return b.kyotsu - a.kyotsu || (b.hensa || 0) - (a.hensa || 0); });
+    // 著作権への配慮:資料の表をまるごと一覧にせず、系統か大学名でしぼりこんだ結果(最大50件)だけを表示する
+    var narrow = !!(univState.q || univState.field), LIM = 50;
     var html = say('志望校の「合格の目安」を調べられるよ。気になる学部の「目標にする」を押すと、ホームとロードマップに、いまの自分との差が出るようになるよ。', 'normal', 56);
     html += '<section class="card"><h2>🏫 大学をさがす</h2>' +
       '<div class="seg uni-kind">' + [['nat', '🏛️ 国公立大'], ['pri', '🏫 私立大']].map(function (k) { return '<button type="button" class="seg-btn' + (univState.kind === k[0] ? ' on' : '') + '" data-ukind="' + k[0] + '">' + k[1] + '</button>'; }).join('') + '</div>' +
@@ -1734,9 +1765,9 @@
       (pri ? '' : '<label>日程<select id="uSched"><option value="">すべて</option><option' + (univState.sched === '前期' ? ' selected' : '') + '>前期</option><option' + (univState.sched === '中期・後期' ? ' selected' : '') + '>中期・後期</option></select></label>') +
       '<label class="grow">大学名・学部で検索<input id="uQ" value="' + h(univState.q) + '" placeholder="' + (pri ? '例:早稲田、心理' : '例:大阪、データ') + '"></label></div>' +
       (est.hensa !== null ? '<p class="hint">あなたの推定:' + (pri ? '' : '共通テスト得点率 約' + est.kyotsu + '% ／ ') + '偏差値 約' + est.hensa + '(アプリ内の問題からの目安)</p>' : '') +
-      '<p class="muted">' + list.length + '件(' + (pri ? '偏差値' : '共通テスト得点率') + 'の高い順)</p>' +
+      (narrow ? '<p class="muted">' + list.length + '件(' + (pri ? '偏差値' : '共通テスト得点率') + 'の高い順' + (list.length > LIM ? '・上位' + LIM + '件を表示' : '') + ')</p>' : '<p class="muted">系統を選ぶか、大学名・学部で検索すると表示されます。</p>') +
       '<div class="table-scroll"><table class="univ-t"><thead><tr><th>大学・学部</th>' + (pri ? '<th>科目数</th><th>偏差値</th>' : '<th>日程</th><th>共テ</th><th>偏差値</th>') + '<th></th></tr></thead><tbody>' +
-      list.slice(0, 300).map(function (r) {
+      (narrow ? list.slice(0, LIM) : []).map(function (r) {
         var me = goal && goal.univ === r.univ && goal.dept === r.dept && goal.sched === r.sched;
         var reach = pri ? (est.hensa !== null ? (est.hensa >= r.hensa ? 'reach-ok' : est.hensa >= r.hensa - 2.5 ? 'reach-near' : '') : '')
           : (est.kyotsu !== null ? (est.kyotsu >= r.kyotsu ? 'reach-ok' : est.kyotsu >= r.kyotsu - 5 ? 'reach-near' : '') : '');
@@ -1745,8 +1776,8 @@
           '<td class="num">' + (r.hensa !== null ? r.hensa.toFixed(1) : '—') + '</td>' +
           '<td>' + (me ? '<span class="status st-good">目標</span>' : '<button class="btn small" data-goal="' + r.id + '">目標にする</button>') + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
-      (list.length > 300 ? '<p class="hint">上位300件を表示しています。検索でしぼりこんでください。</p>' : '') +
-      (pri ? '<p class="hint">偏差値＝一般選抜のボーダー偏差値(合格の可能性が50%になる目安)／科目数＝その方式で受験する科目の数。「—」は表記なし。<br>出典:' + h(WPS.UNIV_PRIVATE_SOURCE) + '<br>※ 登録済み:文・人文学系の偏差値70.0〜57.5・35.0(西日本)、社会・国際学系の偏差値35.0。そのほかは順次追加します。</p>'
+      (narrow && list.length > LIM ? '<p class="hint">さらに検索でしぼりこんでください。</p>' : '') +
+      (pri ? '<p class="hint">このアプリは学習の目安として一部の数値を参照しています。最新・正確な情報は必ず出典元と各大学の募集要項で確認してください。<br>偏差値＝一般選抜のボーダー偏差値(合格の可能性が50%になる目安)／科目数＝その方式で受験する科目の数。「—」は表記なし。<br>出典:' + h(WPS.UNIV_PRIVATE_SOURCE) + '<br>※ 登録済み:農学系(全件)、文・人文学系の偏差値70.0〜57.5・35.0(西日本)、社会・国際学系の偏差値35.0。そのほかは順次追加します。</p>'
         : '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '／' + h(WPS.UNIV_REGION_SOURCE || '') + '<br>※ 登録済み:系統別5系統(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)と、北海道地区の全学部。ほかは順次追加します。</p>') + '</section>';
     return html;
   }

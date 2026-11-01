@@ -191,13 +191,19 @@ WPS.univSchools = function () {
   var y = WPS.univYears ? WPS.univYears()[0] : 2027;
   if (WPS.univRows) WPS.univRows(y).forEach(function (r) { add('nat', r); });
   if (WPS.univPrivRows) WPS.univPrivRows(y).forEach(function (r) { add('pri', r); });
+  // 一覧表から要約した「大学ごとの偏差値の幅」(univ_2027_summary.js)
+  (WPS.UNIV_SUMMARY || []).forEach(function (r) {
+    var id = 'u~pri~' + r[1];
+    if (map[id]) return;
+    map[id] = { id: id, univ: r[1], kind: 'private', max: r[3], min: r[2] === null ? 0 : r[2], bf: r[2] === null, fields: {} };
+  });
   var list = Object.keys(map).map(function (k) {
     var e = map[k];
     var full = /大学$/.test(e.univ) ? e.univ : e.univ + '大学';
     var base = e.kind === 'national' ? nat(e.id, full, '', 'B', [F_KYOTSU, F_NIJI]) : pri(e.id, full, '', 'B', [F_PRI3]);
-    base.univ = e.univ; base.hensaMax = e.max || null; base.hensaMin = e.min < 99 ? e.min : null;
+    base.univ = e.univ; base.hensaMax = e.max || null; base.hensaMin = e.min && e.min < 99 ? e.min : null; base.bf = !!e.bf;
     base.fields = Object.keys(e.fields);
-    base.features = base.features.concat(['大学データに登録されている偏差値の目安:' + (base.hensaMin ? base.hensaMin.toFixed(1) + '〜' + base.hensaMax.toFixed(1) : '未登録') + '(学部・方式で違います)。']);
+    base.features = base.features.concat(['大学データに登録されている偏差値の目安:' + (base.hensaMax ? (base.bf ? 'BF' : base.hensaMin.toFixed(1)) + '〜' + base.hensaMax.toFixed(1) : '未登録') + '(学部・方式で違います。BF=ボーダー・フリー)。']);
     WPS.SCHOOL_MAP[e.id] = base;
     return base;
   }).sort(function (a, b) { return (b.hensaMax || 0) - (a.hensaMax || 0) || a.name.localeCompare(b.name, 'ja'); });

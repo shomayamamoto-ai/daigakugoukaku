@@ -774,3 +774,9 @@ table.cmp { min-width: 560px; font-size: .82rem; }
 table.cmp th { text-align: left; white-space: nowrap; }
 table.cmp td.num { white-space: nowrap; font-weight: 700; }
 @media (max-width: 480px) { .g-row { grid-template-columns: 6em minmax(0, 1fr); } .kpi.focal .kpi-v { font-size: 2rem; } }
+/* 出願チェックリスト */
+.checklist { list-style: none; padding: 0; margin: 4px 0 8px; }
+.checklist li { border-bottom: 1px solid var(--line); }
+.checklist label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; font-size: .9rem; line-height: 1.6; cursor: pointer; }
+.checklist input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 3px; accent-color: var(--primary); }
+.checklist input:checked + span { color: var(--muted); text-decoration: line-through; }
