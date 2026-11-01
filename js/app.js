@@ -1490,7 +1490,7 @@
         var diff = (goal !== null && now !== null) ? Math.round((now - goal) * 10) / 10 : null;
         return '<tr><th>' + label + '</th><td>' + (goal !== null ? goal + unit : '—') + '</td><td>' + (now !== null ? now + unit : '—') + '</td><td class="' + (diff === null ? '' : diff >= 0 ? 'good-t' : 'bad-t') + '">' + (diff === null ? '—' : (diff >= 0 ? '+' : '') + diff + unit) + '</td></tr>';
       }
-      rows += row('共通テスト得点率', g.kyotsu, est.kyotsu, '%') + row('偏差値', g.hensa, est.hensa, '');
+      rows += (g.kyotsu !== null && g.kyotsu !== undefined ? row('共通テスト得点率', g.kyotsu, est.kyotsu, '%') : '') + row('偏差値', g.hensa, est.hensa, '');
       body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p><div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
         (est.hensa === null ? '<p class="hint">推定には、テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問の解答が必要です。</p>' :
           '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
@@ -1498,43 +1498,52 @@
     }
     return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + '</section>';
   }
-  var univState = { q: '', field: '', sched: '', year: '' };
+  var univState = { q: '', field: '', sched: '', year: '', kind: 'nat' };
+  function univAll(year) { return univState.kind === 'pri' ? WPS.univPrivRows(year) : WPS.univRows(year); }
   function renderUniv() {
+    var pri = univState.kind === 'pri';
     var years = WPS.univYears();
     if (!univState.year) univState.year = years[0];
-    var rows = WPS.univRows(univState.year);
+    var rows = univAll(univState.year);
     var fields = rows.map(function (r) { return r.field; }).filter(function (x, i, a) { return a.indexOf(x) === i; });
+    if (univState.field && fields.indexOf(univState.field) < 0) univState.field = '';
     var est = A.estimate(), goal = S.get().profile.goal;
     var list = rows.filter(function (r) {
-      return (!univState.field || r.field === univState.field) && (!univState.sched || r.schedKey === univState.sched) &&
+      return (!univState.field || r.field === univState.field) && (pri || !univState.sched || r.schedKey === univState.sched) &&
         (!univState.q || (r.univ + r.dept).indexOf(univState.q) >= 0);
-    }).sort(function (a, b) { return b.kyotsu - a.kyotsu || (b.hensa || 0) - (a.hensa || 0); });
+    }).sort(pri ? function (a, b) { return b.hensa - a.hensa; } : function (a, b) { return b.kyotsu - a.kyotsu || (b.hensa || 0) - (a.hensa || 0); });
     var html = say('志望校の「合格の目安」を調べられるよ。気になる学部の「目標にする」を押すと、ホームとロードマップに、いまの自分との差が出るようになるよ。', 'normal', 56);
-    html += '<section class="card"><h1>🏫 大学データ(国公立大)</h1>' +
+    html += '<section class="card"><h2>🏫 大学をさがす</h2>' +
+      '<div class="seg uni-kind">' + [['nat', '🏛️ 国公立大'], ['pri', '🏫 私立大']].map(function (k) { return '<button type="button" class="seg-btn' + (univState.kind === k[0] ? ' on' : '') + '" data-ukind="' + k[0] + '">' + k[1] + '</button>'; }).join('') + '</div>' +
       '<div class="filters"><label>年度<select id="uYear">' + years.map(function (y) { return '<option' + (y === univState.year ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></label>' +
       '<label>系統<select id="uField"><option value="">すべて</option>' + fields.map(function (f) { return '<option' + (f === univState.field ? ' selected' : '') + '>' + h(f) + '</option>'; }).join('') + '</select></label>' +
-      '<label>日程<select id="uSched"><option value="">すべて</option><option' + (univState.sched === '前期' ? ' selected' : '') + '>前期</option><option' + (univState.sched === '中期・後期' ? ' selected' : '') + '>中期・後期</option></select></label>' +
-      '<label class="grow">大学名・学部で検索<input id="uQ" value="' + h(univState.q) + '" placeholder="例:大阪、データ"></label></div>' +
-      (est.hensa !== null ? '<p class="hint">あなたの推定:共通テスト得点率 約' + est.kyotsu + '% ／ 偏差値 約' + est.hensa + '(アプリ内の問題からの目安)</p>' : '') +
-      '<p class="muted">' + list.length + '件(共通テスト得点率の高い順)</p>' +
-      '<div class="table-scroll"><table class="univ-t"><thead><tr><th>大学・学部</th><th>日程</th><th>共テ</th><th>偏差値</th><th></th></tr></thead><tbody>' +
+      (pri ? '' : '<label>日程<select id="uSched"><option value="">すべて</option><option' + (univState.sched === '前期' ? ' selected' : '') + '>前期</option><option' + (univState.sched === '中期・後期' ? ' selected' : '') + '>中期・後期</option></select></label>') +
+      '<label class="grow">大学名・学部で検索<input id="uQ" value="' + h(univState.q) + '" placeholder="' + (pri ? '例:早稲田、心理' : '例:大阪、データ') + '"></label></div>' +
+      (est.hensa !== null ? '<p class="hint">あなたの推定:' + (pri ? '' : '共通テスト得点率 約' + est.kyotsu + '% ／ ') + '偏差値 約' + est.hensa + '(アプリ内の問題からの目安)</p>' : '') +
+      '<p class="muted">' + list.length + '件(' + (pri ? '偏差値' : '共通テスト得点率') + 'の高い順)</p>' +
+      '<div class="table-scroll"><table class="univ-t"><thead><tr><th>大学・学部</th>' + (pri ? '<th>科目数</th><th>偏差値</th>' : '<th>日程</th><th>共テ</th><th>偏差値</th>') + '<th></th></tr></thead><tbody>' +
       list.slice(0, 300).map(function (r) {
         var me = goal && goal.univ === r.univ && goal.dept === r.dept && goal.sched === r.sched;
-        var reach = est.kyotsu !== null ? (est.kyotsu >= r.kyotsu ? 'reach-ok' : est.kyotsu >= r.kyotsu - 5 ? 'reach-near' : '') : '';
-        return '<tr class="' + reach + (me ? ' is-goal' : '') + '"><td><b>' + h(r.univ) + '</b><br><small>' + h(r.dept) + '</small><br><small class="muted">' + h(r.field) + '・' + r.area + '</small></td><td>' + r.sched + '</td><td class="num">' + r.kyotsu + '%</td><td class="num">' + (r.hensa !== null ? r.hensa.toFixed(1) : '—') + '</td>' +
+        var reach = pri ? (est.hensa !== null ? (est.hensa >= r.hensa ? 'reach-ok' : est.hensa >= r.hensa - 2.5 ? 'reach-near' : '') : '')
+          : (est.kyotsu !== null ? (est.kyotsu >= r.kyotsu ? 'reach-ok' : est.kyotsu >= r.kyotsu - 5 ? 'reach-near' : '') : '');
+        return '<tr class="' + reach + (me ? ' is-goal' : '') + '"><td><b>' + h(r.univ) + '</b><br><small>' + h(r.dept) + '</small><br><small class="muted">' + h(r.field) + (r.score ? '・' + h(r.pattern) + ' ' + h(r.score) + '点' : '・' + r.area) + '</small></td>' +
+          (pri ? '<td class="num">' + (r.subjects !== null ? r.subjects : '—') + '</td>' : '<td>' + r.sched + '</td><td class="num">' + r.kyotsu + '%</td>') +
+          '<td class="num">' + (r.hensa !== null ? r.hensa.toFixed(1) : '—') + '</td>' +
           '<td>' + (me ? '<span class="status st-good">目標</span>' : '<button class="btn small" data-goal="' + r.id + '">目標にする</button>') + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
       (list.length > 300 ? '<p class="hint">上位300件を表示しています。検索でしぼりこんでください。</p>' : '') +
-      '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '／' + h(WPS.UNIV_REGION_SOURCE || '') + '<br>※ 登録済み:系統別5系統(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)と、北海道地区の全学部。ほかは順次追加します。</p></section>';
+      (pri ? '<p class="hint">偏差値＝一般選抜のボーダー偏差値(合格の可能性が50%になる目安)／科目数＝その方式で受験する科目の数。「—」は表記なし。<br>出典:' + h(WPS.UNIV_PRIVATE_SOURCE) + '<br>※ 登録済み:文・人文学系の偏差値70.0〜57.5。ほかは順次追加します。</p>'
+        : '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '／' + h(WPS.UNIV_REGION_SOURCE || '') + '<br>※ 登録済み:系統別5系統(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)と、北海道地区の全学部。ほかは順次追加します。</p>') + '</section>';
     return html;
   }
   renderUniv.after = function () {
     function bind(id, key, ev) { var el = document.getElementById(id); el.addEventListener(ev || 'change', function () { univState[key] = el.value.trim(); if (key === 'q') { clearTimeout(bind.t); bind.t = setTimeout(rerender, 250); } else rerender(); }); }
     function rerender() { var y = window.scrollY; var f = document.activeElement && document.activeElement.id; view.innerHTML = renderUniv(); renderUniv.after(); if (f) { var el = document.getElementById(f); if (el) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } } window.scrollTo(0, y); }
-    bind('uYear', 'year'); bind('uField', 'field'); bind('uSched', 'sched'); bind('uQ', 'q', 'input');
+    bind('uYear', 'year'); bind('uField', 'field'); if (document.getElementById('uSched')) bind('uSched', 'sched'); bind('uQ', 'q', 'input');
+    view.querySelectorAll('[data-ukind]').forEach(function (b) { b.addEventListener('click', function () { univState.kind = b.getAttribute('data-ukind'); univState.field = ''; rerender(); }); });
     view.querySelectorAll('[data-goal]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var r = WPS.univRows(univState.year).filter(function (x) { return x.id === b.getAttribute('data-goal'); })[0];
+        var r = univAll(univState.year).filter(function (x) { return x.id === b.getAttribute('data-goal'); })[0];
         if (!r) return;
         var p = S.get().profile;
         p.goal = { univ: r.univ, dept: r.dept, sched: r.sched, kyotsu: r.kyotsu, hensa: r.hensa, year: r.year, field: r.field, src: r.src, score: r.score };

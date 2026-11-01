@@ -577,3 +577,4 @@ h1, h2, h3 { letter-spacing: .06em; text-wrap: balance; }
 .grid2 th.g-name { width: 2.6em; white-space: normal; line-height: 1.3; }
 .grid2 td.c-name { white-space: normal; min-width: 5.5em; max-width: 9em; line-height: 1.4; }
 .grid2 td small { font-size: .7rem; }
+.uni-kind { margin-bottom: 12px; }
