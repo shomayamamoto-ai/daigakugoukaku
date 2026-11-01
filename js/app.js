@@ -290,12 +290,13 @@
       e.preventDefault();
       var fd = new FormData(f);
       var p = S.get().profile;
+      var mainK = fd.get('schoolMain');
+      if (mainK !== 'high' && !pickedSchool(f)) { toast((mainK === 'national' ? '国公立' : '私立') + 'の第一志望を選んでね(未定なら「その他」を選んでね)'); return; }
       ['name', 'grade', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
       p.schoolMain = fd.get('schoolMain');
       p.schoolNat = fd.get('school_national') || '';
       p.schoolPri = fd.get('school_private') || '';
       p.schoolId = pickedSchool(f);
-      if (p.schoolMain !== 'high' && !p.schoolId) { toast((p.schoolMain === 'national' ? '国公立' : '私立') + 'の第一志望を選んでね'); return; }
       p.minutesWeekday = +fd.get('minutesWeekday');
       p.minutesHoliday = +fd.get('minutesHoliday');
       p.minutes = Math.round(WPS.Time.weeklyMinutes(p) / 7);
