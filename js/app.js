@@ -447,13 +447,15 @@
     var html = '<div class="quiz-head"><span>' + h(quiz.title) + '</span><span>' + (quiz.i + 1) + ' / ' + quiz.items.length + '</span></div>' +
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
+    html += modeSwitch();
     html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '（' + u.stage + '）</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></div>' +
       (q.pic ? '<div class="q-pic" aria-hidden="true">' + q.pic + '</div>' : '') +
-      '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') + '<div class="choices">' +
+      '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') +
+      (useWrite(q) ? writeBox('qWrite') : '<div class="choices">' +
       quiz.order.map(function (ci, k) {
         var pic = q.pics && q.pics[q.choices[ci]] ? '<span class="c-pic" aria-hidden="true">' + q.pics[q.choices[ci]] + '</span>' : '';
         return '<button class="choice" data-ci="' + ci + '"><b>' + 'ABCD'[k] + '</b>' + pic + '<span>' + h(q.choices[ci]) + '</span></button>';
-      }).join('') + '</div>' +
+      }).join('') + '</div>') +
       '<button class="btn ghost unsure" data-ci="-1">🤔 わからない(先生に聞きたい)</button><div id="feedback"></div></section>';
     return html;
   }
@@ -463,17 +465,25 @@
     view.querySelectorAll('[data-ci]').forEach(function (b) {
       b.addEventListener('click', function () { answer(+b.getAttribute('data-ci')); });
     });
+    bindModeSwitch();
+    bindWriteBox('qWrite', function (text) {
+      var q = WPS.Q(quiz.items[quiz.i].q);
+      if (isMatch(text, q.answer)) { answer(-2, { ok: true, text: text }); return; }
+      selfCheck('qWrite', text, q.answer, function (ok) { answer(-2, { ok: ok, text: text }); });
+    });
   };
 
-  function answer(ci) {
+  // ci:選んだ選択肢(0が正解)/ -1:わからない / -2:記述で答えた(w = {ok, text})
+  function answer(ci, w) {
     if (quiz.answered) return;
     quiz.answered = true;
     var it = quiz.items[quiz.i];
     var q = WPS.Q(it.q);
-    var ok = ci === 0;
+    var ok = ci === -2 ? w.ok : ci === 0;
     var unsure = ci === -1;
+    var chosen = ci === -2 ? w.text : unsure ? null : q.choices[ci];
     var s = S.get();
-    s.attempts.push({ q: q.id, u: q.unit, s: q.subj, ok: ok, ch: unsure ? null : q.choices[ci], unsure: unsure, src: quiz.src, t: Date.now(), d: D.today() });
+    s.attempts.push({ q: q.id, u: q.unit, s: q.subj, ok: ok, ch: chosen, unsure: unsure, mode: ci === -2 ? 'write' : 'choice', src: quiz.src, t: Date.now(), d: D.today() });
     if (unsure) {
       s.memos.push({ id: Date.now(), unit: q.unit, q: q.id, text: '「' + q.text + '」がわかりませんでした。', t: Date.now(), done: false, auto: true });
     }
@@ -505,11 +515,12 @@
       else if (c === ci) b.classList.add('wrong');
     });
     view.querySelector('.unsure').disabled = true;
+    var wb = document.getElementById('qWrite'); if (wb) wb.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; });
     var mood = ok ? 'happy' : 'normal';
     var line = ok ? pick(LINES.correct) : unsure ? LINES.unsure[0] : pick(LINES.wrong);
     var last = quiz.i + 1 >= quiz.items.length;
     document.getElementById('feedback').innerHTML =
-      explainBox(q, ok, unsure ? null : q.choices[ci]) +
+      explainBox(q, ok, chosen) +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
       '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>';
     document.getElementById('nextQ').addEventListener('click', function () {
@@ -518,6 +529,68 @@
       render();
     });
     document.getElementById('nextQ').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ---------- 答え方(4択/記述/めくる)の切りかえ ---------- */
+  function answerMode() { return S.get().profile.answerMode || 'choice'; }
+  // ○×問題は、記述にしても2択で出す(長い答えは、書いた後に正解と見比べて自分で判定)
+  function canWrite(q) { return q.choices.length > 2; }
+  function useWrite(q) { return answerMode() === 'write' && canWrite(q); }
+  function deckMode(q) { var m = S.get().profile.deckMode || 'flip'; return m === 'write' && !canWrite(q) ? 'choice' : m; }
+  function modeSwitch(isDeck) {
+    var cur = isDeck ? (S.get().profile.deckMode || 'flip') : answerMode();
+    var opts = isDeck ? [['flip', '🃏 めくる'], ['choice', '🔤 4択'], ['write', '✍️ 記述']] : [['choice', '🔤 4択で答える'], ['write', '✍️ 記述で答える']];
+    return '<div class="mode-sw" role="group" aria-label="答え方">' + opts.map(function (o) {
+      return '<button type="button" class="seg-btn' + (o[0] === cur ? ' on' : '') + '" data-mode="' + o[0] + '" data-deck="' + (isDeck ? 1 : 0) + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function bindModeSwitch() {
+    view.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = S.get().profile;
+        if (b.getAttribute('data-deck') === '1') { p.deckMode = b.getAttribute('data-mode'); if (deck) { deck.flipped = false; deck.my = null; } }
+        else { if (quiz && quiz.answered) { toast('次の問題から切りかわるよ'); } p.answerMode = b.getAttribute('data-mode'); }
+        S.save();
+        if (!(quiz && quiz.answered && b.getAttribute('data-deck') === '0')) render();
+      });
+    });
+  }
+  function writeBox(id) {
+    return '<form class="write-box" id="' + id + '" autocomplete="off"><label for="' + id + 'In" class="muted">答えを入力してね</label><div class="write-row"><input id="' + id + 'In" type="text" enterkeyhint="done" autocapitalize="off" spellcheck="false"><button class="btn primary" type="submit">答える</button></div><div class="self-check"></div></form>';
+  }
+  function bindWriteBox(id, onSubmit) {
+    var f = document.getElementById(id);
+    if (!f) return;
+    var inp = f.querySelector('input');
+    setTimeout(function () { try { inp.focus({ preventScroll: true }); } catch (e) { /* 無視 */ } }, 50);
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var t = inp.value.trim();
+      if (!t) { toast('答えを入力してね(わからないときは「わからない」)'); return; }
+      onSubmit(t);
+    });
+  }
+  // 自動で合っているか判定できないとき(言いかえ・表記ゆれ)は、正解を見て自分で判定する
+  function selfCheck(id, text, ans, done) {
+    var f = document.getElementById(id), box = f.querySelector('.self-check');
+    f.querySelectorAll('input,button[type=submit]').forEach(function (x) { x.disabled = true; });
+    box.innerHTML = '<p>正解は「<b>' + h(ans) + '</b>」。あなたの答え「' + h(text) + '」は合っていた?</p><div class="btns"><button type="button" class="btn g-good" data-sc="1">⭕ 合っていた</button><button type="button" class="btn g-again" data-sc="0">❌ まちがい</button></div>';
+    box.querySelectorAll('[data-sc]').forEach(function (b) { b.addEventListener('click', function () { done(b.getAttribute('data-sc') === '1'); }); });
+  }
+  // 表記ゆれ(全角/半角・大文字/小文字・空白・記号)を無視して比べる
+  function norm(x) {
+    return String(x).normalize('NFKC').toLowerCase().replace(/[\s　、。,.・「」『』()（）!！?？'’"]/g, '').replace(/[ー－―−]/g, '-').replace(/＝/g, '=');
+  }
+  function isMatch(text, ans) {
+    var t = norm(text), a = norm(ans);
+    if (!t) return false;
+    if (t === a) return true;
+    // 「A・B」「A/B」のように答えが複数書かれているときは、どれか1つと一致すればOK
+    var parts = String(ans).split(/[・\/／、,]|または/).map(norm).filter(Boolean);
+    if (parts.length > 1 && parts.indexOf(t) >= 0) return true;
+    // かっこの補足を除いた形と一致すればOK(例:「謙譲語(〜)」)
+    var core = norm(String(ans).replace(/[(（][^)）]*[)）]/g, ''));
+    return core && t === core;
   }
 
   // くわしい解説:正解の理由・選んだ答えが違う理由・図・復習単元
@@ -835,17 +908,20 @@
     }
     var q = WPS.Q(deck.items[deck.i]);
     var u = WPS.UNIT_MAP[q.unit];
+    var dm = deckMode(q);
     return '<div class="quiz-head"><button class="btn small ghost" id="quitDeck">✕ やめる</button><span>' + h(deck.title) + '</span><span>' + (deck.i + 1) + ' / ' + deck.items.length + '</span></div>' +
-      '<div class="progress"><i style="width:' + Math.round(deck.i / deck.items.length * 100) + '%"></i></div>' +
+      '<div class="deck-nav"><button class="btn small" id="prevCard"' + (deck.i === 0 ? ' disabled' : '') + '>← 前のカード</button>' + (deck.back ? '<span class="muted">もどって見直し中(評価すると次へ進むよ)</span>' : '') + '</div>' +
+      '<div class="progress"><i style="width:' + Math.round(deck.i / deck.items.length * 100) + '%"></i></div>' + modeSwitch(true) +
       '<div class="flash' + (deck.flipped ? ' flipped' : '') + '" id="flash" tabindex="0" role="button" aria-label="カードをめくる">' +
       '<div class="face front"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '</span></div><p class="q-text">' + h(q.text) + '</p>' +
-      '<span class="tap">タップしてめくる</span></div>' +
-      '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p><small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
+      '<span class="tap">' + (dm === 'flip' ? 'タップしてめくる' : '下で答えてね') + '</span></div>' +
+      '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p>' + (deck.my ? '<p class="my-ans ' + (deck.my.ok ? 'ok' : 'ng') + '">あなたの答え:' + h(deck.my.text) + (deck.my.ok ? ' ⭕' : ' ❌') + '</p>' : '') + '<small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
       (speakText(q) ? '<button class="btn small say-btn" id="sayBtn">🔊 発音を聞く</button>' : '') +
-      (deck.flipped ? '' : '<details class="hint-choices"><summary>ヒント:選択肢を見る</summary><ul>' + shuffle(q.choices).map(function (c) { return '<li>' + h(c) + '</li>'; }).join('') + '</ul></details>') +
+      (deck.flipped ? '' : dm === 'choice' ? '<div class="choices deck-choices">' + shuffle(q.choices).map(function (c) { return '<button class="choice" data-dc="' + h(c) + '"><span>' + h(c) + '</span></button>'; }).join('') + '</div>'
+        : dm === 'write' ? writeBox('dWrite') : '') +
       '<div class="grade' + (deck.flipped ? '' : ' hidden') + '">' +
       '<button class="btn g-again" data-g="again">😣 まだ</button><button class="btn g-hard" data-g="hard">🤔 あいまい</button><button class="btn g-good" data-g="good">😊 覚えた</button></div>' +
-      '<p class="hint center">キーボード:スペースでめくる ／ 1・2・3 で評価</p>';
+      '<p class="hint center">' + (dm === 'flip' ? 'キーボード:スペースでめくる ／ 1・2・3 で評価 ／ ← で前のカード' : '答えた後、1・2・3 で覚え具合を評価') + '</p>';
   }
   renderDeck.after = function () {
     var end = document.getElementById('endDeck');
@@ -858,8 +934,20 @@
       var hc = view.querySelector('.hint-choices');
       if (hc) hc.style.display = deck.flipped ? 'none' : '';
     }
-    flash.addEventListener('click', flip);
+    var dq = WPS.Q(deck.items[deck.i]);
+    if (deckMode(dq) === 'flip' || deck.flipped) flash.addEventListener('click', flip);
+    bindModeSwitch();
+    function showResult(text, ok) {
+      deck.my = { text: text, ok: ok };
+      deck.flipped = true; render();
+    }
+    view.querySelectorAll('[data-dc]').forEach(function (b) { b.addEventListener('click', function () { var c = b.getAttribute('data-dc'); showResult(c, c === dq.answer); }); });
+    bindWriteBox('dWrite', function (text) {
+      if (isMatch(text, dq.answer)) { showResult(text, true); return; }
+      selfCheck('dWrite', text, dq.answer, function (ok) { showResult(text, ok); });
+    });
     document.getElementById('quitDeck').addEventListener('click', function () { deck = null; render(); });
+    document.getElementById('prevCard').addEventListener('click', prevCard);
     var sb = document.getElementById('sayBtn');
     if (sb) sb.addEventListener('click', function (e) { e.stopPropagation(); speak(speakText(WPS.Q(deck.items[deck.i]))); });
     view.querySelectorAll('[data-g]').forEach(function (b) {
@@ -867,20 +955,28 @@
     });
     renderDeck.flip = flip;
   };
+  // 前のカードにもどる(答えを見た状態で表示する)
+  function prevCard() {
+    if (!deck || deck.i === 0) return;
+    deck.i--; deck.flipped = true; deck.my = null; deck.back = true;
+    render();
+  }
   function gradeCard(g) {
     var qid = deck.items[deck.i];
     WPS.SRS.grade(qid, g);
     deck.done++;
     if (g === 'good') deck.good++;
     if (g === 'again' && !deck.again[qid]) { deck.again[qid] = true; deck.items.push(qid); } // もう一度出す
-    deck.i++; deck.flipped = false;
+    deck.i++; deck.flipped = false; deck.my = null; deck.back = false;
     if (g === 'good' && Math.random() < 0.35) toast(pick(LINES.correct));
     render();
   }
   document.addEventListener('keydown', function (e) {
     if (!deck || (location.hash !== '#cards') || deck.i >= deck.items.length) return;
     if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
-    if (e.key === ' ') { e.preventDefault(); if (renderDeck.flip) renderDeck.flip(); }
+    if (e.target && e.target.closest && e.target.closest('form')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevCard(); return; }
+    if (e.key === ' ') { if (deckMode(WPS.Q(deck.items[deck.i])) !== 'flip' && !deck.flipped) return; e.preventDefault(); if (renderDeck.flip) renderDeck.flip(); }
     else if (deck.flipped && { '1': 1, '2': 1, '3': 1 }[e.key]) gradeCard({ '1': 'again', '2': 'hard', '3': 'good' }[e.key]);
   });
 

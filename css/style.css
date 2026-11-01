@@ -454,3 +454,14 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .w-body b { font-size: 1.05rem; }
 .w-body small { color: var(--muted); }
 .w-say { flex: 0 0 auto; }
+/* ---------- 答え方の切りかえ・記述 ---------- */
+.mode-sw { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.write-box { display: grid; gap: 6px; margin-top: 4px; }
+.write-row { display: flex; gap: 8px; }
+.write-row input { flex: 1; min-width: 0; font-size: 1.05rem; }
+.self-check p { margin: 8px 0; }
+.deck-choices { margin-bottom: 10px; }
+.my-ans { font-weight: 700; margin: 0 0 6px; }
+.my-ans.ok { color: var(--ok); }
+.my-ans.ng { color: var(--ng); }
+.deck-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 6px; font-size: .85rem; }
