@@ -165,12 +165,14 @@
 
   /* ========== オンボーディング ========== */
   // 志望校の選択肢:グループ(MARCH など)+ 大学データにある大学を1校ずつ(偏差値の目安つき)
-  function schoolOptions(selected, q) {
+  function schoolOptions(selected, q, only) {
     q = (q || '').trim();
     var hit = function (s) { return !q || s.name.indexOf(q) >= 0 || (s.univ && s.univ.indexOf(q) >= 0); };
     var groups = { national: '国公立大学(グループ)', private: '私立大学(グループ)', high: '高校受験' };
-    var html = '<option value="">' + (q ? '「' + h(q) + '」の検索結果から選んでください' : '選んでください') + '</option>';
+    var none = only === 'national' ? '受けない(私立のみ)' : only === 'private' ? '受けない(国公立のみ)' : '';
+    var html = '<option value="">' + (q ? '「' + h(q) + '」の検索結果から選んでください' : '選んでください') + '</option>' + (none && !q ? '<option value="none"' + (selected === 'none' ? ' selected' : '') + '>' + none + '</option>' : '');
     Object.keys(groups).forEach(function (k) {
+      if (only && k !== only) return;
       var list = WPS.SCHOOLS.filter(function (s) { return s.kind === k && hit(s); });
       if (!list.length) return;
       html += '<optgroup label="' + groups[k] + '">' + list.map(function (s) {
@@ -179,6 +181,7 @@
     });
     var us = WPS.univSchools ? WPS.univSchools() : [];
     [['national', '国公立大学(1校ずつ・偏差値の高い順)'], ['private', '私立大学(1校ずつ・偏差値の高い順)']].forEach(function (g) {
+      if (only && g[0] !== only) return;
       var list = us.filter(function (s) { return s.kind === g[0] && (hit(s) || s.id === selected); });
       if (!list.length) return;
       html += '<optgroup label="' + g[1] + '">' + list.map(function (s) {
@@ -201,15 +204,43 @@
     var s = WPS.SCHOOL_MAP[schoolId];
     return !!(s && s.exams.indexOf('kyotsu') >= 0);
   }
+  // 志望校:先に「国公立/私立/高校受験」を聞き、国公立と私立の第一志望をそれぞれ選ぶ
+  function schoolKindOf(p) {
+    if (p.schoolMain) return p.schoolMain;
+    var s0 = WPS.SCHOOL_MAP[p.schoolId];
+    return s0 ? s0.kind : (WPS.isJHStudent(p.grade) ? 'high' : 'national');
+  }
+  function schoolPicker(p) {
+    var main = schoolKindOf(p);
+    var natId = p.schoolNat || (WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'national' ? p.schoolId : '');
+    var priId = p.schoolPri || (WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'private' ? p.schoolId : '');
+    var highId = WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'high' ? p.schoolId : '';
+    function block(kind, label, id, ph) {
+      return '<div class="sp-block" data-spblock="' + kind + '"' + (main === 'high' ? ' hidden' : '') + '><b class="sp-label">' + label + '</b>' +
+        '<input class="sp-q" data-spq="' + kind + '" type="search" maxlength="20" placeholder="' + ph + '" autocomplete="off" aria-label="' + label + 'をさがす">' +
+        '<select name="school_' + kind + '" data-spsel="' + kind + '" aria-label="' + label + '">' + schoolOptions(id, '', kind) + '</select></div>';
+    }
+    return '<fieldset class="sp"><legend>志望校</legend>' +
+      '<div class="seg" role="group" aria-label="本命の区分">' + [['national', '国公立が本命'], ['private', '私立が本命'], ['high', '高校受験']].map(function (k) {
+        return '<button type="button" class="seg-btn' + (main === k[0] ? ' on' : '') + '" data-spmain="' + k[0] + '" aria-pressed="' + (main === k[0]) + '">' + k[1] + '</button>';
+      }).join('') + '</div><input type="hidden" name="schoolMain" value="' + main + '">' +
+      block('national', '国公立の第一志望', natId, '大学名で絞りこむ(例:岩手、北海道)') +
+      block('private', '私立の第一志望', priId, '大学名で絞りこむ(例:法政、湘南)') +
+      '<div class="sp-block" data-spblock="high"' + (main === 'high' ? '' : ' hidden') + '><b class="sp-label">志望校(高校受験)</b><select name="school_high" data-spsel="high">' + schoolOptions(highId, '', 'high') + '</select></div>' +
+      '<p class="hint">本命の区分の第一志望をもとに、ロードマップと試験日を決めます。もう一方は併願として試験日を中間目標に入れます。( )内は偏差値の目安(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。リストにない大学は「その他」を選び、下の欄に大学名を書いてください。</p></fieldset>';
+  }
+  function pickedSchool(f) {
+    var main = f.querySelector('[name=schoolMain]').value;
+    var v = f.querySelector('[data-spsel="' + main + '"]').value;
+    return v === 'none' ? '' : v;
+  }
   function profileForm(p, submitLabel) {
     return '<form id="profileForm" class="form">' +
       '<label>ニックネーム<input name="name" required maxlength="20" value="' + h(p.name) + '" placeholder="例:しょーま"></label>' +
       '<label>いまの学年<select name="grade">' +
       ['中1', '中2', '中3', '高1', '高2', '高3', '既卒'].map(function (g) { return '<option' + (g === p.grade ? ' selected' : '') + '>' + g + '</option>'; }).join('') +
       '</select></label>' +
-      '<label>志望校をさがす<input id="schoolQ" type="search" maxlength="20" placeholder="大学名の一部を入力(例:法政、岩手、湘南)" autocomplete="off"></label>' +
-      '<label>志望校<select name="schoolId" id="schoolSel">' + schoolOptions(p.schoolId) + '</select></label>' +
-      '<p class="hint">( )内は、大学データに登録した学部・方式の偏差値の範囲です(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。リストにない大学は、近いグループか「その他」を選び、下の欄に大学名を書いてください。</p>' +
+      schoolPicker(p) +
       '<label>志望校名(学部など・自由入力)<input name="schoolName" maxlength="40" value="' + h(p.schoolName) + '" placeholder="例:〇〇大学 経済学部"></label>' +
       '<label>文系/理系(受験科目)<select name="track" id="trackSel">' + trackOptions(p.schoolId, p.track) + '</select></label>' +
       '<label id="kyotsuRow"' + (usesKyotsu(p.schoolId) ? '' : ' hidden') + '>共通テストの日(中間目標)<input type="date" name="kyotsuDate" id="kyotsuDate" value="' + h(p.kyotsuDate || WPS.EXAM_DATES.kyotsu.date) + '"></label>' +
@@ -228,28 +259,43 @@
   }
   function bindProfileForm(onDone) {
     var f = document.getElementById('profileForm');
-    var ss = document.getElementById('schoolSel');
-    var sq = document.getElementById('schoolQ');
-    sq.addEventListener('input', function () {
-      var cur = ss.value;
-      ss.innerHTML = schoolOptions(cur, sq.value);
-      // 候補が1つにしぼれたら自動で選ぶ
-      var opts = ss.querySelectorAll('option[value]:not([value=""])');
-      if (opts.length === 1 && ss.value !== opts[0].value) { ss.value = opts[0].value; ss.dispatchEvent(new Event('change')); }
-    });
-    ss.addEventListener('change', function () {
-      document.getElementById('trackSel').innerHTML = noEmoji(trackOptions(ss.value, ''));
-      var d = defaultExamDate(ss.value);
+    function onSchool() {
+      var id = pickedSchool(f);
+      document.getElementById('trackSel').innerHTML = noEmoji(trackOptions(id, document.getElementById('trackSel').value));
+      var d = defaultExamDate(id);
       if (d) document.getElementById('examDate').value = d;
-      document.getElementById('kyotsuRow').hidden = !usesKyotsu(ss.value);
-      var s = WPS.SCHOOL_MAP[ss.value];
-      if (s) document.getElementById('examHint').textContent = '目安:' + s.exams.map(function (e) { return WPS.EXAM_DATES[e].label + ' ' + WPS.EXAM_DATES[e].date; }).join(' ／ ') + '。正式な日程は必ず募集要項で確認してね。';
+      document.getElementById('kyotsuRow').hidden = !(usesKyotsu(id) || usesKyotsu(f.querySelector('[data-spsel=national]').value));
+      var s0 = WPS.SCHOOL_MAP[id];
+      if (s0) document.getElementById('examHint').textContent = '目安:' + s0.exams.map(function (e) { return WPS.EXAM_DATES[e].label + ' ' + WPS.EXAM_DATES[e].date; }).join(' ／ ') + '。正式な日程は必ず募集要項で確認してね。';
+    }
+    f.querySelectorAll('[data-spmain]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = b.getAttribute('data-spmain');
+        f.querySelector('[name=schoolMain]').value = k;
+        f.querySelectorAll('[data-spmain]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        f.querySelectorAll('[data-spblock]').forEach(function (x) { var kb = x.getAttribute('data-spblock'); x.hidden = k === 'high' ? kb !== 'high' : kb === 'high'; });
+        onSchool();
+      });
     });
+    f.querySelectorAll('[data-spq]').forEach(function (q) {
+      q.addEventListener('input', function () {
+        var kind = q.getAttribute('data-spq'), sel = f.querySelector('[data-spsel="' + kind + '"]'), cur = sel.value;
+        sel.innerHTML = schoolOptions(cur, q.value, kind);
+        var opts = sel.querySelectorAll('option[value]:not([value=""]):not([value="none"])');
+        if (opts.length === 1 && sel.value !== opts[0].value) { sel.value = opts[0].value; onSchool(); }
+      });
+    });
+    f.querySelectorAll('[data-spsel]').forEach(function (sel) { sel.addEventListener('change', onSchool); });
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       var fd = new FormData(f);
       var p = S.get().profile;
-      ['name', 'grade', 'schoolId', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
+      ['name', 'grade', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
+      p.schoolMain = fd.get('schoolMain');
+      p.schoolNat = fd.get('school_national') || '';
+      p.schoolPri = fd.get('school_private') || '';
+      p.schoolId = pickedSchool(f);
+      if (p.schoolMain !== 'high' && !p.schoolId) { toast((p.schoolMain === 'national' ? '国公立' : '私立') + 'の第一志望を選んでね'); return; }
       p.minutesWeekday = +fd.get('minutesWeekday');
       p.minutesHoliday = +fd.get('minutesHoliday');
       p.minutes = Math.round(WPS.Time.weeklyMinutes(p) / 7);

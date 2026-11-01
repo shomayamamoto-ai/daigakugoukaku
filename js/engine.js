@@ -307,6 +307,14 @@ WPS.Roadmap = (function () {
       if (k === keys[keys.length - 1] && p.examDate) d = p.examDate;
       return { key: k, label: WPS.EXAM_DATES[k].label, date: d };
     });
+    // 併願(本命でないほうの第一志望)の試験日も、中間目標に入れる
+    var sub = school && school.kind === 'national' ? WPS.SCHOOL_MAP[p.schoolPri] : school && school.kind === 'private' ? WPS.SCHOOL_MAP[p.schoolNat] : null;
+    if (sub) sub.exams.forEach(function (k) {
+      if (keys.indexOf(k) >= 0) return;
+      var d = (k === 'kyotsu' && p.kyotsuDate) ? p.kyotsuDate : WPS.EXAM_DATES[k].date;
+      if (d < exam) milestones.push({ key: k, label: WPS.EXAM_DATES[k].label + '(併願:' + sub.name + ')', date: d });
+    });
+    milestones.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     return { profile: p, school: school, weights: weights, defaultWeights: defaultWeights, custom: custom, isHigh: isHigh, exam: exam, milestones: milestones };
   }
 
