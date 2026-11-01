@@ -140,9 +140,23 @@
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
       memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords
     }[route] || renderHome;
-    view.innerHTML = fn(parts[1]);
+    var band = (route === 'cards' && deck) || route === 'quiz' ? '' : pageBand(route);
+    view.innerHTML = band + fn(parts[1]);
     if (fn.after) fn.after(parts[1]);
     window.scrollTo(0, 0);
+  }
+
+  // ページの見出し帯(ホームページと同じ、筆記体の英字＋日本語)
+  var BANDS = {
+    home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
+    words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
+    univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート']
+  };
+  function pageBand(route) {
+    var b = BANDS[route];
+    if (!b) return '';
+    return '<header class="page-band"><p class="pb-en">' + b[0] + '</p><h1 class="pb-ja">' + b[1] + '</h1></header>';
   }
 
   /* ========== オンボーディング ========== */

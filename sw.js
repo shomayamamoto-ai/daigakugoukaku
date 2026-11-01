@@ -4,7 +4,7 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v5';
+var CACHE = 'wps-v6';
 var FILES = [
   './', './index.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
   './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/emoji.js',
@@ -28,7 +28,7 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request).then(function (res) {
+    fetch(e.request, { cache: 'no-cache' }).then(function (res) {
       var copy = res.clone();
       caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
       return res;

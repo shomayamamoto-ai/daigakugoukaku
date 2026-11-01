@@ -471,3 +471,98 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .logo-word { font-family: "Allura", "Brush Script MT", cursive; font-weight: 400; font-size: 1.95rem; line-height: 1; letter-spacing: 0; padding: 0 .1em .08em 0;
   background: linear-gradient(115deg, #04143a 0%, #1146d6 60%, #0fa3b8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @media (prefers-color-scheme: dark) { .logo-word { background: linear-gradient(115deg, #ffffff 0%, #9cc1ff 60%, #5fe0ea 100%); -webkit-background-clip: text; background-clip: text; } }
+
+/* ============================================================
+ * Aqualium テーマ(ホームページと同じデザインをアプリ全体に適用)
+ * 配色:濃紺 → 青 → 青緑 のグラデーション/筆記体の英字見出し/やわらかい影のカード/丸いボタン
+ * ============================================================ */
+:root {
+  --bg: #f4f7fb; --card: #ffffff; --text: #1b2440; --muted: #5d6a85; --line: #dfe6f2;
+  --primary: #1146d6; --primary-weak: #e8eefc; --accent: #0fa3b8;
+  --navy: #04143a; --teal: #0fa3b8;
+  --grad: linear-gradient(115deg, #020b1f 0%, #04143a 30%, #1146d6 62%, #1f7de6 78%, #0fa3b8 100%);
+  --grad-btn: linear-gradient(115deg, #04143a 0%, #1146d6 55%, #0fa3b8 100%);
+  --radius: 18px; --shadow: 0 10px 30px rgba(4, 20, 58, .08);
+  --script: "Allura", "Brush Script MT", cursive;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #020b1f; --card: #0b1a3d; --text: #e6ecf8; --muted: #9aa8c7; --line: #1f3260; --primary: #6f9bff; --primary-weak: #13285a; --accent: #3fd0de; --shadow: none; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #020b1f; --card: #0b1a3d; --text: #e6ecf8; --muted: #9aa8c7; --line: #1f3260; --primary: #6f9bff; --primary-weak: #13285a; --accent: #3fd0de; --shadow: none; color-scheme: dark; }
+
+body { font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif; letter-spacing: .03em; background: var(--bg); color: var(--text); }
+h1, h2, h3 { letter-spacing: .06em; text-wrap: balance; }
+
+/* ヘッダー:ホームページと同じすりガラス風 */
+.topbar { background: rgba(255, 255, 255, .9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(223, 230, 242, .8); top: env(safe-area-inset-top, 0px); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .topbar { background: rgba(2, 11, 31, .88); border-bottom-color: var(--line); } }
+:root[data-theme="dark"] .topbar { background: rgba(2, 11, 31, .88); border-bottom-color: var(--line); }
+
+/* ページ見出し帯 */
+.page-band { position: relative; overflow: hidden; border-radius: var(--radius); padding: 18px 22px 20px; margin-bottom: 16px; color: #fff; background: var(--grad); box-shadow: var(--shadow); }
+.page-band::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(118deg, transparent 0 60px, rgba(255, 255, 255, .05) 60px 62px), radial-gradient(60% 80% at 90% 20%, rgba(80, 150, 255, .35), transparent 70%); }
+.pb-en { position: relative; margin: 0; font-family: var(--script); font-size: 2.6rem; line-height: 1.1; letter-spacing: 0; opacity: .95; }
+.pb-ja { position: relative; margin: 2px 0 0; font-size: 1rem; font-weight: 700; letter-spacing: .14em; }
+
+/* カード:枠線なし、やわらかい影 */
+.card { border: 0; border-radius: var(--radius); box-shadow: var(--shadow); }
+.card h2 { color: var(--text); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card { border: 1px solid var(--line); } }
+:root[data-theme="dark"] .card { border: 1px solid var(--line); }
+
+/* ボタン:丸い形、メインはグラデーション */
+.btn { border-radius: 999px; letter-spacing: .06em; }
+.btn.primary { background: var(--grad-btn); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(17, 70, 214, .25); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.big { padding: 15px; }
+.btn:not(.primary):not(.danger):not(.g-again):not(.g-hard):not(.g-good):not(.subj) { border: 1.5px solid var(--primary); color: var(--primary); background: var(--card); }
+.btn.ghost { border-color: transparent !important; }
+.g-good { background: linear-gradient(115deg, #0b8a5b, #16a34a); border-color: transparent; }
+.seg-btn { border-radius: 999px; }
+.seg-btn.on { background: var(--grad-btn); border-color: transparent; color: #fff; }
+.check.on { background: var(--teal); border-color: var(--teal); }
+
+/* 進み具合のバー */
+.progress { background: var(--primary-weak); }
+.progress i { background: var(--grad-btn); }
+
+/* ピンポのふきだし */
+.bubble { background: linear-gradient(115deg, #e8eefc, #e3f4f7); border-radius: 18px; }
+.bubble::before { border-right-color: #e8eefc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bubble { background: var(--primary-weak); } :root:not([data-theme="light"]) .bubble::before { border-right-color: var(--primary-weak); } }
+:root[data-theme="dark"] .bubble { background: var(--primary-weak); }
+:root[data-theme="dark"] .bubble::before { border-right-color: var(--primary-weak); }
+
+/* 数字・バッジ */
+.big-num { background: var(--grad-btn); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .big-num { background: none; color: var(--text); } }
+:root[data-theme="dark"] .big-num { background: none; color: var(--text); }
+.lv-badge { background: var(--grad-btn); box-shadow: 0 6px 16px rgba(17, 70, 214, .3); }
+.stat-row div { background: linear-gradient(180deg, var(--primary-weak), transparent); border: 1px solid var(--line); }
+.phase-badge, .time-pill, .stage-tag { background: var(--primary-weak); color: var(--primary); }
+.day.study i { background: var(--grad-btn); }
+
+/* 単元の行・選択肢 */
+.unit-row { border-radius: 14px; border-color: var(--line); }
+.unit-row:hover, .choice:hover:not(:disabled) { border-color: var(--teal); }
+.choice { border-radius: 14px; }
+.choice b { background: var(--grad-btn); color: #fff; }
+
+/* 表 */
+.univ-t th, .kv th, .plan th { background: var(--primary-weak); }
+
+/* 下のメニュー */
+.nav { background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid rgba(223, 230, 242, .8); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav { background: rgba(2, 11, 31, .92); border-top-color: var(--line); } }
+:root[data-theme="dark"] .nav { background: rgba(2, 11, 31, .92); border-top-color: var(--line); }
+.nav a { border-radius: 14px; }
+.nav a.active { background: var(--primary-weak); color: var(--primary); position: relative; }
+.nav a.active::after { content: ""; position: absolute; left: 30%; right: 30%; top: 2px; height: 3px; border-radius: 3px; background: var(--grad-btn); }
+
+/* ヒーロー(はじめまして) */
+.hero { background: var(--card); }
+.hero h1 { letter-spacing: .08em; }
+.brand { background: var(--grad-btn); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* トースト */
+.toast { background: var(--grad-btn); }
