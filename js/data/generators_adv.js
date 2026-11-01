@@ -136,7 +136,15 @@
         '背景:' + c[0] + '\n→ ' + it.m + '(' + (it.t < 0 ? '紀元前' + (-it.t) : it.t) + '年)\nその結果:' + c[1]);
     };
   }
-  G.hx_hist = mix([causeGen('jhistory', 'j:'), causeGen('whistory', 'w:')]);
+  G.hx_jhist = causeGen('jhistory', 'j:');
+  function century(r, seed) {
+    var W = WPS.BANK.whistory, it = W[seed % W.length], y = it.t, c = y > 0 ? Math.ceil(y / 100) : Math.ceil(-y / 100);
+    var lab = function (n, bc) { return (bc ? '紀元前' : '') + n + '世紀'; }, bc = y < 0;
+    var opts = [lab(c, bc)]; [c - 1, c + 1, c + 2, c - 2].forEach(function (n) { if (n > 0 && opts.length < 4) opts.push(lab(n, bc)); });
+    var C = (WPS.HCTX || {})['w:' + y];
+    return Q(3, '「' + it.m + '」が起きたのは何世紀?', opts, (bc ? '紀元前' + (-y) : y) + '年 → ' + lab(c, bc) + '(' + (bc ? '' : (c - 1) + '01〜' + c + '00年') + ')' + (C ? '\n背景:' + C[0] + '\n結果:' + C[1] : '') + '\n💡 1世紀は100年。1801〜1900年が19世紀。');
+  }
+  G.hx_whist = mix([causeGen('whistory', 'w:'), century]);
 
   /* ---------- 情報Ⅰの総合 ---------- */
   G.ix_info = function (r) {

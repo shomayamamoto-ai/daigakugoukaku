@@ -260,19 +260,31 @@ eloquent|雄弁な
   };
 
   /* ================= 社会 ================= */
-  function sameTime(r) {
-    var J = WPS.BANK.jhistory, W = WPS.BANK.whistory, j = pk(r, J), near = W.filter(function (w) { return Math.abs(w.t - j.t) <= 15; });
-    if (!near.length) { j = pk(r, J.filter(function (x) { return W.some(function (w) { return Math.abs(w.t - x.t) <= 15; }); })); near = W.filter(function (w) { return Math.abs(w.t - j.t) <= 15; }); }
-    var ans = pk(r, near), far = shuffle(r, W.filter(function (w) { return Math.abs(w.t - j.t) > 60; })).slice(0, 3);
-    return Q(3, '「' + j.m + '」(日本)と、ほぼ同じ時期(±15年以内)の世界のできごとは?', [ans.m].concat(far.map(function (f) { return f.m; })), '「' + j.m + '」は ' + j.t + '年、「' + ans.m + '」は ' + ans.t + '年。\nほかの選択肢:' + far.map(function (f) { return f.m + '(' + f.t + '年)'; }).join('/') + '\n💡 日本と世界を1本の年表でつなげて覚えよう。');
+  function closeOrder(bankKey, pre) {
+    return function (r) {
+      var J = WPS.BANK[bankKey].slice().sort(function (a, b) { return a.t - b.t; }), i = ri(r, 0, J.length - 4), four = J.slice(i, i + 4);
+      var yl = function (y) { return y < 0 ? '紀元前' + (-y) : String(y); };
+      var lab = function (x) { return x.m.length > 16 ? x.m.slice(0, 16) + '…' : x.m; }, right = four.map(lab).join(' → ');
+      var perms = [[1, 0, 2, 3], [0, 2, 1, 3], [0, 1, 3, 2], [3, 2, 1, 0], [2, 0, 1, 3]].map(function (p) { return p.map(function (k) { return lab(four[k]); }).join(' → '); });
+      return Q(3, '次の4つのできごとを、古い順に並べたものは?(年代が近いできごとです)', [right].concat(shuffle(r, perms).slice(0, 3)), '古い順:\n' + four.map(function (x) { var c = (WPS.HCTX || {})[pre + x.t]; return '・' + yl(x.t) + '年 ' + x.m + (c ? '\n　→ ' + c[1].slice(0, 50) + (c[1].length > 50 ? '…' : '') : ''); }).join('\n'));
+    };
   }
-  function closeOrder(r) {
-    var J = WPS.BANK.jhistory.slice().sort(function (a, b) { return a.t - b.t; }), i = ri(r, 0, J.length - 4), four = J.slice(i, i + 4);
-    var lab = function (x) { return x.m.length > 16 ? x.m.slice(0, 16) + '…' : x.m; }, right = four.map(lab).join(' → ');
-    var perms = [[1, 0, 2, 3], [0, 2, 1, 3], [0, 1, 3, 2], [3, 2, 1, 0], [2, 0, 1, 3]].map(function (p) { return p.map(function (k) { return lab(four[k]); }).join(' → '); });
-    return Q(3, '次の4つのできごとを、古い順に並べたものは?(年代が近いできごとです)', [right].concat(shuffle(r, perms).slice(0, 3)), '古い順:\n' + four.map(function (x) { var c = (WPS.HCTX || {})['j:' + x.t]; return '・' + x.t + '年 ' + x.m + (c ? '\n　→ ' + c[1].slice(0, 50) + (c[1].length > 50 ? '…' : '') : ''); }).join('\n'));
+  function bgToEvent(bankKey, pre) {
+    return function (r, seed) {
+      var C = WPS.HCTX || {}, all = WPS.BANK[bankKey].filter(function (x) { return C[pre + x.t]; }), it = all[seed % all.length];
+      var near = all.slice().sort(function (a, b) { return Math.abs(a.t - it.t) - Math.abs(b.t - it.t); }).filter(function (x) { return x !== it; }).slice(0, 3);
+      var cut = function (s) { return s.length > 60 ? s.slice(0, 58) + '…' : s; };
+      return Q(3, '次の「結果」を招いたできごとは?(年代の近いできごとから選ぶ)\n「' + cut(C[pre + it.t][1]) + '」', [it.m].concat(near.map(function (o) { return o.m; })), '背景:' + C[pre + it.t][0] + '\n→ ' + it.m + '\n→ 結果:' + C[pre + it.t][1] + '\n💡 年代の近いできごとが並ぶので、因果関係で区別する。');
+    };
   }
-  G.hd_soc = mix([sameTime, closeOrder]);
+  G.hd_jsoc = mix([closeOrder('jhistory', 'j:'), bgToEvent('jhistory', 'j:')]);
+  function yearGap(r) {
+    var W = WPS.BANK.whistory, a = pk(r, W), b = pk(r, W.filter(function (x) { return x !== a && Math.abs(x.t - a.t) <= 300 && x.t !== a.t; }));
+    var d = Math.abs(a.t - b.t), first = a.t < b.t ? a : b, last = a.t < b.t ? b : a;
+    return Q(3, '「' + first.m + '」から「' + last.m + '」までは、およそ何年?', numChoices(d, [d + 10, Math.max(1, d - 10) === d ? d + 20 : Math.max(1, d - 10), d * 2]), first.m + '(' + (first.t < 0 ? '紀元前' + (-first.t) : first.t) + '年)→ ' + last.m + '(' + (last.t < 0 ? '紀元前' + (-last.t) : last.t) + '年)\n差は ' + d + '年\n💡 年代の差がわかると、同時代のできごとの関係が見えてくる。');
+  }
+  G.hd_wsoc = mix([closeOrder('whistory', 'w:'), bgToEvent('whistory', 'w:'), yearGap]);
+
 
   /* ================= 情報 ================= */
   G.hd_info = function (r) {
@@ -287,7 +299,7 @@ eloquent|雄弁な
   };
 })();
 (function () {
-  var H = WPS.GENH, G = WPS.GEN, ri = H.ri, pk = H.pk, shuffle = H.shuffle, Q = H.Q, mix = H.mix, fact = H.fact;
+  var H = WPS.GENH, G = WPS.GEN, ri = H.ri, pk = H.pk, shuffle = H.shuffle, Q = H.Q, mix = H.mix, fact = H.fact, numChoices = H.numChoices;
   function kuhoQ(r) {
     var B = WPS.BANK.kuho, it = pk(r, B), ask = ri(r, 0, 1), key = ask ? 'r' : 'm';
     var opts = [it[key]]; shuffle(r, B).forEach(function (o) { if (opts.length < 4 && opts.indexOf(o[key]) < 0) opts.push(o[key]); });
