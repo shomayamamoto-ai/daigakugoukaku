@@ -123,14 +123,14 @@ WPS.CURRICULUM = [
         { name: '中2:式の計算・連立方程式', units: ['m_m4'] },
         { name: '中2:一次関数', units: ['m_m5'] },
         { name: '中2:図形の性質と証明', units: ['m_m6'], topics: ['平行線と角', '合同の証明', '三角形・四角形の性質'] },
-        { name: '中2:確率・箱ひげ図', units: ['m_m12'], topics: ['四分位数と箱ひげ図'] },
+        { name: '中2:確率・箱ひげ図', units: ['m_m12', 'm_box'] },
         { name: '中3:多項式(展開・因数分解)', units: ['m_m7', 'm_fact'] },
         { name: '中3:平方根', units: ['m_m8'] },
         { name: '中3:二次方程式', units: ['m_m9'] },
         { name: '中3:関数 y＝ax²', units: ['m_m10'] },
-        { name: '中3:相似・円周角の定理', units: ['m_sim'], topics: ['円周角の定理'] },
+        { name: '中3:相似・円周角の定理', units: ['m_sim', 'm_circ'] },
         { name: '中3:三平方の定理', units: ['m_m11'] },
-        { name: '中3:標本調査', units: [], topics: ['全数調査と標本調査', '母集団の推定'] }
+        { name: '中3:標本調査', units: ['m_sample'] }
       ] },
       { id: 'math_1', short: '数Ⅰ', name: '数学Ⅰ', areas: [
         { name: '数と式(展開・因数分解・実数・1次不等式)', units: ['m1_expand', 'm1_abs'] },
@@ -225,11 +225,11 @@ WPS.CURRICULUM = [
       { id: 'eng_lr', short: '論理・表現', name: '高校英語:論理・表現Ⅰ〜Ⅲ(英文法)', areas: [
         { name: '高1:文型・品詞', units: ['e_h1'], topics: ['5文型・SVOC', '自動詞と他動詞'] },
         { name: '高1:時制', units: ['e_pastperf', 'e_futperf', 'e_tense'], topics: ['現在完了進行形'] },
-        { name: '高1:助動詞・受動態', units: [], topics: ['助動詞の推量の使い分け', 'SVOO・SVOC の受動態'] },
+        { name: '高1:助動詞・受動態', units: ['e_aux'], topics: ['SVOO・SVOC の受動態'] },
         { name: '高1:不定詞・動名詞・分詞の基本', units: [], topics: ['不定詞の3用法', '動名詞と不定詞の使い分け'] },
         { name: '高2:関係詞', units: ['e_h4'], topics: ['非制限用法', '複合関係詞'] },
         { name: '高2:分詞構文', units: ['e_h3'] },
-        { name: '高2:比較', units: [], topics: ['倍数表現', '比較の慣用句'] },
+        { name: '高2:比較', units: ['e_comp'] },
         { name: '高3:仮定法', units: ['e_h2'], topics: ['if を使わない仮定法'] },
         { name: '高3:強調・倒置・省略・挿入', units: [], topics: ['強調構文', '倒置'] },
         { name: '高3:直接話法と間接話法', units: [], topics: ['話法の転換'] }

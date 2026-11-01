@@ -913,3 +913,4 @@ table.cmp td.num { white-space: nowrap; font-weight: 700; }
 .gt-ms2 i { background: #6d3fc0; border-radius: 50%; transform: none; }
 .gt-ms2.bp-past i { background: #12805a; }
 .gt-ms2.bp-month i { background: var(--muted); }
+.retry h2 { margin-bottom: 2px; } .retry .row-between > div { flex: 1 1 14em; }

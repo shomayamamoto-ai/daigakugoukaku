@@ -630,6 +630,8 @@
       }).join('') + '</ul>' +
       (doneN === tt.tasks.length ? say(pick(LINES.done), 'cheer', 48) : '') + '</section>';
 
+    var wl = wrongList();
+    if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += '<section class="quick"><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
@@ -639,6 +641,8 @@
     return html;
   }
   renderHome.after = function () {
+    var rw = document.getElementById('retryWrong');
+    if (rw) rw.addEventListener('click', function () { startQuiz(wrongList().slice(0, 10), 'retry', '間違い直し'); });
     view.querySelectorAll('button[data-task]').forEach(function (b) {
       b.addEventListener('click', function () {
         var day = S.day();
@@ -745,6 +749,13 @@
     });
   };
 
+  // まだ正解できていない「間違えた問題」(新しい順)。同じ問題を後で正解していれば外す
+  function wrongList() {
+    var s = S.get(), last = {}, gr = s.profile.grade, st = A.allStats();
+    s.attempts.forEach(function (a) { if (a.q && a.src !== 'card' && a.src !== 'oral') last[a.q] = a; });
+    return Object.keys(last).filter(function (id) { var q = WPS.Q(id); return !last[id].ok && q && WPS.unitAllowed(q.unit, gr, st); })
+      .sort(function (a, b) { return last[b].t - last[a].t; });
+  }
   function startQuiz(qids, src, title) {
     quiz = {
       items: qids.map(function (id) { return { q: id, dig: false }; }), i: 0, src: src, title: title,
