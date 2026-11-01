@@ -401,7 +401,7 @@ window.WPS = window.WPS || {};
     var M = [['must', '〜しなければならない'], ['must not', '〜してはいけない'], ['may', '〜してもよい'], ['should', '〜するべきだ'], ['can', '〜することができる'], [s.p === '3' ? "doesn't have to" : "don't have to", '〜する必要はない']];
     var m = M[x.k % M.length];
     var others = shuffle(r, M.filter(function (z) { return z !== m; })).slice(0, 3);
-    var q = Q(2, s.t + ' (   ) ' + v.base + ' ' + v.obj + '.\n(意味:' + v.ja.replace(/る$/, '') + '…「' + m[1] + '」)', [m[0]].concat(others.map(function (z) { return z[0]; })),
+    var q = Q(2, s.t + ' (   ) ' + v.base + ' ' + v.obj + '.\n(「' + m[1] + '」の意味にしたい)', [m[0]].concat(others.map(function (z) { return z[0]; })),
       '「' + m[1] + '」は「' + m[0] + '」。\n【まとめ】must＝〜しなければならない ／ must not＝〜してはいけない ／ may＝〜してもよい ／ should＝〜すべき ／ don\'t have to＝〜する必要はない\n💡 助動詞の後ろは動詞の原形。', { say: s.t + ' ' + m[0] + ' ' + v.base + ' ' + v.obj + '.' });
     others.forEach(function (z) { q.why[z[0]] = '「' + z[0] + '」は「' + z[1] + '」の意味です。'; });
     return q;

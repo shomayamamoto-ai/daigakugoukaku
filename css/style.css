@@ -372,3 +372,17 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .univ-t tr.reach-near td:first-child { box-shadow: inset 4px 0 0 var(--warn); }
 .univ-t tr.is-goal { background: var(--ok-weak); }
 .goal-t td, .goal-t th { text-align: center; font-variant-numeric: tabular-nums; }
+/* ---------- 単語帳の絞り込みボタン ---------- */
+.filter-row { display: grid; grid-template-columns: 3em 1fr; align-items: center; gap: 8px; margin-bottom: 10px; }
+.f-label { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.seg-btn { border: 1.5px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.seg-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.seg-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.list-head { margin: 6px 0 4px; }
+.subj-head { display: flex; align-items: center; gap: 8px; margin: 16px 0 6px; font-size: .95rem; }
+.stage-tag { flex: 0 0 auto; font-size: .72rem; font-weight: 700; background: var(--primary-weak); color: var(--primary); border-radius: 6px; padding: 2px 6px; }
+.back-q { font-size: .9rem; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); white-space: pre-line; }
+.back-q small { display: block; }
+.face.back .exp { white-space: pre-line; font-size: .92rem; }
+.say-btn { margin: -4px 0 10px; }

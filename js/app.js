@@ -664,19 +664,64 @@
     html += '<section class="card"><div class="stat-row"><div><b>' + sm.due + '</b><small>復習</small></div><div><b>' + sm.newToday + '</b><small>今日の新しいカード</small></div><div><b>' + sm.mastered + '</b><small>覚えた</small></div></div>' +
       '<button class="btn primary big" id="startDeck">🃏 今日のカードをはじめる</button>' +
       '<p class="hint">「覚えた」カードは 1日→3日→7日→14日→30日後…と、忘れかけた頃にまた出てくるよ(間隔反復)。</p></section>';
-    html += '<section class="card"><h2>単語帳に入っている単元</h2>';
-    if (!units.length) html += '<p class="muted">まだありません。<a href="#test">診断テスト</a>を受けると、苦手単元が自動で入るよ。</p>';
-    else html += '<p class="muted">タップすると、その単元だけをまとめて練習できるよ。</p><div class="unit-list">' + units.map(function (id) {
-      var u = WPS.UNIT_MAP[id];
-      return '<button class="unit-row" data-unit="' + id + '">' + subjChip(u.subj) + '<span class="u-name">' + h(u.name) + '<small>' + u.stage + '・' + (u.hasGen ? u.questions.length + '枚＋自動生成' : u.questions.length + '枚') + '</small></span>' + statusChip(stats[id].status) + '</button>';
-    }).join('') + '</div>';
-    html += '</section>';
+    html += cardUnitList(units, stats);
     return html;
+  }
+  // 単語帳の単元一覧(学校段階・教科・範囲をボタンで選ぶ)
+  var cardFilter = { stage: 'all', subj: 'all', scope: 'weak' };
+  try { var cf = JSON.parse(localStorage.getItem('wps_card_filter') || 'null'); if (cf) cardFilter = cf; } catch (e) { /* 保存できない環境でも動く */ }
+  function seg(name, opts, cur) {
+    return '<div class="seg" role="group" aria-label="' + name + '">' + opts.map(function (o) {
+      return '<button type="button" class="seg-btn' + (o[0] === cur ? ' on' : '') + '" data-f="' + name + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function cardUnitList(weakUnits, stats) {
+    var weakSet = {}; weakUnits.forEach(function (id) { weakSet[id] = true; });
+    var subjs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WPS.UNITS.some(function (u) { return u.subj === k; }); });
+    var list = WPS.UNITS.filter(function (u) {
+      var si = WPS.STAGES.indexOf(u.stage);
+      if (cardFilter.stage === 'jh' && si > 2) return false;
+      if (cardFilter.stage === 'hs' && si <= 2) return false;
+      if (cardFilter.subj !== 'all' && u.subj !== cardFilter.subj) return false;
+      if (cardFilter.scope === 'weak' && !weakSet[u.id]) return false;
+      return true;
+    });
+    var html = '<section class="card"><h2>単語帳をえらぶ</h2>' +
+      '<div class="filter-row"><span class="f-label">範囲</span>' + seg('scope', [['weak', '🎯 苦手だけ(' + weakUnits.length + ')'], ['all', '📚 すべての単元']], cardFilter.scope) + '</div>' +
+      '<div class="filter-row"><span class="f-label">学校</span>' + seg('stage', [['all', 'すべて'], ['jh', '中学'], ['hs', '高校']], cardFilter.stage) + '</div>' +
+      '<div class="filter-row"><span class="f-label">教科</span>' + seg('subj', [['all', 'すべて']].concat(subjs.map(function (k) { return [k, WPS.SUBJECTS[k].name]; })), cardFilter.subj) + '</div>';
+    if (!list.length) {
+      html += '<p class="muted">' + (cardFilter.scope === 'weak' ? 'この条件の苦手単元はないよ。「すべての単元」に切りかえると、ほかの単元も練習できるよ。' : 'この条件の単元はありません。') + '</p>';
+    } else {
+      html += '<div class="row-between list-head"><span class="muted">' + list.length + '単元</span><button class="btn small primary" id="startFiltered">この' + list.length + '単元をまとめて練習</button></div>';
+      // 教科ごと → 学年順にまとめて表示
+      subjs.forEach(function (k) {
+        var us = list.filter(function (u) { return u.subj === k; });
+        if (!us.length) return;
+        html += '<h3 class="subj-head">' + subjChip(k) + ' <span class="muted">' + us.length + '単元</span></h3><div class="unit-list">' + us.map(function (u) {
+          return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? u.questions.length + '枚＋自動生成' : u.questions.length + '枚') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
+        }).join('') + '</div>';
+      });
+    }
+    return html + '</section>';
   }
   renderCards.after = function () {
     if (deck) return renderDeck.after();
     var b = document.getElementById('startDeck');
     if (b) b.addEventListener('click', function () { startDeck(WPS.SRS.session(), '今日の単語帳'); });
+    view.querySelectorAll('[data-f]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        cardFilter[b.getAttribute('data-f')] = b.getAttribute('data-v');
+        try { localStorage.setItem('wps_card_filter', JSON.stringify(cardFilter)); } catch (e) { /* 無視 */ }
+        var y = window.scrollY; render(); window.scrollTo(0, y);
+      });
+    });
+    var sf = document.getElementById('startFiltered');
+    if (sf) sf.addEventListener('click', function () {
+      var ids = [];
+      view.querySelectorAll('[data-unit]').forEach(function (x) { ids = ids.concat(unitSet(WPS.UNIT_MAP[x.getAttribute('data-unit')])); });
+      startDeck(shuffle(ids).slice(0, 30), '選んだ単元の単語帳');
+    });
     view.querySelectorAll('[data-unit]').forEach(function (x) {
       x.addEventListener('click', function () {
         var u = WPS.UNIT_MAP[x.getAttribute('data-unit')];
@@ -684,6 +729,28 @@
       });
     });
   };
+
+  // 発音(ブラウザの読み上げ機能)。英語の問題・単語だけ対象
+  function speakText(q) {
+    if (!q || !('speechSynthesis' in window)) return '';
+    if (q.say) return q.say;
+    if (q.subj !== 'eng') return '';
+    var t = q.text.replace(/\(\s*\)/, q.answer);
+    if (/^[\x20-\x7E’]+$/.test(t)) return t;
+    if (/^[A-Za-z][A-Za-z '\-]*$/.test(q.answer)) return q.answer;
+    var m = q.text.match(/[A-Za-z][A-Za-z '\-]{2,}/);
+    return m ? m[0] : '';
+  }
+  function speak(text) {
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US'; u.rate = 0.9;
+      var v = speechSynthesis.getVoices().filter(function (x) { return /^en(-|_)/i.test(x.lang); })[0];
+      if (v) u.voice = v;
+      speechSynthesis.speak(u);
+    } catch (e) { toast('この端末では読み上げが使えません'); }
+  }
 
   function renderDeck() {
     if (deck.i >= deck.items.length) {
@@ -701,7 +768,8 @@
       '<div class="flash' + (deck.flipped ? ' flipped' : '') + '" id="flash" tabindex="0" role="button" aria-label="カードをめくる">' +
       '<div class="face front"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '</span></div><p class="q-text">' + h(q.text) + '</p>' +
       '<span class="tap">タップしてめくる</span></div>' +
-      '<div class="face back"><small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p>' + h(q.exp) + '</p></div></div>' +
+      '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p><small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
+      (speakText(q) ? '<button class="btn small say-btn" id="sayBtn">🔊 発音を聞く</button>' : '') +
       (deck.flipped ? '' : '<details class="hint-choices"><summary>ヒント:選択肢を見る</summary><ul>' + shuffle(q.choices).map(function (c) { return '<li>' + h(c) + '</li>'; }).join('') + '</ul></details>') +
       '<div class="grade' + (deck.flipped ? '' : ' hidden') + '">' +
       '<button class="btn g-again" data-g="again">😣 まだ</button><button class="btn g-hard" data-g="hard">🤔 あいまい</button><button class="btn g-good" data-g="good">😊 覚えた</button></div>' +
@@ -720,6 +788,8 @@
     }
     flash.addEventListener('click', flip);
     document.getElementById('quitDeck').addEventListener('click', function () { deck = null; render(); });
+    var sb = document.getElementById('sayBtn');
+    if (sb) sb.addEventListener('click', function (e) { e.stopPropagation(); speak(speakText(WPS.Q(deck.items[deck.i]))); });
     view.querySelectorAll('[data-g]').forEach(function (b) {
       b.addEventListener('click', function () { gradeCard(b.getAttribute('data-g')); });
     });
