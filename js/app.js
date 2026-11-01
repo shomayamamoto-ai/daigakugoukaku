@@ -1076,7 +1076,7 @@
     html += '<details class="mext"><summary>📘 文部科学省が「' + h(g.name) + '」で求めている力</summary><ul class="bullets">' + g.mext.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul><p class="hint">出典:文部科学省 中央教育審議会 教育課程企画特別部会 資料(平成27年)の検討素案より要約</p></details>';
     function guideBox(x) {
       var gd = x.guide;
-      return '<div class="guide-box"><h3>' + h(x.name) + '</h3><b>入試での使われ方</b><ul class="bullets">' + gd.exam.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
+      return '<div class="guide-box"><h3>' + h(x.name) + '</h3>' + (gd.scope ? '<b>学ぶ内容</b><ul class="bullets">' + gd.scope.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' : '') + '<b>入試での使われ方</b><ul class="bullets">' + gd.exam.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
         '<b>勉強のしかた</b><ol class="steps">' + gd.how.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ol>' +
         '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + gd.ng.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
     }
@@ -1100,8 +1100,9 @@
       if (x.areas) {
         x.areas.forEach(function (a) {
           var au = a.units.map(function (id) { return WPS.UNIT_MAP[id]; }).filter(function (u) { return u && ok(u); });
-          if (!au.length && !c) return;
-          body += '<p class="area-head">' + h(a.name) + '</p>' + (au.length ? '<div class="unit-list">' + au.map(unitRow).join('') + '</div>' : '<p class="muted small">この項目の問題は準備中です。</p>');
+          if (!au.length && !c && (!a.topics || (mode === 'cards' && cardFilter.scope === 'weak'))) return;
+          var tp = a.topics && a.topics.length ? '<p class="topics small"><span>' + (au.length ? 'ほかに学ぶ内容' : '学ぶ内容') + '</span>' + a.topics.map(h).join('/') + '</p>' : '';
+          body += '<p class="area-head">' + h(a.name) + '</p>' + (au.length ? '<div class="unit-list">' + au.map(unitRow).join('') + '</div>' : '') + tp + (au.length ? '' : '<p class="muted small">この項目の問題は準備中です。</p>');
         });
       } else body += '<div class="unit-list">' + us.map(unitRow).join('') + '</div>';
     });

@@ -1151,4 +1151,6 @@ window.WPS = window.WPS || {};
 
   WPS.GEN = G;
   WPS.rng = rng;
+  // ほかのファイル(generators_math.js など)から使う共通の道具
+  WPS.GENH = { ri: ri, nz: nz, pk: pk, shuffle: shuffle, num: num, gcd: gcd, frac: frac, poly: poly, sgn: sgn, choices: choices, numChoices: numChoices, uniq: uniq, Q: Q };
 })();
