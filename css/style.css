@@ -1046,3 +1046,43 @@ body { background: var(--bg); letter-spacing: .04em; }
 .judge.out { transition: opacity .3s; opacity: 0 !important; }
 @keyframes judgeIn { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .judge { animation: none; opacity: 1; transform: translate(-50%, -50%); } }
+/* ---------- 志望校との差の見える化 ---------- */
+.gap h3 { font-size: .92rem; margin: 16px 0 6px; }
+.ruler { padding: 30px 6px 22px; }
+.ruler-track { position: relative; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #e4e9f2, #cfd9ec); }
+.ruler-fill { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: repeating-linear-gradient(135deg, rgba(208, 52, 44, .55) 0 6px, rgba(208, 52, 44, .3) 6px 12px); }
+.ruler .tick { position: absolute; top: 14px; width: 1px; height: 6px; background: var(--muted); }
+.ruler .tick small { white-space: nowrap; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: .66rem; color: var(--muted); font-weight: 400; }
+.ruler .cp { position: absolute; top: 3px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #fff; border: 1px solid var(--muted); }
+.pin { position: absolute; top: -26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.pin em { font-style: normal; font-size: .72rem; font-weight: 800; color: #fff; padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+.pin::after { content: ""; width: 2px; height: 22px; }
+.pin.now em { background: var(--primary); } .pin.now::after { background: var(--primary); }
+.pin.goal em { background: #d0342c; } .pin.goal::after { background: #d0342c; }
+.pin.goal { top: 16px; flex-direction: column-reverse; } .pin.goal::after { height: 8px; }
+.gap-msg { font-size: .92rem; margin: 6px 0; } .gap-msg b { color: #d0342c; font-size: 1.15rem; } .gap-msg.ok { color: var(--ok); font-weight: 700; }
+.todo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tg { border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tg small { font-size: .72rem; color: var(--muted); font-weight: 700; }
+.tg span { font-size: .72rem; color: var(--muted); }
+.tg-num { font-size: 1.5rem; line-height: 1.2; color: var(--text); font-feature-settings: "tnum"; }
+.tg-num em { font-style: normal; font-size: .78rem; margin-left: 2px; }
+.tg-bar { position: relative; height: 10px; border-radius: 5px; background: var(--primary-weak); margin: 8px 0 4px; }
+.tg-bar i { display: block; height: 100%; border-radius: 5px; background: var(--grad-btn); }
+.tg-bar b { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #d0342c; }
+.subj-gap { list-style: none; padding: 0; margin: 0; }
+.subj-gap li { display: grid; grid-template-columns: 5.5em minmax(0, 1fr) 4.2em; gap: 8px; align-items: center; padding: 5px 0; font-size: .84rem; }
+.sg-name { font-weight: 700; } .sg-name em { display: block; font-style: normal; font-size: .64rem; color: #fff; background: #d0342c; border-radius: 4px; padding: 0 4px; width: fit-content; }
+.sg-bar { position: relative; height: 10px; border-radius: 5px; background: var(--primary-weak); }
+.sg-bar i { display: block; height: 100%; border-radius: 5px; }
+.sg-bar b { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #d0342c; }
+.sg-v { text-align: right; font-weight: 800; } .sg-v.ng { color: #d0342c; } .sg-v.ok { color: var(--ok); }
+.ladder { list-style: none; padding: 0; margin: 0; border-left: 3px solid var(--line); }
+.ladder li { display: grid; grid-template-columns: 3em minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 0 6px 10px; position: relative; font-size: .84rem; }
+.ladder li::before { content: ""; position: absolute; left: -7px; width: 11px; height: 11px; border-radius: 50%; background: var(--card); border: 2px solid var(--muted); }
+.ladder li b { font-feature-settings: "tnum"; }
+.ladder li span { min-width: 0; overflow-wrap: anywhere; }
+.ladder li em { font-style: normal; font-size: .7rem; font-weight: 800; color: #fff; border-radius: 4px; padding: 1px 6px; }
+.ladder li.reach::before { background: var(--primary); border-color: var(--primary); } .ladder li.reach em { background: var(--primary); }
+.ladder li.goal::before { background: #d0342c; border-color: #d0342c; } .ladder li.goal em { background: #d0342c; } .ladder li.goal b { color: #d0342c; }
+@media (max-width: 380px) { .todo-grid { grid-template-columns: 1fr; } }

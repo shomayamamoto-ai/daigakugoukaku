@@ -2181,6 +2181,72 @@
     return null;
   }
   // 目標とのちがいを表示するカード
+  /* ========== 志望校との差の見える化(あとどれだけやればよいか) ========== */
+  // 偏差値と正答率の関係は、アプリの推定式(engine.js の estimate)と同じ:偏差値 ＝ 50 ＋ 10×(正答率−0.6)÷0.18
+  function accForHensa(hz) { return Math.max(0, Math.min(1, 0.6 + (hz - 50) * 0.018)); }
+  function gapSection(p, g, est) {
+    if (!g || !g.hensa) return '';
+    var rm = R.build(), t = rm.target, today = D.today();
+    var goalH = g.hensa, nowH = est.hensa;
+    var html = '<div class="gap">';
+    // ① 偏差値のものさし(35〜75)
+    var lo = 35, hi = 75, pos = function (v) { return Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)); };
+    var plan = backPlan(rm).filter(function (x) { return x.kind === 'month' || x.kind === 'base'; });
+    var cps = plan.map(function (x) { var m = (x.detail.match(/偏差値 ([\d.]+)/) || [])[1]; return m ? { d: x.date, v: +m } : null; }).filter(Boolean);
+    html += '<h3>偏差値のものさし</h3><div class="ruler">' +
+      '<div class="ruler-track">' + (nowH !== null ? '<i class="ruler-fill" style="left:' + pos(Math.min(nowH, goalH)) + '%;width:' + Math.abs(pos(goalH) - pos(nowH)) + '%"></i>' : '') +
+      [40, 45, 50, 55, 60, 65, 70].map(function (v) { return '<b class="tick" style="left:' + pos(v) + '%"><small>' + v + '</small></b>'; }).join('') +
+      cps.map(function (c) { return '<b class="cp" style="left:' + pos(c.v) + '%" title="' + D.label(c.d) + 'までに ' + c.v + '"></b>'; }).join('') +
+      (nowH !== null ? '<span class="pin now" style="left:' + pos(nowH) + '%"><em>いま ' + nowH + '</em></span>' : '') +
+      '<span class="pin goal" style="left:' + pos(goalH) + '%"><em>目標 ' + goalH + '</em></span></div></div>';
+    if (nowH === null) return html + '<p class="hint">診断テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問答えると、いまの位置と差が表示されます。</p></div>';
+    var diff = Math.round((goalH - nowH) * 10) / 10;
+    html += '<p class="gap-msg ' + (diff <= 0 ? 'ok' : '') + '">' + (diff <= 0 ? '目標ラインに届いています。このまま維持して、過去問で得点を安定させよう。' : '目標まで <b>あと ' + diff + '</b>(偏差値)。小さな点は、毎月の中間目標です。') + '</p>';
+    // ② あとこれだけやれば(正答率・単元数・時間に置きかえる)
+    var accNow = accForHensa(nowH), accGoal = accForHensa(goalH);
+    var weak = rm.units.filter(function (id) { return rm.stats[id].status === 'weak' || rm.stats[id].status === 'soso'; });
+    var untested = rm.units.filter(function (id) { return rm.stats[id].status === 'untested'; });
+    var prStart = (rm.phases.filter(function (x) { return x.key === 'practice'; })[0] || {}).start || t.exam;
+    var weeksLeft = Math.max(1, Math.ceil(D.diff(today, prStart) / 7)), daysLeft = Math.max(1, D.diff(today, prStart));
+    // 未診断の単元にも、診断済みと同じ割合で苦手があると見込んで足す
+    var pool = WPS.UNITS.filter(function (u) { return t.weights[u.subj] > 0 && WPS.unitAllowed(u, p.grade, rm.stats); });
+    var testedU = pool.filter(function (u) { return rm.stats[u.id].status !== 'untested'; });
+    var weakU = testedU.filter(function (u) { return rm.stats[u.id].status === 'weak' || rm.stats[u.id].status === 'soso'; });
+    var ratio = testedU.length ? weakU.length / testedU.length : 0.5;
+    var guess = Math.round(untested.length * ratio), need = weak.length + guess;
+    var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / 5) * 5;
+    var probs = need * 30;
+    html += '<h3>あとこれだけやれば届く(目安)</h3><div class="todo-grid">' +
+      '<div class="tg"><small>正答率</small><div class="tg-bar"><i style="width:' + Math.round(accNow * 100) + '%"></i><b style="left:' + Math.round(accGoal * 100) + '%"></b></div><span>いま ' + Math.round(accNow * 100) + '% → 目標 ' + Math.round(accGoal * 100) + '%</span></div>' +
+      '<div class="tg"><small>苦手単元を「得意」に</small><b class="tg-num">' + need + '<em>単元</em></b><span>判明 ' + weak.length + '＋未診断から見込み ' + guess + '/週 ' + perWeek + ' 単元(' + weeksLeft + '週)</span></div>' +
+      '<div class="tg"><small>解く問題の目安</small><b class="tg-num">' + probs + '<em>問</em></b><span>1単元 約30問 × ' + need + '単元</span></div>' +
+      '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約150分)</span></div>' +
+      '</div>' + (untested.length ? '<p class="hint">まだ診断していない単元が ' + untested.length + ' あります(今の苦手の割合から ' + guess + ' 単元を見込みに入れています)。診断を進めると、必要な量がより正確になります。</p>' : '');
+    // ③ 教科ごとの差(どの教科を上げると近づくか)
+    var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; }).map(function (k) { var e = A.estimate(k); return { k: k, h: e.hensa, w: t.weights[k] }; }).filter(function (x) { return x.h !== null; });
+    if (subs.length) {
+      subs.sort(function (a, b) { return (goalH - b.h) * b.w - (goalH - a.h) * a.w; });
+      html += '<h3>教科ごとの差</h3><ul class="subj-gap">' + subs.map(function (x, i) {
+        var d = Math.round((goalH - x.h) * 10) / 10;
+        return '<li><span class="sg-name">' + h(WPS.SUBJECTS[x.k].name) + (i === 0 && d > 0 ? '<em>最優先</em>' : '') + '</span><span class="sg-bar"><i style="width:' + pos(x.h) + '%;background:' + WPS.SUBJECTS[x.k].color + '"></i><b style="left:' + pos(goalH) + '%"></b></span><span class="sg-v ' + (d > 0 ? 'ng' : 'ok') + '">' + (d > 0 ? 'あと' + d : '到達') + '</span></li>';
+      }).join('') + '</ul><p class="hint">縦線が目標の偏差値。差 × 志望校での重要度が大きい順に並べています。</p>';
+    }
+    // ④ 大学のはしご(いまの位置〜目標の間にある大学)
+    var kind = t.school ? t.school.kind : 'private', list = (WPS.univSchools ? WPS.univSchools() : []).filter(function (s) { return s.kind === kind && s.hensaMax; });
+    if (list.length && diff > 0) {
+      var steps = [], v;
+      for (v = Math.floor(nowH / 2.5) * 2.5; v <= goalH + 0.01; v += 2.5) steps.push(v);
+      var ladder = steps.reverse().map(function (sv) {
+        var hits = list.filter(function (s) { return s.hensaMax === sv; }).slice(0, 3).map(function (s) { return s.name; });
+        return { v: sv, names: hits };
+      }).filter(function (x) { return x.names.length || x.v === steps[0]; }).slice(0, 7);
+      html += '<h3>目標までの大学のはしご(' + (kind === 'national' ? '国公立' : '私立') + ')</h3><ol class="ladder">' + ladder.map(function (x) {
+        var cls = x.v <= nowH ? 'reach' : x.v >= goalH ? 'goal' : '';
+        return '<li class="' + cls + '"><b>' + x.v.toFixed(1) + '</b><span>' + (x.names.length ? h(x.names.join('・')) : '—') + '</span>' + (cls === 'reach' ? '<em>いま届く</em>' : cls === 'goal' ? '<em>目標</em>' : '') + '</li>';
+      }).join('') + '</ol><p class="hint">大学データに登録された「その大学の最高の偏差値」で並べた目安です(河合塾 2027年度入試難易予想を参考)。学部・方式で違うので、必ず大学データで確認してください。</p>';
+    }
+    return html + '<p class="hint">「いま」はこのアプリの問題の正答状況からの推定で、模試の偏差値とは異なります。必要な量は「1単元 約30問・約150分」として計算した目安です。</p></div>';
+  }
   function goalCard(p, inline) {
     var g = activeGoal(p), est = A.estimate();
     var body;
@@ -2198,7 +2264,7 @@
           '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
         (g.score ? '<p class="hint">共通テストのボーダー:' + h(g.score) + '点</p>' : '') + '<p class="hint">目安の出典:' + h(g.src || WPS.UNIV_SOURCES[g.year] || '') + '</p>';
     }
-    return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + '</section>';
+    return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + gapSection(p, g, est) + '</section>';
   }
   /* ========== 大学データ(条件を組み合わせて探す) ========== */
   var UF_KEY = 'wps_univ_filter', UF_SAVED = 'wps_univ_saved', UF_FAV = 'wps_univ_fav';
