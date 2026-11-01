@@ -1,4 +1,4 @@
-/* Weak-Point Sniper — 企画書の配色(青×赤のアクセント)に合わせたデザイン */
+/* Aqualium — 企画書の配色(青×赤のアクセント)に合わせたデザイン */
 :root {
   --bg: #f5f7fb;
   --card: #ffffff;
@@ -465,3 +465,4 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .my-ans.ok { color: var(--ok); }
 .my-ans.ng { color: var(--ng); }
 .deck-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 6px; font-size: .85rem; }
+.logo-yomi { font-size: .62rem; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: .05em; }

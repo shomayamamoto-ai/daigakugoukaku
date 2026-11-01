@@ -1,6 +1,6 @@
 {
-  "name": "Weak-Point Sniper",
-  "short_name": "WP Sniper",
+  "name": "Aqualium",
+  "short_name": "Aqualium",
   "description": "苦手をピンポイントで見つけて、志望校までの最短ルートを作る学習アプリ",
   "start_url": "./#home",
   "scope": "./",

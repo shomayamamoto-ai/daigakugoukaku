@@ -1,8 +1,8 @@
 {
-  "name": "weak-point-sniper-server",
+  "name": "aqualium-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Weak-Point Sniper のクラウド同期・プッシュ通知サーバー(任意)",
+  "description": "Aqualium のクラウド同期・プッシュ通知サーバー(任意)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

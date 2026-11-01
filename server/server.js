@@ -1,5 +1,5 @@
 /*
- * Weak-Point Sniper 同期・通知サーバー(任意)
+ * Aqualium 同期・通知サーバー(任意)
  * ------------------------------------------------------------
  * このサーバーを動かすと、次のことができるようになります。
  *   1. クラウド同期 … スマホとPCなど、複数の端末で同じ学習データを使える
@@ -249,7 +249,7 @@ async function tick() {
 
 if (require.main === module) {
   server.listen(PORT, () => {
-    console.log('Weak-Point Sniper server: http://localhost:' + PORT);
+    console.log('Aqualium server: http://localhost:' + PORT);
   });
   setInterval(() => { tick().catch((e) => console.error('tick error', e)); }, 60 * 1000);
 }

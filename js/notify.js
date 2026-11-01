@@ -133,14 +133,14 @@ WPS.Notify = (function () {
     var now = new Date();
     var stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + '00Z';
     return [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Weak-Point Sniper//JP', 'CALSCALE:GREGORIAN',
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Aqualium//JP', 'CALSCALE:GREGORIAN',
       'BEGIN:VEVENT',
-      'UID:wps-daily-' + Date.now() + '@weak-point-sniper',
+      'UID:wps-daily-' + Date.now() + '@aqualium',
       'DTSTAMP:' + stamp,
       'DTSTART:' + fmt(start),
       'DTEND:' + fmt(end),
       'RRULE:FREQ=DAILY',
-      'SUMMARY:🦉 Weak-Point Sniper 今日の勉強',
+      'SUMMARY:🦉 Aqualium 今日の勉強',
       'DESCRIPTION:連続記録をつなごう！ 単語帳5枚だけでもOK。',
       'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:今日の勉強の時間だよ', 'TRIGGER:PT0M', 'END:VALARM',
       'END:VEVENT', 'END:VCALENDAR'

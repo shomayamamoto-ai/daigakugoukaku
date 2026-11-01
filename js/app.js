@@ -1,5 +1,5 @@
 /*
- * Weak-Point Sniper 画面(UI)
+ * Aqualium 画面(UI)
  * ------------------------------------------------------------
  * 画面はURLの「#〇〇」で切り替えます(1ファイルで動くシンプルな構成)。
  *   #home     ホーム(今日のやる事・連続記録)
@@ -1238,10 +1238,10 @@
       });
     });
     document.getElementById('icsBtn').addEventListener('click', function () {
-      download('weak-point-sniper-reminder.ics', WPS.Notify.ics(), 'text/calendar');
+      download('aqualium-reminder.ics', WPS.Notify.ics(), 'text/calendar');
     });
     document.getElementById('exportBtn').addEventListener('click', function () {
-      download('weak-point-sniper_' + (s.profile.name || 'data') + '_' + D.today() + '.json', S.exportJSON(), 'application/json');
+      download('aqualium_' + (s.profile.name || 'data') + '_' + D.today() + '.json', S.exportJSON(), 'application/json');
     });
     document.getElementById('importFile2').addEventListener('change', function (e) { importFile(e.target.files[0], render); });
     document.getElementById('shareBtn').addEventListener('click', shareLink);
