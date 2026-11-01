@@ -1025,3 +1025,24 @@ body { background: var(--bg); letter-spacing: .04em; }
 .bp li.next .bp-body { background: var(--grad-soft); }
 .uf-bar { background: var(--grad-soft); }
 .pomo-dial .pr-fg { stroke: url(#pomoGrad); }
+/* ---------- 正解・不正解の ○ / ✕ ---------- */
+.mk-big { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; margin-right: 8px; border-radius: 50%; font-size: 1.15em; font-weight: 800; vertical-align: middle; color: #fff; }
+.mk-big.ok { background: #12805a; }
+.mk-big.ng { background: #d0342c; }
+.mk-big.unsure { background: #8a94a8; }
+.feedback.ok .fb-title { color: #0b6b4a; }
+.feedback.ng .fb-title { color: #b42318; }
+.mk-in { font-weight: 800; }
+.mk-in.ok { color: #12805a; } .mk-in.ng { color: #d0342c; }
+.choice { position: relative; }
+.choice.correct::after, .choice.wrong::after { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 1.5rem; font-weight: 800; line-height: 1; }
+.choice.correct::after { content: "○"; color: #12805a; }
+.choice.wrong::after { content: "✕"; color: #d0342c; }
+.choice.correct, .choice.wrong { padding-right: 44px; }
+.judge { position: fixed; left: 50%; top: 42%; z-index: 100; transform: translate(-50%, -50%) scale(.6); font-size: min(46vw, 220px); font-weight: 800; line-height: 1; pointer-events: none; opacity: 0; animation: judgeIn .25s ease-out forwards; text-shadow: 0 6px 24px rgba(0, 0, 0, .15); }
+.judge.ok { color: rgba(18, 128, 90, .85); }
+.judge.ng { color: rgba(208, 52, 44, .85); }
+.judge.unsure { color: rgba(110, 120, 140, .7); }
+.judge.out { transition: opacity .3s; opacity: 0 !important; }
+@keyframes judgeIn { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .judge { animation: none; opacity: 1; transform: translate(-50%, -50%); } }

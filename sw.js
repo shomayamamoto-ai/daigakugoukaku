@@ -4,11 +4,11 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v28';
+var CACHE = 'wps-v29';
 var FILES = [
   './', './index.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
-  './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/units_math.js', './js/data/units_extra2.js', './js/data/units_extra3.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/banks_more.js', './js/data/vocab_jh.js', './js/data/vocab_hs1.js', './js/data/vocab_hs2.js', './js/data/vocab_hs3.js', './js/data/vocab_idiom.js', './js/data/vocab_idiom2.js', './js/data/vocab_sci.js', './js/data/vocab_merge.js', './js/data/emoji.js', './js/data/history_ctx.js',
-  './js/data/generators.js', './js/data/generators_more.js', './js/data/generators_math.js', './js/data/generators_extra2.js', './js/data/generators_extra3.js', './js/data/build.js', './js/data/schools.js', './js/data/exam_info.js', './js/data/methods.js', './js/data/curriculum.js',
+  './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/units_math.js', './js/data/units_extra2.js', './js/data/units_extra3.js', './js/data/units_adv.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/banks_more.js', './js/data/vocab_jh.js', './js/data/vocab_hs1.js', './js/data/vocab_hs2.js', './js/data/vocab_hs3.js', './js/data/vocab_idiom.js', './js/data/vocab_idiom2.js', './js/data/vocab_sci.js', './js/data/vocab_merge.js', './js/data/emoji.js', './js/data/history_ctx.js',
+  './js/data/generators.js', './js/data/generators_more.js', './js/data/generators_math.js', './js/data/generators_extra2.js', './js/data/generators_extra3.js', './js/data/generators_adv.js', './js/data/build.js', './js/data/schools.js', './js/data/exam_info.js', './js/data/methods.js', './js/data/curriculum.js',
   './js/data/univ_2027.js', './js/data/univ_2027_region.js', './js/data/univ_2027_private.js', './js/data/univ_2027_summary.js',
   './js/engine.js', './js/figures.js', './js/notify.js', './js/sync.js', './js/app.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './manifest.webmanifest'

@@ -78,7 +78,8 @@ WPS.CURRICULUM = [
         { name: '古代〜近現代の世界', units: ['c_h2'], topics: ['古代・中世の世界(諸地域の特徴)', '近世の世界(アジアの成熟・ヨーロッパの主権国家体制)', '近現代の世界(世界市場の形成・二度の世界大戦・グローバル社会)'] }
       ] },
       { id: 'soc_jh', short: '日本史', name: '日本史探究', areas: [
-        { name: '原始・古代〜近現代', units: ['c_h1'], topics: ['原始・古代(縄文〜平安)', '中世(鎌倉〜室町・戦国)', '近世(安土桃山〜江戸)', '近現代の政治・外交・経済・文化'] }
+        { name: '原始・古代〜近現代', units: ['c_h1'], topics: ['原始・古代(縄文〜平安)', '中世(鎌倉〜室町・戦国)', '近世(安土桃山〜江戸)', '近現代の政治・外交・経済・文化'] },
+        { name: '入試レベル:歴史の因果関係(日本史・世界史)', units: ['hx_hist'] }
       ] },
       { id: 'soc_geo', short: '地理', name: '地理総合・地理探究', guide: {
         scope: ['地理総合(必履修):地図や GIS の活用/国際理解と国際協力(気候・地形・生活文化・防災)/持続可能な地域づくり(人口・都市・環境・資源エネルギー)', '地理探究:系統地理(気候・地形・産業・人口・宗教などのテーマ別)/地誌(アジア・ヨーロッパ・アメリカなど地域別)'],
@@ -130,7 +131,8 @@ WPS.CURRICULUM = [
         { name: '中3:関数 y＝ax²', units: ['m_m10'] },
         { name: '中3:相似・円周角の定理', units: ['m_sim', 'm_circ'] },
         { name: '中3:三平方の定理', units: ['m_m11'] },
-        { name: '中3:標本調査', units: ['m_sample'] }
+        { name: '中3:標本調査', units: ['m_sample'] },
+        { name: '入試レベル:中学数学の総合', units: ['mx_jh'] }
       ] },
       { id: 'math_1', short: '数Ⅰ', name: '数学Ⅰ', areas: [
         { name: '数と式(展開・因数分解・実数・1次不等式)', units: ['m1_expand', 'm1_abs'] },
@@ -142,7 +144,8 @@ WPS.CURRICULUM = [
       { id: 'math_a', short: '数A', name: '数学A', areas: [
         { name: '場合の数と確率', units: ['m_h3', 'm_prob', 'ma_cond'] },
         { name: '図形の性質', units: ['ma_geo', 'ma_ceva'] },
-        { name: '数学と人間の活動(整数の性質など)', units: ['m_int'] }
+        { name: '数学と人間の活動(整数の性質など)', units: ['m_int'] },
+        { name: '入試レベル:数Ⅰ・Aの総合', units: ['mx_h1'] }
       ] },
       { id: 'math_2', short: '数Ⅱ', name: '数学Ⅱ', areas: [
         { name: '式と証明', units: ['m2_proof'] },
@@ -155,7 +158,8 @@ WPS.CURRICULUM = [
       { id: 'math_b', short: '数B', name: '数学B', areas: [
         { name: '数列(漸化式と数学的帰納法を含む)', units: ['m_h8', 'm_sigma', 'mb_rec'] },
         { name: '統計的な推測', units: ['mb_stat'] },
-        { name: '数学と社会生活', units: ['mb_soc'] }
+        { name: '数学と社会生活', units: ['mb_soc'] },
+        { name: '入試レベル:数Ⅱ・Bの総合', units: ['mx_h2'] }
       ] },
       { id: 'math_c', short: '数C', name: '数学C', areas: [
         { name: 'ベクトル', units: ['m_h9', 'mc_vec'] },
@@ -166,7 +170,8 @@ WPS.CURRICULUM = [
         { name: '関数と極限', units: ['m3_lim'], topics: ['分数関数・無理関数', '数列の極限・無限等比級数', '関数の極限'] },
         { name: '微分法とその応用', units: ['m3_diff'], topics: ['いろいろな関数の導関数', '接線', 'グラフの概形', '方程式・不等式への応用'] },
         { name: '積分法とその応用', units: ['m3_int'], topics: ['不定積分・定積分', '置換積分・部分積分', '面積・体積・道のりの計算'] },
-        { name: '参考:複素数平面・2次曲線', units: [], topics: ['2022年度からの学習指導要領では数学Cで学びます(数C の「平面上の曲線と複素数平面」へ)'] }
+        { name: '参考:複素数平面・2次曲線', units: [], topics: ['2022年度からの学習指導要領では数学Cで学びます(数C の「平面上の曲線と複素数平面」へ)'] },
+        { name: '入試レベル:数Ⅲ・Cの総合', units: ['mx_h3'] }
       ] },
     ]
   },
@@ -181,7 +186,8 @@ WPS.CURRICULUM = [
         { name: '物理:運動とエネルギー', units: ['s_motion'], topics: ['速さと運動', '仕事とエネルギー'] },
         { name: '化学:物質のすがた・水溶液', units: ['s_sol'], topics: ['状態変化', '水溶液と溶解度'] },
         { name: '化学:化学変化と原子・分子', units: ['s_m2'], topics: ['酸化と還元'] },
-        { name: '化学:イオン・酸とアルカリ', units: ['s_ion'] }
+        { name: '化学:イオン・酸とアルカリ', units: ['s_ion'] },
+        { name: '入試レベル:中学理科の総合', units: ['sx_jh'] }
       ] },
       { id: 'sci_jh2', short: '中学理科2', name: '中学 理科(生物・地学分野)', stage: 'jh', areas: [
         { name: '生物:植物・動物のからだ', units: ['s_m3'], topics: ['生物の観察', '消化・呼吸・血液循環', '動物の分類'] },
@@ -196,7 +202,8 @@ WPS.CURRICULUM = [
       { id: 'sci_chem', short: '化基', name: '化学基礎', areas: [
         { name: '物質の構成', units: ['s_struct', 's_h1'] },
         { name: '化学反応', units: ['s_acid'], topics: ['酸化還元'] },
-        { name: '化学と人間生活', units: ['s_life'], topics: ['身のまわりの物質と化学'] }
+        { name: '化学と人間生活', units: ['s_life'], topics: ['身のまわりの物質と化学'] },
+        { name: '入試レベル:物理基礎・化学基礎の総合', units: ['sx_h'] }
       ] },
       { id: 'sci_bio', short: '生基', name: '生物基礎', areas: [
         { name: '生物の特徴・遺伝情報・体内環境', units: ['s_h3'] },
@@ -231,7 +238,8 @@ WPS.CURRICULUM = [
         { name: '高2:分詞構文', units: ['e_h3'] },
         { name: '高2:比較', units: ['e_comp'] },
         { name: '高3:仮定法', units: ['e_h2'], topics: ['if を使わない仮定法'] },
-        { name: '高3:強調・倒置・省略・挿入・話法', units: ['e_emph'], topics: ['強調構文', '倒置', '話法の転換'] }
+        { name: '高3:強調・倒置・省略・挿入・話法', units: ['e_emph'], topics: ['強調構文', '倒置', '話法の転換'] },
+        { name: '入試レベル:英文法・語法の総合', units: ['ex_eng'] }
       ] },
       { id: 'eng_ec', short: '英語コミュニケーション', name: '高校英語:英語コミュニケーションⅠ〜Ⅲ(単語・熟語・読解)', areas: [
         { name: '単語', units: ['e_h5'] },
@@ -262,7 +270,8 @@ WPS.CURRICULUM = [
       { id: 'info_1', short: '情報Ⅰ', name: '情報Ⅰ', areas: [
         { name: '情報のデジタル化', units: ['i_h1'] },
         { name: 'ネットワーク・情報社会', units: ['i_net'] },
-        { name: 'アルゴリズム・プログラミング', units: ['i_h2'] }
+        { name: 'アルゴリズム・プログラミング', units: ['i_h2'] },
+        { name: '入試レベル:情報Ⅰの総合', units: ['ix_info'] }
       ] }
     ]
   },

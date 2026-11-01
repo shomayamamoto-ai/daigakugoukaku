@@ -761,6 +761,16 @@
     return Object.keys(last).filter(function (id) { var q = WPS.Q(id); return !last[id].ok && q && WPS.unitAllowed(q.unit, gr, st); })
       .sort(function (a, b) { return last[b].t - last[a].t; });
   }
+  // 答えた直後に、画面の中央に大きな ○ / ✕ を一瞬表示する
+  function judgeMark(kind) {
+    var old = document.getElementById('judge'); if (old) old.remove();
+    var d = document.createElement('div');
+    d.id = 'judge'; d.className = 'judge ' + kind; d.setAttribute('aria-hidden', 'true');
+    d.textContent = kind === 'ok' ? '○' : kind === 'ng' ? '✕' : '?';
+    document.body.appendChild(d);
+    setTimeout(function () { d.classList.add('out'); }, 650);
+    setTimeout(function () { if (d.parentNode) d.remove(); }, 1000);
+  }
   function startQuiz(qids, src, title) {
     quiz = {
       items: qids.map(function (id) { return { q: id, dig: false }; }), i: 0, src: src, title: title,
@@ -851,6 +861,7 @@
       else if (c === ci) b.classList.add('wrong');
     });
     view.querySelector('.unsure').disabled = true;
+    judgeMark(ok ? 'ok' : unsure ? 'unsure' : 'ng');
     var wb = document.getElementById('qWrite'); if (wb) wb.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; });
     var mood = ok ? 'happy' : 'normal';
     var line = ok ? pick(LINES.correct) : unsure ? LINES.unsure[0] : pick(LINES.wrong);
@@ -910,7 +921,7 @@
   function selfCheck(id, text, ans, done) {
     var f = document.getElementById(id), box = f.querySelector('.self-check');
     f.querySelectorAll('input,button[type=submit]').forEach(function (x) { x.disabled = true; });
-    box.innerHTML = noEmoji('<p>正解は「<b>' + h(ans) + '</b>」。あなたの答え「' + h(text) + '」は合っていた?</p><div class="btns"><button type="button" class="btn g-good" data-sc="1">⭕ 合っていた</button><button type="button" class="btn g-again" data-sc="0">❌ まちがい</button></div>');
+    box.innerHTML = noEmoji('<p>正解は「<b>' + h(ans) + '</b>」。あなたの答え「' + h(text) + '」は合っていた?</p><div class="btns"><button type="button" class="btn g-good" data-sc="1">○ 合っていた</button><button type="button" class="btn g-again" data-sc="0">✕ まちがい</button></div>');
     box.querySelectorAll('[data-sc]').forEach(function (b) { b.addEventListener('click', function () { done(b.getAttribute('data-sc') === '1'); }); });
   }
   // 表記ゆれ(全角/半角・大文字/小文字・空白・記号)を無視して比べる
@@ -945,7 +956,7 @@
   }
   function explainBox(q, ok, chosen) {
     var u = WPS.UNIT_MAP[q.unit];
-    var html = '<div class="feedback ' + (ok ? 'ok' : 'ng') + '"><b class="fb-title">' + (ok ? '⭕ 正解！' : (chosen === null ? '🤔 正解は「' + h(q.answer) + '」' : '❌ 正解は「' + h(q.answer) + '」')) + '</b>';
+    var html = '<div class="feedback ' + (ok ? 'ok' : 'ng') + '"><b class="fb-title">' + (ok ? '<span class="mk-big ok" aria-hidden="true">○</span>正解！' : (chosen === null ? '<span class="mk-big unsure" aria-hidden="true">?</span>正解は「' + h(q.answer) + '」' : '<span class="mk-big ng" aria-hidden="true">✕</span>不正解 ／ 正解は「' + h(q.answer) + '」')) + '</b>';
     if (!ok && chosen !== null) {
       var why = (q.why && q.why[chosen]) || 'この問題では「' + q.answer + '」があてはまります。下の解説で、ルールを確認しよう。';
       html += '<div class="fb-why"><small>あなたの答え「' + h(chosen) + '」が違う理由</small><p>' + h(why) + '</p></div>';
@@ -1530,7 +1541,7 @@
       '<div class="flash' + (deck.flipped ? ' flipped' : '') + '" id="flash" tabindex="0" role="button" aria-label="カードをめくる">' +
       '<div class="face front"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span></div><p class="q-text">' + h(q.text) + '</p>' +
       '<span class="tap">' + (dm === 'flip' ? 'タップしてめくる' : '下で答えてね') + '</span></div>' +
-      '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p>' + (deck.my ? '<p class="my-ans ' + (deck.my.ok ? 'ok' : 'ng') + '">あなたの答え:' + h(deck.my.text) + (deck.my.ok ? ' ⭕' : ' ❌') + '</p>' : '') + '<small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
+      '<div class="face back"><p class="back-q"><small class="muted">問題</small>' + h(q.text) + '</p>' + (deck.my ? '<p class="my-ans ' + (deck.my.ok ? 'ok' : 'ng') + '">あなたの答え:' + h(deck.my.text) + (deck.my.ok ? ' <span class="mk-in ok">○ 正解</span>' : ' <span class="mk-in ng">✕ 不正解</span>') + '</p>' : '') + '<small class="muted">答え</small><p class="answer">' + h(q.answer) + '</p><p class="exp">' + h(q.exp) + '</p></div></div>' +
       (speakText(q) ? '<button class="btn small say-btn" id="sayBtn">🔊 発音を聞く</button>' : '') +
       (deck.flipped ? '' : dm === 'choice' ? '<div class="choices deck-choices">' + shuffle(q.choices).map(function (c) { return '<button class="choice" data-dc="' + h(c) + '"><span>' + h(c) + '</span></button>'; }).join('') + '</div>'
         : dm === 'write' ? writeBox('dWrite') : '') +
@@ -1554,6 +1565,7 @@
     bindModeSwitch();
     function showResult(text, ok) {
       deck.my = { text: text, ok: ok };
+      judgeMark(ok ? 'ok' : 'ng');
       deck.flipped = true; render();
     }
     view.querySelectorAll('[data-dc]').forEach(function (b) { b.addEventListener('click', function () { var c = b.getAttribute('data-dc'); showResult(c, c === dq.answer); }); });
@@ -1712,8 +1724,8 @@
       }
       var orals = s.attempts.filter(function (a) { return a.u === id && a.src === 'oral'; });
       html += '<dt>口頭試問の結果を記録</dt><dd>' + (viewing ? '<small class="muted">記録は生徒の端末で行います(授業中に生徒の端末で、この画面を開いてください)。</small>'
-        : '<div class="btns"><button class="btn small g-good" data-oral="' + id + '" data-ok="1">⭕ 説明できた</button><button class="btn small g-again" data-oral="' + id + '" data-ok="0">✕ 説明できなかった</button></div>') +
-        (orals.length ? '<small class="muted">これまで:' + orals.slice(-5).map(function (a) { return (a.ok ? '⭕' : '✕') + a.d.slice(5).replace('-', '/'); }).join(' ') + '</small>' : '') + '</dd>';
+        : '<div class="btns"><button class="btn small g-good" data-oral="' + id + '" data-ok="1">○ 説明できた</button><button class="btn small g-again" data-oral="' + id + '" data-ok="0">✕ 説明できなかった</button></div>') +
+        (orals.length ? '<small class="muted">これまで:' + orals.slice(-5).map(function (a) { return (a.ok ? '○' : '✕') + a.d.slice(5).replace('-', '/'); }).join(' ') + '</small>' : '') + '</dd>';
       html += '</dl></div>';
     });
     html += '</section>';
