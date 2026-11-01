@@ -337,7 +337,7 @@
             '<b>大学選びのヒント</b><ul class="bullets">' + d.hint.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' + (d.related ? '<p class="muted">関連する主な学科:' + h(d.related) + '</p>' : '') + '</details>';
         }).join('') +
         '<h3>就職先の傾向</h3><ul class="bullets">' + F.careers.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
-        '<p class="hint">出典:' + h(F.source) + '(5系統は記事中の「文部科学省『学科系統分類表』」参照による)。くわしい解説は、いただいた記事画像で読めた分野だけを載せています。</p></section>';
+        '<p class="hint">出典:' + h(F.source) + '(5系統は記事中の「文部科学省『学科系統分類表』」参照による)。くわしい解説は、いただいた記事画像で読めた学部だけを載せています。</p></section>';
     }
     // 検定料
     html += '<section class="card"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
