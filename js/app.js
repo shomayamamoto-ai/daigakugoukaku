@@ -586,7 +586,7 @@
     }
 
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
-    html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。「分解する」で中のしくみも見られるよ。</small></div></section>';
+    html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。タップすると分解するよ。</small></div></section>';
 
     // 連続記録
     var wk = WPS.Streak.week();

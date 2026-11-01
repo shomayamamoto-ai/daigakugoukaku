@@ -201,8 +201,8 @@ WPS.Owl3D = (function () {
     var fallback = opts.fallback || '';
     if (!webglOK()) { el.innerHTML = fallback; return; }
     el.classList.add('owl3d');
-    el.innerHTML = '<div class="owl3d-stage"></div>' + (opts.explode ? '<button type="button" class="owl3d-btn">分解する</button>' : '<span class="owl3d-hint">タップで分解</span>') + '<div class="owl3d-labels"></div>';
-    var stage = el.querySelector('.owl3d-stage'), labelsEl = el.querySelector('.owl3d-labels'), btn = el.querySelector('.owl3d-btn');
+    el.innerHTML = '<div class="owl3d-stage"></div>';
+    var stage = el.querySelector('.owl3d-stage');
     loadThree().then(function (T) {
       var w = stage.clientWidth || 200, h = stage.clientHeight || 220;
       var renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
@@ -218,9 +218,7 @@ WPS.Owl3D = (function () {
       var fill = new T.PointLight(0xffc27a, 0.6, 12); fill.position.set(-2, 0, 3); scene.add(fill);
       var m = build(T, scene), rotY = 0.35, vel = 0.004, drag = null, exploded = 0, target = 0, t0 = performance.now(), alive = true, visible = true, blinkT = 2;
       // 分解ラベル
-      var LB = m.parts.map(function (p, i) { var d = document.createElement('div'); d.className = 'owl3d-label'; d.innerHTML = '<b>' + ('0' + (i + 1)).slice(-2) + ' ' + p.userData.name + '</b><small>' + p.userData.en + '</small>'; labelsEl.appendChild(d); return d; });
-      function setExplode(on) { target = on ? 1 : 0; if (btn) btn.textContent = on ? '組み立てる' : '分解する'; el.classList.toggle('is-exploded', on); var hn = el.querySelector('.owl3d-hint'); if (hn) hn.textContent = on ? 'タップで組み立て' : 'タップで分解'; }
-      if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); setExplode(target === 0); });
+      function setExplode(on) { target = on ? 1 : 0; el.classList.toggle('is-exploded', on); }
       // ドラッグで回転
       var cv = renderer.domElement; cv.style.touchAction = 'pan-y';
       // ドラッグで回転/動かさずにタップ(クリック)すると分解・組み立て
@@ -248,14 +246,6 @@ WPS.Owl3D = (function () {
         blinkT -= dt; var lid = 0.01; if (blinkT < 0.15) lid = 1; if (blinkT < 0) blinkT = 2 + Math.random() * 3;
         m.eyes.forEach(function (l) { l.scale.z = lid; });
         renderer.render(scene, cam);
-        // ラベル位置(分解したときだけ)
-        if (exploded > 0.05) {
-          var rect = stage.getBoundingClientRect(), v = new T.Vector3();
-          m.parts.forEach(function (p, i) {
-            var box = new T.Box3().setFromObject(p.userData.labelObj || p); box.getCenter(v); v.project(cam);
-            LB[i].style.left = ((v.x + 1) / 2 * rect.width) + 'px'; LB[i].style.top = ((1 - v.y) / 2 * rect.height) + 'px'; LB[i].style.opacity = Math.min(1, exploded * 1.5);
-          });
-        } else LB.forEach(function (d) { d.style.opacity = 0; });
       }
       requestAnimationFrame(frame);
       window.addEventListener('resize', function () { var W = stage.clientWidth, Hh = stage.clientHeight; if (!W || !Hh) return; renderer.setSize(W, Hh); cam.aspect = W / Hh; cam.updateProjectionMatrix(); });
