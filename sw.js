@@ -4,14 +4,14 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v4';
+var CACHE = 'wps-v5';
 var FILES = [
   './', './index.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
   './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/emoji.js',
   './js/data/generators.js', './js/data/generators_more.js', './js/data/build.js', './js/data/schools.js', './js/data/methods.js', './js/data/curriculum.js',
   './js/data/univ_2027.js', './js/data/univ_2027_region.js',
   './js/engine.js', './js/figures.js', './js/notify.js', './js/sync.js', './js/app.js',
-  './icons/icon.svg', './manifest.webmanifest'
+  './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './manifest.webmanifest'
 ];
 
 self.addEventListener('install', function (e) {

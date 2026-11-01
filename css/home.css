@@ -392,4 +392,8 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) { .fade.in { animation: none; } }
 .point .ttl { position: relative; z-index: 1; }
 .name-origin { font-size: 13px; color: var(--muted); background: var(--grad-soft); border-radius: 12px; padding: 12px 16px; text-align: left; }
-.ft-yomi { margin-left: 8px; font-size: 11px; color: #7f8db0; }
+/* ロゴの文字(筆記体) */
+.script-word { font-family: var(--script); font-weight: 400; letter-spacing: 0; line-height: 1; }
+.hd-logo b.script-word { font-size: 30px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .1em; }
+.ft-brand b.script-word { font-size: 30px; color: #fff; }
+.ft-brand p { word-break: keep-all; overflow-wrap: anywhere; }

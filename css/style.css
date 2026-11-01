@@ -465,4 +465,9 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .my-ans.ok { color: var(--ok); }
 .my-ans.ng { color: var(--ng); }
 .deck-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 6px; font-size: .85rem; }
-.logo-yomi { font-size: .62rem; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: .05em; }
+/* ---------- ロゴ ---------- */
+.logo { display: inline-flex; align-items: center; gap: 8px; }
+.logo-icon { border-radius: 8px; flex: 0 0 auto; }
+.logo-word { font-family: "Allura", "Brush Script MT", cursive; font-weight: 400; font-size: 1.95rem; line-height: 1; letter-spacing: 0; padding: 0 .1em .08em 0;
+  background: linear-gradient(115deg, #04143a 0%, #1146d6 60%, #0fa3b8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (prefers-color-scheme: dark) { .logo-word { background: linear-gradient(115deg, #ffffff 0%, #9cc1ff 60%, #5fe0ea 100%); -webkit-background-clip: text; background-clip: text; } }
