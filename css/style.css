@@ -935,3 +935,93 @@ table.cmp td.num { white-space: nowrap; font-weight: 700; }
   .ps-note { font-size: 9pt; color: #555; }
   @page { margin: 12mm; }
 }
+
+/* ============================================================
+ * ホームページと同じデザインをアプリ全体に適用(2026-11-02)
+ *  ・濃紺→青→青緑の斜めグラデーション(見出し帯・メインボタン・強調カード)
+ *  ・筆記体の英字見出し＋日本語の小見出し
+ *  ・白い角丸カード＋やわらかい影、丸いボタン
+ *  読みやすさのため、本文は左ぞろえ・濃紺の文字のまま
+ * ============================================================ */
+:root {
+  --bg: #f4f7fb; --card: #ffffff; --text: #1b2440; --muted: #5d6a85; --line: #dfe6f2;
+  --primary: #1146d6; --primary-weak: #e8eefc; --accent: #0fa3b8; --teal: #0fa3b8; --navy: #04143a;
+  --grad: linear-gradient(115deg, #020b1f 0%, #04143a 38%, #1146d6 62%, #1f7de6 76%, #0fa3b8 90%, #0b5f73 100%);
+  --grad-btn: linear-gradient(115deg, #04143a 0%, #1146d6 55%, #0fa3b8 100%);
+  --grad-soft: linear-gradient(115deg, #e8eefc 0%, #e3ecff 50%, #dff4f6 100%);
+  --radius: 16px; --shadow: 0 10px 30px rgba(4, 20, 58, .08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #020b1f; --card: #0b1a3d; --text: #e6ecf8; --muted: #9aa8c7; --line: #1f3260; --primary: #6f9bff; --primary-weak: #13285a; --grad-soft: linear-gradient(115deg, #13285a, #0f3048); --shadow: none; }
+}
+:root[data-theme="dark"] { --bg: #020b1f; --card: #0b1a3d; --text: #e6ecf8; --muted: #9aa8c7; --line: #1f3260; --primary: #6f9bff; --primary-weak: #13285a; --grad-soft: linear-gradient(115deg, #13285a, #0f3048); --shadow: none; }
+body { background: var(--bg); letter-spacing: .04em; }
+
+/* ヘッダー:すりガラス+グラデーションの筆記体ロゴ */
+.topbar { background: rgba(255, 255, 255, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(223, 230, 242, .8); }
+.logo-word { background: var(--grad-btn); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .topbar { background: rgba(2, 11, 31, .9); } :root:not([data-theme="light"]) .logo-word { background: linear-gradient(115deg, #fff, #9cc1ff 60%, #5fe0ea); -webkit-background-clip: text; background-clip: text; } }
+:root[data-theme="dark"] .topbar { background: rgba(2, 11, 31, .9); }
+:root[data-theme="dark"] .logo-word { background: linear-gradient(115deg, #fff, #9cc1ff 60%, #5fe0ea); -webkit-background-clip: text; background-clip: text; }
+
+/* ページの見出し帯:ホームページのヒーローと同じグラデーション+光の筋+筆記体 */
+.page-band { position: relative; overflow: hidden; border: 0; border-radius: var(--radius); padding: 22px 22px 20px; margin: 0 0 16px; color: #fff; background: var(--grad); box-shadow: var(--shadow); }
+.page-band::after { content: ""; display: block; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .06) 0 2px, transparent 2px 46px), repeating-linear-gradient(118deg, transparent 0 80px, rgba(80, 220, 230, .08) 80px 90px), radial-gradient(60% 90% at 92% 10%, rgba(80, 150, 255, .35), transparent 70%); }
+.pb-en { position: relative; font-family: var(--script, "Allura", cursive); font-size: 2.7rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: #fff; opacity: .95; line-height: 1.05; }
+.pb-ja { position: relative; color: #fff; font-size: 1.05rem; font-weight: 700; letter-spacing: .14em; margin-top: 2px; }
+@media (max-width: 480px) { .pb-en { font-size: 2.3rem; } .pb-ja { font-size: .98rem; } }
+
+/* カード:白い角丸+やわらかい影(ホームページの wcard と同じ) */
+.card { border: 0; border-radius: var(--radius); box-shadow: var(--shadow); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card { border: 1px solid var(--line); } }
+:root[data-theme="dark"] .card { border: 1px solid var(--line); }
+.card > h2:first-child, .card > .row-between:first-child h2 { position: relative; padding-left: 12px; }
+.card > h2:first-child::before, .card > .row-between:first-child h2::before { content: ""; position: absolute; left: 0; top: .2em; bottom: .2em; width: 4px; border-radius: 4px; background: var(--grad-btn); }
+
+/* ボタン:メインはグラデーションの丸いボタン、ほかは白地に青い線 */
+.btn { border-radius: 999px; letter-spacing: .06em; }
+.btn.primary { background: var(--grad-btn); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(17, 70, 214, .25); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:not(.primary):not(.danger):not(.g-again):not(.g-hard):not(.g-good):not(.subj) { border: 1.5px solid var(--primary); color: var(--primary); background: var(--card); }
+.btn.ghost { border-color: transparent !important; }
+.seg-btn { border-radius: 999px; }
+.seg-btn.on { background: var(--grad-btn); border-color: transparent; color: #fff; }
+.g-good { background: linear-gradient(115deg, #0b8a5b, #16a34a); }
+
+/* 進み具合・ふきだし・数字 */
+.progress { background: var(--primary-weak); }
+.progress i, .day.study i, .toast { background: var(--grad-btn); }
+.bubble { background: var(--grad-soft); border-radius: 18px; }
+.bubble::before { border-right-color: #e8eefc; }
+.big-num, .brand { background: var(--grad-btn); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .big-num, :root:not([data-theme="light"]) .brand { background: none; color: var(--text); } }
+.lv-badge { background: var(--grad-btn); color: #fff; border-radius: 18px; box-shadow: 0 6px 16px rgba(17, 70, 214, .3); }
+.choice b { background: var(--grad-btn); color: #fff; }
+.choice, .unit-row { border-radius: 14px; }
+.unit-row:hover, .choice:hover:not(:disabled) { border-color: var(--teal); }
+
+/* 結論のカード(ダッシュボードの主役の数字など)は、ホームページの Point カードのようにグラデーション */
+.kpi.focal { border: 0; background: var(--grad); color: #fff; position: relative; overflow: hidden; }
+.kpi.focal .kpi-l, .kpi.focal .kpi-d, .kpi.focal .kpi-d small, .kpi.focal .kpi-v { color: #fff; }
+.kpi.focal .spark polyline { stroke: #7ee3ee; }
+.kpi { border-radius: 14px; }
+.card.focal { border: 0; background: var(--grad); color: #fff; }
+.card.focal h2, .card.focal .muted, .card.focal .pb-en { color: #fff; }
+.card.focal h2::before { background: #fff; }
+
+/* 下のメニュー:すりガラス+グラデーションの線 */
+.nav { background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid rgba(223, 230, 242, .8); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav { background: rgba(2, 11, 31, .92); } }
+:root[data-theme="dark"] .nav { background: rgba(2, 11, 31, .92); }
+.nav a.active { color: var(--primary); }
+.nav a.active::after { background: var(--grad-btn); height: 3px; border-radius: 3px; }
+
+/* 表の見出し・タイムライン・カレンダーの選択色 */
+.univ-t th, .kv th, .plan th { background: var(--primary-weak); }
+.grid2 tr.g-head th { background: var(--grad-btn); color: #fff; }
+.cal-cell.sel { background: var(--grad-soft); border-color: var(--primary); }
+.gt-lab.ms, .gt-lab.ph { background: var(--grad-btn); }
+.bp li.next .bp-body { background: var(--grad-soft); }
+.uf-bar { background: var(--grad-soft); }
+.pomo-dial .pr-fg { stroke: url(#pomoGrad); }
