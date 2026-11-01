@@ -79,7 +79,7 @@ window.WPS = window.WPS || {};
       var ds = others.slice(0, 3);
       var tip = it.h ? '\n💡 ' + it.h : '';
       var note = o.note ? '\n' + o.note : '';
-      var extra = {};
+      var extra = { fact: 1, point: it.h || '' }; // 用語の問題:単元全体のポイントではなく、その用語のヒントだけを出す
       if (o.en) extra.say = it.t;
       var q;
       if (type === 0) {
@@ -144,6 +144,7 @@ window.WPS = window.WPS || {};
         q = Q(3, '古い順に正しく並べたものは?', [lab(right)].concat(shuffle(r, perms).slice(0, 3)),
           '古い順:\n' + right.map(function (x) { var c = (WPS.HCTX || {})[(bankKey === 'whistory' ? 'w:' : 'j:') + x.t]; return '・' + yl(x.t) + ' ' + x.m + (c ? '\n　→ ' + c[1] : ''); }).join('\n') + '\n年号を覚えていなくても、「何が原因で、次に何が起きたか」の流れがわかれば並べられます。');
       }
+      q.fact = 1; q.point = '';
       return q;
     };
   }

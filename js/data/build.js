@@ -65,7 +65,7 @@ WPS.Q = function (id) {
     GEN_CACHE[id] = {
       id: id, unit: u.id, subj: u.subj, level: q.lv, text: q.text,
       choices: q.choices, answer: q.choices[0], exp: q.exp, why: q.why || {},
-      say: q.say, fig: q.fig, sayChoices: q.sayChoices, generated: true
+      say: q.say, fig: q.fig, sayChoices: q.sayChoices, fact: q.fact, point: q.point, generated: true
     };
     return GEN_CACHE[id];
   } catch (e) { return null; }

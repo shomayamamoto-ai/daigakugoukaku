@@ -594,7 +594,7 @@
         if (gi <= 2) return si <= gi;
         return si >= 3 && si <= gi; // 高校生:まずは高校範囲で確認し、間違えたら中学へさかのぼる
       });
-      if (!pool.length) pool = WPS.UNITS.filter(function (u) { return u.subj === sj && WPS.STAGES.indexOf(u.stage) <= Math.max(gi, 2); });
+      if (!pool.length) pool = WPS.UNITS.filter(function (u) { return u.subj === sj && (gi <= 2 ? WPS.STAGES.indexOf(u.stage) <= 2 : WPS.STAGES.indexOf(u.stage) >= 3); });
       pool = shuffle(pool).sort(function (a, b) { return order[stats[a.id].status] - order[stats[b.id].status]; }).slice(0, perSubj);
       pool.forEach(function (u) { items.push(pickQuestion(u.id, 2)); });
     });
@@ -832,6 +832,19 @@
   }
 
   // くわしい解説:正解の理由・選んだ答えが違う理由・図・復習単元
+  // 解説の下に出す「ポイント」は、その問題の内容と合うものだけにする。
+  //  ・用語の問題 … その用語のヒント(なければ出さない)
+  //  ・固定の問題 … 単元のポイントが問題・答え・解説と同じ言葉を含むときだけ出す(関係ない話題を出さない)
+  //  ・文法などの自動生成問題 … 単元のテーマが1つなので、単元のポイントを出す
+  function pointFor(q, u) {
+    if (q.fact) return q.point || '';
+    if (!u.point) return '';
+    if (q.generated) return u.point;
+    var hay = q.text + ' ' + q.answer + ' ' + q.exp; // ほかの選択肢(まちがいの選択肢)は見ない
+    var words = (u.point.match(/[一-龯々ァ-ヶーA-Za-z]{2,}/g) || []).filter(function (w, i, a) { return a.indexOf(w) === i; });
+    var hit = words.filter(function (w) { return hay.indexOf(w) >= 0; });
+    return hit.length >= 2 || hit.some(function (w) { return w.length >= 3; }) ? u.point : '';
+  }
   function explainBox(q, ok, chosen) {
     var u = WPS.UNIT_MAP[q.unit];
     var html = '<div class="feedback ' + (ok ? 'ok' : 'ng') + '"><b class="fb-title">' + (ok ? '⭕ 正解！' : (chosen === null ? '🤔 正解は「' + h(q.answer) + '」' : '❌ 正解は「' + h(q.answer) + '」')) + '</b>';
@@ -842,7 +855,9 @@
     html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
     html += WPS.Fig.draw(q.fig);
     if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';
-    html += '<details class="fb-point"><summary>📌 この単元(' + h(u.name) + ')のポイント</summary><p>' + h(u.point) + '</p></details>';
+    var pt = pointFor(q, u);
+    if (pt) html += '<details class="fb-point"><summary>📌 ' + (q.fact ? 'おぼえ方のヒント' : 'この単元(' + h(u.name) + ')のポイント') + '</summary><p>' + h(pt) + '</p></details>';
+    else html += '<p class="fb-unit muted small">単元:' + h(u.name) + '</p>';
     if (!ok && u.prereq.length) {
       html += '<div class="fb-review"><small>🔍 つまずいたら、この単元にもどって復習しよう</small><div class="chips">' + u.prereq.map(function (pid) {
         var pu = WPS.UNIT_MAP[pid];
@@ -1040,13 +1055,21 @@
   // 教科 → 科目 → 単元 の3段階で選ぶ(診断ページと単語帳で共通)
   function courseBrowser(mode, weakUnits, stats) {
     var weakSet = {}; (weakUnits || []).forEach(function (id) { weakSet[id] = true; });
-    var C = WPS.CURRICULUM;
+    var grade0 = S.get().profile.grade, jhS = WPS.isJHStudent(grade0);
+    // 学年に合う単元が1つもない教科は出さない(中学生には高校の教科・高校向けの案内を出さない)
+    var C = WPS.CURRICULUM.filter(function (g0) {
+      if (g0.guideOnly) return !jhS;
+      return g0.courses.some(function (x) { return x.guide ? !jhS : WPS.courseUnits(g0, x).some(function (u) { return WPS.unitAllowed(u, grade0, stats); }); });
+    });
     var g = C.filter(function (x) { return x.id === cardFilter.group; })[0] || C[0];
     cardFilter.group = g.id;
     var c = g.courses.filter(function (x) { return x.id === cardFilter.course; })[0];
     var html = '<div class="tier"><span class="f-label">教科</span>' + seg('group', C.map(function (x) { return [x.id, x.guideOnly ? '他:' + x.name : x.name]; }), g.id) + '</div>';
-    html += '<div class="tier tier2"><span class="f-label">科目</span>' + seg('course', [['all', g.guideOnly ? '概要' : 'すべて']].concat(g.courses.map(function (x) {
-      var n = WPS.courseUnits(g, x).length;
+    var grade = S.get().profile.grade;
+    var visCourses = g.courses.filter(function (x) { return x.guide ? !jhS : WPS.courseUnits(g, x).some(function (u) { return WPS.unitAllowed(u, grade, stats); }); });
+    if (c && visCourses.indexOf(c) < 0) { c = null; cardFilter.course = 'all'; }
+    html += '<div class="tier tier2"><span class="f-label">科目</span>' + seg('course', [['all', g.guideOnly ? '概要' : 'すべて']].concat(visCourses.map(function (x) {
+      var n = WPS.courseUnits(g, x).filter(function (u) { return WPS.unitAllowed(u, grade, stats); }).length;
       return [x.id, h(x.short || x.name) + (x.guide ? '' : '<small> ' + n + '</small>')];
     })), c ? c.id : 'all') + '</div>';
     // 文部科学省が求めている力
@@ -1062,14 +1085,14 @@
       (c ? [c] : g.courses).forEach(function (x) { html += guideBox(x); });
       return html;
     }
-    var courses = c ? [c] : g.courses;
+    var courses = c ? [c] : visCourses;
     var total = 0, body = '';
     function unitRow(u) {
       return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? '50問以上' : u.questions.length + '問') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
     }
     courses.forEach(function (x) {
       if (x.guide) { if (c) body += guideBox(x); else body += '<details class="guide-mini"><summary>' + h(x.name) + '(勉強法・入試での使われ方)</summary>' + guideBox(x) + '</details>'; return; }
-      var ok = function (u) { return mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]; };
+      var ok = function (u) { return WPS.unitAllowed(u, S.get().profile.grade, stats) && (mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]); };
       var us = WPS.courseUnits(g, x).filter(ok);
       if (!us.length && !(c && x.areas)) return;
       total += us.length;
@@ -1654,12 +1677,15 @@
   }
   var wordState = { subj: 'eng', list: 0, q: '' };
   function renderWords() {
-    var lists = WORD_LISTS.map(function (L, i) { return { L: L, i: i }; }).filter(function (x) { return x.L[0] === wordState.subj; });
+    var gr = S.get().profile.grade, stt = A.allStats();
+    var okList = function (L) { var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, gr, stt); };
+    var subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WORD_LISTS.some(function (x) { return x[0] === k && okList(x); }); });
+    if (subs.indexOf(wordState.subj) < 0) wordState.subj = subs[0];
+    var lists = WORD_LISTS.map(function (L, i) { return { L: L, i: i }; }).filter(function (x) { return x.L[0] === wordState.subj && okList(x.L); });
     if (!lists.some(function (x) { return x.i === wordState.list; })) wordState.list = lists[0].i;
     var L = WORD_LISTS[wordState.list], items = wordItems(L);
     var q = wordState.q, shown = items.filter(function (x) { return !q || (x.t + x.m + (x.h || '')).indexOf(q) >= 0; });
-    var subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WORD_LISTS.some(function (x) { return x[0] === k; }); });
-    var total = WORD_LISTS.reduce(function (n, x) { return n + (WPS.BANK[x[2]] || []).length; }, 0);
+    var total = WORD_LISTS.filter(okList).reduce(function (n, x) { return n + (WPS.BANK[x[2]] || []).length; }, 0);
     var html = say('ここには、このアプリに入っている単語・用語がぜんぶ載っているよ(全' + total + '語)。眺めるだけでも記憶に残るよ。覚えたら「テスト」でたしかめよう！', 'normal', 56);
     html += '<section class="card"><h1>📖 単語・用語の一覧</h1>' +
       '<div class="filter-row"><span class="f-label">教科</span>' + seg('wsubj', subs.map(function (k) { return [k, WPS.SUBJECTS[k].name]; }), wordState.subj) + '</div>' +

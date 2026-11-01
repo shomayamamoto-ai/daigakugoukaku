@@ -258,6 +258,19 @@ WPS.Roadmap = (function () {
     var i = WPS.STAGES.indexOf(grade);
     return i < 0 ? 5 : i; // 既卒は高3扱い
   }
+  // 学年に合った単元だけを出す。
+  //  中学生 … 中学の単元だけ(高校の単元は出さない)
+  //  高校生・既卒 … 高校の単元だけ。中学の単元は、深掘り(さかのぼり)で苦手と分かった単元だけ
+  WPS.isJHStudent = function (grade) { return gradeIndex(grade) <= 2; };
+  WPS.unitAllowed = function (u, grade, stats) {
+    if (typeof u === 'string') u = WPS.UNIT_MAP[u];
+    if (!u) return false;
+    var jhUnit = WPS.STAGES.indexOf(u.stage) <= 2;
+    if (WPS.isJHStudent(grade)) return jhUnit;
+    if (!jhUnit) return true;
+    var st = stats && stats[u.id];
+    return !!(st && (st.status === 'weak' || st.status === 'soso'));
+  };
 
   function target() {
     var p = WPS.Store.get().profile;
@@ -315,6 +328,7 @@ WPS.Roadmap = (function () {
       if (!(t.weights[u.subj] > 0)) return;
       var si = WPS.STAGES.indexOf(u.stage);
       if (t.isHigh && si > 2) return;                // 高校受験は中学範囲まで
+      if (!WPS.unitAllowed(u, t.profile.grade, stats)) return; // 学年に合わない単元は出さない
       var st = stats[u.id];
       var include = false;
       if (weakSet[u.id] || rootSet[u.id]) include = true;
@@ -508,6 +522,7 @@ WPS.SRS = (function () {
       if (w) w.units.forEach(function (id) { set[id] = true; });
     } catch (e) { /* ロードマップ未作成時は無視 */ }
     (s.extraUnits || []).forEach(function (id) { set[id] = true; });
+    Object.keys(set).forEach(function (id) { if (!WPS.unitAllowed(id, s.profile.grade, stats)) delete set[id]; });
     return Object.keys(set);
   }
 
