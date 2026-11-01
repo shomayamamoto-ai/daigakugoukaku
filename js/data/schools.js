@@ -133,6 +133,19 @@ WPS.SCHOOLS = [
     F_PRI3,
     '基礎〜標準レベルの問題が中心。教科書レベルを完璧にすることが合格への近道です。'
   ]),
+  pri('seiseimeigaku', '成成明学獨國武(成蹊・成城・明治学院・獨協・國學院・武蔵)', '関東', 'B', [
+    F_PRI3,
+    '標準レベルの問題を、ミスなく速く解く力が求められます。英語の配点が高い学部が多い傾向です。'
+  ]),
+  pri('daitouakyoukoku', '大東亜帝国(大東文化・東海・亜細亜・帝京・国士舘)', '関東', 'C', [
+    F_PRI3,
+    '教科書レベルの基礎問題が中心。基礎を完璧にすれば合格点に届きやすい入試です。',
+    '学校推薦型・総合型選抜の募集も多いので、評定平均や面接・志望理由書の準備も合わせて考えましょう。'
+  ]),
+  pri('sesshinotou', '摂神追桃(摂南・神戸学院・追手門学院・桃山学院)', '関西', 'C', [
+    F_PRI3,
+    '教科書レベルの基礎問題が中心。公募制推薦(基礎学力テスト型)を利用する受験生も多い傾向です。'
+  ]),
   pri('other_pri', 'その他の私立大学', '全国', 'B', [
     F_PRI3,
     '2教科型や、得意科目の配点を高くできる方式がある大学もあります。'
@@ -161,6 +174,36 @@ WPS.SCHOOLS = [
 
 WPS.SCHOOL_MAP = {};
 WPS.SCHOOLS.forEach(function (s) { WPS.SCHOOL_MAP[s.id] = s; });
+
+// 大学データ(河合塾の難易予想)に載っている大学を、1校ずつ志望校として選べるようにする。
+// univ_*.js を読み込んだ後に呼ぶ。ID は「u~nat~大学名」「u~pri~大学名」。
+WPS.univSchools = function () {
+  if (WPS._univSchools) return WPS._univSchools;
+  var map = {};
+  function add(kind, r) {
+    if (!r.univ) return;
+    var id = 'u~' + kind + '~' + r.univ;
+    var e = map[id] || (map[id] = { id: id, univ: r.univ, kind: kind === 'nat' ? 'national' : 'private', max: 0, min: 99, fields: {} });
+    var hz = +r.hensa;
+    if (hz) { e.max = Math.max(e.max, hz); e.min = Math.min(e.min, hz); }
+    e.fields[r.field] = 1;
+  }
+  var y = WPS.univYears ? WPS.univYears()[0] : 2027;
+  if (WPS.univRows) WPS.univRows(y).forEach(function (r) { add('nat', r); });
+  if (WPS.univPrivRows) WPS.univPrivRows(y).forEach(function (r) { add('pri', r); });
+  var list = Object.keys(map).map(function (k) {
+    var e = map[k];
+    var full = /大学$/.test(e.univ) ? e.univ : e.univ + '大学';
+    var base = e.kind === 'national' ? nat(e.id, full, '', 'B', [F_KYOTSU, F_NIJI]) : pri(e.id, full, '', 'B', [F_PRI3]);
+    base.univ = e.univ; base.hensaMax = e.max || null; base.hensaMin = e.min < 99 ? e.min : null;
+    base.fields = Object.keys(e.fields);
+    base.features = base.features.concat(['大学データに登録されている偏差値の目安:' + (base.hensaMin ? base.hensaMin.toFixed(1) + '〜' + base.hensaMax.toFixed(1) : '未登録') + '(学部・方式で違います)。']);
+    WPS.SCHOOL_MAP[e.id] = base;
+    return base;
+  }).sort(function (a, b) { return (b.hensaMax || 0) - (a.hensaMax || 0) || a.name.localeCompare(b.name, 'ja'); });
+  WPS._univSchools = list;
+  return list;
+};
 
 /*
  * 勉強法(時期別・科目別)

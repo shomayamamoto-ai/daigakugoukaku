@@ -8,7 +8,7 @@ var CACHE = 'wps-v7';
 var FILES = [
   './', './index.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
   './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/emoji.js', './js/data/history_ctx.js',
-  './js/data/generators.js', './js/data/generators_more.js', './js/data/build.js', './js/data/schools.js', './js/data/methods.js', './js/data/curriculum.js',
+  './js/data/generators.js', './js/data/generators_more.js', './js/data/build.js', './js/data/schools.js', './js/data/exam_info.js', './js/data/methods.js', './js/data/curriculum.js',
   './js/data/univ_2027.js', './js/data/univ_2027_region.js', './js/data/univ_2027_private.js',
   './js/engine.js', './js/figures.js', './js/notify.js', './js/sync.js', './js/app.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './manifest.webmanifest'

@@ -142,7 +142,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
@@ -155,7 +155,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -164,15 +164,26 @@
   }
 
   /* ========== オンボーディング ========== */
-  function schoolOptions(selected) {
-    var groups = { national: '国公立大学', private: '私立大学', high: '高校受験' };
-    var html = '<option value="">選んでください</option>';
+  // 志望校の選択肢:グループ(MARCH など)+ 大学データにある大学を1校ずつ(偏差値の目安つき)
+  function schoolOptions(selected, q) {
+    q = (q || '').trim();
+    var hit = function (s) { return !q || s.name.indexOf(q) >= 0 || (s.univ && s.univ.indexOf(q) >= 0); };
+    var groups = { national: '国公立大学(グループ)', private: '私立大学(グループ)', high: '高校受験' };
+    var html = '<option value="">' + (q ? '「' + h(q) + '」の検索結果から選んでください' : '選んでください') + '</option>';
     Object.keys(groups).forEach(function (k) {
-      html += '<optgroup label="' + groups[k] + '">';
-      WPS.SCHOOLS.filter(function (s) { return s.kind === k; }).forEach(function (s) {
-        html += '<option value="' + s.id + '"' + (s.id === selected ? ' selected' : '') + '>' + h(s.name) + '</option>';
-      });
-      html += '</optgroup>';
+      var list = WPS.SCHOOLS.filter(function (s) { return s.kind === k && hit(s); });
+      if (!list.length) return;
+      html += '<optgroup label="' + groups[k] + '">' + list.map(function (s) {
+        return '<option value="' + s.id + '"' + (s.id === selected ? ' selected' : '') + '>' + h(s.name) + '</option>';
+      }).join('') + '</optgroup>';
+    });
+    var us = WPS.univSchools ? WPS.univSchools() : [];
+    [['national', '国公立大学(1校ずつ・偏差値の高い順)'], ['private', '私立大学(1校ずつ・偏差値の高い順)']].forEach(function (g) {
+      var list = us.filter(function (s) { return s.kind === g[0] && (hit(s) || s.id === selected); });
+      if (!list.length) return;
+      html += '<optgroup label="' + g[1] + '">' + list.map(function (s) {
+        return '<option value="' + h(s.id) + '"' + (s.id === selected ? ' selected' : '') + '>' + h(s.name) + (s.hensaMax ? '(' + (s.hensaMin === s.hensaMax ? s.hensaMax.toFixed(1) : s.hensaMin.toFixed(1) + '〜' + s.hensaMax.toFixed(1)) + ')' : '') + '</option>';
+      }).join('') + '</optgroup>';
     });
     return html;
   }
@@ -196,7 +207,9 @@
       '<label>いまの学年<select name="grade">' +
       ['中1', '中2', '中3', '高1', '高2', '高3', '既卒'].map(function (g) { return '<option' + (g === p.grade ? ' selected' : '') + '>' + g + '</option>'; }).join('') +
       '</select></label>' +
+      '<label>志望校をさがす<input id="schoolQ" type="search" maxlength="20" placeholder="大学名の一部を入力(例:法政、岩手、湘南)" autocomplete="off"></label>' +
       '<label>志望校<select name="schoolId" id="schoolSel">' + schoolOptions(p.schoolId) + '</select></label>' +
+      '<p class="hint">( )内は、大学データに登録した学部・方式の偏差値の範囲です(河合塾 2027年度入試難易予想)。リストにない大学は、近いグループか「その他」を選び、下の欄に大学名を書いてください。</p>' +
       '<label>志望校名(学部など・自由入力)<input name="schoolName" maxlength="40" value="' + h(p.schoolName) + '" placeholder="例:〇〇大学 経済学部"></label>' +
       '<label>文系/理系(受験科目)<select name="track" id="trackSel">' + trackOptions(p.schoolId, p.track) + '</select></label>' +
       '<label id="kyotsuRow"' + (usesKyotsu(p.schoolId) ? '' : ' hidden') + '>共通テストの日(中間目標)<input type="date" name="kyotsuDate" id="kyotsuDate" value="' + h(p.kyotsuDate || WPS.EXAM_DATES.kyotsu.date) + '"></label>' +
@@ -216,6 +229,14 @@
   function bindProfileForm(onDone) {
     var f = document.getElementById('profileForm');
     var ss = document.getElementById('schoolSel');
+    var sq = document.getElementById('schoolQ');
+    sq.addEventListener('input', function () {
+      var cur = ss.value;
+      ss.innerHTML = schoolOptions(cur, sq.value);
+      // 候補が1つにしぼれたら自動で選ぶ
+      var opts = ss.querySelectorAll('option[value]:not([value=""])');
+      if (opts.length === 1 && ss.value !== opts[0].value) { ss.value = opts[0].value; ss.dispatchEvent(new Event('change')); }
+    });
     ss.addEventListener('change', function () {
       document.getElementById('trackSel').innerHTML = noEmoji(trackOptions(ss.value, ''));
       var d = defaultExamDate(ss.value);
@@ -267,6 +288,129 @@
   }
 
   /* ========== ホーム ========== */
+  /* ========== 入試のしくみ・日程(パスナビの記事をもとに) ========== */
+  function renderExam() {
+    var E = WPS.EXAM_INFO, today = D.today();
+    var md = function (d) { return (+d.slice(5, 7)) + '月' + (+d.slice(8)) + '日'; };
+    var kd = WPS.EXAM_DATES.kyotsu.date;
+    var html = '<section class="card focal"><span class="pb-en">Next</span><h2>共通テスト本試験まで あと ' + Math.max(0, D.diff(today, kd)) + '日</h2>' +
+      '<p class="muted">2027年1月16日・17日 ／ 出願期間は2026年9月15日(10時)〜10月2日(17時)のWeb出願</p></section>';
+    // ロードマップ型のスケジュール(9月〜3月)
+    var months = ['2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+    var pos = function (d) { var i = months.indexOf(d.slice(0, 7)); return i < 0 ? null : (i + (+d.slice(8) - 1) / 31) / months.length * 100; };
+    var nowPos = pos(today);
+    html += '<section class="card"><h2>2027年度入試のスケジュール</h2><div class="gantt">' +
+      '<div class="g-row g-head"><span></span><div class="g-track">' + months.map(function (m) { return '<i>' + (+m.slice(5)) + '月</i>'; }).join('') + '</div></div>' +
+      E.schedule.map(function (r) {
+        return '<div class="g-row"><span class="g-name">' + h(r.name) + '</span><div class="g-track">' + (nowPos !== null ? '<b class="g-now" style="left:' + nowPos.toFixed(1) + '%"></b>' : '') +
+          r.items.map(function (it) { var x = pos(it[1]); return x === null ? '' : '<em style="left:' + x.toFixed(1) + '%" title="' + h(it[0]) + '"></em>'; }).join('') + '</div></div>';
+      }).join('') + '</div><p class="hint">点が各日程の始まり、縦線が今日です。</p>' +
+      E.schedule.map(function (r) {
+        return '<h3>' + h(r.name) + '</h3><ul class="bullets">' + r.items.map(function (it) {
+          var when = /^\d{1,2}月/.test(it[2]) ? it[2] : it[1].slice(0, 4) + '年' + md(it[1]) + it[2];
+          return '<li><b>' + h(it[0]) + '</b>:' + h(when) + '</li>';
+        }).join('') + '</ul>' + (r.note ? '<p class="hint">' + h(r.note) + '</p>' : '');
+      }).join('') + '</section>';
+    // 入試方式の比較
+    html += '<section class="card"><h2>入試方式の比較</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>方式</th><th>特徴</th><th>共通テスト</th><th>選考方法</th><th>個別試験の時期</th></tr></thead><tbody>' +
+      E.types.map(function (t) { return '<tr><th>' + h(t.name) + '</th><td>' + h(t.feature) + '</td><td>' + h(t.kyotsu) + '</td><td>' + h(t.method) + '</td><td>' + h(t.when) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' + E.details.map(function (d) { return '<details class="guide-mini"><summary>' + h(d.name) + 'のくわしい特徴</summary><ul class="bullets">' + d.points.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') + '</section>';
+    // 対策
+    html += '<section class="card"><h2>方式ごとの対策</h2>' + E.advice.map(function (a) {
+      return '<h3>' + h(a.name) + '</h3><ol class="steps">' + a.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>';
+    }).join('') + '</section>';
+    // 面接・小論文
+    var I = E.interview;
+    html += '<section class="card" id="interview"><h2>面接・小論文の対策</h2><h3>どんな入試で課されるか</h3><ul class="bullets">' + I.when.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+      '<h3>面接の準備</h3><ol class="steps">' + I.mensetsu.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
+      '<h3>小論文の書き方</h3><ol class="steps">' + I.shoronbun.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
+      '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + I.ng.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' +
+      '<p class="hint">「どんな入試で課されるか」の1・2つめは下の出典の記事、それ以外の面接・小論文の対策は一般に知られている方法をまとめたものです(出典なし)。</p></section>';
+    // 検定料
+    html += '<section class="card"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
+      E.fees.map(function (f) { return '<tr><th>' + h(f[0]) + '</th><td class="num">' + h(f[1]) + '</td><td>' + h(f[2]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+    // 傾向・共テとセンターの違い
+    html += '<section class="card"><h2>最近の傾向</h2><ul class="bullets">' + E.trends.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+      '<h3>共通テストとセンター試験の違い</h3><ul class="bullets">' + E.kyotsuVsCenter.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+      '<p class="hint">出典:' + h(E.source) + ' <a href="' + E.sourceUrl + '" target="_blank" rel="noopener">' + E.sourceUrl + '</a>。日程・金額は年度で変わるので、必ず大学入試センター・各大学の発表で確認してください。</p></section>';
+    return html;
+  }
+  /* ========== 学習ダッシュボード(KPI・推移・内訳・ランキング) ========== */
+  // 数字は「直近7日」と「その前の7日」を比べて、増減を出す
+  function dashData(s, stats) {
+    var at = s.attempts.filter(function (a) { return a.src !== 'oral'; });
+    var days = [];
+    for (var i = 13; i >= 0; i--) days.push(D.add(D.today(), -i));
+    var by = {}; days.forEach(function (d) { by[d] = { n: 0, c: 0 }; });
+    at.forEach(function (a) { if (by[a.d]) { by[a.d].n++; if (a.ok) by[a.d].c++; } });
+    function sum(list) { var r = { n: 0, c: 0 }; list.forEach(function (d) { r.n += by[d].n; r.c += by[d].c; }); return r; }
+    var cur = sum(days.slice(7)), prev = sum(days.slice(0, 7));
+    var st = { good: 0, soso: 0, weak: 0, untested: 0 };
+    Object.keys(stats).forEach(function (id) { st[stats[id].status]++; });
+    var weakRank = Object.keys(stats).filter(function (id) { return stats[id].n >= 2 && stats[id].status !== 'good'; })
+      .sort(function (a, b) { return stats[a].acc - stats[b].acc; }).slice(0, 5);
+    return { days: days, by: by, cur: cur, prev: prev, st: st, weakRank: weakRank };
+  }
+  function kpiTile(label, val, unit, delta, deltaUnit, spark, focal) {
+    var dl = delta === undefined ? '' : delta === null ? '<span class="kpi-d">前の7日の記録なし</span>'
+      : '<span class="kpi-d ' + (delta > 0 ? 'up' : delta < 0 ? 'down' : '') + '">' + (delta > 0 ? '▲ +' : delta < 0 ? '▼ ' : '± ') + delta + deltaUnit + '<small> 前の7日比</small></span>';
+    return '<div class="kpi' + (focal ? ' focal' : '') + '"><span class="kpi-l">' + label + '</span><b class="kpi-v">' + val + '<small>' + unit + '</small></b>' + dl + (spark || '') + '</div>';
+  }
+  function sparkline(vals) {
+    var max = Math.max.apply(null, vals.concat([1])), w = 120, hh = 28;
+    var pts = vals.map(function (v, i) { return (i * w / (vals.length - 1)).toFixed(1) + ',' + (hh - 2 - v / max * (hh - 6)).toFixed(1); });
+    return '<svg class="spark" viewBox="0 0 ' + w + ' ' + hh + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts.join(' ') + '"/></svg>';
+  }
+  function dashboard(s, stats, opt) {
+    opt = opt || {};
+    var d = dashData(s, stats);
+    var accCur = d.cur.n ? Math.round(d.cur.c / d.cur.n * 100) : null, accPrev = d.prev.n ? Math.round(d.prev.c / d.prev.n * 100) : null;
+    var md = function (dd) { return (+dd.slice(5, 7)) + '/' + (+dd.slice(8)); };
+    var html = '<section class="card dash"><div class="row-between"><h2>' + (opt.title || '学習ダッシュボード') + '</h2><span class="muted">直近14日</span></div>';
+    // 結論(フォーカルポイント):いちばん大きいタイル
+    html += '<div class="kpis">' +
+      kpiTile('正答率(直近7日)', accCur === null ? '—' : accCur, accCur === null ? '' : '%', accCur !== null && accPrev !== null ? accCur - accPrev : null, 'pt', sparkline(d.days.slice(7).map(function (x) { return d.by[x].n ? d.by[x].c / d.by[x].n : 0; })), true) +
+      kpiTile('解いた問題(直近7日)', d.cur.n, '問', d.prev.n ? d.cur.n - d.prev.n : null, '問', sparkline(d.days.slice(7).map(function (x) { return d.by[x].n; }))) +
+      kpiTile('得意になった単元', d.st.good, '単元', undefined, '', '') +
+      kpiTile('苦手の単元', d.st.weak, '単元', undefined, '', '') + '</div>';
+    // 日別の解答数(棒)
+    var maxN = Math.max.apply(null, d.days.map(function (x) { return d.by[x].n; }).concat([5]));
+    var W = 320, H = 120, bw = W / 14;
+    html += '<div class="dchart"><h3>日別の解答数</h3><svg viewBox="0 0 ' + W + ' ' + (H + 18) + '" class="dbars" role="img" aria-label="直近14日の日別の解答数">' +
+      '<line class="ax" x1="0" y1="' + H + '" x2="' + W + '" y2="' + H + '"/>' +
+      d.days.map(function (x, i) {
+        var v = d.by[x].n, bh = v / maxN * (H - 14);
+        return '<g><title>' + md(x) + ':' + v + '問(正解 ' + d.by[x].c + '問)</title><rect class="hit" x="' + (i * bw) + '" y="0" width="' + bw + '" height="' + H + '"/>' +
+          (v ? '<rect class="bar' + (i >= 7 ? ' cur' : '') + '" x="' + (i * bw + 3).toFixed(1) + '" y="' + (H - bh).toFixed(1) + '" width="' + (bw - 6).toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="3"/>' : '') +
+          (i % 2 === 1 ? '<text x="' + (i * bw + bw / 2).toFixed(1) + '" y="' + (H + 13) + '" text-anchor="middle">' + md(x) + '</text>' : '') + '</g>';
+      }).join('') + '</svg><p class="hint">濃い棒が直近7日。棒にカーソルを合わせる(長押し)と、その日の問題数が出ます。</p></div>';
+    // 正答率の推移(線)
+    var pts = d.days.map(function (x, i) { var b = d.by[x]; return b.n ? { x: i * W / 13, y: H - (b.c / b.n) * (H - 10) - 2, v: Math.round(b.c / b.n * 100), d: x, n: b.n } : null; }).filter(Boolean);
+    html += '<div class="dchart"><h3>正答率の推移</h3><svg viewBox="-4 0 ' + (W + 8) + ' ' + (H + 18) + '" class="dline" role="img" aria-label="直近14日の正答率の推移">' +
+      [0, 50, 100].map(function (g) { var y = H - g / 100 * (H - 10) - 2; return '<line class="grid" x1="0" x2="' + W + '" y1="' + y + '" y2="' + y + '"/><text class="gl" x="0" y="' + (y - 3) + '">' + g + '%</text>'; }).join('') +
+      '<line class="target" x1="0" x2="' + W + '" y1="' + (H - 0.8 * (H - 10) - 2) + '" y2="' + (H - 0.8 * (H - 10) - 2) + '"/><text class="gl tg" x="' + W + '" y="' + (H - 0.8 * (H - 10) - 5) + '" text-anchor="end">目標 80%</text>' +
+      (pts.length > 1 ? '<polyline points="' + pts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ') + '"/>' : '') +
+      pts.map(function (p) { return '<g><title>' + md(p.d) + ':正答率 ' + p.v + '%(' + p.n + '問)</title><circle class="hit" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="10"/><circle class="dot" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4"/></g>'; }).join('') +
+      (pts.length ? '<text class="lbl" x="' + Math.min(W - 4, pts[pts.length - 1].x).toFixed(1) + '" y="' + (pts[pts.length - 1].y - 9).toFixed(1) + '" text-anchor="end">' + pts[pts.length - 1].v + '%</text>' : '') +
+      '</svg>' + (pts.length ? '' : '<p class="muted">まだ記録がありません。</p>') + '</div>';
+    // 単元の状態の内訳(ドーナツ)
+    var parts = [['good', '得意', 'var(--ok)'], ['soso', 'あと少し', '#c27803'], ['weak', '苦手', 'var(--ng)'], ['untested', '未診断', 'var(--line)']];
+    var tot = parts.reduce(function (a, p) { return a + d.st[p[0]]; }, 0) || 1, acc = 0, R0 = 42, C = 2 * Math.PI * R0;
+    html += '<div class="dchart donut-row"><div><h3>単元の状態の内訳</h3><svg viewBox="0 0 110 110" class="donut" role="img" aria-label="単元の状態の内訳">' +
+      parts.map(function (p) {
+        var v = d.st[p[0]], len = v / tot * C, seg = '<circle r="' + R0 + '" cx="55" cy="55" stroke="' + p[2] + '" stroke-dasharray="' + Math.max(0, len - 2).toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '"><title>' + p[1] + ' ' + v + '単元</title></circle>';
+        acc += len; return v ? seg : '';
+      }).join('') + '<text x="55" y="53" text-anchor="middle" class="dn-v">' + Math.round(d.st.good / tot * 100) + '%</text><text x="55" y="68" text-anchor="middle" class="dn-l">得意の割合</text></svg></div>' +
+      '<ul class="legend">' + parts.map(function (p) { return '<li><i style="background:' + p[2] + '"></i>' + p[1] + '<b>' + d.st[p[0]] + '</b></li>'; }).join('') + '</ul></div>';
+    // 苦手単元ランキング(横棒)
+    if (d.weakRank.length) {
+      html += '<div class="dchart"><h3>正答率が低い単元(優先して復習)</h3><ol class="rank">' + d.weakRank.map(function (id) {
+        var u = WPS.UNIT_MAP[id], v = Math.round(stats[id].acc * 100);
+        return '<li><a href="#study/' + id + '"><span class="rk-n">' + h(u.name) + '<small>' + h(WPS.SUBJECTS[u.subj].name) + '・' + u.stage + '</small></span><span class="rk-bar"><i style="width:' + Math.max(2, v) + '%"></i></span><b>' + v + '%</b></a></li>';
+      }).join('') + '</ol></div>';
+    }
+    return html + '</section>';
+  }
   function renderHome() {
     var s = S.get(), p = s.profile;
     var rm = R.build();
@@ -303,6 +447,7 @@
         return '<div class="day ' + (d.state || '') + (d.d === D.today() ? ' today' : '') + '"><span>' + d.label + '</span><i>' + (d.state === 'study' ? '✓' : d.state === 'frozen' ? '🧊' : '') + '</i></div>';
       }).join('') + '</div></section>';
 
+    if (s.attempts.length) html += dashboard(s, rm.stats);
     html += levelCard();
     // カウントダウン
     var t = rm.target;
@@ -332,7 +477,7 @@
       }).join('') + '</ul>' +
       (doneN === tt.tasks.length ? say(pick(LINES.done), 'cheer', 48) : '') + '</section>';
 
-    html += '<section class="quick"><a href="#records">🏫 テスト結果を記録</a><a href="#memo">✏️ 質問メモ</a><a href="#univ">🏫 大学データ</a></section>';
+    html += '<section class="quick"><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -1040,6 +1185,7 @@
 
     // 科目別・思考レベル別
     var ss = A.subjectStats();
+    html += dashboard(s, stats, { title: '学習状況ダッシュボード' });
     html += '<section class="card"><h2>① 教科・科目別、思考レベル別の正答率</h2><div class="table-scroll"><table class="grid grid2"><thead><tr><th>科目</th><th>全体</th><th>知識</th><th>理解</th><th>応用</th></tr></thead><tbody>';
     var diags = '';
     function cell(x) { var v = x.n ? x.c / x.n : null; return '<td class="' + (v === null ? '' : v < 0.5 ? 'bad' : v < 0.8 ? 'mid' : 'good') + '">' + pct(v) + '<small>' + (x.n ? '(' + x.n + ')' : '') + '</small></td>'; }
@@ -1782,6 +1928,7 @@
   /* ---------- 起動 ---------- */
   function boot() {
     view = document.getElementById('view');
+    if (WPS.univSchools) WPS.univSchools(); // 大学データの大学を志望校として使えるようにする
     S.load();
     WPS.Streak.maintain();
     window.addEventListener('hashchange', function () {
