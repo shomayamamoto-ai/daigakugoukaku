@@ -145,7 +145,6 @@ a { color: inherit; }
   .hero-chara svg { width: 96px; height: 96px; }
   .hero-btns .btn { min-width: 0; flex: 1 1 220px; }
 }
-.sparkle { position: absolute; right: 22px; bottom: 18px; color: rgba(220, 230, 255, .7); font-size: 34px; line-height: 1; }
 
 /* ---------- About ---------- */
 .about { background: var(--white); overflow: hidden; }
