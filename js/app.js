@@ -1022,16 +1022,34 @@
 
     // 科目別・思考レベル別
     var ss = A.subjectStats();
-    html += '<section class="card"><h2>① 科目別・思考レベル別の正答率</h2><table class="grid"><tr><th>科目</th><th>全体</th><th>知識</th><th>理解</th><th>応用</th></tr>';
+    html += '<section class="card"><h2>① 教科・科目別、思考レベル別の正答率</h2><div class="table-scroll"><table class="grid grid2"><thead><tr><th>教科</th><th>科目</th><th>全体</th><th>知識</th><th>理解</th><th>応用</th></tr></thead><tbody>';
     var diags = '';
-    Object.keys(WPS.SUBJECTS).forEach(function (k) {
-      if (!ss[k].n) return;
-      var ls = A.levelStats(k);
-      function cell(x) { var v = x.n ? x.c / x.n : null; return '<td class="' + (v === null ? '' : v < 0.5 ? 'bad' : v < 0.8 ? 'mid' : 'good') + '">' + pct(v) + '<small>' + (x.n ? '(' + x.n + ')' : '') + '</small></td>'; }
-      html += '<tr><th>' + WPS.SUBJECTS[k].name + '</th>' + cell(ss[k]) + cell(ls[1]) + cell(ls[2]) + cell(ls[3]) + '</tr>';
-      diags += '<li><b>' + WPS.SUBJECTS[k].name + '</b>:' + h(A.levelDiagnosis(ls)) + '</li>';
+    function cell(x) { var v = x.n ? x.c / x.n : null; return '<td class="' + (v === null ? '' : v < 0.5 ? 'bad' : v < 0.8 ? 'mid' : 'good') + '">' + pct(v) + '<small>' + (x.n ? '(' + x.n + ')' : '') + '</small></td>'; }
+    // 科目ごとに、全体と思考レベル別の正答数を数える
+    function courseStats(g, c) {
+      var ids = {}; WPS.courseUnits(g, c).forEach(function (u) { ids[u.id] = true; });
+      var r = { all: { n: 0, c: 0 }, 1: { n: 0, c: 0 }, 2: { n: 0, c: 0 }, 3: { n: 0, c: 0 } };
+      s.attempts.forEach(function (a) {
+        if (!ids[a.u] || a.src === 'card') return;
+        r.all.n++; if (a.ok) r.all.c++;
+        var q = a.q && WPS.Q(a.q);
+        if (q) { r[q.level].n++; if (a.ok) r[q.level].c++; }
+      });
+      return r;
+    }
+    WPS.CURRICULUM.filter(function (g) { return !g.guideOnly && ss[g.subj] && ss[g.subj].n; }).forEach(function (g) {
+      var rows = g.courses.map(function (c) { return { c: c, st: courseStats(g, c) }; }).filter(function (x) { return x.st.all.n; });
+      if (!rows.length) return;
+      var ls = A.levelStats(g.subj);
+      rows.forEach(function (x, ri) {
+        html += '<tr>' + (ri === 0 ? '<th rowspan="' + (rows.length + (rows.length > 1 ? 1 : 0)) + '" class="g-name">' + h(WPS.SUBJECTS[g.subj].name) + '</th>' : '') +
+          '<td class="c-name">' + h(x.c.name) + '</td>' + cell(x.st.all) + cell(x.st[1]) + cell(x.st[2]) + cell(x.st[3]) + '</tr>';
+      });
+      if (rows.length > 1) html += '<tr class="g-total"><td class="c-name">教科の合計</td>' + cell(ss[g.subj]) + cell(ls[1]) + cell(ls[2]) + cell(ls[3]) + '</tr>';
+      diags += '<li><b>' + h(g.name) + '</b>:' + h(A.levelDiagnosis(ls)) + '</li>';
     });
-    html += '</table><h3>指導方針の診断</h3><ul class="bullets">' + diags + '</ul><p class="hint">知識=用語・公式を覚えているか／理解=それを使えるか／応用=組み合わせて解けるか。( )内は解答数。</p></section>';
+    html += '</tbody>';
+    html += '</table></div><h3>指導方針の診断</h3><ul class="bullets">' + diags + '</ul><p class="hint">知識=用語・公式を覚えているか／理解=それを使えるか／応用=組み合わせて解けるか。( )内は解答数。</p></section>';
 
     // 最優先単元
     var focus = rm.units.filter(function (id) { return stats[id].status === 'weak' || stats[id].status === 'soso'; })

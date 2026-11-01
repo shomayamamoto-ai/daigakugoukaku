@@ -566,3 +566,14 @@ h1, h2, h3 { letter-spacing: .06em; text-wrap: balance; }
 
 /* トースト */
 .toast { background: var(--grad-btn); }
+/* 教科 → 科目 の表(学習指導要領の科目構成表と同じ形) */
+.grid2 { display: table; min-width: 460px; }
+.grid2 th.g-name { background: var(--primary-weak); vertical-align: middle; text-align: center; white-space: nowrap; font-size: .85rem; }
+.grid2 td.c-name { font-size: .82rem; white-space: nowrap; background: var(--card); }
+.grid2 tr.g-total td { font-weight: 700; border-top: 2px solid var(--line); }
+.grid2 tbody tr:first-child th, .grid2 th.g-name { border-top: 2px solid var(--text); }
+.grid2 { min-width: 0; width: 100%; table-layout: auto; }
+.grid2 th, .grid2 td { padding: 6px 5px; }
+.grid2 th.g-name { width: 2.6em; white-space: normal; line-height: 1.3; }
+.grid2 td.c-name { white-space: normal; min-width: 5.5em; max-width: 9em; line-height: 1.4; }
+.grid2 td small { font-size: .7rem; }
