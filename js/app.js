@@ -1611,9 +1611,8 @@
       '<label class="grow">検索<input id="wq" value="' + h(q) + '" placeholder="単語・意味で検索"></label>' +
       '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div></section>';
     html += '<section class="card"><h2>' + h(L[1]) + ' <small class="muted">' + shown.length + '語</small></h2><ul class="wordlist">' + shown.slice(0, wordState.limit || 200).map(function (x) {
-      var pic = WPS.EMOJI[x.t] ? '<span class="w-pic" aria-hidden="true">' + WPS.EMOJI[x.t] + '</span>' : '';
       var sp = L[4] === 'en' && 'speechSynthesis' in window ? '<button class="btn small ghost w-say" data-say="' + h(x.t) + '" aria-label="' + h(x.t) + 'の発音を聞く">発音</button>' : '';
-      return '<li>' + pic + '<div class="w-body"><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>' + (x.h ? '<small>💡 ' + h(x.h) + '</small>' : '') + '</div>' + sp + '</li>';
+      return '<li><div class="w-body"><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>' + (x.h ? '<small>💡 ' + h(x.h) + '</small>' : '') + '</div>' + sp + '</li>';
     }).join('') + '</ul>' + (shown.length > (wordState.limit || 200) ? '<button class="btn big" id="wMore" type="button">続きを表示(あと' + (shown.length - (wordState.limit || 200)) + '語)</button>' : '') + '</section>';
     return html;
   }
