@@ -201,7 +201,7 @@ WPS.Owl3D = (function () {
     var fallback = opts.fallback || '';
     if (!webglOK()) { el.innerHTML = fallback; return; }
     el.classList.add('owl3d');
-    el.innerHTML = '<div class="owl3d-stage"></div>' + (opts.explode ? '<button type="button" class="owl3d-btn">分解する</button>' : '') + '<div class="owl3d-labels"></div>';
+    el.innerHTML = '<div class="owl3d-stage"></div>' + (opts.explode ? '<button type="button" class="owl3d-btn">分解する</button>' : '<span class="owl3d-hint">タップで分解</span>') + '<div class="owl3d-labels"></div>';
     var stage = el.querySelector('.owl3d-stage'), labelsEl = el.querySelector('.owl3d-labels'), btn = el.querySelector('.owl3d-btn');
     loadThree().then(function (T) {
       var w = stage.clientWidth || 200, h = stage.clientHeight || 220;
@@ -219,13 +219,16 @@ WPS.Owl3D = (function () {
       var m = build(T, scene), rotY = 0.35, vel = 0.004, drag = null, exploded = 0, target = 0, t0 = performance.now(), alive = true, visible = true, blinkT = 2;
       // 分解ラベル
       var LB = m.parts.map(function (p, i) { var d = document.createElement('div'); d.className = 'owl3d-label'; d.innerHTML = '<b>' + ('0' + (i + 1)).slice(-2) + ' ' + p.userData.name + '</b><small>' + p.userData.en + '</small>'; labelsEl.appendChild(d); return d; });
-      function setExplode(on) { target = on ? 1 : 0; if (btn) btn.textContent = on ? '組み立てる' : '分解する'; el.classList.toggle('is-exploded', on); }
+      function setExplode(on) { target = on ? 1 : 0; if (btn) btn.textContent = on ? '組み立てる' : '分解する'; el.classList.toggle('is-exploded', on); var hn = el.querySelector('.owl3d-hint'); if (hn) hn.textContent = on ? 'タップで組み立て' : 'タップで分解'; }
       if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); setExplode(target === 0); });
       // ドラッグで回転
       var cv = renderer.domElement; cv.style.touchAction = 'pan-y';
-      cv.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, r: rotY }; cv.setPointerCapture(e.pointerId); });
-      cv.addEventListener('pointermove', function (e) { if (drag) { rotY = drag.r + (e.clientX - drag.x) * 0.012; vel = 0; } });
-      cv.addEventListener('pointerup', function () { drag = null; vel = 0.004; });
+      // ドラッグで回転/動かさずにタップ(クリック)すると分解・組み立て
+      cv.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY, r: rotY, moved: false }; cv.setPointerCapture(e.pointerId); });
+      cv.addEventListener('pointermove', function (e) { if (drag) { if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 6) drag.moved = true; if (drag.moved) { rotY = drag.r + (e.clientX - drag.x) * 0.012; vel = 0; } } });
+      cv.addEventListener('pointerup', function () { var tap = drag && !drag.moved; drag = null; vel = 0.004; if (tap && opts.tapExplode !== false) setExplode(target === 0); });
+      cv.setAttribute('role', 'button'); cv.setAttribute('aria-label', 'ピンポ(タップで分解・組み立て、ドラッグで回転)'); cv.tabIndex = 0;
+      cv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExplode(target === 0); } });
       if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(el);
       function frame(now) {
         if (!alive) return;

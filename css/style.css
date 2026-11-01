@@ -1118,3 +1118,4 @@ body { background: var(--bg); letter-spacing: .04em; }
 .owl-bubble small { display: block; margin-top: 6px; font-size: .72rem; color: var(--muted); }
 .hero .owl-3d-slot { height: 230px; margin: 0 auto 10px; max-width: 260px; }
 @media (min-width: 640px) { .owl-card { grid-template-columns: 200px minmax(0, 1fr); } .owl-3d-slot { height: 230px; } }
+.owl3d-hint { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); z-index: 2; font-size: .68rem; font-weight: 700; color: #f3e2b3; background: rgba(10, 14, 22, .55); border-radius: 999px; padding: 2px 10px; pointer-events: none; white-space: nowrap; }
