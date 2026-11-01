@@ -18,6 +18,11 @@
 | ✏️ 質問メモ | 「わからない」を押した問題は自動でメモに入り、30分授業の最初に解決できます。 |
 | 🔥 連続記録・通知 | 連続学習日数を記録します。設定時刻と夜22時に「記録が切れそう！」と通知します。7日連続ごとに、1日休んでも記録が守られる「おやすみチケット」がもらえます。 |
 
+## 公開URL(GitHub Pages)
+
+- ホームページ:https://shomayamamoto-ai.github.io/daigakugoukaku/home.html
+- 学習アプリ:https://shomayamamoto-ai.github.io/daigakugoukaku/
+
 ## ホームページ
 
 `home.html` はサービス紹介のホームページです(企画書の内容をもとに作成)。
