@@ -837,3 +837,54 @@ table.cmp td.num { white-space: nowrap; font-weight: 700; }
 .sp-block { display: grid; gap: 6px; margin: 10px 0; }
 .sp-label { font-size: .88rem; }
 .sp-block[hidden] { display: none; }
+/* ---------- ロードマップのカレンダー ---------- */
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 8px; }
+.cal-nav b { font-size: 1.05rem; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.cal-dow { text-align: center; font-size: .72rem; font-weight: 700; color: var(--muted); padding: 2px 0; }
+.cal-dow.sun { color: var(--ng); } .cal-dow.sat { color: var(--primary); }
+.cal-cell { min-height: 46px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--text); font: inherit; font-size: .82rem; padding: 3px 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; cursor: pointer; min-width: 0; }
+.cal-cell.empty { border: 0; background: none; cursor: default; }
+.cal-cell.hol > span:first-child { color: var(--ng); }
+.cal-cell.past, .cal-cell.after { opacity: .5; }
+.cal-cell.today { border: 2px solid var(--primary); font-weight: 700; }
+.cal-cell.sel { background: var(--primary-weak); border-color: var(--text); }
+.mks { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; min-height: 7px; }
+.mk { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.mk.exam { background: var(--ng); } .mk.week { background: var(--primary); } .mk.todo { background: #c27803; } .mk.done { background: var(--ok); }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .74rem; color: var(--muted); margin: 8px 0; }
+.cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.cal-day { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 4px; }
+.cal-exam { font-weight: 700; color: var(--ng); margin: 4px 0; }
+.cal-day .checklist li { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+/* ---------- ポモドーロタイマー ---------- */
+.pomo .seg { justify-content: center; }
+.pomo-dial { position: relative; width: min(240px, 70vw); margin: 14px auto; }
+.pomo-dial svg { width: 100%; height: auto; display: block; transform: rotate(-90deg); }
+.pr-bg { fill: none; stroke: var(--primary-weak); stroke-width: 12; }
+.pr-fg { fill: none; stroke: var(--primary); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 628; transition: stroke-dashoffset .5s linear; }
+.pomo-dial.short .pr-fg, .pomo-dial.long .pr-fg { stroke: var(--ok); }
+.pomo-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.pomo-num b { font-size: 3rem; font-feature-settings: "tnum"; line-height: 1.1; }
+.pomo-num small { color: var(--muted); font-weight: 700; }
+.pomo-btns { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+/* ---------- タイムライン(ガントチャート) ---------- */
+.gantt2 { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.gt-labels { flex: 0 0 5.6em; border-right: 1px solid var(--line); background: var(--card); z-index: 1; }
+.gt-head { height: 28px; border-bottom: 1px solid var(--line); display: flex; }
+.gt-head span { flex: 1; font-size: .72rem; font-weight: 700; color: var(--muted); padding: 6px 4px; border-left: 1px solid var(--line); white-space: nowrap; }
+.gt-lab { height: 38px; display: flex; align-items: center; padding: 0 8px; font-size: .74rem; font-weight: 700; color: #fff; background: var(--c, var(--text)); border-bottom: 1px solid rgba(255,255,255,.4); }
+.gt-lab.ms { background: var(--text); } .gt-lab.ph { background: #4b5b7c; } .gt-lab.my { background: #c27803; }
+.gt-scroll { flex: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.gt-inner { position: relative; }
+.gt-row { position: relative; height: 38px; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(90deg, transparent 0 219px, var(--line) 219px 220px); }
+.gt-bar { position: absolute; top: 7px; height: 24px; border-radius: 4px; padding: 0 6px; font-size: .68rem; font-weight: 700; line-height: 24px; color: #fff; background: var(--c, var(--primary)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; border: 1px solid var(--card); }
+.gt-bar.ph-repair { background: #6b7fa8; } .gt-bar.ph-standard { background: #3d6fd6; } .gt-bar.ph-practice { background: #12805a; } .gt-bar.ph-final { background: #c0392b; }
+.gt-bar.todo { background: #c27803; } .gt-bar.todo.done { opacity: .5; text-decoration: line-through; }
+.gt-ms { position: absolute; top: 4px; display: flex; flex-direction: column; align-items: center; transform: translateX(-50%); font-size: .62rem; font-weight: 700; white-space: nowrap; color: var(--text); }
+.gt-ms i { width: 12px; height: 12px; background: var(--ng); transform: rotate(45deg); margin-bottom: 3px; }
+.gt-now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ng); }
+.gt-now small { position: absolute; top: 2px; left: 4px; font-size: .62rem; color: var(--ng); }
+.pomo-btns .btn { white-space: nowrap; padding-left: 8px; padding-right: 8px; }
+.pomo .kpis { grid-template-columns: 1fr 1fr; }
+.pomo .kpi.focal { grid-column: auto; }

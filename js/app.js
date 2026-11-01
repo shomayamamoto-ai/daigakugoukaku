@@ -142,7 +142,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
@@ -155,7 +155,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -995,6 +995,178 @@
   };
 
   /* ========== ロードマップ ========== */
+  /* ========== ロードマップのカレンダー(受験日までの予定とやることリスト) ========== */
+  var cal = { month: '', sel: '' };
+  function calTodos() { var s = S.get(); s.calTodos = s.calTodos || {}; return s.calTodos; }
+  function calData(rm) {
+    var t = rm.target, today = D.today(), map = {};
+    function add(d, item) { (map[d] = map[d] || []).push(item); }
+    t.milestones.forEach(function (m) { add(m.date, { kind: 'exam', text: m.label }); });
+    if (t.exam && !t.milestones.some(function (m) { return m.date === t.exam; })) add(t.exam, { kind: 'exam', text: '本番' });
+    rm.weeks.forEach(function (w) {
+      var ph = WPS.PHASES.filter(function (x) { return x.key === w.phase; })[0];
+      add(w.start, { kind: 'week', text: (ph ? ph.name + ':' : '') + (w.units.length ? w.units.map(function (id) { return WPS.UNIT_MAP[id].name; }).join('・') + ' を仕上げる週' : '復習・演習の週'), week: w });
+    });
+    var todos = calTodos();
+    Object.keys(todos).forEach(function (d) { todos[d].forEach(function (x, i) { add(d, { kind: 'todo', text: x.t, done: x.done, i: i }); }); });
+    return map;
+  }
+  function weekOf(rm, d) { return rm.weeks.filter(function (w) { return w.start <= d && d <= w.end; })[0]; }
+  function calendarSection(rm) {
+    var t = rm.target, today = D.today();
+    if (!cal.month) cal.month = today.slice(0, 7);
+    if (!cal.sel) cal.sel = today;
+    var map = calData(rm), studied = WPS.Streak.studiedDays();
+    var y = +cal.month.slice(0, 4), m = +cal.month.slice(5, 7);
+    var first = new Date(y, m - 1, 1), startDow = first.getDay(), nDays = new Date(y, m, 0).getDate();
+    var lastMonth = t.exam.slice(0, 7), firstMonth = today.slice(0, 7);
+    var html = '<section class="card" id="calendar"><div class="row-between"><h2>受験日までのカレンダー</h2><span class="muted">本番まで あと' + rm.days + '日</span></div>' +
+      '<div class="cal-nav"><button type="button" class="btn small" data-calmove="-1"' + (cal.month <= firstMonth ? ' disabled' : '') + ' aria-label="前の月">←</button><b>' + y + '年' + m + '月</b><button type="button" class="btn small" data-calmove="1"' + (cal.month >= lastMonth ? ' disabled' : '') + ' aria-label="次の月">→</button></div>' +
+      '<div class="cal-grid" role="grid">' + ['日', '月', '火', '水', '木', '金', '土'].map(function (d, i) { return '<span class="cal-dow' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '">' + d + '</span>'; }).join('');
+    for (var i = 0; i < startDow; i++) html += '<span class="cal-cell empty"></span>';
+    for (var d = 1; d <= nDays; d++) {
+      var ds = cal.month + '-' + (d < 10 ? '0' : '') + d, items = map[ds] || [];
+      var cls = ['cal-cell'];
+      if (ds === today) cls.push('today');
+      if (ds === cal.sel) cls.push('sel');
+      if (ds < today) cls.push('past');
+      if (ds > t.exam) cls.push('after');
+      if (WPS.Time.isHoliday(ds)) cls.push('hol');
+      var marks = '';
+      if (items.some(function (x) { return x.kind === 'exam'; })) marks += '<i class="mk exam"></i>';
+      if (items.some(function (x) { return x.kind === 'week'; })) marks += '<i class="mk week"></i>';
+      if (items.some(function (x) { return x.kind === 'todo'; })) marks += '<i class="mk todo"></i>';
+      if (studied[ds] === 'study') marks += '<i class="mk done"></i>';
+      html += '<button type="button" class="' + cls.join(' ') + '" data-calday="' + ds + '" aria-label="' + m + '月' + d + '日"><span>' + d + '</span><span class="mks">' + marks + '</span></button>';
+    }
+    html += '</div><div class="cal-legend"><span><i class="mk exam"></i>試験日</span><span><i class="mk week"></i>週の目標の開始</span><span><i class="mk todo"></i>自分の予定</span><span><i class="mk done"></i>勉強した日</span></div>';
+    // 選んだ日のくわしい予定
+    var sd = cal.sel, items2 = map[sd] || [], w = weekOf(rm, sd), todos = calTodos()[sd] || [];
+    html += '<div class="cal-day"><h3>' + D.label(sd) + (sd === today ? '(今日)' : '') + ' の予定</h3>';
+    items2.filter(function (x) { return x.kind === 'exam'; }).forEach(function (x) { html += '<p class="cal-exam">試験:' + h(x.text) + '</p>'; });
+    if (w && sd <= t.exam) {
+      var ph = WPS.PHASES.filter(function (x) { return x.key === w.phase; })[0];
+      html += '<p class="muted small">この週(' + D.label(w.start) + '〜' + D.label(w.end) + ')' + (ph ? '・' + h(ph.name) : '') + '</p>' +
+        (w.units.length ? '<ol class="steps">' + w.units.map(function (id) { var u = WPS.UNIT_MAP[id]; return '<li><a href="#study/' + id + '">' + h(u.name) + '</a> <small class="muted">' + h(WPS.SUBJECTS[u.subj].name) + '・' + u.stage + '・' + STATUS[rm.stats[id].status].label + '</small></li>'; }).join('') + '</ol>' : '<p class="small">これまでの苦手単元の復習と、過去問・演習に取り組む週です。</p>') +
+        '<p class="small">毎日のやること:単語帳の復習(5〜10分)+ その週の単元の練習' + (WPS.Time.isHoliday(sd) ? '(休日の目安 ' : '(平日の目安 ') + WPS.Time.label(WPS.Time.isHoliday(sd) ? (+p0().minutesHoliday || 120) : (+p0().minutesWeekday || 60)) + ')</p>';
+    } else if (sd > t.exam) html += '<p class="muted small">本番の後の日です。</p>';
+    html += '<b class="small">自分の予定・やること</b><ul class="checklist">' + todos.map(function (x, i) {
+      return '<li><label><input type="checkbox" data-caldone="' + i + '"' + (x.done ? ' checked' : '') + '> <span>' + h(x.t) + '</span></label><button type="button" class="btn small ghost" data-caldel="' + i + '" aria-label="削除">×</button></li>';
+    }).join('') + '</ul><div class="write-row"><input id="calNew" maxlength="40" placeholder="例:英単語100個、模試、学校の課題"><button type="button" class="btn small primary" id="calAdd">追加</button></div></div></section>';
+    return html;
+  }
+  function p0() { return S.get().profile; }
+  function bindCalendar() {
+    function re() { var y = window.scrollY; render(); window.scrollTo(0, y); }
+    view.querySelectorAll('[data-calmove]').forEach(function (b) { b.addEventListener('click', function () {
+      var y = +cal.month.slice(0, 4), m = +cal.month.slice(5, 7) + +b.getAttribute('data-calmove');
+      if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; }
+      cal.month = y + '-' + (m < 10 ? '0' : '') + m; re();
+    }); });
+    view.querySelectorAll('[data-calday]').forEach(function (b) { b.addEventListener('click', function () { cal.sel = b.getAttribute('data-calday'); re(); }); });
+    var add = document.getElementById('calAdd');
+    if (add) add.addEventListener('click', function () {
+      var v = document.getElementById('calNew').value.trim(); if (!v) return;
+      var td = calTodos(); (td[cal.sel] = td[cal.sel] || []).push({ t: v, done: false }); S.save(); re();
+    });
+    var inp = document.getElementById('calNew'); if (inp) inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); add.click(); } });
+    view.querySelectorAll('[data-caldone]').forEach(function (c) { c.addEventListener('change', function () { var td = calTodos(); td[cal.sel][+c.getAttribute('data-caldone')].done = c.checked; S.save(); re(); }); });
+    view.querySelectorAll('[data-caldel]').forEach(function (b) { b.addEventListener('click', function () { var td = calTodos(); td[cal.sel].splice(+b.getAttribute('data-caldel'), 1); if (!td[cal.sel].length) delete td[cal.sel]; S.save(); re(); }); });
+  }
+
+  /* ========== ポモドーロタイマー ========== */
+  var POMO_KEY = 'wps_pomo';
+  function pomoLoad() { try { return JSON.parse(localStorage.getItem(POMO_KEY) || 'null') || null; } catch (e) { return null; } }
+  var pomo = pomoLoad() || { work: 25, short: 5, long: 15, mode: 'work', end: 0, left: 25 * 60, run: false, count: 0 };
+  function pomoSave() { try { localStorage.setItem(POMO_KEY, JSON.stringify(pomo)); } catch (e) { /* 無視 */ } }
+  function pomoLen(mode) { return (mode === 'work' ? pomo.work : mode === 'short' ? pomo.short : pomo.long) * 60; }
+  function pomoRemain() { return pomo.run ? Math.max(0, Math.round((pomo.end - Date.now()) / 1000)) : pomo.left; }
+  function beep() {
+    try { var A = window.AudioContext || window.webkitAudioContext, ac = new A(); [0, .35, .7].forEach(function (t0) { var o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination); g.gain.setValueAtTime(.2, ac.currentTime + t0); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + t0 + .3); o.start(ac.currentTime + t0); o.stop(ac.currentTime + t0 + .3); }); } catch (e) { /* 音が出せない環境 */ }
+  }
+  function pomoFinish() {
+    var was = pomo.mode;
+    if (was === 'work') {
+      pomo.count++;
+      var s = S.get(), d = D.today(); s.pomo = s.pomo || {}; s.pomo[d] = (s.pomo[d] || 0) + 1;
+      WPS.Streak.touch(); S.save();
+      pomo.mode = pomo.count % 4 === 0 ? 'long' : 'short';
+    } else pomo.mode = 'work';
+    pomo.run = false; pomo.left = pomoLen(pomo.mode); pomoSave(); beep();
+    toast(was === 'work' ? '集中おつかれさま！ ' + (pomo.mode === 'long' ? pomo.long : pomo.short) + '分休もう' : '休けい終わり。次の集中をはじめよう');
+    try { if (window.Notification && Notification.permission === 'granted') new Notification('Aqualium', { body: was === 'work' ? '集中タイム終了。休けいしよう' : '休けい終了。次の集中をはじめよう' }); } catch (e) { /* 無視 */ }
+  }
+  setInterval(function () {
+    if (pomo.run && pomoRemain() <= 0) { pomoFinish(); if ((location.hash || '').slice(1) === 'timer') render(); }
+    var el = document.getElementById('pomoTime');
+    if (el) { var r = pomoRemain(); el.textContent = Math.floor(r / 60) + ':' + ('0' + r % 60).slice(-2); var ring = document.getElementById('pomoRing'); if (ring) ring.style.strokeDashoffset = (1 - r / pomoLen(pomo.mode)) * 628; }
+  }, 500);
+  function renderTimer() {
+    var r = pomoRemain(), s = S.get(), today = (s.pomo || {})[D.today()] || 0;
+    var labels = { work: '集中', short: '小休けい', long: '長い休けい' };
+    var week = 0; for (var i = 0; i < 7; i++) week += (s.pomo || {})[D.add(D.today(), -i)] || 0;
+    var html = '<section class="card pomo"><div class="seg" role="group" aria-label="モード">' + ['work', 'short', 'long'].map(function (k) { return '<button type="button" class="seg-btn' + (pomo.mode === k ? ' on' : '') + '" data-pmode="' + k + '">' + labels[k] + '</button>'; }).join('') + '</div>' +
+      '<div class="pomo-dial ' + pomo.mode + '"><svg viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="100" class="pr-bg"/><circle id="pomoRing" cx="110" cy="110" r="100" class="pr-fg" style="stroke-dashoffset:' + ((1 - r / pomoLen(pomo.mode)) * 628) + '"/></svg>' +
+      '<div class="pomo-num"><small>' + labels[pomo.mode] + '</small><b id="pomoTime">' + Math.floor(r / 60) + ':' + ('0' + r % 60).slice(-2) + '</b><small>' + (pomo.count % 4) + ' / 4 セット</small></div></div>' +
+      '<div class="pomo-btns"><button type="button" class="btn primary big" id="pomoGo">' + (pomo.run ? '一時停止' : r < pomoLen(pomo.mode) ? '再開' : 'スタート') + '</button><button type="button" class="btn big" id="pomoReset">リセット</button><button type="button" class="btn big" id="pomoSkip">次へ</button></div>' +
+      '<div class="kpis"><div class="kpi focal"><span class="kpi-l">今日の集中</span><b class="kpi-v">' + today + '<small>回(' + WPS.Time.label(today * pomo.work) + ')</small></b></div><div class="kpi"><span class="kpi-l">直近7日</span><b class="kpi-v">' + week + '<small>回</small></b></div></div></section>';
+    html += '<section class="card"><h2>時間の設定</h2><div class="form-2">' + [['work', '集中(分)', [15, 20, 25, 30, 45, 50, 60]], ['short', '小休けい(分)', [3, 5, 10]], ['long', '長い休けい(分)', [10, 15, 20, 30]]].map(function (x) {
+      return '<label>' + x[1] + '<select data-pset="' + x[0] + '">' + x[2].map(function (v) { return '<option' + (pomo[x[0]] === v ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select></label>';
+    }).join('') + '</div><ol class="steps"><li>やることを1つ決めて、集中タイムをスタート(初期設定は25分)。</li><li>終わったら5分休けい。スマホやSNSは見ずに、目と体を休める。</li><li>4セットごとに長めの休けい(15分)をとる。</li></ol><p class="hint">集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。ほかの画面に移ってもタイマーは進みます。</p></section>';
+    return html;
+  }
+  renderTimer.after = function () {
+    function re() { pomoSave(); render(); }
+    document.getElementById('pomoGo').addEventListener('click', function () {
+      if (pomo.run) { pomo.left = pomoRemain(); pomo.run = false; }
+      else { pomo.end = Date.now() + pomoRemain() * 1000; pomo.run = true; try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* 無視 */ } }
+      re();
+    });
+    document.getElementById('pomoReset').addEventListener('click', function () { pomo.run = false; pomo.left = pomoLen(pomo.mode); re(); });
+    document.getElementById('pomoSkip').addEventListener('click', function () { pomo.run = false; pomo.mode = pomo.mode === 'work' ? (pomo.count % 4 === 3 ? 'long' : 'short') : 'work'; pomo.left = pomoLen(pomo.mode); re(); });
+    view.querySelectorAll('[data-pmode]').forEach(function (b) { b.addEventListener('click', function () { pomo.mode = b.getAttribute('data-pmode'); pomo.run = false; pomo.left = pomoLen(pomo.mode); re(); }); });
+    view.querySelectorAll('[data-pset]').forEach(function (sel) { sel.addEventListener('change', function () { pomo[sel.getAttribute('data-pset')] = +sel.value; if (!pomo.run) pomo.left = pomoLen(pomo.mode); re(); }); });
+  };
+
+  /* ========== ロードマップのタイムライン(ガントチャート形式) ========== */
+  function ganttSection(rm) {
+    var t = rm.target, today = D.today(), start = today.slice(0, 7) + '-01', end = t.exam;
+    var total = Math.max(1, D.diff(start, end) + 1);
+    var pos = function (d) { return Math.max(0, Math.min(100, D.diff(start, d) / total * 100)); };
+    var months = [], y = +start.slice(0, 4), m = +start.slice(5, 7);
+    while ((y + '-' + (m < 10 ? '0' : '') + m) <= end.slice(0, 7)) { months.push([y, m]); m++; if (m > 12) { m = 1; y++; } }
+    var W = Math.max(months.length * 220, 600);
+    function bar(s0, e0, label, cls, href) {
+      var l = pos(s0), r = pos(D.add(e0, 1)), w = Math.max(r - l, 1.2);
+      return (href ? '<a href="' + href + '"' : '<span') + ' class="gt-bar ' + cls + '" style="left:' + l.toFixed(2) + '%;width:' + w.toFixed(2) + '%" title="' + h(label) + '">' + h(label) + (href ? '</a>' : '</span>');
+    }
+    var lanes = [];
+    // マイルストーン
+    lanes.push(['試験日', 'ms', t.milestones.map(function (mi) { return '<span class="gt-ms" style="left:' + pos(mi.date).toFixed(2) + '%" title="' + h(mi.label + ' ' + mi.date) + '"><i></i>' + h(mi.label.replace(/\(.*?\)/g, '').replace('大学入学', '').replace('(目安)', '')) + '</span>'; }).join('')]);
+    // フェーズ
+    lanes.push(['フェーズ', 'ph', rm.phases.map(function (ph) { return bar(ph.start, ph.end, ph.name, 'ph-' + ph.key); }).join('')]);
+    // 教科ごとの単元(週ごと)
+    Object.keys(WPS.SUBJECTS).forEach(function (sj) {
+      var bars = '';
+      rm.weeks.forEach(function (w) {
+        var us = w.units.filter(function (id) { return WPS.UNIT_MAP[id].subj === sj; });
+        if (us.length) bars += bar(w.start, w.end, us.map(function (id) { return WPS.UNIT_MAP[id].name; }).join('・'), 'sj', '#study/' + us[0]);
+      });
+      if (bars) lanes.push([WPS.SUBJECTS[sj].name, 'sj-' + sj, bars, WPS.SUBJECTS[sj].color]);
+    });
+    // 自分の予定
+    var td = calTodos(), my = '';
+    Object.keys(td).forEach(function (d) { if (d >= start && d <= end) td[d].forEach(function (x) { my += bar(d, d, x.t, 'todo' + (x.done ? ' done' : '')); }); });
+    if (my) lanes.push(['自分の予定', 'my', my]);
+    var nowL = pos(today);
+    var html = '<section class="card"><div class="row-between"><h2>受験日までのタイムライン</h2><span class="muted small">横にスクロールできます</span></div>' +
+      '<div class="gantt2"><div class="gt-labels"><div class="gt-head"></div>' + lanes.map(function (L) { return '<div class="gt-lab ' + L[1] + '"' + (L[3] ? ' style="--c:' + L[3] + '"' : '') + '>' + h(L[0]) + '</div>'; }).join('') + '</div>' +
+      '<div class="gt-scroll"><div class="gt-inner" style="width:' + W + 'px"><div class="gt-head">' + months.map(function (mm) { return '<span>' + (mm[1] === 1 || mm === months[0] ? mm[0] + '年' : '') + mm[1] + '月</span>'; }).join('') + '</div>' +
+      lanes.map(function (L) { return '<div class="gt-row ' + L[1] + '"' + (L[3] ? ' style="--c:' + L[3] + '"' : '') + '>' + L[2] + '</div>'; }).join('') +
+      '<b class="gt-now" style="left:' + nowL.toFixed(2) + '%"><small>今日</small></b></div></div></div>' +
+      '<p class="hint">教科の行のバーは、その週に仕上げる単元です(タップすると単元の学習へ)。診断を進めると、苦手に合わせて自動で組み直されます。</p></section>';
+    return html;
+  }
   function renderRoadmap() {
     var rm = R.build();
     var t = rm.target, p = t.profile;
@@ -1018,6 +1190,7 @@
         return '<div class="bar"><span>' + WPS.SUBJECTS[k].name + '</span><i style="width:' + Math.round(w[k] * 100) + '%;background:' + WPS.SUBJECTS[k].color + '"></i></div>';
       }).join('') + '</div></section>';
 
+    html += ganttSection(rm) + calendarSection(rm);
     rm.warnings.forEach(function (x) { html += '<section class="info">💡 ' + h(x) + '</section>'; });
 
     html += seasonSection(t);
@@ -1062,6 +1235,7 @@
     return html;
   }
   renderRoadmap.after = function () {
+    bindCalendar();
     view.querySelectorAll('[data-guide]').forEach(function (b) {
       b.addEventListener('click', function () {
         view.querySelectorAll('[data-guide]').forEach(function (x) { x.classList.toggle('on', x === b); });
