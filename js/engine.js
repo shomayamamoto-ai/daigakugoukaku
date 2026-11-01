@@ -45,7 +45,7 @@ WPS.Store = (function () {
       v: 1,
       profile: {
         name: '', grade: '高2', schoolId: '', schoolName: '', track: '',
-        examDate: '', kyotsuDate: '', customWeights: null, minutes: 60, reminder: '20:00', notify: false,
+        examDate: '', kyotsuDate: '', customWeights: null, minutes: 60, minutesWeekday: 0, minutesHoliday: 0, subjects: null, reminder: '20:00', notify: false,
         created: WPS.date.today()
       },
       attempts: [],   // {q, u, s, ok, ch, unsure, src, t, d}
@@ -279,6 +279,12 @@ WPS.Roadmap = (function () {
       Object.keys(WPS.SUBJECTS).forEach(function (k) { weights[k] = Math.max(0, Math.min(1, (+p.customWeights[k] || 0) / 100)); });
       custom = true;
     }
+    // 受験で使う教科を選んでいれば、選んでいない教科は重要度0にする
+    if (p.subjects && p.subjects.length) {
+      var w2 = {};
+      Object.keys(WPS.SUBJECTS).forEach(function (k) { w2[k] = p.subjects.indexOf(k) >= 0 ? Math.max(weights[k] || 0, 0.5) : 0; });
+      weights = w2;
+    }
     var isHigh = school ? school.kind === 'high' : gradeIndex(p.grade) <= 2;
     var keys = school ? school.exams : [isHigh ? 'high' : 'kyotsu'];
     // 最終目標は「最後の試験」(国公立なら2次試験)。途中の試験は「中間目標」として扱う
@@ -351,7 +357,7 @@ WPS.Roadmap = (function () {
     if (D.diff(today, practiceStart) < 0) practiceStart = today;
 
     // 1週間で仕上げられる単元数(1単元に約150分かかる想定)
-    var minutes = Math.max(15, +s.profile.minutes || 60);
+    var minutes = Math.max(15, WPS.Time.weeklyMinutes(s.profile) / 7);
     var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 / 150)));
     var learnWeeks = Math.max(1, Math.floor(D.diff(today, practiceStart) / 7));
     var knownWeak = ids.filter(function (id) { return stats[id].status !== 'untested'; }).length;
@@ -426,6 +432,7 @@ WPS.Roadmap = (function () {
     var w = currentWeek(rm);
     var tasks = [];
     var todays = s.attempts.filter(function (a) { return a.d === today; });
+    var minutesToday = WPS.Time.minutesFor(s.profile, today);
 
     // ① 単語帳
     var due = WPS.SRS.dueCards().length;
@@ -476,7 +483,7 @@ WPS.Roadmap = (function () {
     tasks.push({ key: 'memo', kind: 'manual', icon: '✏️', title: 'わからなかったことを「先生への質問メモ」に書く', sub: '30分の授業を、疑問の解決だけに使えるようにしよう', action: '#memo' });
 
     tasks.forEach(function (t) { if (t.kind === 'manual') t.done = !!day.checks[t.key]; });
-    return { week: w, tasks: tasks };
+    return { week: w, tasks: tasks, minutesToday: minutesToday, holiday: WPS.Time.isHoliday(today) };
   }
 
   return { build: build, target: target, currentWeek: currentWeek, todayTasks: todayTasks, gradeIndex: gradeIndex };
@@ -660,4 +667,59 @@ WPS.Streak = (function () {
   }
 
   return { count: count, best: best, studiedToday: studiedToday, maintain: maintain, touch: touch, week: week, hoursLeft: hoursLeft, studiedDays: studiedDays };
+})();
+
+
+/* ========== 6. 勉強時間(平日・休日) ========== */
+WPS.Time = (function () {
+  // 国民の祝日(振替休日を含む)。毎年追加してください。
+  var HOLIDAYS = {
+    '2026-01-01': '元日', '2026-01-12': '成人の日', '2026-02-11': '建国記念の日', '2026-02-23': '天皇誕生日', '2026-03-20': '春分の日',
+    '2026-04-29': '昭和の日', '2026-05-03': '憲法記念日', '2026-05-04': 'みどりの日', '2026-05-05': 'こどもの日', '2026-05-06': '振替休日',
+    '2026-07-20': '海の日', '2026-08-11': '山の日', '2026-09-21': '敬老の日', '2026-09-22': '国民の休日', '2026-09-23': '秋分の日',
+    '2026-10-12': 'スポーツの日', '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日',
+    '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日', '2027-02-23': '天皇誕生日', '2027-03-21': '春分の日', '2027-03-22': '振替休日',
+    '2027-04-29': '昭和の日', '2027-05-03': '憲法記念日', '2027-05-04': 'みどりの日', '2027-05-05': 'こどもの日', '2027-07-19': '海の日',
+    '2027-08-11': '山の日', '2027-09-20': '敬老の日', '2027-09-23': '秋分の日', '2027-10-11': 'スポーツの日', '2027-11-03': '文化の日', '2027-11-23': '勤労感謝の日'
+  };
+  function isHoliday(ds) {
+    var d = WPS.date.parse(ds).getDay();
+    return d === 0 || d === 6 || !!HOLIDAYS[ds];
+  }
+  function holidayName(ds) { return HOLIDAYS[ds] || (WPS.date.parse(ds).getDay() % 6 === 0 ? '土日' : ''); }
+  function wd(p) { return +p.minutesWeekday || +p.minutes || 60; }
+  function hd(p) { return +p.minutesHoliday || +p.minutes || 60; }
+  function minutesFor(p, ds) { return isHoliday(ds) ? hd(p) : wd(p); }
+  function weeklyMinutes(p) { return wd(p) * 5 + hd(p) * 2; }
+  function label(m) { m = +m; return m < 60 ? m + '分' : (m % 60 ? Math.floor(m / 60) + '時間' + (m % 60) + '分' : (m / 60) + '時間'); }
+  // 選べる時間:15分〜18時間
+  var OPTIONS = [15, 30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080];
+  return { isHoliday: isHoliday, holidayName: holidayName, minutesFor: minutesFor, weeklyMinutes: weeklyMinutes, label: label, OPTIONS: OPTIONS };
+})();
+
+/* ========== 7. レベル(経験値) ========== */
+WPS.Level = (function () {
+  var TITLES = [[1, '見習いスナイパー'], [3, 'ルーキー'], [5, 'ねらい撃ちの名人'], [8, '百発百中'], [12, '弱点ハンター'], [16, 'エーススナイパー'], [20, '伝説のスナイパー'], [30, '合格請負人']];
+  function xp() {
+    var s = WPS.Store.get(), x = 0;
+    s.attempts.forEach(function (a) {
+      if (a.src === 'card') x += a.ok ? 4 : 2;
+      else if (a.src === 'oral' || a.src === 'school') x += 5;
+      else x += a.ok ? 10 : 4; // 間違えても挑戦した分の経験値が入る
+    });
+    Object.keys(s.days).forEach(function (d) { var c = s.days[d].checks || {}; Object.keys(c).forEach(function (k) { if (c[k]) x += 15; }); });
+    x += (s.memos || []).length * 5;
+    x += WPS.Streak.best() * 10;
+    return x;
+  }
+  function need(L) { return 30 * L * (L + 1); } // レベルLになるのに必要な合計経験値(L≧1。レベル1は0から)
+  function info() {
+    var x = xp(), L = 1;
+    while (x >= need(L)) L++;
+    var from = L === 1 ? 0 : need(L - 1), to = need(L);
+    var title = TITLES.filter(function (t) { return L >= t[0]; }).pop()[1];
+    var next = TITLES.filter(function (t) { return t[0] > L; })[0];
+    return { xp: x, level: L, from: from, to: to, pct: Math.round((x - from) / (to - from) * 100), title: title, nextTitle: next ? next[1] : null, nextAt: next ? next[0] : null };
+  }
+  return { info: info };
 })();

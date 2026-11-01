@@ -386,3 +386,71 @@ legend { font-weight: 700; font-size: .9rem; padding: 0 4px; }
 .back-q small { display: block; }
 .face.back .exp { white-space: pre-line; font-size: .92rem; }
 .say-btn { margin: -4px 0 10px; }
+/* ---------- くわしい解説 ---------- */
+.feedback .fb-title { display: block; font-size: 1.05rem; margin-bottom: 6px; }
+.fb-why, .fb-exp, .fb-review { background: var(--card); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+.fb-why { border-left: 4px solid var(--ng); }
+.fb-exp { border-left: 4px solid var(--primary); }
+.fb-why small, .fb-exp small, .fb-review small { display: block; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+.fb-why p, .fb-exp p { margin: 0; white-space: pre-line; line-height: 1.8; }
+.fb-point { border: 0; padding: 6px 2px 0; font-size: .9rem; }
+.fb-review .chips { margin-top: 4px; }
+.review-chip { display: inline-block; text-decoration: none; background: var(--primary-weak); color: var(--primary); font-weight: 700; font-size: .82rem; padding: 4px 10px; border-radius: 999px; }
+.fig-wrap { background: var(--card); border-radius: 10px; padding: 8px; margin-top: 8px; overflow-x: auto; }
+.fig { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+.fig .fg-t { fill: var(--text); font-size: 13px; font-weight: 700; }
+.fig .fg-s { fill: var(--muted); font-size: 11px; }
+.fig .fg-big { fill: var(--text); font-size: 30px; font-weight: 800; }
+.fig .fg-hl { fill: var(--accent); }
+.fig .fg-l { stroke: var(--text); stroke-width: 1.6; fill: none; }
+.fig .fg-l2 { stroke: var(--text); stroke-width: 1.2; fill: none; }
+.fig .fg-axis { stroke: var(--muted); stroke-width: 1.4; }
+.fig .fg-grid { stroke: var(--line); stroke-width: 1; }
+.fig .fg-dash { stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
+.fig .fg-c { stroke: var(--primary); stroke-width: 2.5; fill: none; }
+.fig .fg-c2 { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.fig .fg-dot { fill: var(--accent); }
+.fig .fg-dot2 { fill: var(--primary); }
+.fig .fg-fill { fill: var(--primary); }
+.fig .fg-box { fill: var(--primary-weak); stroke: var(--primary); stroke-width: 1.5; }
+.fig .fg-box2 { fill: var(--warn-weak); stroke: var(--warn); stroke-width: 1.5; }
+.fig .fg-box3 { fill: var(--ok-weak); stroke: var(--ok); stroke-width: 1.5; }
+.fig .fg-area { fill: var(--primary-weak); }
+.fig .fg-band { fill: var(--warn-weak); opacity: .6; }
+.fig .fg-cell { fill: var(--card); stroke: var(--line); }
+.fig .fg-hit { fill: var(--primary); stroke: var(--primary); }
+.fig .fg-ht { fill: #fff; font-size: 12px; font-weight: 800; }
+.q-pic { font-size: 3rem; text-align: center; line-height: 1.2; margin-top: 8px; }
+.c-pic { font-size: 1.4rem; }
+.choice > span { min-width: 0; }
+/* ---------- レベル ---------- */
+.lv-row { display: flex; align-items: center; gap: 14px; }
+.lv-badge { flex: 0 0 auto; width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--primary), #7c9cff); box-shadow: 0 6px 16px rgba(47, 91, 211, .3); }
+.lv-main { flex: 1; min-width: 0; }
+.lv-main .progress { margin: 6px 0 4px; }
+.lv-big { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 0; }
+.time-pill { font-size: .78rem; font-weight: 700; background: var(--primary-weak); color: var(--primary); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+/* ---------- 勉強法・季節 ---------- */
+.guide-tabs { margin-bottom: 10px; }
+.guide-lead { font-weight: 700; }
+.guide { padding: 6px 0; }
+.guide summary { font-weight: 700; }
+.guide-ng { background: var(--ng-weak); border-radius: 10px; padding: 10px 12px; margin-top: 10px; font-size: .9rem; }
+.guide-box { background: var(--primary-weak); border-radius: 12px; padding: 4px 12px 8px; margin-bottom: 12px; }
+.seasons { display: grid; gap: 10px; }
+@media (min-width: 640px) { .seasons { grid-template-columns: 1fr 1fr; } }
+.season { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.season.now { border: 2px solid var(--primary); background: var(--primary-weak); }
+.season-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.season-head small { color: var(--muted); }
+.season-goal { margin: 4px 0; font-weight: 700; color: var(--primary); }
+/* ---------- 単語一覧 ---------- */
+.word-acts { margin-top: 10px; }
+.seg-btn small { opacity: .7; font-weight: 400; }
+.wordlist { list-style: none; padding: 0; margin: 0; }
+.wordlist li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.w-pic { font-size: 1.8rem; flex: 0 0 auto; width: 2.2rem; text-align: center; }
+.w-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.w-body b { font-size: 1.05rem; }
+.w-body small { color: var(--muted); }
+.w-say { flex: 0 0 auto; }

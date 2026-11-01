@@ -138,7 +138,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords
     }[route] || renderHome;
     view.innerHTML = fn(parts[1]);
     if (fn.after) fn.after(parts[1]);
@@ -184,10 +184,16 @@
       '<label id="kyotsuRow"' + (usesKyotsu(p.schoolId) ? '' : ' hidden') + '>共通テストの日(中間目標)<input type="date" name="kyotsuDate" id="kyotsuDate" value="' + h(p.kyotsuDate || WPS.EXAM_DATES.kyotsu.date) + '"></label>' +
       '<label>本番の日(最終目標:国公立は2次試験の日)<input type="date" name="examDate" id="examDate" value="' + h(p.examDate || defaultExamDate(p.schoolId)) + '"></label>' +
       '<p class="hint" id="examHint">志望校を選ぶと、目安の日付が入ります。正式な日程は必ず募集要項で確認してね。</p>' +
-      '<label>1日に使える勉強時間<select name="minutes">' +
-      [15, 30, 45, 60, 90, 120, 180, 240].map(function (m) { return '<option value="' + m + '"' + (+p.minutes === m ? ' selected' : '') + '>' + (m < 60 ? m + '分' : (m / 60) + '時間') + '</option>'; }).join('') +
-      '</select></label>' +
+      timeSelect('minutesWeekday', '平日(学校がある日)の勉強時間', +p.minutesWeekday || +p.minutes || 60) +
+      timeSelect('minutesHoliday', '休日(土日・祝日)の勉強時間', +p.minutesHoliday || +p.minutes || 120) +
+      '<fieldset><legend>受験で使う教科(大学・学部によって違います)</legend><div class="check-grid">' + Object.keys(WPS.SUBJECTS).map(function (k) {
+        var on = p.subjects ? p.subjects.indexOf(k) >= 0 : true;
+        return '<label class="ck"><input type="checkbox" name="subjects" value="' + k + '"' + (on ? ' checked' : '') + '> ' + WPS.SUBJECTS[k].name + '</label>';
+      }).join('') + '</div><p class="hint">チェックした教科だけで、診断テストとロードマップを作ります。</p></fieldset>' +
       '<button class="btn primary big" type="submit">' + submitLabel + '</button></form>';
+  }
+  function timeSelect(name, label, cur) {
+    return '<label>' + label + '<select name="' + name + '">' + WPS.Time.OPTIONS.map(function (m) { return '<option value="' + m + '"' + (cur === m ? ' selected' : '') + '>' + WPS.Time.label(m) + '</option>'; }).join('') + '</select></label>';
   }
   function bindProfileForm(onDone) {
     var f = document.getElementById('profileForm');
@@ -205,7 +211,11 @@
       var fd = new FormData(f);
       var p = S.get().profile;
       ['name', 'grade', 'schoolId', 'schoolName', 'track', 'examDate', 'kyotsuDate'].forEach(function (k) { p[k] = (fd.get(k) || '').trim(); });
-      p.minutes = +fd.get('minutes');
+      p.minutesWeekday = +fd.get('minutesWeekday');
+      p.minutesHoliday = +fd.get('minutesHoliday');
+      p.minutes = Math.round(WPS.Time.weeklyMinutes(p) / 7);
+      var subs = fd.getAll('subjects');
+      p.subjects = subs.length && subs.length < Object.keys(WPS.SUBJECTS).length ? subs : null;
       S.save();
       onDone();
     });
@@ -275,6 +285,7 @@
         return '<div class="day ' + (d.state || '') + (d.d === D.today() ? ' today' : '') + '"><span>' + d.label + '</span><i>' + (d.state === 'study' ? '✓' : d.state === 'frozen' ? '🧊' : '') + '</i></div>';
       }).join('') + '</div></section>';
 
+    html += levelCard();
     // カウントダウン
     var t = rm.target;
     var phase = tt.week ? WPS.PHASES.filter(function (x) { return x.key === tt.week.phase; })[0] : null;
@@ -291,7 +302,7 @@
 
     // 今日のやる事
     var doneN = tt.tasks.filter(function (x) { return x.done; }).length;
-    html += '<section class="card"><div class="row-between"><h2>今日のやる事</h2><span class="muted">' + doneN + '/' + tt.tasks.length + ' 完了</span></div>' +
+    html += '<section class="card"><div class="row-between"><h2>今日のやる事</h2><span class="time-pill">' + (tt.holiday ? '🌞 休日' : '🏫 平日') + ' の目安 ' + WPS.Time.label(tt.minutesToday) + '</span></div><div class="row-between"><span class="muted">' + doneN + '/' + tt.tasks.length + ' 完了</span></div>' +
       '<div class="progress"><i style="width:' + Math.round(doneN / tt.tasks.length * 100) + '%"></i></div><ul class="tasks">' +
       tt.tasks.map(function (x) {
         var check = x.kind === 'manual'
@@ -361,7 +372,7 @@
     var okSet = {};
     s.attempts.forEach(function (a) { if (a.ok) okSet[a.q] = true; });
     var qs = WPS.UNIT_MAP[unitId].questions.filter(function (q) { return !exclude || !exclude[q.id]; });
-    if (!qs.length) return null;
+    if (!qs.length) return WPS.UNIT_MAP[unitId].hasGen ? WPS.genId(unitId) : null;
     qs = shuffle(qs).sort(function (a, b) {
       var oa = okSet[a.id] ? 1 : 0, ob = okSet[b.id] ? 1 : 0;
       if (oa !== ob) return oa - ob;
@@ -371,19 +382,22 @@
     if (WPS.UNIT_MAP[unitId].hasGen && (okSet[qs[0].id] || Math.random() < 0.5)) return WPS.genId(unitId);
     return qs[0].id;
   }
-  // 単元の練習セット(固定の問題＋自動生成5問)
+  // 単元の練習セット(固定の問題から最大4問＋自動生成で合計10問)
   function unitSet(u) {
-    var ids = u.questions.map(function (q) { return q.id; });
-    if (u.hasGen) for (var k = 0; k < 5; k++) ids.push(WPS.genId(u.id));
+    var ids = shuffle(u.questions.map(function (q) { return q.id; })).slice(0, 4);
+    if (u.hasGen) while (ids.length < 10) ids.push(WPS.genId(u.id));
     return ids;
   }
-  function unitCount(u) { return u.questions.length + (u.hasGen ? '問＋自動生成で無制限' : '問'); }
+  function unitCount(u) { return u.hasGen ? '50問以上(数字や組み合わせを変えて出題)' : u.questions.length + '問'; }
 
   function renderTest() {
     var t = R.target();
     var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; });
     var html = say('テストといっても、成績をつけるためじゃないよ。<b>きみの「つまずきポイント」を見つけるため</b>のものだから、わからない問題は「わからない」ボタンを押してね。高校の問題で間違えたら、自動で中学の単元までさかのぼって原因を調べるよ。', 'think', 64);
-    html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">志望校の受験科目から、きみの学年に合った問題を出すよ。</p>' +
+    var chosen = t.profile.subjects || Object.keys(WPS.SUBJECTS);
+    html += '<section class="card"><h2>📝 受験で使う教科をえらぶ</h2><p class="muted">大学・学部によって必要な教科は違うよ。使う教科だけをえらぶと、診断とロードマップがその教科だけになるよ。</p><div class="seg">' +
+      Object.keys(WPS.SUBJECTS).map(function (k) { var on = chosen.indexOf(k) >= 0; return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-subj="' + k + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
+    html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">えらんだ教科から、きみの学年に合った問題を出すよ。</p>' +
       '<button class="btn primary big" data-start="all">診断をはじめる</button></section>';
     html += '<section class="card"><h2>科目をしぼって診断(8問)</h2><div class="grid-btns">' +
       subs.map(function (k) { var sj = WPS.SUBJECTS[k]; return '<button class="btn subj" style="--c:' + sj.color + '" data-start="' + k + '">' + sj.name + '</button>'; }).join('') +
@@ -399,6 +413,14 @@
     return html;
   }
   renderTest.after = function () {
+    view.querySelectorAll('[data-subj]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = S.get().profile, all = Object.keys(WPS.SUBJECTS), cur = (p.subjects || all).slice(), k = b.getAttribute('data-subj'), i = cur.indexOf(k);
+        if (i >= 0) { if (cur.length === 1) { toast('1教科はえらんでね'); return; } cur.splice(i, 1); } else cur.push(k);
+        p.subjects = cur.length === all.length ? null : cur;
+        S.save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+      });
+    });
     view.querySelectorAll('[data-start]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-start');
@@ -428,14 +450,18 @@
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
     html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(u.name) + '（' + u.stage + '）</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></div>' +
-      '<p class="q-text">' + h(q.text) + '</p><div class="choices">' +
+      (q.pic ? '<div class="q-pic" aria-hidden="true">' + q.pic + '</div>' : '') +
+      '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') + '<div class="choices">' +
       quiz.order.map(function (ci, k) {
-        return '<button class="choice" data-ci="' + ci + '"><b>' + 'ABCD'[k] + '</b>' + h(q.choices[ci]) + '</button>';
+        var pic = q.pics && q.pics[q.choices[ci]] ? '<span class="c-pic" aria-hidden="true">' + q.pics[q.choices[ci]] + '</span>' : '';
+        return '<button class="choice" data-ci="' + ci + '"><b>' + 'ABCD'[k] + '</b>' + pic + '<span>' + h(q.choices[ci]) + '</span></button>';
       }).join('') + '</div>' +
       '<button class="btn ghost unsure" data-ci="-1">🤔 わからない(先生に聞きたい)</button><div id="feedback"></div></section>';
     return html;
   }
   renderQuiz.after = function () {
+    var qs = document.getElementById('qSay');
+    if (qs) qs.addEventListener('click', function () { var q = WPS.Q(quiz.items[quiz.i].q); speak(quiz.answered ? q.say : q.say.replace(q.answer, '...')); });
     view.querySelectorAll('[data-ci]').forEach(function (b) {
       b.addEventListener('click', function () { answer(+b.getAttribute('data-ci')); });
     });
@@ -485,7 +511,7 @@
     var line = ok ? pick(LINES.correct) : unsure ? LINES.unsure[0] : pick(LINES.wrong);
     var last = quiz.i + 1 >= quiz.items.length;
     document.getElementById('feedback').innerHTML =
-      '<div class="feedback ' + (ok ? 'ok' : 'ng') + '"><b>' + (ok ? '⭕ 正解！' : '正解は「' + h(q.answer) + '」') + '</b><p>' + h(q.exp) + '</p></div>' +
+      explainBox(q, ok, unsure ? null : q.choices[ci]) +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
       '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>';
     document.getElementById('nextQ').addEventListener('click', function () {
@@ -494,6 +520,27 @@
       render();
     });
     document.getElementById('nextQ').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // くわしい解説:正解の理由・選んだ答えが違う理由・図・復習単元
+  function explainBox(q, ok, chosen) {
+    var u = WPS.UNIT_MAP[q.unit];
+    var html = '<div class="feedback ' + (ok ? 'ok' : 'ng') + '"><b class="fb-title">' + (ok ? '⭕ 正解！' : (chosen === null ? '🤔 正解は「' + h(q.answer) + '」' : '❌ 正解は「' + h(q.answer) + '」')) + '</b>';
+    if (!ok && chosen !== null) {
+      var why = (q.why && q.why[chosen]) || 'この問題では「' + q.answer + '」があてはまります。下の解説で、ルールを確認しよう。';
+      html += '<div class="fb-why"><small>あなたの答え「' + h(chosen) + '」が違う理由</small><p>' + h(why) + '</p></div>';
+    }
+    html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
+    html += WPS.Fig.draw(q.fig);
+    if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';
+    html += '<details class="fb-point"><summary>📌 この単元のポイント</summary><p>' + h(u.point) + '</p></details>';
+    if (!ok && u.prereq.length) {
+      html += '<div class="fb-review"><small>🔍 つまずいたら、この単元にもどって復習しよう</small><div class="chips">' + u.prereq.map(function (pid) {
+        var pu = WPS.UNIT_MAP[pid];
+        return '<a class="review-chip" href="#study/' + pid + '">' + pu.stage + ' ' + h(pu.name) + '</a>';
+      }).join('') + '</div></div>';
+    }
+    return html + '</div>';
   }
 
   function finishQuiz() {
@@ -557,8 +604,8 @@
       '<button class="btn primary big" id="practice">✏️ 問題を解く(' + unitSet(u).length + '問)</button><p class="hint center">この単元の問題数:' + unitCount(u) + '</p>' +
       '<button class="btn big" id="toCards">🃏 この単元を単語帳で練習</button>' +
       '<a class="btn big" href="#memo/' + id + '">✏️ 先生に質問したいことを書く</a></div></section>';
-    var methods = WPS.SUBJECT_METHODS[u.subj] || [];
-    html += '<section class="card"><h2>' + WPS.SUBJECTS[u.subj].name + 'の勉強のコツ</h2><ul class="bullets">' + methods.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></section>';
+    var gd = WPS.SUBJECT_GUIDE[u.subj];
+    html += '<section class="card"><h2>' + WPS.SUBJECTS[u.subj].name + 'の勉強法</h2><p>' + h(gd.lead) + '</p>' + guideSteps(gd.steps) + '</section>';
     return html;
   }
   renderStudy.after = function (id) {
@@ -602,6 +649,7 @@
 
     rm.warnings.forEach(function (x) { html += '<section class="info">💡 ' + h(x) + '</section>'; });
 
+    html += seasonSection(t);
     // フェーズ
     html += '<section class="card"><h2>全体の流れ</h2><div class="timeline">' + rm.phases.map(function (ph) {
       var days = D.diff(ph.start, ph.end) + 1;
@@ -639,12 +687,16 @@
     html += '</div>' + (rm.weeks.length > 8 ? '<button class="btn" id="moreWeeks">すべての週を表示</button>' : '') + '</section>';
 
     // 勉強法
-    html += '<section class="card"><h2>📖 科目別の勉強法</h2>' + Object.keys(w).filter(function (k) { return w[k] > 0; }).map(function (k) {
-      return '<details><summary>' + subjChip(k) + '</summary><ul class="bullets">' + (WPS.SUBJECT_METHODS[k] || []).map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></details>';
-    }).join('') + '</section>';
+    html += guideSection(t, Object.keys(w).filter(function (k) { return w[k] > 0; }));
     return html;
   }
   renderRoadmap.after = function () {
+    view.querySelectorAll('[data-guide]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        view.querySelectorAll('[data-guide]').forEach(function (x) { x.classList.toggle('on', x === b); });
+        view.querySelectorAll('[data-panel]').forEach(function (pn) { pn.hidden = pn.getAttribute('data-panel') !== b.getAttribute('data-guide'); });
+      });
+    });
     var b = document.getElementById('moreWeeks');
     if (b) b.addEventListener('click', function () { view.querySelector('.weeks').classList.add('all'); b.remove(); });
   };
@@ -664,6 +716,7 @@
     html += '<section class="card"><div class="stat-row"><div><b>' + sm.due + '</b><small>復習</small></div><div><b>' + sm.newToday + '</b><small>今日の新しいカード</small></div><div><b>' + sm.mastered + '</b><small>覚えた</small></div></div>' +
       '<button class="btn primary big" id="startDeck">🃏 今日のカードをはじめる</button>' +
       '<p class="hint">「覚えた」カードは 1日→3日→7日→14日→30日後…と、忘れかけた頃にまた出てくるよ(間隔反復)。</p></section>';
+    html += '<section class="card"><a class="btn big" href="#words">📖 単語・用語の一覧を見る(全単語・全熟語・年表など)</a></section>';
     html += cardUnitList(units, stats);
     return html;
   }
@@ -741,6 +794,7 @@
     var m = q.text.match(/[A-Za-z][A-Za-z '\-]{2,}/);
     return m ? m[0] : '';
   }
+  WPS.speak = function (t) { speak(t); };
   function speak(text) {
     try {
       speechSynthesis.cancel();
@@ -1152,6 +1206,124 @@
       '<li>夜' + h(p.reminder) + 'ごろに、学習がまだのときはアプリから本人に通知が届きます。声かけはその後で十分です。</li>' +
       '<li>わからない問題は「先生への質問メモ」にたまり、30分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
     return html;
+  }
+
+  /* ========== 単語・用語の一覧(教科別) ========== */
+  // [教科, 一覧の名前, データ名, 単元ID, 種類]
+  var WORD_LISTS = [
+    ['eng', '英単語(中学)', 'en_m', 'e_vocab_m', 'en'], ['eng', '英単語(高校・共通テスト)', 'en_h', 'e_h5', 'en'], ['eng', '英熟語', 'en_idiom', 'e_idiom', 'en'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
+    ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
+    ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kogo', 'j_kogo'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
+    ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
+    ['sci', '電流と電気', 'denki', 's_m1'], ['sci', '力', 'chikara', 's_force'], ['sci', '光と音', 'hikari', 's_light'], ['sci', '化学変化', 'kagaku_m', 's_m2'], ['sci', '化学式', 'kagakushiki', 's_m2'], ['sci', 'イオン', 'ion', 's_ion'],
+    ['sci', '元素記号', 'genso', 's_struct'], ['sci', '物質の構造', 'busshitsu', 's_struct'], ['sci', '酸と塩基', 'sanenki', 's_acid'], ['sci', '生物(中学)', 'seibutsu_m', 's_m3'], ['sci', '細胞・遺伝', 'saibo', 's_cell'],
+    ['sci', '生物基礎', 'seibutsu_h', 's_h3'], ['sci', '生態系', 'seitaikei', 's_eco'], ['sci', '大地・天気', 'daichi', 's_m4'], ['sci', '天体', 'tentai', 's_space'], ['sci', '地学基礎', 'chigaku_h', 's_geo'],
+    ['soc', '日本史 年表', 'jhistory', 'c_h1', 'year'], ['soc', '世界史 年表', 'whistory', 'c_h2', 'year'], ['soc', '世界史の人物', 'wperson', 'c_h2'], ['soc', '日本地理', 'jgeo', 'c_jgeo'], ['soc', '世界地理', 'wgeo', 'c_m1'],
+    ['soc', '公民(政治)', 'seiji', 'c_m3'], ['soc', '公民(経済)', 'keizai', 'c_econ'], ['soc', '公共・政治経済', 'kokyo', 'c_h3'],
+    ['info', '情報社会・ネットワーク', 'joho', 'i_net']
+  ];
+  function wordItems(L) {
+    var B = WPS.BANK[L[2]] || [], kind = L[4];
+    return B.map(function (x) {
+      if (kind === 'keigo') return { t: x.v, m: '尊敬語:' + x.s + ' ／ 謙譲語:' + x.k };
+      if (kind === 'jodoushi') return { t: x.t, m: x.m, h: '接続:' + x.c };
+      if (kind === 'kokeigo') return { t: x.t, m: x.m, h: x.k };
+      if (kind === 'kuho') return { t: x.f, m: x.m, h: '読み:' + x.r + '(' + x.k + ')' };
+      if (kind === 'kanword') return { t: x.t, m: x.m, h: '読み:' + x.r };
+      if (kind === 'year') { var y = +x.t; return { t: (y < 0 ? '紀元前' + (-y) : y) + '年', m: x.m, h: x.h + (L[2] === 'jhistory' ? '時代' : '') }; }
+      return { t: x.t, m: x.m, h: x.h };
+    });
+  }
+  var wordState = { subj: 'eng', list: 0, q: '' };
+  function renderWords() {
+    var lists = WORD_LISTS.map(function (L, i) { return { L: L, i: i }; }).filter(function (x) { return x.L[0] === wordState.subj; });
+    if (!lists.some(function (x) { return x.i === wordState.list; })) wordState.list = lists[0].i;
+    var L = WORD_LISTS[wordState.list], items = wordItems(L);
+    var q = wordState.q, shown = items.filter(function (x) { return !q || (x.t + x.m + (x.h || '')).indexOf(q) >= 0; });
+    var subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WORD_LISTS.some(function (x) { return x[0] === k; }); });
+    var total = WORD_LISTS.reduce(function (n, x) { return n + (WPS.BANK[x[2]] || []).length; }, 0);
+    var html = say('ここには、このアプリに入っている単語・用語がぜんぶ載っているよ(全' + total + '語)。眺めるだけでも記憶に残るよ。覚えたら「テスト」でたしかめよう！', 'normal', 56);
+    html += '<section class="card"><h1>📖 単語・用語の一覧</h1>' +
+      '<div class="filter-row"><span class="f-label">教科</span>' + seg('wsubj', subs.map(function (k) { return [k, WPS.SUBJECTS[k].name]; }), wordState.subj) + '</div>' +
+      '<div class="filter-row"><span class="f-label">種類</span><div class="seg">' + lists.map(function (x) {
+        return '<button type="button" class="seg-btn' + (x.i === wordState.list ? ' on' : '') + '" data-wlist="' + x.i + '">' + h(x.L[1]) + '<small> ' + (WPS.BANK[x.L[2]] || []).length + '</small></button>';
+      }).join('') + '</div></div>' +
+      '<label class="grow">検索<input id="wq" value="' + h(q) + '" placeholder="単語・意味で検索"></label>' +
+      '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div></section>';
+    html += '<section class="card"><h2>' + h(L[1]) + ' <small class="muted">' + shown.length + '語</small></h2><ul class="wordlist">' + shown.map(function (x) {
+      var pic = WPS.EMOJI[x.t] ? '<span class="w-pic" aria-hidden="true">' + WPS.EMOJI[x.t] + '</span>' : '';
+      var sp = L[4] === 'en' && 'speechSynthesis' in window ? '<button class="btn small ghost w-say" data-say="' + h(x.t) + '" aria-label="' + h(x.t) + 'の発音を聞く">🔊</button>' : '';
+      return '<li>' + pic + '<div class="w-body"><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>' + (x.h ? '<small>💡 ' + h(x.h) + '</small>' : '') + '</div>' + sp + '</li>';
+    }).join('') + '</ul></section>';
+    return html;
+  }
+  renderWords.after = function () {
+    function re() { var y = window.scrollY, f = document.activeElement && document.activeElement.id; view.innerHTML = renderWords(); renderWords.after(); if (f === 'wq') { var el = document.getElementById('wq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); } window.scrollTo(0, y); }
+    view.querySelectorAll('[data-f="wsubj"]').forEach(function (b) { b.addEventListener('click', function () { wordState.subj = b.getAttribute('data-v'); wordState.list = -1; wordState.q = ''; re(); }); });
+    view.querySelectorAll('[data-wlist]').forEach(function (b) { b.addEventListener('click', function () { wordState.list = +b.getAttribute('data-wlist'); re(); }); });
+    var wq = document.getElementById('wq'), tm;
+    wq.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { wordState.q = wq.value.trim(); re(); }, 250); });
+    view.querySelectorAll('[data-say]').forEach(function (b) { b.addEventListener('click', function () { speak(b.getAttribute('data-say')); }); });
+    var L = WORD_LISTS[wordState.list], u = WPS.UNIT_MAP[L[3]];
+    function ids(n) { var a = []; for (var i = 0; i < n; i++) a.push(WPS.genId(u.id)); return a; }
+    document.getElementById('wTest').addEventListener('click', function () { startQuiz(ids(10), 'study', L[1] + 'のテスト'); });
+    document.getElementById('wDeck').addEventListener('click', function () { startDeck(ids(20), L[1]); });
+  };
+
+  /* ========== 教科別の勉強法・季節ごとのミッション ========== */
+  function guideSteps(steps) {
+    return steps.map(function (st, i) {
+      return '<details class="guide"' + (i === 0 ? ' open' : '') + '><summary>' + h(st[0]) + '</summary><ul class="bullets">' + st[1].map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
+    }).join('');
+  }
+  function guideSection(t, subs) {
+    var html = '<section class="card"><h2>📖 教科別の勉強法</h2>';
+    if (t.isHigh) html += '<div class="guide-box"><h3>🏫 高校受験の進め方</h3><p>' + h(WPS.HIGH_GUIDE.lead) + '</p>' + guideSteps(WPS.HIGH_GUIDE.steps) + '</div>';
+    html += '<div class="seg guide-tabs" role="tablist">' + subs.map(function (k, i) {
+      return '<button type="button" class="seg-btn' + (i === 0 ? ' on' : '') + '" data-guide="' + k + '">' + WPS.SUBJECTS[k].name + '</button>';
+    }).join('') + '</div>';
+    subs.forEach(function (k, i) {
+      var g = WPS.SUBJECT_GUIDE[k];
+      html += '<div class="guide-panel" data-panel="' + k + '"' + (i === 0 ? '' : ' hidden') + '><p class="guide-lead">' + h(g.lead) + '</p>' + guideSteps(g.steps) +
+        '<div class="guide-ng"><b>⚠️ よくある失敗</b><ul class="bullets">' + g.mistakes.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
+    });
+    return html + '</section>';
+  }
+  // 季節ごとのミッション(国公立志望は「共通テスト＋2次」の1年間の流れ)
+  function seasonSection(t) {
+    var p = t.profile, nat = t.school && t.school.kind === 'national';
+    var S = nat ? [
+      ['🌸 春', [3, 4, 5], '基礎固めの最重要時期', ['2次試験で使う主要科目(英語・数学など)の基礎を徹底的に仕上げる。', '6月末までに「中堅私大(日東駒専)レベルの基礎問題が確実に解ける」状態を目指す。', '「1年かけてゆっくり」ではなく、時期ごとの期限を意識する。春の基礎固めをおろそかにしないことが逆転合格のカギ。']],
+      ['🌻 夏', [6, 7, 8], '演習と共通テスト対策の開始', ['主要科目は、難しめの問題演習(アウトプット)に進む。', '共通テストだけで使う科目(社会、理科の2科目目など)の対策を並行して始める。']],
+      ['🍁 秋', [9, 10, 11], '志望校に合わせたバランス調整', ['志望校の配点(共通テストと2次の比率)に合わせて、2次対策と共通テスト対策のバランスを決める。', '模試の結果を基準に、共通テストの実戦演習を本格化させる。']],
+      ['❄️ 冬', [12, 1, 2], '本番直前の対策', ['12月は予想問題集などで、共通テストの本番シミュレーションをくり返す。', '1月:共通テスト本番。', '共通テストが終わったら、2月25日からの2次試験に向けてすぐに対策を切りかえる。']]
+    ] : t.isHigh ? [
+      ['🌸 春', [3, 4, 5], '中1・中2の総復習', ['苦手単元を中1の内容までさかのぼって確認する。', '定期テスト対策で内申点を上げる。']],
+      ['🌻 夏', [6, 7, 8], '弱点の克服', ['夏休みは1日6〜8時間が目安。5教科の苦手をまとめてつぶす。']],
+      ['🍁 秋', [9, 10, 11], '過去問スタート', ['9月ごろから志望校の過去問を始める(5〜10年分)。', '2学期の定期テストまでが内申点に入ることが多い。']],
+      ['❄️ 冬', [12, 1, 2], '仕上げ', ['本番と同じ時間割で過去問を解く。', '新しいことより、まちがえた問題の総復習を優先する。']]
+    ] : [
+      ['🌸 春', [3, 4, 5], '基礎固め', ['英語・数学・国語の基礎(単語・文法・計算)を固める。']],
+      ['🌻 夏', [6, 7, 8], '演習の開始', ['基礎を固めつつ、志望校の過去問に触れて傾向をつかむ。']],
+      ['🍁 秋', [9, 10, 11], '過去問演習', ['志望校の過去問を時間を計って解き、間違いの原因を分析する。']],
+      ['❄️ 冬', [12, 1, 2], '直前の仕上げ', ['まちがえた問題の総復習。体調管理も大切。']]
+    ];
+    var m = new Date().getMonth() + 1;
+    var html = '<section class="card"><h2>🗓️ 季節ごとのミッション' + (nat ? '(国公立志望)' : '') + '</h2><div class="seasons">';
+    S.forEach(function (x) {
+      var now = x[1].indexOf(m) >= 0;
+      html += '<div class="season' + (now ? ' now' : '') + '"><div class="season-head"><b>' + x[0] + '</b><small>' + x[1].map(function (n) { return n + '月'; }).join('・') + '</small>' + (now ? '<span class="status st-good">いまここ</span>' : '') + '</div><p class="season-goal">' + h(x[2]) + '</p><ul class="bullets">' + x[3].map(function (y) { return '<li>' + h(y) + '</li>'; }).join('') + '</ul></div>';
+    });
+    return html + '</div></section>';
+  }
+  /* ========== レベル ========== */
+  function levelCard() {
+    var L = WPS.Level.info(), s = S.get();
+    var up = s.lastLevel && L.level > s.lastLevel;
+    if (s.lastLevel !== L.level) { s.lastLevel = L.level; S.save(); }
+    if (up) setTimeout(function () { dialog('<div class="center">' + pinpo(96, 'cheer') + '<h2>🎉 レベルアップ！</h2><p class="lv-big">Lv.' + L.level + '</p><p>称号:<b>' + h(L.title) + '</b></p><p>ここまで続けてきたきみは、本当にすごいよ！</p></div>', [{ label: 'やったね！', cls: 'primary' }]); }, 300);
+    return '<section class="card level"><div class="lv-row"><div class="lv-badge">Lv.' + L.level + '</div><div class="lv-main"><b>' + h(L.title) + '</b><div class="progress"><i style="width:' + L.pct + '%"></i></div><small class="muted">次のレベルまで ' + (L.to - L.xp) + ' XP' + (L.nextTitle ? ' ／ Lv.' + L.nextAt + 'で「' + h(L.nextTitle) + '」' : '') + '</small></div></div>' +
+      '<p class="hint">問題を解く・単語帳・やる事のチェック・連続記録で経験値(XP)がたまるよ。まちがえても、挑戦した分の XP が入るよ。</p></section>';
   }
 
   /* ========== 大学データ(偏差値・共通テスト得点率) ========== */
