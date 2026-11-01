@@ -24,15 +24,15 @@ WPS.CURRICULUM = [
       { id: 'jpn_jh', short: '中学国語', name: '中学 国語', stage: 'jh', areas: [
         { name: '漢字・語彙', units: ['j_kanji', 'j_m1'] },
         { name: '国語文法(文節・品詞・敬語)', units: ['j_m2', 'j_h5', 'j_keigo'], topics: ['文節・単語の区切り', '主語・述語、修飾語・被修飾語', '品詞の分類(動詞・形容詞・助動詞など)', '敬語'] },
-        { name: '古文・和歌', units: [], topics: ['歴史的仮名遣い', '係り結び', '現代語訳', '主語の把握', '和歌の修辞(枕詞など)'] },
-        { name: '漢文', units: [], topics: ['レ点・一二点', '書き下し文', '句形', '故事成語'] },
-        { name: '詩・短歌・俳句', units: [], topics: ['比喩などの表現技法', '句切れ', '切れ字'] },
-        { name: '読解・作文', units: [], topics: ['説明的文章(評論)', '小説・物語・随筆', '意見文', '読書感想文'] }
+        { name: '古文・和歌', units: ['j_kobun_m'], topics: ['歴史的仮名遣い', '係り結び', '現代語訳', '主語の把握', '和歌の修辞(枕詞など)'] },
+        { name: '漢文', units: ['j_kanbun_m'], topics: ['レ点・一二点', '書き下し文', '句形', '故事成語'] },
+        { name: '詩・短歌・俳句', units: ['j_shiika'], topics: ['比喩などの表現技法', '句切れ', '切れ字'] },
+        { name: '読解・作文', units: ['j_dokkai'], topics: ['説明的文章(評論)', '小説・物語・随筆', '意見文', '読書感想文'] }
       ] },
       { id: 'jpn_ron', short: '現代文', name: '現代文(現代の国語・論理国語・文学国語・国語表現)', areas: [
         { name: '現代の国語・論理国語(評論)', units: ['j_hyoron'] },
-        { name: '文学国語(小説・詩歌)', units: [], topics: ['小説の心情把握', '詩歌の表現'] },
-        { name: '国語表現', units: [], topics: ['意見文・小論文', 'スピーチ・話し合い'] }
+        { name: '文学国語(小説・詩歌)', units: ['j_shinjo'], topics: ['小説の心情把握', '詩歌の表現'] },
+        { name: '国語表現', units: ['j_hyogen'], topics: ['意見文・小論文', 'スピーチ・話し合い'] }
       ] },
       { id: 'jpn_ko', short: '古文', name: '古文(言語文化・古典探究)', areas: [
         { name: '仮名遣い・単語', units: ['j_h1', 'j_kogo'] },
@@ -58,7 +58,7 @@ WPS.CURRICULUM = [
       { id: 'soc_jgeo', short: '中学地理', name: '中学 地理', stage: 'jh', areas: [
         { name: '世界のすがた・世界の諸地域', units: ['c_m1'], topics: ['緯度・経度と時差', '世界の気候区分', '宗教と文化', 'アジア・ヨーロッパ・アフリカ・南北アメリカ・オセアニアの自然と産業'] },
         { name: '日本のすがた・日本の諸地域', units: ['c_jgeo'], topics: ['日本の位置と領域(北方領土・尖閣諸島・竹島)', '地形と気候、人口・産業', '九州〜北海道の各地方の特色'] },
-        { name: '身近な地域の調査', units: [], topics: ['地形図の読み方(等高線・地図記号・縮尺の計算)'] }
+        { name: '身近な地域の調査', units: ['c_chizu'], topics: ['地形図の読み方(等高線・地図記号・縮尺の計算)'] }
       ] },
       { id: 'soc_jhis', short: '中学歴史', name: '中学 歴史', stage: 'jh', areas: [
         { name: '原始・古代', units: ['c_ancient'], topics: ['人類の出現と古代文明', '旧石器〜平安時代(大化の改新・平城京など)'] },
@@ -93,10 +93,10 @@ WPS.CURRICULUM = [
     mext: ['主権者・消費者・労働者として、根拠をもって選択・判断する', '現代社会の課題を、多面的・多角的に考察する'],
     courses: [
       { id: 'soc_jciv', short: '中学公民', name: '中学 公民', stage: 'jh', areas: [
-        { name: '現代社会とわたしたち', units: [], topics: ['情報化・少子高齢化・グローバル化', '持続可能な社会'] },
+        { name: '現代社会とわたしたち', units: ['c_gendai'], topics: ['情報化・少子高齢化・グローバル化', '持続可能な社会'] },
         { name: '人権と日本国憲法・民主政治のしくみ', units: ['c_m3'], topics: ['憲法の三大原則と基本的人権', '国会・内閣・裁判所(三権分立)', '選挙制度・地方自治'] },
         { name: '暮らしと経済', units: ['c_econ'], topics: ['市場のしくみと価格', '労働者の権利', '金融と銀行', '財政と税金'] },
-        { name: '国際社会の課題', units: [], topics: ['国連のしくみ', '世界の紛争・環境問題・国際協力'] }
+        { name: '国際社会の課題', units: ['c_kokusai'], topics: ['国連のしくみ', '世界の紛争・環境問題・国際協力'] }
       ] },
       { id: 'soc_kokyo', short: '公共・政経', name: '公共(必履修)・政治経済', areas: [
         { name: '公共・政治経済', units: ['c_h3'], topics: ['公共の扉(社会参画・契約・自立した消費者)', '民主政治の基本原則・法の支配・日本国憲法', '市場経済・財政と金融・社会保障・国際社会の課題', '政治経済:現代の政治(政治機構・国際政治と平和)と現代の経済(市場メカニズム・日本経済の歩み)'] }
@@ -118,7 +118,7 @@ WPS.CURRICULUM = [
         { name: '中1:文字式', units: ['m_expr'] },
         { name: '中1:一次方程式', units: ['m_m2'] },
         { name: '中1:比例・反比例', units: ['m_m3'] },
-        { name: '中1:平面・空間図形', units: [], topics: ['おうぎ形の弧の長さと面積', '立体の体積・表面積', '作図'] },
+        { name: '中1:平面・空間図形', units: ['m_space'], topics: ['おうぎ形の弧の長さと面積', '立体の体積・表面積', '作図'] },
         { name: '中1:資料の活用', units: ['m_data'] },
         { name: '中2:式の計算・連立方程式', units: ['m_m4'] },
         { name: '中2:一次関数', units: ['m_m5'] },
@@ -178,8 +178,8 @@ WPS.CURRICULUM = [
         { name: '物理:光と音', units: ['s_light'] },
         { name: '物理:力と圧力', units: ['s_force'] },
         { name: '物理:電流・回路・磁界', units: ['s_m1'], topics: ['電流と磁界', '電磁誘導'] },
-        { name: '物理:運動とエネルギー', units: [], topics: ['速さと運動', '仕事とエネルギー'] },
-        { name: '化学:物質のすがた・水溶液', units: [], topics: ['状態変化', '水溶液と溶解度'] },
+        { name: '物理:運動とエネルギー', units: ['s_motion'], topics: ['速さと運動', '仕事とエネルギー'] },
+        { name: '化学:物質のすがた・水溶液', units: ['s_sol'], topics: ['状態変化', '水溶液と溶解度'] },
         { name: '化学:化学変化と原子・分子', units: ['s_m2'], topics: ['酸化と還元'] },
         { name: '化学:イオン・酸とアルカリ', units: ['s_ion'] }
       ] },
@@ -191,12 +191,12 @@ WPS.CURRICULUM = [
       ] },
       { id: 'sci_phy', short: '物基', name: '物理基礎', areas: [
         { name: '物体の運動とエネルギー', units: ['s_h2', 's_energy'] },
-        { name: '熱・波・電気', units: [], topics: ['熱とエネルギー', '波の性質・音', '電気と電流'] }
+        { name: '熱・波・電気', units: ['s_wave'], topics: ['熱とエネルギー', '波の性質・音', '電気と電流'] }
       ] },
       { id: 'sci_chem', short: '化基', name: '化学基礎', areas: [
         { name: '物質の構成', units: ['s_struct', 's_h1'] },
         { name: '化学反応', units: ['s_acid'], topics: ['酸化還元'] },
-        { name: '化学と人間生活', units: [], topics: ['身のまわりの物質と化学'] }
+        { name: '化学と人間生活', units: ['s_life'], topics: ['身のまわりの物質と化学'] }
       ] },
       { id: 'sci_bio', short: '生基', name: '生物基礎', areas: [
         { name: '生物の特徴・遺伝情報・体内環境', units: ['s_h3'] },
@@ -226,13 +226,12 @@ WPS.CURRICULUM = [
         { name: '高1:文型・品詞', units: ['e_h1'], topics: ['5文型・SVOC', '自動詞と他動詞'] },
         { name: '高1:時制', units: ['e_pastperf', 'e_futperf', 'e_tense'], topics: ['現在完了進行形'] },
         { name: '高1:助動詞・受動態', units: ['e_aux'], topics: ['SVOO・SVOC の受動態'] },
-        { name: '高1:不定詞・動名詞・分詞の基本', units: [], topics: ['不定詞の3用法', '動名詞と不定詞の使い分け'] },
+        { name: '高1:不定詞・動名詞・分詞の基本', units: ['e_inf'], topics: ['不定詞の3用法', '動名詞と不定詞の使い分け'] },
         { name: '高2:関係詞', units: ['e_h4'], topics: ['非制限用法', '複合関係詞'] },
         { name: '高2:分詞構文', units: ['e_h3'] },
         { name: '高2:比較', units: ['e_comp'] },
         { name: '高3:仮定法', units: ['e_h2'], topics: ['if を使わない仮定法'] },
-        { name: '高3:強調・倒置・省略・挿入', units: [], topics: ['強調構文', '倒置'] },
-        { name: '高3:直接話法と間接話法', units: [], topics: ['話法の転換'] }
+        { name: '高3:強調・倒置・省略・挿入・話法', units: ['e_emph'], topics: ['強調構文', '倒置', '話法の転換'] }
       ] },
       { id: 'eng_ec', short: '英語コミュニケーション', name: '高校英語:英語コミュニケーションⅠ〜Ⅲ(単語・熟語・読解)', areas: [
         { name: '単語', units: ['e_h5'] },
