@@ -326,6 +326,14 @@
     var I = E.interview;
     html += '<section class="card" id="interview"><h2>面接・小論文の対策</h2><h3>どんな入試で課されるか</h3><ul class="bullets">' + I.when.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
       '<h3>面接の準備</h3><ol class="steps">' + I.mensetsu.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
+      (WPS.INTERVIEW_MANNER ? (function (M) {
+        return '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
+          return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + (i + 1) + '. ' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
+        }).join('') +
+        '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>おじぎ</th><th>使う場面</th></tr></thead><tbody>' + M.bow.map(function (b) { return '<tr><th>' + h(b[0]) + '</th><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>避けたい言い方</th><th>言いかえ</th></tr></thead><tbody>' + M.words.map(function (b) { return '<tr><td>' + h(b[0]) + '</td><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<p class="hint">' + h(M.source) + '。</p>';
+      })(WPS.INTERVIEW_MANNER) : '') +
       '<h3>小論文の書き方</h3><ol class="steps">' + I.shoronbun.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
       '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + I.ng.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' +
       '<p class="hint">「どんな入試で課されるか」の1・2つめは下の出典の記事、それ以外の面接・小論文の対策は一般に知られている方法をまとめたものです(出典なし)。</p></section>';
