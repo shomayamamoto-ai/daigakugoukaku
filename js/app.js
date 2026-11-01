@@ -404,11 +404,7 @@
       '</div></section>';
     var stats = A.allStats();
     html += '<section class="card"><h2>🏫 学校のテスト・模試の結果を記録</h2><p class="muted">定期テストや模試で間違えた単元を記録すると、分析とロードマップに反映されるよ。</p><a class="btn big" href="#records">結果を記録する</a></section>';
-    html += '<section class="card"><h2>単元をえらんで練習</h2><p class="muted">中学1年の内容から順に並んでいるよ。気になる単元をタップしてね。</p>';
-    Object.keys(WPS.SUBJECTS).forEach(function (k) {
-      var us = WPS.UNITS.filter(function (u) { return u.subj === k; });
-      html += '<details><summary>' + subjChip(k) + ' ' + us.length + '単元</summary><div class="unit-list">' + us.map(function (u) { return unitRow(u.id, stats); }).join('') + '</div></details>';
-    });
+    html += '<section class="card"><h2>単元をえらんで練習</h2><p class="muted">教科 → 科目 → 単元 の順にえらんでね。</p>' + courseBrowser('test', [], stats);
     html += '</section>';
     return html;
   }
@@ -421,6 +417,8 @@
         S.save(); var y = window.scrollY; render(); window.scrollTo(0, y);
       });
     });
+    bindCourseBrowser('test');
+    view.querySelectorAll('.unit-row[data-unit]').forEach(function (x) { x.addEventListener('click', function () { go('#study/' + x.getAttribute('data-unit')); }); });
     view.querySelectorAll('[data-start]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-start');
@@ -721,50 +719,63 @@
     return html;
   }
   // 単語帳の単元一覧(学校段階・教科・範囲をボタンで選ぶ)
-  var cardFilter = { stage: 'all', subj: 'all', scope: 'weak' };
+  var cardFilter = { group: 'eng', course: 'all', scope: 'weak' };
   try { var cf = JSON.parse(localStorage.getItem('wps_card_filter') || 'null'); if (cf) cardFilter = cf; } catch (e) { /* 保存できない環境でも動く */ }
   function seg(name, opts, cur) {
     return '<div class="seg" role="group" aria-label="' + name + '">' + opts.map(function (o) {
       return '<button type="button" class="seg-btn' + (o[0] === cur ? ' on' : '') + '" data-f="' + name + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>';
     }).join('') + '</div>';
   }
-  function cardUnitList(weakUnits, stats) {
-    var weakSet = {}; weakUnits.forEach(function (id) { weakSet[id] = true; });
-    var subjs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WPS.UNITS.some(function (u) { return u.subj === k; }); });
-    var list = WPS.UNITS.filter(function (u) {
-      var si = WPS.STAGES.indexOf(u.stage);
-      if (cardFilter.stage === 'jh' && si > 2) return false;
-      if (cardFilter.stage === 'hs' && si <= 2) return false;
-      if (cardFilter.subj !== 'all' && u.subj !== cardFilter.subj) return false;
-      if (cardFilter.scope === 'weak' && !weakSet[u.id]) return false;
-      return true;
-    });
-    var html = '<section class="card"><h2>単語帳をえらぶ</h2>' +
-      '<div class="filter-row"><span class="f-label">範囲</span>' + seg('scope', [['weak', '🎯 苦手だけ(' + weakUnits.length + ')'], ['all', '📚 すべての単元']], cardFilter.scope) + '</div>' +
-      '<div class="filter-row"><span class="f-label">学校</span>' + seg('stage', [['all', 'すべて'], ['jh', '中学'], ['hs', '高校']], cardFilter.stage) + '</div>' +
-      '<div class="filter-row"><span class="f-label">教科</span>' + seg('subj', [['all', 'すべて']].concat(subjs.map(function (k) { return [k, WPS.SUBJECTS[k].name]; })), cardFilter.subj) + '</div>';
-    if (!list.length) {
-      html += '<p class="muted">' + (cardFilter.scope === 'weak' ? 'この条件の苦手単元はないよ。「すべての単元」に切りかえると、ほかの単元も練習できるよ。' : 'この条件の単元はありません。') + '</p>';
-    } else {
-      html += '<div class="row-between list-head"><span class="muted">' + list.length + '単元</span><button class="btn small primary" id="startFiltered">この' + list.length + '単元をまとめて練習</button></div>';
-      // 教科ごと → 学年順にまとめて表示
-      subjs.forEach(function (k) {
-        var us = list.filter(function (u) { return u.subj === k; });
-        if (!us.length) return;
-        html += '<h3 class="subj-head">' + subjChip(k) + ' <span class="muted">' + us.length + '単元</span></h3><div class="unit-list">' + us.map(function (u) {
-          return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? u.questions.length + '枚＋自動生成' : u.questions.length + '枚') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
-        }).join('') + '</div>';
+  // 教科 → 科目 → 単元 の3段階で選ぶ(診断ページと単語帳で共通)
+  function courseBrowser(mode, weakUnits, stats) {
+    var weakSet = {}; (weakUnits || []).forEach(function (id) { weakSet[id] = true; });
+    var C = WPS.CURRICULUM;
+    var g = C.filter(function (x) { return x.id === cardFilter.group; })[0] || C[0];
+    cardFilter.group = g.id;
+    var c = g.courses.filter(function (x) { return x.id === cardFilter.course; })[0];
+    var html = '<div class="tier"><span class="f-label">教科</span>' + seg('group', C.map(function (x) { return [x.id, (x.guideOnly ? '📘 ' : '') + x.name]; }), g.id) + '</div>';
+    html += '<div class="tier tier2"><span class="f-label">科目</span>' + seg('course', [['all', g.guideOnly ? '概要' : 'すべて']].concat(g.courses.map(function (x) {
+      var n = WPS.courseUnits(g, x).length;
+      return [x.id, h(x.name) + (x.guide ? '' : '<small> ' + n + '</small>')];
+    })), c ? c.id : 'all') + '</div>';
+    // 文部科学省が求めている力
+    html += '<details class="mext"><summary>📘 文部科学省が「' + h(g.name) + '」で求めている力</summary><ul class="bullets">' + g.mext.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul><p class="hint">出典:文部科学省 中央教育審議会 教育課程企画特別部会 資料(平成27年)の検討素案より要約</p></details>';
+    if (g.guideOnly) {
+      var cs = c ? [c] : g.courses;
+      html += '<p class="muted">この教科は共通テストの科目ではないため、問題はありません。入試での使われ方と勉強法を確認しよう。</p>';
+      cs.forEach(function (x) {
+        var gd = x.guide;
+        html += '<div class="guide-box"><h3>' + h(x.name) + '</h3><b>🎓 入試での使われ方</b><ul class="bullets">' + gd.exam.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
+          '<b>✏️ 勉強のしかた</b><ul class="bullets">' + gd.how.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul>' +
+          '<div class="guide-ng"><b>⚠️ よくある失敗</b><ul class="bullets">' + gd.ng.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
       });
+      return html;
     }
-    return html + '</section>';
+    var courses = c ? [c] : g.courses;
+    var total = 0, body = '';
+    courses.forEach(function (x) {
+      var us = WPS.courseUnits(g, x).filter(function (u) { return mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]; });
+      if (!us.length) return;
+      total += us.length;
+      body += '<h3 class="subj-head">' + h(x.name) + ' <span class="muted">' + us.length + '単元</span></h3><div class="unit-list">' + us.map(function (u) {
+        return '<button class="unit-row" data-unit="' + u.id + '"><span class="stage-tag">' + u.stage + '</span><span class="u-name">' + h(u.name) + '<small>' + (u.hasGen ? '50問以上' : u.questions.length + '問') + '</small></span>' + statusChip(stats[u.id].status) + '</button>';
+      }).join('') + '</div>';
+    });
+    if (!total) return html + '<p class="muted">' + (mode === 'cards' && cardFilter.scope === 'weak' ? 'この科目の苦手単元はないよ。「すべての単元」に切りかえると、ほかの単元も練習できるよ。' : 'この科目の単元はまだありません。') + '</p>';
+    return html + '<div class="row-between list-head"><span class="muted">' + total + '単元</span><button class="btn small primary" id="startFiltered">この' + total + '単元をまとめて' + (mode === 'cards' ? '単語帳で練習' : '練習') + '</button></div>' + body;
   }
-  renderCards.after = function () {
-    if (deck) return renderDeck.after();
-    var b = document.getElementById('startDeck');
-    if (b) b.addEventListener('click', function () { startDeck(WPS.SRS.session(), '今日の単語帳'); });
+  function cardUnitList(weakUnits, stats) {
+    return '<section class="card"><h2>単語帳をえらぶ</h2>' +
+      '<div class="tier"><span class="f-label">範囲</span>' + seg('scope', [['weak', '🎯 苦手だけ(' + weakUnits.length + ')'], ['all', '📚 すべての単元']], cardFilter.scope) + '</div>' +
+      courseBrowser('cards', weakUnits, stats) + '</section>';
+  }
+  function bindCourseBrowser(mode) {
     view.querySelectorAll('[data-f]').forEach(function (b) {
+      var f = b.getAttribute('data-f');
+      if (['group', 'course', 'scope'].indexOf(f) < 0) return;
       b.addEventListener('click', function () {
-        cardFilter[b.getAttribute('data-f')] = b.getAttribute('data-v');
+        cardFilter[f] = b.getAttribute('data-v');
+        if (f === 'group') cardFilter.course = 'all';
         try { localStorage.setItem('wps_card_filter', JSON.stringify(cardFilter)); } catch (e) { /* 無視 */ }
         var y = window.scrollY; render(); window.scrollTo(0, y);
       });
@@ -773,8 +784,15 @@
     if (sf) sf.addEventListener('click', function () {
       var ids = [];
       view.querySelectorAll('[data-unit]').forEach(function (x) { ids = ids.concat(unitSet(WPS.UNIT_MAP[x.getAttribute('data-unit')])); });
-      startDeck(shuffle(ids).slice(0, 30), '選んだ単元の単語帳');
+      ids = shuffle(ids).slice(0, mode === 'cards' ? 30 : 15);
+      if (mode === 'cards') startDeck(ids, '選んだ単元の単語帳'); else startQuiz(ids, 'study', '選んだ単元の練習');
     });
+  }
+  renderCards.after = function () {
+    if (deck) return renderDeck.after();
+    var b = document.getElementById('startDeck');
+    if (b) b.addEventListener('click', function () { startDeck(WPS.SRS.session(), '今日の単語帳'); });
+    bindCourseBrowser('cards');
     view.querySelectorAll('[data-unit]').forEach(function (x) {
       x.addEventListener('click', function () {
         var u = WPS.UNIT_MAP[x.getAttribute('data-unit')];
@@ -1284,9 +1302,13 @@
     }).join('') + '</div>';
     subs.forEach(function (k, i) {
       var g = WPS.SUBJECT_GUIDE[k];
-      html += '<div class="guide-panel" data-panel="' + k + '"' + (i === 0 ? '' : ' hidden') + '><p class="guide-lead">' + h(g.lead) + '</p>' + guideSteps(g.steps) +
+      var cg = WPS.CURRICULUM.filter(function (x) { return x.subj === k; })[0];
+      html += '<div class="guide-panel" data-panel="' + k + '"' + (i === 0 ? '' : ' hidden') + '><p class="guide-lead">' + h(g.lead) + '</p>' +
+        (cg ? '<div class="mext-box"><b>📘 文部科学省が求めている力</b><ul class="bullets">' + cg.mext.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div>' : '') + guideSteps(g.steps) +
         '<div class="guide-ng"><b>⚠️ よくある失敗</b><ul class="bullets">' + g.mistakes.map(function (m) { return '<li>' + h(m) + '</li>'; }).join('') + '</ul></div></div>';
     });
+    html += '<details class="guide"><summary>📘 実技・探究の科目(体育・芸術・家庭・理数探究・総合的な探究)</summary><p class="muted">共通テストにはない科目ですが、実技試験や総合型選抜で使われることがあります。くわしくは「診断」→「単元をえらんで練習」の教科ボタンから見られます。</p><ul class="bullets">' +
+      WPS.CURRICULUM.filter(function (x) { return x.guideOnly; }).map(function (x) { return '<li><b>' + h(x.name) + '</b>:' + x.courses.map(function (c) { return h(c.name); }).join('・') + '</li>'; }).join('') + '</ul></details>';
     return html + '</section>';
   }
   // 季節ごとのミッション(国公立志望は「共通テスト＋2次」の1年間の流れ)
