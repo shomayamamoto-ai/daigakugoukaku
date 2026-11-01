@@ -481,10 +481,20 @@ WPS.UNIV_DATA['2027'] = `
 
 // 文字列を扱いやすい形に変換する
 WPS.univRows = function (year) {
-  var text = WPS.UNIV_DATA[year] || '';
-  return text.trim().split('\n').map(function (line, i) {
+  // 地区別一覧表(より詳しい)に載っている大学は、そちらを優先する
+  var region = (WPS.UNIV_REGION && WPS.UNIV_REGION[year] || '').trim().split('\n').filter(Boolean).map(function (line, i) {
     var p = line.split('|');
-    return { id: year + '-' + i, year: year, field: p[0], sched: p[1] === '前' ? '前期' : '中期・後期', area: p[2] === '東' ? '東日本' : '西日本', univ: p[3], dept: p[4], kyotsu: +p[5], hensa: p[6] ? +p[6] : null };
-  }).filter(function (r) { return r.univ; });
+    var sched = p[1] === '前' ? '前期' : '中期・後期';
+    return { id: year + '-r' + i, year: year, field: p[0] + '地区(全学部)', sched: sched + (p[1] === '中' ? '(中期)' : ''), schedKey: sched, area: p[0], univ: p[2], dept: p[3], pattern: p[4], score: p[5], kyotsu: +p[6], hensa: p[7] ? +p[7] : null, src: WPS.UNIV_REGION_SOURCE };
+  });
+  var covered = {};
+  region.forEach(function (r) { covered[r.univ] = true; });
+  var text = WPS.UNIV_DATA[year] || '';
+  var rank = text.trim().split('\n').map(function (line, i) {
+    var p = line.split('|');
+    var sched = p[1] === '前' ? '前期' : '中期・後期';
+    return { id: year + '-' + i, year: year, field: p[0], sched: sched, schedKey: sched, area: p[2] === '東' ? '東日本' : '西日本', univ: p[3], dept: p[4], kyotsu: +p[5], hensa: p[6] ? +p[6] : null, src: WPS.UNIV_SOURCES[year] };
+  }).filter(function (r) { return r.univ && !covered[r.univ]; });
+  return rank.concat(region);
 };
 WPS.univYears = function () { return Object.keys(WPS.UNIV_DATA).sort().reverse(); };

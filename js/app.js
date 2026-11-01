@@ -1102,7 +1102,7 @@
       body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p><div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
         (est.hensa === null ? '<p class="hint">推定には、テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問の解答が必要です。</p>' :
           '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
-        '<p class="hint">目安の出典:' + h(WPS.UNIV_SOURCES[g.year] || '') + '</p>';
+        (g.score ? '<p class="hint">共通テストのボーダー:' + h(g.score) + '点</p>' : '') + '<p class="hint">目安の出典:' + h(g.src || WPS.UNIV_SOURCES[g.year] || '') + '</p>';
     }
     return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + '</section>';
   }
@@ -1114,7 +1114,7 @@
     var fields = rows.map(function (r) { return r.field; }).filter(function (x, i, a) { return a.indexOf(x) === i; });
     var est = A.estimate(), goal = S.get().profile.goal;
     var list = rows.filter(function (r) {
-      return (!univState.field || r.field === univState.field) && (!univState.sched || r.sched === univState.sched) &&
+      return (!univState.field || r.field === univState.field) && (!univState.sched || r.schedKey === univState.sched) &&
         (!univState.q || (r.univ + r.dept).indexOf(univState.q) >= 0);
     }).sort(function (a, b) { return b.kyotsu - a.kyotsu || (b.hensa || 0) - (a.hensa || 0); });
     var html = say('志望校の「合格の目安」を調べられるよ。気になる学部の「目標にする」を押すと、ホームとロードマップに、いまの自分との差が出るようになるよ。', 'normal', 56);
@@ -1133,7 +1133,7 @@
           '<td>' + (me ? '<span class="status st-good">目標</span>' : '<button class="btn small" data-goal="' + r.id + '">目標にする</button>') + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
       (list.length > 300 ? '<p class="hint">上位300件を表示しています。検索でしぼりこんでください。</p>' : '') +
-      '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '<br>※ 現在登録しているのは一部の系統です(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)。</p></section>';
+      '<p class="hint">共テ＝共通テストのボーダー得点率(合格の可能性が50%になる得点率の目安)／偏差値＝個別試験(2次)のボーダー偏差値。「—」は掲載なし。<br>出典:' + h(WPS.UNIV_SOURCES[univState.year] || '') + '／' + h(WPS.UNIV_REGION_SOURCE || '') + '<br>※ 登録済み:系統別5系統(法・政治、教育(総合科学)、生活科学、芸術・スポーツ科学、総合・環境・情報・人間)と、北海道地区の全学部。ほかは順次追加します。</p></section>';
     return html;
   }
   renderUniv.after = function () {
@@ -1145,7 +1145,7 @@
         var r = WPS.univRows(univState.year).filter(function (x) { return x.id === b.getAttribute('data-goal'); })[0];
         if (!r) return;
         var p = S.get().profile;
-        p.goal = { univ: r.univ, dept: r.dept, sched: r.sched, kyotsu: r.kyotsu, hensa: r.hensa, year: r.year, field: r.field };
+        p.goal = { univ: r.univ, dept: r.dept, sched: r.sched, kyotsu: r.kyotsu, hensa: r.hensa, year: r.year, field: r.field, src: r.src, score: r.score };
         if (!p.schoolName) p.schoolName = r.univ + ' ' + r.dept;
         S.save();
         toast('「' + r.univ + ' ' + r.dept + '」を目標にしたよ！');
