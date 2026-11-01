@@ -780,3 +780,52 @@ table.cmp td.num { white-space: nowrap; font-weight: 700; }
 .checklist label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; font-size: .9rem; line-height: 1.6; cursor: pointer; }
 .checklist input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 3px; accent-color: var(--primary); }
 .checklist input:checked + span { color: var(--muted); text-decoration: line-through; }
+
+/* ---------- 大学データ:各種条件から探す ---------- */
+.uf h2 { margin: 0; }
+.uf-year { display: flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 700; }
+.uf-year select { width: auto; padding: 4px 8px; }
+.uf-sec { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; background: var(--card); }
+.uf-sec > summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 11px 12px; font-weight: 700; cursor: pointer; background: var(--bg); border-radius: 8px; }
+.uf-sec > summary::-webkit-details-marker { display: none; }
+.uf-sec > summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .15s; }
+.uf-sec[open] > summary { border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
+.uf-sec[open] > summary::after { transform: rotate(-135deg); }
+.uf-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--muted); flex: 0 0 auto; }
+.uf-dot.on { background: var(--primary); border-color: var(--primary); }
+.uf-on { font-size: .7rem; font-weight: 700; color: var(--primary); background: var(--primary-weak); border-radius: 4px; padding: 1px 6px; }
+.uf-body { padding: 10px 12px 12px; }
+.uf-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px 12px; margin: 6px 0; }
+.uf-ck { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: .88rem; cursor: pointer; min-width: 0; }
+.uf-ck input { width: 18px; height: 18px; flex: 0 0 auto; margin: 0; accent-color: var(--primary); }
+.uf-ck span { min-width: 0; overflow-wrap: anywhere; }
+.uf-range { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0; font-size: .86rem; }
+.uf-range > span:first-child { min-width: 7.5em; font-weight: 700; }
+.uf-range select { width: auto; flex: 1 1 6em; max-width: 9em; padding: 6px; }
+.uf-q { width: 100%; }
+.uf-clear { margin-top: 6px; color: var(--primary) !important; }
+.uf-bar { position: sticky; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; margin: 0 0 14px; background: var(--primary-weak); border: 1px solid var(--line); border-radius: 10px; }
+.uf-count { display: flex; align-items: baseline; gap: 4px; padding: 4px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+.uf-count b { font-size: 1.5rem; color: var(--text); font-feature-settings: "tnum"; }
+.uf-count small { color: var(--muted); font-weight: 700; }
+#ufShow { flex: 1 1 10em; }
+#ufShow:disabled { opacity: .45; cursor: not-allowed; }
+.uf-acts { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+.uf-star { background: none; border: 0; font-size: 1.2rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 4px; }
+.uf-star.on { color: #c27803; }
+.uf-kind { display: inline-block; font-size: .66rem; font-weight: 700; border-radius: 4px; padding: 1px 5px; border: 1px solid var(--line); color: var(--muted); }
+.uf-kind.nat { color: var(--primary); border-color: var(--primary); }
+@media (max-width: 480px) { .uf-checks { grid-template-columns: 1fr 1fr; } .uf-count b { font-size: 1.3rem; } }
+.uf-list { list-style: none; padding: 0; margin: 8px 0; }
+.uf-item { display: grid; grid-template-columns: 2em minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 8px 10px 4px; border-bottom: 1px solid var(--line); border-left: 3px solid transparent; }
+.uf-item.reach-ok { border-left-color: var(--ok); }
+.uf-item.reach-near { border-left-color: #c27803; }
+.uf-item.is-goal { background: var(--primary-weak); }
+.uf-main { min-width: 0; line-height: 1.5; }
+.uf-main b { font-size: .98rem; }
+.uf-dept { font-size: .84rem; overflow-wrap: anywhere; }
+.uf-num { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
+.uf-h small, .uf-k small { display: block; font-size: .64rem; color: var(--muted); line-height: 1.1; }
+.uf-h b { font-size: 1.15rem; font-feature-settings: "tnum"; }
+.uf-k { font-size: .8rem; font-weight: 700; }
+.uf-num .btn.small { padding: 4px 10px; font-size: .76rem; white-space: nowrap; }
