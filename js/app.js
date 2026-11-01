@@ -84,32 +84,22 @@
    * 弱点を「ピンポイント」でねらい撃つ、見習いスナイパーのフクロウ。
    * 目が的(まと)の形になっているのがチャームポイント。
    */
+  // ピンポ(機械じかけのフクロウ)の絵。3Dモデル(owl3d.js)と同じデザインの、小さな表示用の SVG
+  var PP_BODY = '<defs><pattern id="ppScale" width="8" height="6" patternUnits="userSpaceOnUse"><rect width="8" height="6" fill="#0f6b64"/><circle cx="4" cy="0" r="4" fill="#1f9a8e"/><circle cx="0" cy="3" r="4" fill="#23a597"/><circle cx="8" cy="3" r="4" fill="#23a597"/><circle cx="4" cy="6" r="4" fill="#1f9a8e"/></pattern><radialGradient id="ppShade" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient><linearGradient id="ppCopper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d27a45"/><stop offset=".5" stop-color="#a24a22"/><stop offset="1" stop-color="#5e2410"/></linearGradient><linearGradient id="ppGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d98a"/><stop offset=".5" stop-color="#d4a646"/><stop offset="1" stop-color="#8c6420"/></linearGradient><radialGradient id="ppFace" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#e3f4ef"/><stop offset="1" stop-color="#9fcfc3"/></radialGradient></defs><ellipse cx="60" cy="112" rx="34" ry="6" fill="#15171c"/><ellipse cx="60" cy="109" rx="30" ry="5" fill="url(#ppGold)"/><ellipse cx="60" cy="109" rx="18" ry="3" fill="#15171c"/><path d="M30 104 q30 -14 46 -2" stroke="#4a2a16" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M24 38 L28 10 L44 28 Z" fill="url(#ppScale)"/><path d="M96 38 L92 10 L76 28 Z" fill="url(#ppScale)"/><path d="M28 12 L32 30" stroke="url(#ppGold)" stroke-width="1.5"/><path d="M92 12 L88 30" stroke="url(#ppGold)" stroke-width="1.5"/><ellipse cx="60" cy="74" rx="38" ry="34" fill="url(#ppScale)"/><ellipse cx="60" cy="74" rx="38" ry="34" fill="url(#ppShade)"/><ellipse cx="22" cy="80" rx="9" ry="20" fill="url(#ppScale)" transform="rotate(12 22 80)"/><ellipse cx="98" cy="80" rx="9" ry="20" fill="url(#ppScale)" transform="rotate(-12 98 80)"/><ellipse cx="60" cy="84" rx="22" ry="20" fill="url(#ppCopper)"/><path d="M44 80 l32 0 M42 88 l36 0 M45 96 l30 0" stroke="#5e2410" stroke-width=".8" opacity=".6"/><circle cx="88" cy="88" r="5" fill="url(#ppGold)"/><circle cx="88" cy="88" r="2" fill="#15171c"/><ellipse cx="60" cy="47" rx="34" ry="27" fill="url(#ppScale)"/><ellipse cx="60" cy="47" rx="34" ry="27" fill="url(#ppShade)"/><path d="M28 60 q32 12 64 0" stroke="url(#ppGold)" stroke-width="2.5" fill="none"/><ellipse cx="60" cy="50" rx="27" ry="20" fill="url(#ppFace)"/>';
+  var PP_EYES = '<circle cx="47" cy="49" r="11" fill="url(#ppGold)"/><circle cx="73" cy="49" r="11" fill="url(#ppGold)"/><circle cx="47" cy="49" r="8" fill="#e0782a"/><circle cx="73" cy="49" r="8" fill="#e0782a"/><circle cx="47" cy="49" r="5" fill="#050608"/><circle cx="73" cy="49" r="5" fill="#050608"/><circle cx="49" cy="46.5" r="1.6" fill="#fff"/><circle cx="75" cy="46.5" r="1.6" fill="#fff"/>';
+  var PP_BEAK = '<path d="M56 58 L64 58 L60 67 Z" fill="#1d1f24"/><path d="M56 58 L64 58" stroke="url(#ppGold)" stroke-width="1.2"/>';
   function pinpo(size, mood) {
     mood = mood || 'normal';
-    var eyes;
-    if (mood === 'happy') {
-      eyes = '<path d="M33 60 q9 -10 18 0" class="pp-line"/><path d="M69 60 q9 -10 18 0" class="pp-line"/>';
-    } else {
-      eyes = '<circle cx="42" cy="58" r="14" fill="#fff"/><circle cx="78" cy="58" r="14" fill="#fff"/>' +
-        '<circle cx="42" cy="58" r="9" fill="none" stroke="#ef4444" stroke-width="2.5"/><circle cx="78" cy="58" r="9" fill="none" stroke="#ef4444" stroke-width="2.5"/>' +
-        '<circle cx="42" cy="58" r="4" fill="#1e293b"/><circle cx="78" cy="58" r="4" fill="#1e293b"/>' +
-        '<circle cx="44" cy="55" r="1.5" fill="#fff"/><circle cx="80" cy="55" r="1.5" fill="#fff"/>';
-      if (mood === 'sad') eyes += '<path d="M28 50 q14 -6 28 2" class="pp-line"/><path d="M92 50 q-14 -6 -28 2" class="pp-line"/>';
-      if (mood === 'think') eyes += '<path d="M30 42 l22 4" class="pp-line"/><path d="M90 42 l-22 4" class="pp-line"/>';
-    }
-    var cheeks = (mood === 'happy' || mood === 'cheer') ? '<ellipse cx="30" cy="74" rx="6" ry="4" fill="#fda4af" opacity=".8"/><ellipse cx="90" cy="74" rx="6" ry="4" fill="#fda4af" opacity=".8"/>' : '';
-    var extra = mood === 'cheer' ? '<path d="M104 30 l4 -10 l4 10 l10 2 l-8 6 l2 10 l-8 -5 l-8 5 l2 -10 l-8 -6z" fill="#fbbf24"/>' : '';
-    return '<svg class="pinpo" viewBox="0 0 120 120" width="' + size + '" height="' + size + '" aria-hidden="true">' +
-      '<path d="M22 40 L28 12 L46 30 Z" fill="#244aa8"/><path d="M98 40 L92 12 L74 30 Z" fill="#244aa8"/>' +
-      '<ellipse cx="60" cy="70" rx="44" ry="44" fill="#2f5bd3"/>' +
-      '<ellipse cx="60" cy="88" rx="27" ry="24" fill="#dbe7ff"/>' +
-      '<path d="M48 82 q4 4 8 0 M60 90 q4 4 8 0 M52 98 q4 4 8 0" stroke="#9db7f5" stroke-width="2" fill="none"/>' +
-      '<ellipse cx="17" cy="78" rx="8" ry="18" fill="#244aa8" transform="rotate(15 17 78)"/><ellipse cx="103" cy="78" rx="8" ry="18" fill="#244aa8" transform="rotate(-15 103 78)"/>' +
-      eyes + cheeks +
-      '<path d="M54 68 L66 68 L60 78 Z" fill="#f59e0b"/>' +
-      '<path d="M48 113 l-4 5 M52 113 l0 6 M68 113 l0 6 M72 113 l4 5" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>' +
-      extra + '</svg>';
+    var eyes = PP_EYES;
+    if (mood === 'happy') eyes = '<circle cx="47" cy="49" r="11" fill="url(#ppGold)"/><circle cx="73" cy="49" r="11" fill="url(#ppGold)"/><circle cx="47" cy="49" r="8.5" fill="#bfe0d6"/><circle cx="73" cy="49" r="8.5" fill="#bfe0d6"/><path d="M41 51 q6 -7 12 0 M67 51 q6 -7 12 0" stroke="#050608" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    if (mood === 'sad') eyes += '<path d="M36 36 q11 -4 20 3 M84 36 q-11 -4 -20 3" stroke="#0b3f3d" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    if (mood === 'think') eyes += '<path d="M37 34 l19 4 M83 34 l-19 4" stroke="#0b3f3d" stroke-width="2.4" stroke-linecap="round"/>';
+    var extra = mood === 'cheer' ? '<g fill="url(#ppGold)"><path d="M104 22 l3 -8 l3 8 l8 2 l-6 5 l2 8 l-7 -4 l-7 4 l2 -8 l-6 -5z"/><circle cx="14" cy="24" r="2.5"/><circle cx="108" cy="46" r="2"/></g>' : '';
+    return '<svg class="pinpo" viewBox="0 0 120 120" width="' + size + '" height="' + size + '" aria-hidden="true">' + PP_BODY + eyes + PP_BEAK + extra + '</svg>';
   }
+  // 3Dのピンポを置く(WebGL が使えない環境では SVG の絵)
+  function owl3dSlot(id, mood) { return '<div class="owl-3d-slot owl-stage-bg" id="' + id + '" data-mood="' + (mood || 'normal') + '">' + pinpo(120, mood) + '</div>'; }
+  function mountOwl(id, explode) { var el = document.getElementById(id); if (el && WPS.Owl3D) WPS.Owl3D.mount(el, { explode: explode, fallback: pinpo(120, el.getAttribute('data-mood')) }); }
   // 装飾の絵文字は表示しない(「AIっぽい」装飾を減らし、文字だけで伝わる画面にする)
   var EMOJI_RE;
   try { EMOJI_RE = new RegExp('(?:\\p{Extended_Pictographic}|[\\u{1F1E6}-\\u{1F1FF}])(?:\\uFE0F|\\u200D\\p{Extended_Pictographic}|[\\u{1F3FB}-\\u{1F3FF}])*\\uFE0F?[ 　]?', 'gu'); } catch (e) { EMOJI_RE = null; }
@@ -347,7 +337,7 @@
     });
   }
   function renderOnboard() {
-    return '<section class="card hero">' + pinpo(110, 'cheer') +
+    return '<section class="card hero">' + owl3dSlot('owlOnboard', 'cheer') +
       '<h1>はじめまして！ ぼくは<span class="brand">ピンポ</span></h1>' +
       '<p>きみの「本当の苦手」をピンポイントで見つけて、志望校までの近道をいっしょに作る、見習いスナイパーのフクロウだよ。<br>まずは、きみのことを教えてね。</p></section>' +
       '<section class="card">' + profileForm(S.get().profile, 'はじめる 🎯') + '</section>' +
@@ -355,6 +345,7 @@
       '<label>引き継ぎコード<input id="obTransfer" placeholder="前の端末の「設定 → 引き継ぎコード」"></label><button class="btn" id="obTransferBtn">引き継ぐ</button></details></section>';
   }
   renderOnboard.after = function () {
+    mountOwl('owlOnboard', true);
     bindProfileForm(function () { toast('よろしくね！ まずは診断テストから始めよう'); go('#test'); });
     document.getElementById('obTransferBtn').addEventListener('click', function () {
       try {
@@ -595,7 +586,7 @@
     }
 
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
-    html += say('<b>' + h(p.name) + 'さん</b>、' + greet, studied ? 'happy' : 'normal', 72);
+    html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。「分解する」で中のしくみも見られるよ。</small></div></section>';
 
     // 連続記録
     var wk = WPS.Streak.week();
@@ -646,6 +637,7 @@
     return html;
   }
   renderHome.after = function () {
+    mountOwl('owlHome', true);
     var rw = document.getElementById('retryWrong');
     if (rw) rw.addEventListener('click', function () { startQuiz(wrongList().slice(0, 10), 'retry', '間違い直し'); });
     view.querySelectorAll('button[data-task]').forEach(function (b) {

@@ -51,3 +51,16 @@
     els.forEach(function (el) { el.classList.add('in'); });
   }
 })();
+
+// 3Dのピンポ(機械じかけのフクロウ)。WebGL が使えないときは、もとの絵のまま
+(function () {
+  function go() {
+    if (!window.WPS || !WPS.Owl3D) return;
+    [['owlHero', false, 7.6], ['owlProf', true, 8.4]].forEach(function (x) {
+      var el = document.getElementById(x[0]); if (!el) return;
+      var fb = el.innerHTML; el.innerHTML = '';
+      WPS.Owl3D.mount(el, { explode: x[1], fallback: fb, dist: x[2] });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+})();

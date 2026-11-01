@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Allura&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/home.css?v=20261102h">
+  <link rel="stylesheet" href="css/home.css?v=20261102i">
 </head>
 <body>
 
@@ -46,7 +46,7 @@
       <a href="#price" class="btn btn-ghost-light">料金を見る</a>
     </div>
   </div>
-  <div class="hero-chara" aria-hidden="true">
+  <div class="hero-chara owl-hero" id="owlHero" aria-label="3Dのピンポ(ドラッグで回せます)">
     <svg viewBox="0 0 120 120" width="180" height="180"><use href="#pinpo"/></svg>
   </div>
 </section>
@@ -192,7 +192,7 @@
   <h2 class="ttl"><span class="en">Greeting</span><span class="ja">ナビゲーターのごあいさつ</span></h2>
   <p class="sec-lead">毎日の学習は、オリジナルキャラクター「ピンポ」がいっしょに伴走します。</p>
   <div class="wcard prof fade">
-    <div class="prof-img"><svg viewBox="0 0 120 120" width="200" height="200" role="img" aria-label="フクロウのキャラクター、ピンポ"><use href="#pinpo"/></svg></div>
+    <div class="prof-img owl-prof" id="owlProf"><svg viewBox="0 0 120 120" width="200" height="200" role="img" aria-label="機械じかけのフクロウのキャラクター、ピンポ"><use href="#pinpo"/></svg></div>
     <div class="prof-body">
       <p class="prof-name">ピンポ<small>Pinpo</small></p>
       <dl>
@@ -332,21 +332,34 @@
 <!-- キャラクター「ピンポ」(ページ内で使い回す図形) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="pinpo" viewBox="0 0 120 120">
-    <path d="M22 40 L28 12 L46 30 Z" fill="#1238a8"/><path d="M98 40 L92 12 L74 30 Z" fill="#1238a8"/>
-    <ellipse cx="60" cy="70" rx="44" ry="44" fill="#1d4fd8"/>
-    <ellipse cx="60" cy="88" rx="27" ry="24" fill="#dbe9ff"/>
-    <path d="M48 82 q4 4 8 0 M60 90 q4 4 8 0 M52 98 q4 4 8 0" stroke="#9db7f5" stroke-width="2" fill="none"/>
-    <ellipse cx="17" cy="78" rx="8" ry="18" fill="#1238a8" transform="rotate(15 17 78)"/><ellipse cx="103" cy="78" rx="8" ry="18" fill="#1238a8" transform="rotate(-15 103 78)"/>
-    <circle cx="42" cy="58" r="14" fill="#fff"/><circle cx="78" cy="58" r="14" fill="#fff"/>
-    <circle cx="42" cy="58" r="9" fill="none" stroke="#0fa3b8" stroke-width="2.5"/><circle cx="78" cy="58" r="9" fill="none" stroke="#0fa3b8" stroke-width="2.5"/>
-    <circle cx="42" cy="58" r="4" fill="#04122e"/><circle cx="78" cy="58" r="4" fill="#04122e"/>
-    <circle cx="44" cy="55" r="1.5" fill="#fff"/><circle cx="80" cy="55" r="1.5" fill="#fff"/>
-    <ellipse cx="30" cy="74" rx="6" ry="4" fill="#fda4af" opacity=".7"/><ellipse cx="90" cy="74" rx="6" ry="4" fill="#fda4af" opacity=".7"/>
-    <path d="M54 68 L66 68 L60 78 Z" fill="#f59e0b"/>
-    <path d="M48 113 l-4 5 M52 113 l0 6 M68 113 l0 6 M72 113 l4 5" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+<defs>
+<pattern id="ppScale" width="8" height="6" patternUnits="userSpaceOnUse"><rect width="8" height="6" fill="#0f6b64"/><circle cx="4" cy="0" r="4" fill="#1f9a8e"/><circle cx="0" cy="3" r="4" fill="#23a597"/><circle cx="8" cy="3" r="4" fill="#23a597"/><circle cx="4" cy="6" r="4" fill="#1f9a8e"/></pattern>
+<radialGradient id="ppShade" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+<linearGradient id="ppCopper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d27a45"/><stop offset=".5" stop-color="#a24a22"/><stop offset="1" stop-color="#5e2410"/></linearGradient>
+<linearGradient id="ppGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d98a"/><stop offset=".5" stop-color="#d4a646"/><stop offset="1" stop-color="#8c6420"/></linearGradient>
+<radialGradient id="ppFace" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#e3f4ef"/><stop offset="1" stop-color="#9fcfc3"/></radialGradient>
+</defs>
+<ellipse cx="60" cy="112" rx="34" ry="6" fill="#15171c"/><ellipse cx="60" cy="109" rx="30" ry="5" fill="url(#ppGold)"/><ellipse cx="60" cy="109" rx="18" ry="3" fill="#15171c"/>
+<path d="M30 104 q30 -14 46 -2" stroke="#4a2a16" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M24 38 L28 10 L44 28 Z" fill="url(#ppScale)"/><path d="M96 38 L92 10 L76 28 Z" fill="url(#ppScale)"/>
+<path d="M28 12 L32 30" stroke="url(#ppGold)" stroke-width="1.5"/><path d="M92 12 L88 30" stroke="url(#ppGold)" stroke-width="1.5"/>
+<ellipse cx="60" cy="74" rx="38" ry="34" fill="url(#ppScale)"/><ellipse cx="60" cy="74" rx="38" ry="34" fill="url(#ppShade)"/>
+<ellipse cx="22" cy="80" rx="9" ry="20" fill="url(#ppScale)" transform="rotate(12 22 80)"/><ellipse cx="98" cy="80" rx="9" ry="20" fill="url(#ppScale)" transform="rotate(-12 98 80)"/>
+<ellipse cx="60" cy="84" rx="22" ry="20" fill="url(#ppCopper)"/>
+<path d="M44 80 l32 0 M42 88 l36 0 M45 96 l30 0" stroke="#5e2410" stroke-width=".8" opacity=".6"/>
+<circle cx="88" cy="88" r="5" fill="url(#ppGold)"/><circle cx="88" cy="88" r="2" fill="#15171c"/>
+<ellipse cx="60" cy="47" rx="34" ry="27" fill="url(#ppScale)"/><ellipse cx="60" cy="47" rx="34" ry="27" fill="url(#ppShade)"/>
+<path d="M28 60 q32 12 64 0" stroke="url(#ppGold)" stroke-width="2.5" fill="none"/>
+<ellipse cx="60" cy="50" rx="27" ry="20" fill="url(#ppFace)"/>
+<circle cx="47" cy="49" r="11" fill="url(#ppGold)"/><circle cx="73" cy="49" r="11" fill="url(#ppGold)"/>
+<circle cx="47" cy="49" r="8" fill="#e0782a"/><circle cx="73" cy="49" r="8" fill="#e0782a"/>
+<circle cx="47" cy="49" r="5" fill="#050608"/><circle cx="73" cy="49" r="5" fill="#050608"/>
+<circle cx="49" cy="46.5" r="1.6" fill="#fff"/><circle cx="75" cy="46.5" r="1.6" fill="#fff"/>
+<path d="M56 58 L64 58 L60 67 Z" fill="#1d1f24"/><path d="M56 58 L64 58" stroke="url(#ppGold)" stroke-width="1.2"/>
   </symbol>
 </svg>
 
-<script src="js/home.js?v=20261102h"></script>
+<script src="js/owl3d.js?v=20261102i"></script>
+<script src="js/home.js?v=20261102i"></script>
 </body>
 </html>
