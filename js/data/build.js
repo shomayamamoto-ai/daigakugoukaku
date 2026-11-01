@@ -47,10 +47,12 @@ WPS.Q = function (id) {
   var u = WPS.UNIT_MAP[p[1]], g = WPS.GEN && WPS.GEN[p[1]];
   if (!u || !g) return null;
   try {
-    var q = g(WPS.rng(+p[2]));
+    var q = g(WPS.rng(+p[2]), +p[2]);
+    if (Array.isArray(q)) q = { lv: q[0], text: q[1], choices: q[2], exp: q[3], why: {} };
     GEN_CACHE[id] = {
-      id: id, unit: u.id, subj: u.subj, level: q[0], text: q[1],
-      choices: q[2], answer: q[2][0], exp: q[3], generated: true
+      id: id, unit: u.id, subj: u.subj, level: q.lv, text: q.text,
+      choices: q.choices, answer: q.choices[0], exp: q.exp, why: q.why || {},
+      say: q.say, pic: q.pic, pics: q.pics, fig: q.fig, sayChoices: q.sayChoices, generated: true
     };
     return GEN_CACHE[id];
   } catch (e) { return null; }
