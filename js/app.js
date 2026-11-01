@@ -332,6 +332,11 @@
       p.schoolNat = fd.get('school_national') || '';
       p.schoolPri = fd.get('school_private') || '';
       p.schoolId = pickedSchool(f);
+      // 志望校を変えたら、ちがう大学の「目標」と、そこから自動で入れた志望校名を外す
+      if (p.goal && !goalMatches(p.goal, WPS.SCHOOL_MAP[p.schoolId])) {
+        if (p.schoolName === p.goal.univ + ' ' + p.goal.dept) p.schoolName = '';
+        p.goal = null;
+      }
       p.minutesWeekday = +fd.get('minutesWeekday');
       p.minutesHoliday = +fd.get('minutesHoliday');
       p.minutes = Math.round(WPS.Time.weeklyMinutes(p) / 7);
@@ -1181,7 +1186,7 @@
   // 本番(ゴール)を起点に、さかのぼって「いつまでに・何を・どれだけ」を決める。
   function backPlan(rm) {
     var t = rm.target, p = t.profile, today = D.today(), exam = t.exam, est = A.estimate();
-    var goal = p.goal || {}, nat = t.school && t.school.kind === 'national', high = t.isHigh;
+    var goal = activeGoal(p) || {}, nat = t.school && t.school.kind === 'national', high = t.isHigh;
     var gH = goal.hensa || (t.school && t.school.hensaMax) || null, gK = goal.kyotsu || null;
     var ph = {}; rm.phases.forEach(function (x) { ph[x.key] = x; });
     var kyo = (t.milestones.filter(function (m) { return m.key === 'kyotsu'; })[0] || {}).date;
@@ -1198,7 +1203,7 @@
       return Math.round((est.hensa + (gH - est.hensa) * r) * 2) / 2;
     }
     // ① ゴール
-    add(exam, '本番(ゴール)', (t.school ? t.school.name : '志望校') + (gH ? '・目標偏差値 ' + gH + (goal.hensa ? '' : '(大学データの目安)') : '') + (gK ? '・共テ ' + gK + '%' : ''), 'goal');
+    add(exam, '本番(ゴール)', (t.school ? t.school.name : '志望校') + (gH ? '・目標偏差値 ' + gH + (goal.approx || !goal.hensa ? '(大学データの目安)' : '') : '') + (gK ? '・共テ ' + gK + '%' : ''), 'goal');
     // ② 共通テスト
     if (kyo && kyo !== exam) add(kyo, '共通テスト本番', gK ? '目標得点率 ' + gK + '%' : '基礎〜標準問題を取りこぼさない', 'exam');
     t.milestones.forEach(function (m) { if (m.key !== 'kyotsu' && m.date !== exam) add(m.date, m.label, '併願校の試験。ここで合格を確保して、本命に集中できる状態をつくる', 'exam'); });
@@ -2032,7 +2037,12 @@
         return '<button type="button" class="seg-btn' + (x.i === wordState.list ? ' on' : '') + '" data-wlist="' + x.i + '">' + h(x.L[1]) + '<small> ' + (WPS.BANK[x.L[2]] || []).length + '</small></button>';
       }).join('') + '</div></div>' +
       '<label class="grow">検索<input id="wq" value="' + h(q) + '" placeholder="単語・意味で検索"></label>' +
-      '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div></section>';
+      '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div>' +
+      '<div class="print-opts"><b class="small">印刷して使う</b><label class="small">印刷する範囲<select id="wRange">' + (function () {
+        var n = shown.length, o = '';
+        for (var a = 0; a < n; a += 100) o += '<option value="' + a + '">' + (a + 1) + '〜' + Math.min(n, a + 100) + '番</option>';
+        return o + '<option value="all">すべて(' + n + '語)</option>';
+      })() + '</select></label><div class="btns"><button class="btn small" data-wprint="list">一覧を印刷</button><button class="btn small" data-wprint="test-m">テスト用(意味をかくす)</button><button class="btn small" data-wprint="test-t">テスト用(見出しをかくす)</button></div><p class="hint">印刷画面で「PDFに保存」を選ぶと、PDFにもできます。検索でしぼりこんだ単語だけを印刷できます。</p></div></section>';
     html += '<section class="card"><h2>' + h(L[1]) + ' <small class="muted">' + shown.length + '語</small></h2><ul class="wordlist">' + shown.slice(0, wordState.limit || 200).map(function (x) {
       var sp = L[4] === 'en' && 'speechSynthesis' in window ? '<button class="btn small ghost w-say" data-say="' + h(x.t) + '" aria-label="' + h(x.t) + 'の発音を聞く">発音</button>' : '';
       return '<li><div class="w-body"><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>' + (x.h ? '<small>💡 ' + h(x.h) + '</small>' : '') + '</div>' + sp + '</li>';
@@ -2049,6 +2059,31 @@
     view.querySelectorAll('[data-say]').forEach(function (b) { b.addEventListener('click', function () { speak(b.getAttribute('data-say')); }); });
     var L = WORD_LISTS[wordState.list], u = WPS.UNIT_MAP[L[3]];
     function ids(n) { var a = []; for (var i = 0; i < n; i++) a.push(WPS.genId(u.id)); return a; }
+    // 印刷:今の一覧(検索でしぼりこんだ結果)を、紙で使いやすい表にして印刷する
+    view.querySelectorAll('[data-wprint]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var mode = b.getAttribute('data-wprint'), L2 = WORD_LISTS[wordState.list], q2 = wordState.q;
+        var items = wordItems(L2).filter(function (x) { return !q2 || (x.t + x.m + (x.h || '')).indexOf(q2) >= 0; });
+        var rg = document.getElementById('wRange').value, base = rg === 'all' ? 0 : +rg;
+        if (rg !== 'all') items = items.slice(base, base + 100);
+        var hideM = mode === 'test-m', hideT = mode === 'test-t';
+        var title = L2[1] + (mode === 'list' ? '' : hideM ? ' テスト(意味を書く)' : ' テスト(見出しを書く)');
+        var rows = items.map(function (x, i) {
+          return '<tr><td class="pn">' + (base + i + 1) + '</td><td class="pt">' + (hideT ? '' : h(x.t)) + '</td><td class="pm">' + (hideM ? '' : h(x.m)) + '</td><td class="pc"></td></tr>';
+        }).join('');
+        var html = '<div class="print-sheet"><div class="ps-head"><b>' + h(title) + '</b><span>' + (base + 1) + '〜' + (base + items.length) + '番(' + items.length + '語)</span><span>名前:____________</span><span>日付:____/____</span></div>' +
+          '<table><thead><tr><th>No.</th><th>' + (L2[4] === 'year' ? '年' : '見出し') + '</th><th>意味</th><th>✓</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+          (mode === 'list' ? '' : '<p class="ps-note">答え合わせは、アプリの単語一覧で確認しよう。</p>') + '</div>';
+        var old = document.getElementById('printArea'); if (old) old.remove();
+        var div = document.createElement('div'); div.id = 'printArea'; div.innerHTML = html; document.body.appendChild(div);
+        document.body.classList.add('printing-words');
+        var done = function () { document.body.classList.remove('printing-words'); var a = document.getElementById('printArea'); if (a) a.remove(); window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
+        if (EMBED) { toast('この画面では印刷できません。ブラウザで直接開いてください'); done(); return; }
+        window.print();
+        setTimeout(function () { if (!window.matchMedia || !window.matchMedia('print').matches) done(); }, 1500);
+      });
+    });
     document.getElementById('wTest').addEventListener('click', function () { startQuiz(ids(10), 'study', L[1] + 'のテスト'); });
     document.getElementById('wDeck').addEventListener('click', function () { startDeck(ids(20), L[1]); });
   };
@@ -2114,10 +2149,28 @@
   }
 
   /* ========== 大学データ(偏差値・共通テスト得点率) ========== */
-  function goalLabel(g) { return g.univ + ' ' + g.dept + '(' + g.sched + ')'; }
+  function goalLabel(g) { return g.approx ? g.univ + '(学部・方式で異なる)' : g.univ + ' ' + g.dept + '(' + g.sched + ')'; }
+  // いまの志望校(本命)に合った目標だけを使う。
+  //  ・大学データで選んだ学部が本命の大学と同じ → その学部の数値
+  //  ・ちがう/未設定 → 本命の大学の偏差値の目安(登録データの最大値)
+  function goalMatches(g, school) {
+    if (!g || !school) return false;
+    var u = school.univ || '';
+    return u ? g.univ === u : school.name.indexOf(g.univ) >= 0;
+  }
+  function activeGoal(p) {
+    var school = WPS.SCHOOL_MAP[p.schoolId];
+    if (goalMatches(p.goal, school)) return p.goal;
+    if (school && !school.hensaMax && school.kind !== 'high') {
+      var alt = WPS.SCHOOL_MAP['u~' + (school.kind === 'national' ? 'nat' : 'pri') + '~' + school.name.replace(/大学$/, '')];
+      if (alt && alt.hensaMax) school = alt;
+    }
+    if (school && school.hensaMax) return { univ: school.name, dept: '', sched: '', hensa: school.hensaMax, kyotsu: null, approx: true, src: school.kind === 'national' ? WPS.UNIV_SOURCES[2027] : WPS.UNIV_PRIVATE_SOURCE };
+    return null;
+  }
   // 目標とのちがいを表示するカード
   function goalCard(p, inline) {
-    var g = p.goal, est = A.estimate();
+    var g = activeGoal(p), est = A.estimate();
     var body;
     if (!g) {
       body = '<p class="muted">目標の大学・学部を設定すると、合格の目安(共通テスト得点率・偏差値)と、いまの推定位置を比べられるよ。</p><a class="btn small" href="#univ">🏫 大学データから目標を選ぶ</a>';
@@ -2128,7 +2181,7 @@
         return '<tr><th>' + label + '</th><td>' + (goal !== null ? goal + unit : '—') + '</td><td>' + (now !== null ? now + unit : '—') + '</td><td class="' + (diff === null ? '' : diff >= 0 ? 'good-t' : 'bad-t') + '">' + (diff === null ? '—' : (diff >= 0 ? '+' : '') + diff + unit) + '</td></tr>';
       }
       rows += (g.kyotsu !== null && g.kyotsu !== undefined ? row('共通テスト得点率', g.kyotsu, est.kyotsu, '%') : '') + row('偏差値', g.hensa, est.hensa, '');
-      body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p><div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
+      body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p>' + (g.approx ? '<p class="hint">大学全体の偏差値の目安(登録データの最大値)です。<a href="#univ">大学データ</a>で志望学部を「目標にする」と、学部ごとの数値になります。</p>' : '') + '<div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
         (est.hensa === null ? '<p class="hint">推定には、テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問の解答が必要です。</p>' :
           '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
         (g.score ? '<p class="hint">共通テストのボーダー:' + h(g.score) + '点</p>' : '') + '<p class="hint">目安の出典:' + h(g.src || WPS.UNIV_SOURCES[g.year] || '') + '</p>';

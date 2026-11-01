@@ -914,3 +914,24 @@ table.cmp td.num { white-space: nowrap; font-weight: 700; }
 .gt-ms2.bp-past i { background: #12805a; }
 .gt-ms2.bp-month i { background: var(--muted); }
 .retry h2 { margin-bottom: 2px; } .retry .row-between > div { flex: 1 1 14em; }
+/* ---------- 単語帳の印刷 ---------- */
+.print-opts { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+#printArea { display: none; }
+@media print {
+  body.printing-words > *:not(#printArea) { display: none !important; }
+  body.printing-words #printArea { display: block !important; }
+  body.printing-words { padding: 0 !important; }
+  .print-sheet { color: #000; font-size: 10.5pt; }
+  .ps-head { display: flex; gap: 16px; align-items: baseline; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+  .ps-head b { font-size: 14pt; margin-right: auto; }
+  .print-sheet table { width: 100%; border-collapse: collapse; }
+  .print-sheet th, .print-sheet td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+  .print-sheet thead { display: table-header-group; }
+  .print-sheet tr { break-inside: avoid; }
+  .print-sheet .pn { width: 2.6em; text-align: right; color: #555; }
+  .print-sheet .pt { width: 34%; font-weight: 700; }
+  .print-sheet .pc { width: 2.4em; }
+  .print-sheet td { height: 1.9em; }
+  .ps-note { font-size: 9pt; color: #555; }
+  @page { margin: 12mm; }
+}
