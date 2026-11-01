@@ -326,6 +326,19 @@
       '<h3>小論文の書き方</h3><ol class="steps">' + I.shoronbun.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
       '<div class="guide-ng"><b>よくある失敗</b><ul class="bullets">' + I.ng.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' +
       '<p class="hint">「どんな入試で課されるか」の1・2つめは下の出典の記事、それ以外の面接・小論文の対策は一般に知られている方法をまとめたものです(出典なし)。</p></section>';
+    // 学部・学科の選び方
+    var F = WPS.FACULTY_GUIDE;
+    if (F) {
+      html += '<section class="card" id="faculty"><h2>学部・学科の選び方</h2><ol class="steps">' + F.howTo.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
+        '<h3>学部の5つの系統</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.systems.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<h3>分野と主な学部・学科</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.fields.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<h3>学部のくわしい解説</h3>' + F.details.map(function (d) {
+          return '<details class="guide-mini"><summary>' + h(d.name) + '</summary><p>' + h(d.lead) + '</p><b>こんな人に向いているかも</b><ul class="bullets">' + d.fit.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+            '<b>大学選びのヒント</b><ul class="bullets">' + d.hint.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' + (d.related ? '<p class="muted">関連する主な学科:' + h(d.related) + '</p>' : '') + '</details>';
+        }).join('') +
+        '<h3>就職先の傾向</h3><ul class="bullets">' + F.careers.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+        '<p class="hint">出典:' + h(F.source) + '(5系統は記事中の「文部科学省『学科系統分類表』」参照による)。くわしい解説は、いただいた記事画像で読めた分野だけを載せています。</p></section>';
+    }
     // 検定料
     html += '<section class="card"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
       E.fees.map(function (f) { return '<tr><th>' + h(f[0]) + '</th><td class="num">' + h(f[1]) + '</td><td>' + h(f[2]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
@@ -1597,16 +1610,17 @@
       }).join('') + '</div></div>' +
       '<label class="grow">検索<input id="wq" value="' + h(q) + '" placeholder="単語・意味で検索"></label>' +
       '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div></section>';
-    html += '<section class="card"><h2>' + h(L[1]) + ' <small class="muted">' + shown.length + '語</small></h2><ul class="wordlist">' + shown.map(function (x) {
+    html += '<section class="card"><h2>' + h(L[1]) + ' <small class="muted">' + shown.length + '語</small></h2><ul class="wordlist">' + shown.slice(0, wordState.limit || 200).map(function (x) {
       var pic = WPS.EMOJI[x.t] ? '<span class="w-pic" aria-hidden="true">' + WPS.EMOJI[x.t] + '</span>' : '';
-      var sp = L[4] === 'en' && 'speechSynthesis' in window ? '<button class="btn small ghost w-say" data-say="' + h(x.t) + '" aria-label="' + h(x.t) + 'の発音を聞く">🔊</button>' : '';
+      var sp = L[4] === 'en' && 'speechSynthesis' in window ? '<button class="btn small ghost w-say" data-say="' + h(x.t) + '" aria-label="' + h(x.t) + 'の発音を聞く">発音</button>' : '';
       return '<li>' + pic + '<div class="w-body"><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>' + (x.h ? '<small>💡 ' + h(x.h) + '</small>' : '') + '</div>' + sp + '</li>';
-    }).join('') + '</ul></section>';
+    }).join('') + '</ul>' + (shown.length > (wordState.limit || 200) ? '<button class="btn big" id="wMore" type="button">続きを表示(あと' + (shown.length - (wordState.limit || 200)) + '語)</button>' : '') + '</section>';
     return html;
   }
   renderWords.after = function () {
     function re() { var y = window.scrollY, f = document.activeElement && document.activeElement.id; view.innerHTML = noEmoji(renderWords()); renderWords.after(); if (f === 'wq') { var el = document.getElementById('wq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); } window.scrollTo(0, y); }
-    view.querySelectorAll('[data-f="wsubj"]').forEach(function (b) { b.addEventListener('click', function () { wordState.subj = b.getAttribute('data-v'); wordState.list = -1; wordState.q = ''; re(); }); });
+    var wm = document.getElementById('wMore'); if (wm) wm.addEventListener('click', function () { wordState.limit = (wordState.limit || 200) + 300; re(); });
+    view.querySelectorAll('[data-f="wsubj"]').forEach(function (b) { b.addEventListener('click', function () { wordState.limit = 200; wordState.subj = b.getAttribute('data-v'); wordState.list = -1; wordState.q = ''; re(); }); });
     view.querySelectorAll('[data-wlist]').forEach(function (b) { b.addEventListener('click', function () { wordState.list = +b.getAttribute('data-wlist'); re(); }); });
     var wq = document.getElementById('wq'), tm;
     wq.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { wordState.q = wq.value.trim(); re(); }, 250); });
