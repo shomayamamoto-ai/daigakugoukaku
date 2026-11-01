@@ -724,6 +724,13 @@
       Object.keys(WPS.SUBJECTS).map(function (k) { var on = chosen.indexOf(k) >= 0; return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-subj="' + k + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
     html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">えらんだ教科から、きみの学年に合った問題を出すよ。</p>' +
       '<button class="btn primary big" data-start="all">診断をはじめる</button></section>';
+    var dl = +(t.profile.diffLevel || 1);
+    html += '<section class="card lvl-card"><h2>レベル別演習(10問)</h2><p class="muted small">志望校のレベルに合わせて、問題の難しさを選べるよ。</p>' +
+      '<div class="lvl-pick" role="group" aria-label="レベル">' + [1, 2, 3].map(function (d) {
+        return '<button type="button" class="lvl-btn lv-d' + d + (dl === d ? ' on' : '') + '" data-diff="' + d + '" aria-pressed="' + (dl === d) + '"><b>' + ['', '①', '②', '③'][d] + ' ' + DIFF[d] + '</b><small>' + DIFF_NOTE[d] + '</small></button>';
+      }).join('') + '</div><div class="grid-btns">' +
+      '<button class="btn primary" data-lvstart="">全教科</button>' + subs.map(function (k) { var n = diffUnits(dl, k).length; return n ? '<button class="btn subj" style="--c:' + WPS.SUBJECTS[k].color + '" data-lvstart="' + k + '">' + WPS.SUBJECTS[k].name + '</button>' : ''; }).join('') +
+      '</div>' + (subs.every(function (k) { return !diffUnits(dl, k).length; }) ? '<p class="muted small">このレベルの問題は、いまの学年ではまだありません。</p>' : '') + '</section>';
     html += '<section class="card"><h2>科目をしぼって診断(8問)</h2><div class="grid-btns">' +
       subs.map(function (k) { var sj = WPS.SUBJECTS[k]; return '<button class="btn subj" style="--c:' + sj.color + '" data-start="' + k + '">' + sj.name + '</button>'; }).join('') +
       '</div></section>';
@@ -744,6 +751,14 @@
     });
     bindCourseBrowser('test');
     view.querySelectorAll('.unit-row[data-unit]').forEach(function (x) { x.addEventListener('click', function () { go('#study/' + x.getAttribute('data-unit')); }); });
+    view.querySelectorAll('[data-diff]').forEach(function (b) { b.addEventListener('click', function () { S.get().profile.diffLevel = +b.getAttribute('data-diff'); S.save(); var y = window.scrollY; render(); window.scrollTo(0, y); }); });
+    view.querySelectorAll('[data-lvstart]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var d = +(S.get().profile.diffLevel || 1), k = b.getAttribute('data-lvstart') || null, ids = levelPick(d, k, 10);
+        if (!ids.length) { toast('このレベルの問題がまだありません'); return; }
+        startQuiz(ids, 'study', DIFF[d] + 'レベル演習' + (k ? '(' + WPS.SUBJECTS[k].name + ')' : ''));
+      });
+    });
     view.querySelectorAll('[data-start]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-start');
@@ -760,6 +775,35 @@
     s.attempts.forEach(function (a) { if (a.q && a.src !== 'card' && a.src !== 'oral') last[a.q] = a; });
     return Object.keys(last).filter(function (id) { var q = WPS.Q(id); return !last[id].ok && q && WPS.unitAllowed(q.unit, gr, st); })
       .sort(function (a, b) { return last[b].t - last[a].t; });
+  }
+  /* ---------- 問題の難易度(3段階) ----------
+   * 1 基礎 … 偏差値40〜50の大学で出るレベル(各単元の知識・理解の問題)
+   * 2 標準 … 偏差値50以上の大学で出るレベル(各単元の応用問題・入試レベルの総合)
+   * 3 難関 … 偏差値65以上の大学で出るレベル(難関レベルの単元)
+   */
+  var DIFF = { 1: '基礎', 2: '標準', 3: '難関' }, DIFF_NOTE = { 1: '偏差値40〜50の大学レベル', 2: '偏差値50以上の大学レベル', 3: '偏差値65以上の難関大レベル' };
+  function diffOf(q) { var u = WPS.UNIT_MAP[q.unit]; return u && u.rank ? u.rank : q.level === 3 ? 2 : 1; }
+  function diffUnits(d, subj) {
+    var p = S.get().profile, st = A.allStats(), t = R.target();
+    return WPS.UNITS.filter(function (u) {
+      if (subj ? u.subj !== subj : !(t.weights[u.subj] > 0)) return false;
+      if (!WPS.unitAllowed(u, p.grade, st)) return false;
+      if (d === 3) return u.rank === 3;
+      if (d === 2) return u.rank === 2 || (!u.rank && (u.hasGen || u.questions.some(function (q) { return q.level === 3; })));
+      return !u.rank;
+    });
+  }
+  // 指定の難易度の問題を n 問選ぶ(自動生成の単元は、合う難易度の問題が出るまで種を変えて作る)
+  function levelPick(d, subj, n) {
+    var units = diffUnits(d, subj), out = [], seen = {};
+    for (var k = 0; out.length < n && k < n * 30 && units.length; k++) {
+      var u = units[Math.floor(Math.random() * units.length)], id = null;
+      var stat = u.questions.filter(function (q) { return diffOf(q) === d && !seen[q.id]; });
+      if (stat.length && (!u.hasGen || Math.random() < 0.3)) id = stat[Math.floor(Math.random() * stat.length)].id;
+      else if (u.hasGen) for (var tr = 0; tr < 25 && !id; tr++) { var g = WPS.genId(u.id), q = WPS.Q(g); if (q && diffOf(q) === d) id = g; }
+      if (id && !seen[id]) { seen[id] = true; out.push(id); }
+    }
+    return out;
   }
   // 答えた直後に、画面の中央に大きな ○ / ✕ を一瞬表示する
   function judgeMark(kind) {
@@ -796,7 +840,7 @@
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
     html += modeSwitch();
-    html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span></div>' +
+    html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span><span class="df df' + diffOf(q) + '">' + DIFF[diffOf(q)] + '</span></div>' +
       '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') +
       (useWrite(q) ? writeBox('qWrite') : '<div class="choices">' +
       quiz.order.map(function (ci, k) {
@@ -1208,11 +1252,20 @@
     function plannedBy(d) { var n = 0; rm.weeks.forEach(function (w) { if (w.end <= d) n += w.units.filter(function (id) { return known.indexOf(id) >= 0; }).length; }); return n; }
     var goodNow = known.filter(function (id) { return rm.stats[id].status === 'good'; }).length;
     // 偏差値の中間目標:いまの推定から目標まで、残り期間で直線的に上げる
+    // 偏差値の中間目標は2段階:
+    //  ① 実戦期の前まで:苦手単元の克服(基礎〜標準)で上げられるのは 60 前後まで(BASE_CAP)
+    //  ② 実戦期〜直前期:過去問と標準・難関レベルの演習で、残りを目標まで上げる
+    var BASE_CAP = 60;
+    var baseCap = gH && est.hensa !== null ? Math.min(gH, Math.max(BASE_CAP, est.hensa)) : null;
+    var prD = ph.practice ? ph.practice.start : D.add(exam, -60), finD = ph.final ? ph.final.start : exam;
     function hensaAt(d) {
       if (!gH || est.hensa === null) return null;
-      var r = Math.min(1, Math.max(0, D.diff(today, d) / Math.max(1, D.diff(today, ph.practice ? ph.practice.start : exam))));
-      return Math.round((est.hensa + (gH - est.hensa) * r) * 2) / 2;
+      var v;
+      if (d <= prD) { var r1 = Math.min(1, Math.max(0, D.diff(today, d) / Math.max(1, D.diff(today, prD)))); v = est.hensa + (baseCap - est.hensa) * r1; }
+      else { var r2 = Math.min(1, Math.max(0, D.diff(prD, d) / Math.max(1, D.diff(prD, finD)))); v = baseCap + (gH - baseCap) * r2; }
+      return Math.round(v * 2) / 2;
     }
+    function hz(d) { var v = hensaAt(d); return v ? '・模試で偏差値 ' + v + ' 前後' : ''; }
     // ① ゴール
     add(exam, '本番(ゴール)', (t.school ? t.school.name : '志望校') + (gH ? '・目標偏差値 ' + gH + (goal.approx || !goal.hensa ? '(大学データの目安)' : '') : '') + (gK ? '・共テ ' + gK + '%' : ''), 'goal');
     // ② 共通テスト
@@ -1224,12 +1277,12 @@
     if (!high) {
       var fin = ph.final ? ph.final.start : D.add(exam, -14);
       add(D.add(exam, -100), '志望校の過去問 1年分', '時間を計って解き、配点と自分の得点の差を確認する(ゴールとの距離を知る)', 'past');
-      add(D.add(exam, -60), '志望校の過去問 3年分', '大問ごとの得点を記録し、毎年落としている分野を単元の復習に戻す', 'past');
-      add(D.add(fin, -1), '志望校の過去問 5年分', '出題傾向をつかみ、時間配分を決める', 'past');
+      add(D.add(exam, -60), '志望校の過去問 3年分', '大問ごとの得点を記録し、毎年落としている分野を単元の復習に戻す。標準・難関レベルの演習を毎日' + hz(D.add(exam, -60)), 'past');
+      add(D.add(fin, -1), '志望校の過去問 5年分', '出題傾向をつかみ、時間配分を決める' + hz(D.add(fin, -1)), 'past');
       if (kyo) { add(D.add(kyo, -45), '共通テスト形式の演習 開始', '過去問・予想問題を全教科1回ずつ', 'past'); add(D.add(kyo, -14), '共通テスト形式 5回分', '本番と同じ時間割で通して解く', 'past'); }
     }
     // ⑤ 実戦期の開始=基礎〜標準の完成
-    if (ph.practice) add(D.add(ph.practice.start, -1), '基礎〜標準の完成', '苦手単元をひととおり仕上げる(' + plannedBy(D.add(ph.practice.start, -1)) + '単元)' + (hensaAt(ph.practice.start) ? '・模試で偏差値 ' + hensaAt(ph.practice.start) + ' を目標' : ''), 'base', { need: plannedBy(D.add(ph.practice.start, -1)) });
+    if (ph.practice) add(D.add(ph.practice.start, -1), '基礎〜標準の完成', '苦手単元をひととおり仕上げる(' + plannedBy(D.add(ph.practice.start, -1)) + '単元)' + (hensaAt(ph.practice.start) ? '・模試で偏差値 ' + hensaAt(ph.practice.start) + ' を目標' + (gH > baseCap ? '(苦手の克服で届く目安。目標 ' + gH + ' までの残りは、実戦期の過去問と標準・難関レベルの演習で上げる)' : '') : ''), 'base', { need: plannedBy(D.add(ph.practice.start, -1)) });
     // ⑥ 土台の修復の完了
     if (ph.repair) add(ph.repair.end, '中学範囲の土台の修復 完了', '診断でさかのぼった中学の苦手単元を「得意」にする', 'base');
     // ⑦ 毎月の中間目標(月末ごと)
@@ -2216,10 +2269,14 @@
     var guess = Math.round(untested.length * ratio), need = weak.length + guess;
     var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / 5) * 5;
     var probs = need * 30;
-    html += '<h3>あとこれだけやれば届く(目安)</h3><div class="todo-grid">' +
+    var capH = Math.min(goalH, Math.max(60, nowH)), hardN = goalH > capH ? Math.ceil((goalH - capH) / 2.5) * 60 : 0;
+    html += '<h3>あとこれだけやれば届く(目安)</h3>' +
+      '<div class="two-step"><div><small>①苦手単元の克服(基礎〜標準)</small><b>' + nowH + ' → ' + capH + '</b></div>' + (hardN ? '<div><small>②標準・難関レベルの演習と過去問</small><b>' + capH + ' → ' + goalH + '</b></div>' : '') + '</div>' +
+      '<div class="todo-grid">' +
       '<div class="tg"><small>正答率</small><div class="tg-bar"><i style="width:' + Math.round(accNow * 100) + '%"></i><b style="left:' + Math.round(accGoal * 100) + '%"></b></div><span>いま ' + Math.round(accNow * 100) + '% → 目標 ' + Math.round(accGoal * 100) + '%</span></div>' +
       '<div class="tg"><small>苦手単元を「得意」に</small><b class="tg-num">' + need + '<em>単元</em></b><span>判明 ' + weak.length + '＋未診断から見込み ' + guess + '/週 ' + perWeek + ' 単元(' + weeksLeft + '週)</span></div>' +
       '<div class="tg"><small>解く問題の目安</small><b class="tg-num">' + probs + '<em>問</em></b><span>1単元 約30問 × ' + need + '単元</span></div>' +
+      (hardN ? '<div class="tg"><small>標準・難関レベルの問題</small><b class="tg-num">' + hardN + '<em>問</em></b><span>偏差値 ' + capH + '→' + goalH + ' の分(2.5 上げるごとに約60問)</span></div><div class="tg"><small>志望校の過去問</small><b class="tg-num">5<em>年分</em></b><span>実戦期から、時間を計って解く</span></div>' : '') +
       '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約150分)</span></div>' +
       '</div>' + (untested.length ? '<p class="hint">まだ診断していない単元が ' + untested.length + ' あります(今の苦手の割合から ' + guess + ' 単元を見込みに入れています)。診断を進めると、必要な量がより正確になります。</p>' : '');
     // ③ 教科ごとの差(どの教科を上げると近づくか)
@@ -2245,7 +2302,7 @@
         return '<li class="' + cls + '"><b>' + x.v.toFixed(1) + '</b><span>' + (x.names.length ? h(x.names.join('・')) : '—') + '</span>' + (cls === 'reach' ? '<em>いま届く</em>' : cls === 'goal' ? '<em>目標</em>' : '') + '</li>';
       }).join('') + '</ol><p class="hint">大学データに登録された「その大学の最高の偏差値」で並べた目安です(河合塾 2027年度入試難易予想を参考)。学部・方式で違うので、必ず大学データで確認してください。</p>';
     }
-    return html + '<p class="hint">「いま」はこのアプリの問題の正答状況からの推定で、模試の偏差値とは異なります。必要な量は「1単元 約30問・約150分」として計算した目安です。</p></div>';
+    return html + '<p class="hint">「いま」はこのアプリの問題の正答状況からの推定で、模試の偏差値とは異なります。必要な量は「1単元 約30問・約150分」「苦手単元の克服で届くのは偏差値60前後まで」「そこから 2.5 上げるごとに標準・難関レベル約60問」と仮定した目安です。</p></div>';
   }
   function goalCard(p, inline) {
     var g = activeGoal(p), est = A.estimate();

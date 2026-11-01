@@ -1086,3 +1086,16 @@ body { background: var(--bg); letter-spacing: .04em; }
 .ladder li.reach::before { background: var(--primary); border-color: var(--primary); } .ladder li.reach em { background: var(--primary); }
 .ladder li.goal::before { background: #d0342c; border-color: #d0342c; } .ladder li.goal em { background: #d0342c; } .ladder li.goal b { color: #d0342c; }
 @media (max-width: 380px) { .todo-grid { grid-template-columns: 1fr; } }
+.two-step { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.two-step > div { border-radius: 12px; padding: 8px 10px; background: var(--grad-soft); display: flex; flex-direction: column; }
+.two-step > div:nth-child(2) { background: var(--grad); color: #fff; }
+.two-step small { font-size: .72rem; font-weight: 700; opacity: .85; }
+.two-step b { font-size: 1.25rem; font-feature-settings: "tnum"; }
+/* ---------- 難易度(基礎・標準・難関) ---------- */
+.df { font-size: .7rem; font-weight: 800; border-radius: 999px; padding: 1px 8px; color: #fff; }
+.df1 { background: #3d8bd9; } .df2 { background: #1146d6; } .df3 { background: linear-gradient(115deg, #04143a, #7b2cbf); }
+.lvl-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.lvl-btn { border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); padding: 10px 6px; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.lvl-btn b { font-size: .95rem; } .lvl-btn small { font-size: .66rem; color: var(--muted); text-align: center; line-height: 1.35; }
+.lvl-btn.on { border-color: transparent; color: #fff; } .lvl-btn.on small { color: rgba(255, 255, 255, .85); }
+.lvl-btn.lv-d1.on { background: #3d8bd9; } .lvl-btn.lv-d2.on { background: var(--grad-btn); } .lvl-btn.lv-d3.on { background: linear-gradient(115deg, #04143a, #4b1fa6 60%, #7b2cbf); }

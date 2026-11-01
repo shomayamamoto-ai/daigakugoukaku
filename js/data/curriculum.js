@@ -27,7 +27,9 @@ WPS.CURRICULUM = [
         { name: '古文・和歌', units: ['j_kobun_m'], topics: ['歴史的仮名遣い', '係り結び', '現代語訳', '主語の把握', '和歌の修辞(枕詞など)'] },
         { name: '漢文', units: ['j_kanbun_m'], topics: ['レ点・一二点', '書き下し文', '句形', '故事成語'] },
         { name: '詩・短歌・俳句', units: ['j_shiika'], topics: ['比喩などの表現技法', '句切れ', '切れ字'] },
-        { name: '読解・作文', units: ['j_dokkai'], topics: ['説明的文章(評論)', '小説・物語・随筆', '意見文', '読書感想文'] }
+        { name: '読解・作文', units: ['j_dokkai'], topics: ['説明的文章(評論)', '小説・物語・随筆', '意見文', '読書感想文'] },
+        { name: '標準レベル:中学国語の総合', units: ['jx_jh2'] },
+        { name: '難関レベル:中学国語', units: ['jx_jh3'] }
       ] },
       { id: 'jpn_ron', short: '現代文', name: '現代文(現代の国語・論理国語・文学国語・国語表現)', areas: [
         { name: '現代の国語・論理国語(評論)', units: ['j_hyoron'] },
@@ -37,7 +39,9 @@ WPS.CURRICULUM = [
       { id: 'jpn_ko', short: '古文', name: '古文(言語文化・古典探究)', areas: [
         { name: '仮名遣い・単語', units: ['j_h1', 'j_kogo'] },
         { name: '文法(活用・助動詞)', units: ['j_katsuyo', 'j_h2'] },
-        { name: '敬語', units: ['j_h3'] }
+        { name: '敬語', units: ['j_h3'] },
+        { name: '標準レベル:古文単語・評論語・漢文句形', units: ['jx_std'] },
+        { name: '難関レベル:国語', units: ['hd_jpn'] }
       ] },
       { id: 'jpn_kan', short: '漢文', name: '漢文(言語文化・古典探究)', areas: [
         { name: '句法', units: ['j_h4'] },
@@ -66,7 +70,8 @@ WPS.CURRICULUM = [
         { name: '近世', units: ['c_early'], topics: ['安土桃山時代(天下統一)', '江戸時代(幕藩体制・鎖国・三大改革・文化)'] },
         { name: '近代', units: ['c_modern'], topics: ['明治維新と条約改正', '日清・日露戦争', '大正デモクラシー', '昭和初期と第二次世界大戦'] },
         { name: '現代', units: ['c_contemp'], topics: ['戦後の改革', '冷戦', '高度経済成長', '現代の日本と世界の課題'] },
-        { name: '総まとめ', units: ['c_m2'] }
+        { name: '総まとめ', units: ['c_m2'] },
+        { name: '難関レベル:中学歴史の流れ', units: ['cx_jh3'] }
       ] },
       { id: 'soc_hsogo', short: '歴史総合', name: '歴史総合(必履修)', guide: {
         scope: ['近代化と私たち:産業革命・市民革命・国民国家の形成・開国と明治維新', '国際秩序の変化や大衆化と私たち:二つの世界大戦・総力戦体制・大衆社会・冷戦の始まり', 'グローバル化と私たち:冷戦の終結・現代の世界と日本・持続可能な社会への課題'],
@@ -79,7 +84,8 @@ WPS.CURRICULUM = [
       ] },
       { id: 'soc_jh', short: '日本史', name: '日本史探究', areas: [
         { name: '原始・古代〜近現代', units: ['c_h1'], topics: ['原始・古代(縄文〜平安)', '中世(鎌倉〜室町・戦国)', '近世(安土桃山〜江戸)', '近現代の政治・外交・経済・文化'] },
-        { name: '入試レベル:歴史の因果関係(日本史・世界史)', units: ['hx_hist'] }
+        { name: '入試レベル:歴史の因果関係(日本史・世界史)', units: ['hx_hist'] },
+        { name: '難関レベル:歴史', units: ['hd_soc'] }
       ] },
       { id: 'soc_geo', short: '地理', name: '地理総合・地理探究', guide: {
         scope: ['地理総合(必履修):地図や GIS の活用/国際理解と国際協力(気候・地形・生活文化・防災)/持続可能な地域づくり(人口・都市・環境・資源エネルギー)', '地理探究:系統地理(気候・地形・産業・人口・宗教などのテーマ別)/地誌(アジア・ヨーロッパ・アメリカなど地域別)'],
@@ -145,7 +151,8 @@ WPS.CURRICULUM = [
         { name: '場合の数と確率', units: ['m_h3', 'm_prob', 'ma_cond'] },
         { name: '図形の性質', units: ['ma_geo', 'ma_ceva'] },
         { name: '数学と人間の活動(整数の性質など)', units: ['m_int'] },
-        { name: '入試レベル:数Ⅰ・Aの総合', units: ['mx_h1'] }
+        { name: '入試レベル:数Ⅰ・Aの総合', units: ['mx_h1'] },
+        { name: '難関レベル:数Ⅰ・A', units: ['hd_m1'] }
       ] },
       { id: 'math_2', short: '数Ⅱ', name: '数学Ⅱ', areas: [
         { name: '式と証明', units: ['m2_proof'] },
@@ -159,12 +166,14 @@ WPS.CURRICULUM = [
         { name: '数列(漸化式と数学的帰納法を含む)', units: ['m_h8', 'm_sigma', 'mb_rec'] },
         { name: '統計的な推測', units: ['mb_stat'] },
         { name: '数学と社会生活', units: ['mb_soc'] },
-        { name: '入試レベル:数Ⅱ・Bの総合', units: ['mx_h2'] }
+        { name: '入試レベル:数Ⅱ・Bの総合', units: ['mx_h2'] },
+        { name: '難関レベル:数Ⅱ・B', units: ['hd_m2'] }
       ] },
       { id: 'math_c', short: '数C', name: '数学C', areas: [
         { name: 'ベクトル', units: ['m_h9', 'mc_vec'] },
         { name: '平面上の曲線と複素数平面', units: ['mc_curve', 'mc_cplane'] },
-        { name: '数学的な表現の工夫', units: ['mc_matrix'] }
+        { name: '数学的な表現の工夫', units: ['mc_matrix'] },
+        { name: '難関レベル:数Ⅲ・C', units: ['hd_m3'] }
       ] },
       { id: 'math_3', short: '数Ⅲ', name: '数学Ⅲ', areas: [
         { name: '関数と極限', units: ['m3_lim'], topics: ['分数関数・無理関数', '数列の極限・無限等比級数', '関数の極限'] },
@@ -187,7 +196,8 @@ WPS.CURRICULUM = [
         { name: '化学:物質のすがた・水溶液', units: ['s_sol'], topics: ['状態変化', '水溶液と溶解度'] },
         { name: '化学:化学変化と原子・分子', units: ['s_m2'], topics: ['酸化と還元'] },
         { name: '化学:イオン・酸とアルカリ', units: ['s_ion'] },
-        { name: '入試レベル:中学理科の総合', units: ['sx_jh'] }
+        { name: '入試レベル:中学理科の総合', units: ['sx_jh'] },
+        { name: '標準レベル:中学理科の計算', units: ['sx_jh2'] }
       ] },
       { id: 'sci_jh2', short: '中学理科2', name: '中学 理科(生物・地学分野)', stage: 'jh', areas: [
         { name: '生物:植物・動物のからだ', units: ['s_m3'], topics: ['生物の観察', '消化・呼吸・血液循環', '動物の分類'] },
@@ -203,7 +213,8 @@ WPS.CURRICULUM = [
         { name: '物質の構成', units: ['s_struct', 's_h1'] },
         { name: '化学反応', units: ['s_acid'], topics: ['酸化還元'] },
         { name: '化学と人間生活', units: ['s_life'], topics: ['身のまわりの物質と化学'] },
-        { name: '入試レベル:物理基礎・化学基礎の総合', units: ['sx_h'] }
+        { name: '入試レベル:物理基礎・化学基礎の総合', units: ['sx_h'] },
+        { name: '難関レベル:理科', units: ['hd_sci'] }
       ] },
       { id: 'sci_bio', short: '生基', name: '生物基礎', areas: [
         { name: '生物の特徴・遺伝情報・体内環境', units: ['s_h3'] },
@@ -227,7 +238,8 @@ WPS.CURRICULUM = [
         { name: '中1の文法', units: ['e_m1', 'e_pres', 'e_prog', 'e_can', 'e_wh', 'e_m2'] },
         { name: '中2の文法', units: ['e_pprog', 'e_fut', 'e_m3', 'e_m4', 'e_ger', 'e_m5', 'e_m6', 'e_conj'] },
         { name: '中3の文法', units: ['e_m7', 'e_pperfprog', 'e_partm', 'e_m8', 'e_indq'] },
-        { name: '中学英単語', units: ['e_vocab_m'] }
+        { name: '中学英単語', units: ['e_vocab_m'] },
+        { name: '難関レベル:中学英語の並べかえ', units: ['ex_jh3'] }
       ] },
       { id: 'eng_lr', short: '論理・表現', name: '高校英語:論理・表現Ⅰ〜Ⅲ(英文法)', areas: [
         { name: '高1:文型・品詞', units: ['e_h1'], topics: ['5文型・SVOC', '自動詞と他動詞'] },
@@ -239,7 +251,8 @@ WPS.CURRICULUM = [
         { name: '高2:比較', units: ['e_comp'] },
         { name: '高3:仮定法', units: ['e_h2'], topics: ['if を使わない仮定法'] },
         { name: '高3:強調・倒置・省略・挿入・話法', units: ['e_emph'], topics: ['強調構文', '倒置', '話法の転換'] },
-        { name: '入試レベル:英文法・語法の総合', units: ['ex_eng'] }
+        { name: '入試レベル:英文法・語法の総合', units: ['ex_eng'] },
+        { name: '難関レベル:英語', units: ['hd_eng'] }
       ] },
       { id: 'eng_ec', short: '英語コミュニケーション', name: '高校英語:英語コミュニケーションⅠ〜Ⅲ(単語・熟語・読解)', areas: [
         { name: '単語', units: ['e_h5'] },
@@ -271,7 +284,8 @@ WPS.CURRICULUM = [
         { name: '情報のデジタル化', units: ['i_h1'] },
         { name: 'ネットワーク・情報社会', units: ['i_net'] },
         { name: 'アルゴリズム・プログラミング', units: ['i_h2'] },
-        { name: '入試レベル:情報Ⅰの総合', units: ['ix_info'] }
+        { name: '入試レベル:情報Ⅰの総合', units: ['ix_info'] },
+        { name: '難関レベル:情報', units: ['hd_info'] }
       ] }
     ]
   },
