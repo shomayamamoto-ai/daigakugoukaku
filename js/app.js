@@ -127,14 +127,14 @@
     var p = S.get().profile;
     if (!p.name && ['onboard', 'tutor', 'share', 'cloud', 'parent'].indexOf(route) < 0) { route = 'onboard'; }
     document.querySelectorAll('.nav a').forEach(function (a) {
-      a.classList.toggle('active', a.getAttribute('data-r') === route);
+      a.classList.toggle('active', a.getAttribute('data-r') === route || (route === 'vocab' && a.getAttribute('data-r') === 'cards'));
     });
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab
     }[route] || renderHome;
-    var band = (route === 'cards' && deck) || route === 'quiz' ? '' : pageBand(route);
+    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
     if (fn.after) fn.after(parts[1]);
     window.scrollTo(0, 0);
@@ -145,7 +145,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -1439,7 +1439,7 @@
     html += '<section class="card"><div class="stat-row"><div><b>' + sm.due + '</b><small>復習</small></div><div><b>' + sm.newToday + '</b><small>今日の新しいカード</small></div><div><b>' + sm.mastered + '</b><small>覚えた</small></div></div>' +
       '<button class="btn primary big" id="startDeck">🃏 今日のカードをはじめる</button>' +
       '<p class="hint">「覚えた」カードは 1日→3日→7日→14日→30日後…と、忘れかけた頃にまた出てくるよ(間隔反復)。</p></section>';
-    html += '<section class="card"><a class="btn big" href="#words">📖 単語・用語の一覧を見る(全単語・全熟語・年表など)</a></section>';
+    html += '<section class="card vt-entry"><a class="vt-entry-a" href="#vocab"><b>単語トレーニング</b><small>4択テスト・赤シート・苦手選別・聞き流し・学習記録</small></a><a class="btn big" href="#words">単語・用語の一覧を見る(全単語・全熟語・年表など)</a></section>';
     html += cardUnitList(units, stats);
     return html;
   }
@@ -2094,7 +2094,7 @@
         return '<button type="button" class="seg-btn' + (x.i === wordState.list ? ' on' : '') + '" data-wlist="' + x.i + '">' + h(x.L[1]) + '<small> ' + (WPS.BANK[x.L[2]] || []).length + '</small></button>';
       }).join('') + '</div></div>' +
       '<label class="grow">検索<input id="wq" value="' + h(q) + '" placeholder="単語・意味で検索"></label>' +
-      '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button></div>' +
+      '<div class="btns word-acts"><button class="btn primary" id="wTest">✏️ この一覧で単語テスト(10問)</button><button class="btn" id="wDeck">🃏 単語帳で覚える</button><a class="btn" href="#vocab" id="wVt">単語トレーニング(赤シート・聞き流しなど)</a></div>' +
       '<div class="print-opts"><b class="small">印刷して使う</b><label class="small">印刷する範囲<select id="wRange">' + (function () {
         var n = shown.length, o = '';
         for (var a = 0; a < n; a += 100) o += '<option value="' + a + '">' + (a + 1) + '〜' + Math.min(n, a + 100) + '番</option>';
@@ -2142,8 +2142,17 @@
       });
     });
     document.getElementById('wTest').addEventListener('click', function () { startQuiz(ids(10), 'study', L[1] + 'のテスト'); });
+    document.getElementById('wVt').addEventListener('click', function () { VT.setList(wordState.list); });
     document.getElementById('wDeck').addEventListener('click', function () { startDeck(ids(20), L[1]); });
   };
+
+  /* ========== 単語トレーニング(js/vocab.js) ========== */
+  var VT = WPS.makeVocab({
+    h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems,
+    okList: function (L) { var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, S.get().profile.grade, A.allStats()); }
+  });
+  function renderVocab() { return VT.render(); }
+  renderVocab.after = function () { VT.after(); };
 
   /* ========== 教科別の勉強法・季節ごとのミッション ========== */
   function guideSteps(steps) {

@@ -617,6 +617,7 @@ WPS.Streak = (function () {
       var day = s.days[d];
       if (Object.keys(day.checks || {}).some(function (k) { return day.checks[k]; })) set[d] = 'study';
     });
+    Object.keys((s.vt && s.vt.min) || {}).forEach(function (d) { if (s.vt.min[d] >= 30) set[d] = 'study'; });
     (s.frozen || []).forEach(function (d) { if (!set[d]) set[d] = 'frozen'; });
     return set;
   }
