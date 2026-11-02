@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは「大学受験 基礎」Part 1〜5 を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは「大学受験 基礎」Part 1〜6 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -1523,6 +1523,308 @@ thing|物、事
 color|色
 colored|色つきの|派
 word|単語、言葉、約束、知らせ
+`;
+WPS.VBOOK_DATA.base[6] = `
+month|月、1か月
+week|週
+computer|コンピューター
+festival|祭り
+message|伝言、メッセージ
+most|大部分の、最も
+mostly|主に、たいてい|派
+same|同じ
+great|すばらしい、大きな
+greatly|大いに、非常に|派
+open|開いている、開ける、開く
+answer|答える、答え
+invite|招待する、(災難・批判を)招く
+wash|洗う
+cry|泣く、叫ぶ
+push|押す
+climb|登る
+smile|ほほえむ、ほほえみ
+side|側、側面
+front|前、正面
+concert|コンサート
+village|村
+lesson|授業、教訓
+weather|天気
+voice|声、(意見を)述べる
+fan|ファン、扇風機
+dream|夢、夢を見る
+meter|メートル、計器
+land|土地、陸、着陸する
+hundred|100(の)
+thousand|1000(の)
+evening|夕方、晩
+noon|正午
+forest|森林
+hole|穴
+cloud|雲
+phone|電話
+sorry|すまなく思って、気の毒に思って
+glad|うれしい
+cute|かわいい
+foreign|外国の
+foreigner|外国人|派
+soon|すぐに
+away|離れて
+together|一緒に
+ago|～前に
+straight|まっすぐに、まっすぐな
+slowly|ゆっくりと
+around|～のまわりに、～のあちこちを、およそ
+over|～を超えて、～の上に、終わって
+without|～なしに
+between|(2つ)の間に
+during|～の間に(ずっと)
+behind|～の後ろに
+along|～に沿って
+come from|～の出身である、～から来ている
+come true|実現する
+cut off|切り取る、(供給を)止める
+do one's best|全力を尽くす
+get off|(乗り物から)降りる
+get on|(乗り物に)乗る
+get to|～に到着する
+go through|一通り調べる、目を通す、経験する
+grow up|成長する
+hear of|～のことを耳にする
+help oneself to|～を自由にとって食べる
+look for|探す
+look forward to|～を楽しみに待つ
+look like|～に似ている、～しそうだ
+pick up|拾い上げる、(車で)迎えに行く
+speak to / speak with|～と話す
+take care of|～の世話をする
+take off|脱ぐ、離陸する
+take part in|～に参加する
+think of|～を思いつく、～のことを考える
+after school|放課後に
+all over|～の至る所に
+all the time|いつも
+at first|最初は
+at home|在宅して、くつろいで
+at last|ついに
+at that time|その時に
+at the same time|同時に
+for a long time|長い間
+for the first time|初めて
+in the end|結局
+in the future|将来
+in this way|このようにして
+more than|～より多い
+of course|もちろん
+on one's way to|～へ行く途中で
+over there|あそこに
+these days|近ごろ
+a kind of|一種の
+a lot of / lots of|たくさんの
+A such as B|BのようなA
+and so on|～など
+here is [are]|ここに～がある、これが～です
+How about ~ ?|～はいかがですか
+no longer|もはや～ない
+not only A but (also) B|AだけでなくBも
+so ~ that|とても～なので…
+too ~ to|あまりに～なので…できない
+used to|以前はよく～した、以前は～だった
+would like to|～したいと思う
+cross|横切る、渡る
+partner|相手、仲間
+central|中心の
+regular|定期的な、通常の
+regularly|定期的に|派
+paint|塗る、(絵の具で)描く
+roll|転がる、巻く
+pressure|圧力、重圧
+bit|少し
+cycle|周期、循環
+recycle|再利用する、リサイクルする|派
+wet|濡れた
+quick|すばやい
+silent|無言の、静かな
+upper|上の方の
+dig|掘る
+wrap|包む
+knock|ノックする、たたく
+copy|写し、写しをとる
+kick|蹴る
+shut|閉める
+percent|パーセント
+sample|見本
+shadow|影
+hunger|飢え、空腹
+second|秒、2番目の
+midnight|夜の12時、真夜中
+nowadays|近ごろ
+toward|～の方へ
+beside|～のそばに
+against|～に反対して、～にもたれて
+plus|～を加えて
+across|～を横切って
+bring back|返す、思い出させる
+carry out|実行する
+date back to|～にさかのぼる
+find out|わかる、知る
+get together|集まる
+give off|(においなどを)発する
+hand in|提出する
+hang up|電話を切る
+hold up|支えている、遅らせる
+live on|～で生計を立てる、～を常食とする
+look after|～の世話をする
+look out|注意する
+look up|(辞書などで)調べる
+major in|～を専攻する
+name after|～にちなんで名付ける
+put down|書き留める
+see off|見送る
+take a look|ちょっと見る
+take away|片付ける、取り去る
+take one's time|ゆっくりやる、時間をかける
+think of A as B|AをBと見なす
+be about to|まさに～しようとしている
+be born into|～の家庭に生まれる
+be faced with|～に直面している
+be good at|～が上手だ
+be in need of|～を必要としている
+be made of [from]|～でできている
+be short of|～が足りない
+be up to|～次第である
+be worried about|～のことを心配している
+by oneself|ひとりで
+on one's own|自分ひとりで
+above all|とりわけ
+across from|～の向かい側に
+after all|結局は
+at a time|一度に
+by accident|偶然
+by mistake|間違って
+day after day|来る日も来る日も
+for free|無料で
+from on|～以降
+from time to time|時々
+in a hurry|急いで
+in favor of|～に賛成して
+in order to|～するために
+in the past|昔は
+in those days|その当時は
+on purpose|故意に、わざと
+over and over|何度も
+upside down|逆さまに
+a large number of|たくさんの
+a series of|一連の
+as long as|～である限り、～しさえすれば
+as soon as|～するとすぐに
+had better|～したほうがよい
+more and more|ますます多くの
+not at all|まったく～ない
+not A but B|AではなくてB
+the first time|初めて～したとき
+when it comes to|～のこととなると
+parent|親
+cousin|いとこ
+interview|面接、インタビュー
+artist|芸術家
+actor|俳優
+nurse|看護師
+nursing|看護|派
+chairperson|議長
+leader|指導者、リーダー
+queen|女王
+prince|王子
+hall|会館、ホール
+library|図書館
+gym|体育館
+museum|博物館、美術館
+theater|劇場
+stadium|競技場
+shrine|神社
+tower|塔
+exit|出口
+corner|曲がり角、すみ
+market|市場
+ride|乗る
+railroad|鉄道
+subway|地下鉄
+automobile|自動車
+airport|空港
+stair|(stairsで)階段
+upstairs|上の階に
+floor|床、階
+roof|屋根
+closet|クローゼット、押し入れ
+shower|シャワー、にわか雨
+housework|家事
+glass|グラス、ガラス、(glassesで)眼鏡
+brush|ブラシ
+comb|くし
+blanket|毛布
+style|様式、スタイル
+button|ボタン
+ring|指輪、鳴る、鳴らす
+jewel|宝石
+wallet|財布
+umbrella|傘
+cotton|綿
+feather|羽
+supper|夕食
+snack|軽食
+chopstick|箸(ふつうはchopsticks)
+delicious|とてもおいしい
+steam|蒸気、蒸す
+bake|(オーブンで)焼く
+meat|肉
+salt|塩
+menu|献立、メニュー
+comic|漫画、喜劇の
+portrait|肖像画
+tour|旅行、ツアー
+tourism|観光(業)|派
+tourist|旅行者|派
+sightseeing|観光
+camp|キャンプ
+professional|プロの、専門職の
+coach|コーチ
+train|訓練する、列車、(a train of thoughtで)思考の流れ
+indoor|屋内の
+flag|旗
+thunder|雷
+sunlight|日光
+sunshine|日差し
+island|島
+shore|岸
+sand|砂
+rock|岩
+wild|野生の
+bush|茂み
+grass|草
+leaf|葉
+person|人
+personal|個人の|派
+personality|性格、個性|派
+people|人々、民族
+teenager|10代の若者
+junior|年少の、年少者
+hospital|病院
+headache|頭痛
+pat|軽くたたく
+cheek|頬
+lip|唇
+tooth|歯
+shoulder|肩、(責任を)担う
+elbow|肘
+finger|指
+nail|爪、くぎ
+toe|つま先、足の指
+bone|骨
+anger|怒り
+joy|喜び
+frank|率直な
+frankly|率直に|派
+e-mail|Eメール
+joke|冗談
 `;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
