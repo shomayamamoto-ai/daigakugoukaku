@@ -1484,3 +1484,11 @@ body { background: var(--bg); letter-spacing: .04em; }
 .st-d i.tab-ok { --c: #22a04b; } .st-d i.tab-weak { --c: #f59e0b; }
 .st-d.future i { opacity: .45; }
 .st-d.empty i, .st-d.empty small { display: none; }
+/* 英単語帳の本棚・派生語 */
+.vb-shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.vb-book { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; min-height: 92px; text-align: left; border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; min-width: 0; }
+.vb-book b { font-size: 1.05rem; overflow-wrap: anywhere; }
+.vb-book small { color: var(--muted); font-size: .76rem; }
+.vb-book.on { border-color: var(--primary); } .vb-book.on b { color: var(--primary); }
+.vb-book.off { background: var(--line); opacity: .7; cursor: default; }
+.vt-der { font-style: normal; font-size: .66rem; font-weight: 800; background: var(--line); color: var(--muted); border-radius: 4px; padding: 1px 5px; margin-right: 4px; white-space: nowrap; }

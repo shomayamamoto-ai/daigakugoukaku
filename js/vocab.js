@@ -65,7 +65,21 @@ WPS.makeVocab = function (ctx) {
   function isEn(L) { return L[4] === 'en'; }
   function items(L) {
     var raw = L[0] === 'my' ? (setOf(L) || { items: [] }).items : ctx.wordItems(L);
-    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, i: i, key: L[2] + '|' + x.t }; });
+    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, d: x.d, part: x.part, i: i, key: L[2] + '|' + x.t }; });
+  }
+  // セクション:本の単語帳はPartごと、それ以外は50語ずつ
+  function secsOf(all) {
+    var out = [];
+    if (all.length && all[0].part) {
+      all.forEach(function (x, i) { var last = out[out.length - 1]; if (!last || last.part !== x.part) out.push({ part: x.part, from: i, to: i + 1 }); else last.to = i + 1; });
+      var bk = (WPS.VBOOKS || []).filter(function (b) { return b.parts; })[0];
+      out.forEach(function (o) { var info = bk && bk.parts[o.part - 1]; o.label = 'Part ' + o.part + (info && info[2] ? '(' + info[2] + ')' : ''); });
+      return out;
+    }
+    for (var k = 0; k * SEC < all.length; k++) out.push({ from: k * SEC, to: Math.min(all.length, k * SEC + SEC), label: 'Section ' + (k + 1) });
+    return out;
+  }
+  function derTag(x) { return x.d ? '<em class="vt-der">派生</em>' : '';
   }
   // しおり(my単語帳に入れる印)
   function bmap() { var v = vt(); return v.bm || (v.bm = {}); }
@@ -199,7 +213,7 @@ WPS.makeVocab = function (ctx) {
   function pool(L, all) {
     var w = vt().w, src = st.src;
     if (src === 'all') return all;
-    if (/^s\d+$/.test(src)) { var k = +src.slice(1); return all.slice(k * SEC, k * SEC + SEC); }
+    if (/^s\d+$/.test(src)) { var sc = secsOf(all)[+src.slice(1)]; return sc ? all.slice(sc.from, sc.to) : all; }
     if (/^r\d+-\d+$/.test(src)) { var ab = src.slice(1).split('-'); return all.slice(+ab[0] - 1, +ab[1]); }
     if (src === 'bm') return all.filter(isBm);
     return all.filter(function (x) { return statusOf(w[x.key]) === src; });
@@ -212,7 +226,7 @@ WPS.makeVocab = function (ctx) {
   }
   function srcLabel(src, n) {
     if (src === 'all') return 'すべて';
-    if (/^s\d+$/.test(src)) { var k = +src.slice(1); return 'Section ' + (k + 1) + '(' + (k * SEC + 1) + '〜' + Math.min(n, k * SEC + SEC) + '番)'; }
+    if (/^s\d+$/.test(src)) { var sc = secsOf(items(curList()))[+src.slice(1)]; return sc ? sc.label + '(' + (sc.from + 1) + '〜' + sc.to + '番)' : 'すべて'; }
     if (/^r\d+-\d+$/.test(src)) { var ab = src.slice(1).split('-'); return 'No.' + ab[0] + '〜' + Math.min(n, +ab[1]); }
     if (src === 'bm') return 'しおり';
     return STATUS[src];
@@ -260,6 +274,16 @@ WPS.makeVocab = function (ctx) {
       '<p class="hint">学習時間は、問題を解いた時刻・単語トレーニング・集中タイマーから計算した目安です。' + (exam ? '旗のついた日が受験日です。' : '') + '</p></section>';
   }
 
+  // 英単語帳の本棚(入力済みのPartまで使える。ほかは準備中)
+  function shelf(L) {
+    if (!WPS.VBOOKS || L[0] !== 'eng') return '';
+    return '<section class="card"><h2>英単語帳</h2><div class="vb-shelf">' + WPS.VBOOKS.map(function (b) {
+      var id = b.bank && b.done ? lists().filter(function (o) { return o.L[2] === b.bank; })[0] : null, on = id && L[2] === b.bank;
+      var sub = id ? (on ? '使用中・' : '') + b.done.toLocaleString() + ' / ' + b.total.toLocaleString() + '語 入力済み' : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
+      return '<button type="button" class="vb-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + '><b>' + h(b.name) + '</b><small>' + sub + '</small></button>';
+    }).join('') + '</div></section>';
+  }
+
   /* ========== トップ画面 ========== */
   function renderTop() {
     var L = curList(), all = items(L), w = vt().w, c = vt().cfg;
@@ -276,6 +300,7 @@ WPS.makeVocab = function (ctx) {
       (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
       '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p></section>';
     html += recordCard() + WPS.Quest.card(h);
+    html += shelf(L);
     html += '<section class="card"><h2>覚える単語帳</h2>' +
       '<div class="filter-row"><span class="f-label">教科</span><div class="seg">' + subs.map(function (k) { return '<button type="button" class="seg-btn' + (k === st.subj ? ' on' : '') + '" data-vsubj="' + k + '">' + subjName(k) + '</button>'; }).join('') + '</div></div>' +
       '<div class="filter-row"><span class="f-label">種類</span><div class="seg">' + ls.filter(function (x) { return x.L[0] === st.subj; }).map(function (x) {
@@ -286,16 +311,16 @@ WPS.makeVocab = function (ctx) {
       '<p class="vt-legend"><span class="ok">覚えた ' + pc('ok') + '%</span><span class="fade">忘れかけ ' + cnt.fade + '語</span><span class="weak">苦手 ' + cnt.weak + '語</span><span>未学習 ' + cnt.new + '語</span></p></div>' + diagLast(L) +
       '<button type="button" class="btn small vt-mysets" data-vmode="sets">my単語帳を作る・編集する</button></section>';
     // 出題範囲
-    var secs = Math.ceil(n / SEC);
+    var SS = secsOf(all), secs = SS.length, isBook = !!(all[0] && all[0].part);
     html += '<section class="card"><h2>出題範囲 <small class="muted">' + h(srcLabel(st.src, n)) + '</small></h2><div class="seg">' +
       [['all', 'すべて ' + n], ['bm', 'しおり ' + all.filter(isBm).length], ['weak', '苦手 ' + cnt.weak], ['fade', '忘れかけ ' + cnt.fade], ['new', '未学習 ' + cnt.new], ['ok', '覚えた ' + cnt.ok]].map(function (o) {
         return '<button type="button" class="seg-btn' + (st.src === o[0] ? ' on' : '') + '" data-vsrc="' + o[0] + '">' + o[1] + '</button>';
       }).join('') + '</div>' +
       '<div class="vt-range"><span>番号で指定</span><label>No.<input type="number" id="vrA" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[0] : 1) + '" inputmode="numeric"></label><span>〜</span><label>No.<input type="number" id="vrB" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[1] : Math.min(n, 50)) + '" inputmode="numeric"></label><button type="button" class="btn small" id="vrGo">この範囲にする</button></div>' +
-      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)</summary><div class="vt-sec-list">';
+      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + (isBook ? 'Partから選ぶ(全' + secs + 'Part)' : SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)') + '</summary><div class="vt-sec-list">';
     for (var k = 0; k < secs; k++) {
-      var part = all.slice(k * SEC, k * SEC + SEC), okn = part.filter(function (x) { return statusOf(w[x.key]) === 'ok'; }).length;
-      html += '<button type="button" class="vt-sec' + (st.src === 's' + k ? ' on' : '') + '" data-vsrc="s' + k + '"><b>Section ' + (k + 1) + '</b><small>' + h(part[0].t) + ' 〜</small><span class="vt-sec-bar"><i style="width:' + Math.round(okn / part.length * 100) + '%"></i></span><em>' + okn + '/' + part.length + '</em></button>';
+      var part = all.slice(SS[k].from, SS[k].to), dn = part.filter(function (x) { return x.d; }).length, okn = part.filter(function (x) { return statusOf(w[x.key]) === 'ok'; }).length;
+      html += '<button type="button" class="vt-sec' + (st.src === 's' + k ? ' on' : '') + '" data-vsrc="s' + k + '"><b>' + h(SS[k].label) + '</b><small>' + (isBook ? '見出し' + (part.length - dn) + '・派生' + dn : h(part[0].t) + ' 〜') + '</small><span class="vt-sec-bar"><i style="width:' + Math.round(okn / part.length * 100) + '%"></i></span><em>' + okn + '/' + part.length + '</em></button>';
     }
     html += '</div></details></section>';
     // 学び方
@@ -507,7 +532,7 @@ WPS.makeVocab = function (ctx) {
     var rows = sh.items.map(function (x, i) {
       var on = sh.open[i], mk = !!(w[x.key] && w[x.key].f);
       return '<li class="vs-row' + (on ? ' open' : '') + (mk ? ' marked' : '') + '"><button type="button" class="vs-mark" data-vmark="' + i + '" aria-pressed="' + mk + '" aria-label="覚えていない語にマーカー">' + (mk ? '苦手' : '印') + '</button>' +
-        '<button type="button" class="vs-cell" data-vopen="' + i + '"><span class="vs-t' + (hideM ? '' : ' cover') + '">' + h(x.t) + '</span><span class="vs-m' + (hideM ? ' cover' : '') + '">' + h(x.m) + '</span></button></li>';
+        '<button type="button" class="vs-cell" data-vopen="' + i + '"><span class="vs-t' + (hideM ? '' : ' cover') + '">' + h(x.t) + '</span><span class="vs-m' + (hideM ? ' cover' : '') + '">' + derTag(x) + h(x.m) + '</span></button></li>';
     }).join('');
     var opened = sh.open.filter(Boolean).length;
     return '<div class="vt-qhead"><button type="button" class="vt-link" id="vsBack">戻る</button><b>赤シート<small> ' + opened + ' / ' + sh.items.length + '</small></b><button type="button" class="vt-link" id="vsUndo"' + (sh.hist.length ? '' : ' disabled') + '>1つ戻す</button></div>' +
@@ -673,7 +698,7 @@ WPS.makeVocab = function (ctx) {
       (st.filt !== 'all' && shown.length ? '<button type="button" class="btn primary" id="vwQuiz">この' + shown.length + '語で4択テスト</button>' : '') + '</section>';
     html += '<section class="card"><ul class="vw-list' + (st.hideW ? ' hidem' : '') + '">' + shown.slice(0, st.limit).map(function (x) {
       var r = w[x.key], s = statusOf(r), m = memOf(r);
-      return '<li>' + spBtn(x.i) + '<div class="vw-body"><b>' + h(x.t) + '</b><span><em class="vt-pos-tag">' + (x.p || posOf(L, x)) + '</em><i class="vw-m">' + h(x.m) + '</i></span>' + (r && r.mm ? '<small class="vw-mm">まちがえた意味:' + h(r.mm.join('、')) + '</small>' : '') + '</div>' +
+      return '<li>' + spBtn(x.i) + '<div class="vw-body"><b>' + h(x.t) + '</b><span>' + derTag(x) + '<em class="vt-pos-tag">' + (x.p || posOf(L, x)) + '</em><i class="vw-m">' + h(x.m) + '</i></span>' + (r && r.mm ? '<small class="vw-mm">まちがえた意味:' + h(r.mm.join('、')) + '</small>' : '') + '</div>' +
         '<div class="vw-st"><em class="st-' + s + '">' + STATUS[s] + '</em>' + (m === null ? '' : '<small>記憶度 ' + m + '%</small>') + '</div>' + bmBtn(x.i, isBm(x)) + '</li>';
     }).join('') + '</ul>' + (shown.length > st.limit ? '<button type="button" class="btn big" id="vwMore">続きを表示(あと' + (shown.length - st.limit) + '語)</button>' : '') +
       (shown.length ? '' : '<p class="muted">この条件の単語はありません。</p>') +

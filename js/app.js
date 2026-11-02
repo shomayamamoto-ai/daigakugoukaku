@@ -2094,7 +2094,7 @@
   /* ========== 単語・用語の一覧(教科別) ========== */
   // [教科, 一覧の名前, データ名, 単元ID, 種類]
   var WORD_LISTS = [
-    ['eng', '英単語(中学)', 'en_m', 'e_vocab_m', 'en'], ['eng', '英単語(高校・共通テスト)', 'en_h', 'e_h5', 'en'], ['eng', '英熟語', 'en_idiom', 'e_idiom', 'en'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
+    ['eng', '大学受験 基礎', 'en_h', 'e_h5', 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
     ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
     ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kogo', 'j_kogo'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
     ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
@@ -2105,6 +2105,11 @@
     ['soc', '公民(政治)', 'seiji', 'c_m3'], ['soc', '公民(経済)', 'keizai', 'c_econ'], ['soc', '公共・政治経済', 'kokyo', 'c_h3'],
     ['info', '情報社会・ネットワーク', 'joho', 'i_net']
   ];
+  // 旧データの中学英単語は、新しい中学英単語帳が入るまで中学生にだけ表示する
+  function wordListOk(L, gr, stt) {
+    if (L[5] === 'jhOnly' && !WPS.isJHStudent(gr)) return false;
+    var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, gr, stt);
+  }
   function wordItems(L) {
     var B = WPS.BANK[L[2]] || [], kind = L[4];
     return B.map(function (x) {
@@ -2114,13 +2119,13 @@
       if (kind === 'kuho') return { t: x.f, m: x.m, h: '読み:' + x.r + '(' + x.k + ')' };
       if (kind === 'kanword') return { t: x.t, m: x.m, h: '読み:' + x.r };
       if (kind === 'year') { var y = +x.t; return { t: (y < 0 ? '紀元前' + (-y) : y) + '年', m: x.m, h: x.h + (L[2] === 'jhistory' ? '時代' : '') }; }
-      return { t: x.t, m: x.m, h: x.h };
+      return { t: x.t, m: x.m, h: x.h, d: x.d, part: x.part };
     });
   }
   var wordState = { subj: 'eng', list: 0, q: '' };
   function renderWords() {
     var gr = S.get().profile.grade, stt = A.allStats();
-    var okList = function (L) { var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, gr, stt); };
+    var okList = function (L) { return wordListOk(L, gr, stt); };
     var subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return WORD_LISTS.some(function (x) { return x[0] === k && okList(x); }); });
     if (subs.indexOf(wordState.subj) < 0) wordState.subj = subs[0];
     var lists = WORD_LISTS.map(function (L, i) { return { L: L, i: i }; }).filter(function (x) { return x.L[0] === wordState.subj && okList(x.L); });
@@ -2190,7 +2195,7 @@
   /* ========== 単語トレーニング(js/vocab.js) ========== */
   var VT = WPS.makeVocab({
     h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems,
-    okList: function (L) { var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, S.get().profile.grade, A.allStats()); }
+    okList: function (L) { return wordListOk(L, S.get().profile.grade, A.allStats()); }
   });
   function renderVocab() { return VT.render(); }
   renderVocab.after = function () { VT.after(); };
