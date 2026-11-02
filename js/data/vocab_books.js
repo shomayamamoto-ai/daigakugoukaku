@@ -11,9 +11,10 @@ WPS.VBOOKS = [
   { id: 'jh', name: '中学英単語', total: 1657 },
   { id: 'plus', name: '大学受験 中級', total: 1631 },
   { id: 'idiom', name: '英熟語', total: 1376 },
-  { id: 'sokei', name: '早慶上理', note: '学部ごと' }
+  { id: 'sokei', name: '早慶上理', note: '学部ごと', bank: 'en_sokei', named: 1,
+    parts: [[106, 0, '早稲田 政治経済']] }
 ];
-WPS.VBOOK_DATA = { base: {} };
+WPS.VBOOK_DATA = { base: {}, sokei: {} };
 WPS.VBOOK_DATA.base[1] = `
 blame|～を責める、～のせいにする
 claim|主張する、要求する、主張、(命を)奪う
@@ -2878,6 +2879,115 @@ wholeheartedly|心から
 wire|針金、電線
 workshop|研修会、作業場
 `;
+// 早慶上理:学部ごと。1 = 早稲田 政治経済
+WPS.VBOOK_DATA.sokei[1] = `
+innovator|革新者、新しいものを生み出す人
+bishop|司教、主教
+capitalist|資本主義の、資本家
+grassroot|草の根の、一般民衆の(ふつうはgrassroots)
+neuroscience|神経科学
+practitioner|実践者、開業医
+reproductive|生殖の、繁殖の
+abound|たくさんある、満ちている
+administrative|行政の、管理の
+administrator|管理者、行政官
+affiliation|所属、提携
+airborne|空気で運ばれる、空中の
+amphibian|両生類
+antidote|解毒剤、(問題の)解決策
+appraisal|評価、査定
+approximation|近似(値)、概算
+aristocrat|貴族
+biodiversity|生物多様性
+bloc|(国家・政党などの)連合、陣営
+byproduct|副産物
+chant|唱える、(繰り返し)叫ぶ
+coercive|強制的な、威圧的な
+colonist|入植者、植民地開拓者
+compassionate|思いやりのある、情け深い
+concur|同意する、一致する
+counterintuitive|直感に反する
+credible|信頼できる、信用できる
+cubic|立方の、3乗の
+culinary|料理の
+democrat|民主主義者
+demographer|人口統計学者
+differentiate|区別する
+diversify|多様化する
+dual|二重の
+expenditure|支出、経費
+fishery|漁業、漁場
+foremost|第一の、最も重要な
+genesis|起源、発生
+geothermal|地熱の
+goodwill|善意、好意
+groundbreaking|画期的な
+hub|拠点、中心
+instability|不安定
+legislative|立法の
+linguist|言語学者
+longstanding|長年の
+mechanization|機械化
+mercury|水銀
+misconception|誤解、思い違い
+moratorium|一時停止、(支払いの)猶予
+obsolescence|時代遅れになること、陳腐化
+optimum|最適の、最適条件
+parameter|変数、(判断の)要素・範囲
+propaganda|(政治的な)宣伝
+republican|共和制の、共和主義者
+resonance|共鳴、反響
+ruthless|無慈悲な、冷酷な
+safeguard|守る、保護する、安全策
+secular|世俗的な、宗教と関係のない
+segregation|(人種などの)分離、隔離
+shareholder|株主
+shelve|棚上げにする、(計画を)延期する
+socioeconomic|社会経済的な
+synchronize|同期させる、同時に起こる
+telegraph|電信
+totalitarian|全体主義の
+turbine|タービン
+tusk|(ゾウなどの)牙
+undeniably|否定できないほど、明らかに
+utilitarian|功利主義の、実用本位の
+vibrant|活気のある、鮮やかな
+vintage|年代物の、(ワインの)醸造年
+whereby|それによって～する
+wrongdoing|不正行為、悪事
+skeptical|懐疑的な、疑い深い
+vulnerable|傷つきやすい、弱い
+incorporate|取り入れる、組み込む
+comprise|～から成る、構成する
+consensus|合意、一致した意見
+aesthetic|美的な、美学の
+criteria|基準(criterionの複数形)
+underlie|～の根底にある
+paradox|逆説、矛盾
+subsequent|その後の、続いて起こる
+legislation|法律、立法
+nonetheless|それにもかかわらず
+disrupt|混乱させる、かき乱す
+controversy|論争
+sanitation|公衆衛生、下水設備
+counterproductive|逆効果の
+regime|政権、体制
+bureaucracy|官僚制度、官僚主義
+ideology|イデオロギー、思想
+adverse|不利な、有害な
+peril|危険、危機
+deem|～だと考える、見なす
+onset|始まり、(病気の)発症
+replicate|複製する、再現する
+plausible|もっともらしい
+constrain|制約する、強いる
+affiliate|提携させる、加入する、関連会社
+coalition|連立、連合
+facilitate|促進する、容易にする
+counterfeit|偽造の、偽物
+exponential|指数関数的な、急激な
+humanitarian|人道的な、人道主義者
+`;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
   WPS.VBOOKS.forEach(function (b) {
@@ -2888,12 +2998,13 @@ workshop|研修会、作業場
       data[n].split('\n').forEach(function (line) {
         var c = line.split('|');
         if (c.length < 2 || !c[0].trim()) return;
-        var it = { t: c[0].trim(), m: c[1].trim(), part: n };
+        var it = { t: c[0].trim(), m: c[1].trim(), part: n, bk: b.id };
         if (c[2] === '派') it.d = 1;
         out.push(it);
       });
     });
     b.done = out.length;
+    b.doneMain = out.filter(function (x) { return !x.d; }).length;
     WPS.BANK[b.bank] = out;
   });
 })();

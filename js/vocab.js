@@ -65,15 +65,15 @@ WPS.makeVocab = function (ctx) {
   function isEn(L) { return L[4] === 'en'; }
   function items(L) {
     var raw = L[0] === 'my' ? (setOf(L) || { items: [] }).items : ctx.wordItems(L);
-    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, d: x.d, part: x.part, i: i, key: L[2] + '|' + x.t }; });
+    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, d: x.d, part: x.part, bk: x.bk, i: i, key: L[2] + '|' + x.t }; });
   }
   // セクション:本の単語帳はPartごと、それ以外は50語ずつ
   function secsOf(all) {
     var out = [];
     if (all.length && all[0].part) {
       all.forEach(function (x, i) { var last = out[out.length - 1]; if (!last || last.part !== x.part) out.push({ part: x.part, from: i, to: i + 1 }); else last.to = i + 1; });
-      var bk = (WPS.VBOOKS || []).filter(function (b) { return b.parts; })[0];
-      out.forEach(function (o) { var info = bk && bk.parts[o.part - 1]; o.label = 'Part ' + o.part + (info && info[2] ? '(' + info[2] + ')' : ''); });
+      var bk = (WPS.VBOOKS || []).filter(function (b) { return b.id === all[0].bk; })[0];
+      out.forEach(function (o) { var info = bk && bk.parts[o.part - 1]; o.label = bk && bk.named && info ? info[2] : 'Part ' + o.part + (info && info[2] ? '(' + info[2] + ')' : ''); });
       return out;
     }
     for (var k = 0; k * SEC < all.length; k++) out.push({ from: k * SEC, to: Math.min(all.length, k * SEC + SEC), label: 'Section ' + (k + 1) });
@@ -279,7 +279,7 @@ WPS.makeVocab = function (ctx) {
     if (!WPS.VBOOKS || L[0] !== 'eng') return '';
     return '<section class="card"><h2>英単語帳</h2><div class="vb-shelf">' + WPS.VBOOKS.map(function (b) {
       var id = b.bank && b.done ? lists().filter(function (o) { return o.L[2] === b.bank; })[0] : null, on = id && L[2] === b.bank;
-      var sub = id ? (on ? '使用中・' : '') + b.done.toLocaleString() + ' / ' + b.total.toLocaleString() + '語 入力済み' : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
+      var sub = id ? (on ? '使用中・' : '') + (b.total ? '見出し ' + b.doneMain.toLocaleString() + ' / ' + b.total.toLocaleString() + '語' + (b.done > b.doneMain ? '(派生 ' + (b.done - b.doneMain).toLocaleString() + ')' : '') : b.parts.length + '学部・' + b.done.toLocaleString() + '語') : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
       return '<button type="button" class="vb-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + '><b>' + h(b.name) + '</b><small>' + sub + '</small></button>';
     }).join('') + '</div></section>';
   }
@@ -317,7 +317,7 @@ WPS.makeVocab = function (ctx) {
         return '<button type="button" class="seg-btn' + (st.src === o[0] ? ' on' : '') + '" data-vsrc="' + o[0] + '">' + o[1] + '</button>';
       }).join('') + '</div>' +
       '<div class="vt-range"><span>番号で指定</span><label>No.<input type="number" id="vrA" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[0] : 1) + '" inputmode="numeric"></label><span>〜</span><label>No.<input type="number" id="vrB" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[1] : Math.min(n, 50)) + '" inputmode="numeric"></label><button type="button" class="btn small" id="vrGo">この範囲にする</button></div>' +
-      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + (isBook ? 'Partから選ぶ(全' + secs + 'Part)' : SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)') + '</summary><div class="vt-sec-list">';
+      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + (isBook ? (all[0].bk === 'sokei' ? '学部から選ぶ(全' + secs + '学部)' : 'Partから選ぶ(全' + secs + 'Part)') : SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)') + '</summary><div class="vt-sec-list">';
     for (var k = 0; k < secs; k++) {
       var part = all.slice(SS[k].from, SS[k].to), dn = part.filter(function (x) { return x.d; }).length, okn = part.filter(function (x) { return statusOf(w[x.key]) === 'ok'; }).length;
       html += '<button type="button" class="vt-sec' + (st.src === 's' + k ? ' on' : '') + '" data-vsrc="s' + k + '"><b>' + h(SS[k].label) + '</b><small>' + (isBook ? '見出し' + (part.length - dn) + '・派生' + dn : h(part[0].t) + ' 〜') + '</small><span class="vt-sec-bar"><i style="width:' + Math.round(okn / part.length * 100) + '%"></i></span><em>' + okn + '/' + part.length + '</em></button>';

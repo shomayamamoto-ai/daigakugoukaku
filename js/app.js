@@ -2094,7 +2094,7 @@
   /* ========== 単語・用語の一覧(教科別) ========== */
   // [教科, 一覧の名前, データ名, 単元ID, 種類]
   var WORD_LISTS = [
-    ['eng', '大学受験 基礎', 'en_h', 'e_h5', 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
+    ['eng', '大学受験 基礎', 'en_h', 'e_h5', 'en'], ['eng', '早慶上理', 'en_sokei', null, 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
     ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
     ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kogo', 'j_kogo'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
     ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
@@ -2119,7 +2119,7 @@
       if (kind === 'kuho') return { t: x.f, m: x.m, h: '読み:' + x.r + '(' + x.k + ')' };
       if (kind === 'kanword') return { t: x.t, m: x.m, h: '読み:' + x.r };
       if (kind === 'year') { var y = +x.t; return { t: (y < 0 ? '紀元前' + (-y) : y) + '年', m: x.m, h: x.h + (L[2] === 'jhistory' ? '時代' : '') }; }
-      return { t: x.t, m: x.m, h: x.h, d: x.d, part: x.part };
+      return { t: x.t, m: x.m, h: x.h, d: x.d, part: x.part, bk: x.bk };
     });
   }
   var wordState = { subj: 'eng', list: 0, q: '' };
