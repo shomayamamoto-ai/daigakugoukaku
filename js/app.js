@@ -588,6 +588,13 @@
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
     html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。タップすると分解するよ。</small></div></section>';
 
+    // 診断がまだの場合
+    if (!s.attempts.some(function (a) { return a.src === 'test'; })) {
+      html += '<section class="card cta">' + say('スタート地点を選ぼう！', 'cheer', 56) +
+        '<div class="sp-choices"><a class="sp-choice rec" href="#test"><span class="sp-badge">おすすめ</span><b>ぴったりのレベルを見つける</b><small>診断テスト(10分くらい)で苦手を見つけて、きみに合ったところから始めるよ。中学の内容までさかのぼって調べるから安心してね。</small></a>' +
+        '<button type="button" class="sp-choice" id="startBasic"><b>基礎からはじめる</b><small>いちばんやさしい「基礎」レベルの問題を10問。まずは手を動かしたい人向け。</small></button></div></section>';
+    }
+
     // 連続記録
     var wk = WPS.Streak.week();
     html += '<section class="card streak"><div class="streak-main"><div class="flame ' + (studied ? 'on' : '') + '">🔥</div>' +
@@ -595,6 +602,7 @@
       '<div class="week">' + wk.map(function (d) {
         return '<div class="day ' + (d.state || '') + (d.d === D.today() ? ' today' : '') + '"><span>' + d.label + '</span><i>' + (d.state === 'study' ? '✓' : d.state === 'frozen' ? '🧊' : '') + '</i></div>';
       }).join('') + '</div></section>';
+    html += WPS.Quest.card(h);
 
     if (s.attempts.length) html += dashboard(s, rm.stats);
     html += levelCard();
@@ -605,12 +613,6 @@
       '<div class="big-num">あと ' + Math.max(0, D.diff(D.today(), t.exam)) + '<small>日</small></div><div class="muted">' + h(t.exam) + '</div>' + milestoneLine(t) + '</div>' +
       (phase ? '<div class="phase-badge">' + phase.emoji + ' いまは<br><b>' + phase.name + '</b></div>' : '') + '</section>';
     html += goalCard(p);
-
-    // 診断がまだの場合
-    if (!s.attempts.some(function (a) { return a.src === 'test'; })) {
-      html += '<section class="card cta">' + say('まずは<b>診断テスト</b>で、きみの苦手を見つけよう！ 10分くらいで終わるよ。中学の内容からさかのぼって調べるから、安心してね。', 'cheer', 56) +
-        '<a class="btn primary big" href="#test">診断テストを受ける</a></section>';
-    }
 
     // 今日のやる事
     var doneN = tt.tasks.filter(function (x) { return x.done; }).length;
@@ -638,6 +640,8 @@
   }
   renderHome.after = function () {
     mountOwl('owlHome', true);
+    var sb = document.getElementById('startBasic');
+    if (sb) sb.addEventListener('click', function () { var ids = levelPick(1, null, 10); if (!ids.length) { toast('問題が見つかりませんでした'); return; } startQuiz(ids, 'study', '基礎レベル演習'); });
     var rw = document.getElementById('retryWrong');
     if (rw) rw.addEventListener('click', function () { startQuiz(wrongList().slice(0, 10), 'retry', '間違い直し'); });
     view.querySelectorAll('button[data-task]').forEach(function (b) {
@@ -810,7 +814,8 @@
   function startQuiz(qids, src, title) {
     quiz = {
       items: qids.map(function (id) { return { q: id, dig: false }; }), i: 0, src: src, title: title,
-      results: [], answered: false, order: null, asked: {}, digs: 0
+      results: [], answered: false, order: null, asked: {}, digs: 0,
+      t0: Date.now(), xp: 0, combo: 0, best: 0, first: !WPS.Streak.studiedToday()
     };
     qids.forEach(function (id) { quiz.asked[id] = true; });
     go('#quiz');
@@ -828,11 +833,12 @@
     var q = WPS.Q(it.q);
     var u = WPS.UNIT_MAP[q.unit];
     if (!quiz.order) quiz.order = shuffle(q.choices.map(function (_, i) { return i; }));
-    var html = '<div class="quiz-head"><span>' + h(quiz.title) + '</span><span>' + (quiz.i + 1) + ' / ' + quiz.items.length + '</span></div>' +
+    var html = '<div class="quiz-head"><span>' + h(quiz.title) + '</span><span class="combo' + (quiz.combo >= 2 ? ' on' : '') + '" id="qCombo">' + (quiz.combo >= 2 ? 'コンボ x' + quiz.combo : '') + '</span><span>' + (quiz.i + 1) + ' / ' + quiz.items.length + '</span></div>' +
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
     html += modeSwitch();
     html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span><span class="df df' + diffOf(q) + '">' + DIFF[diffOf(q)] + '</span></div>' +
+      (diffOf(q) === 3 ? '<p class="hard-tag">難しい問題</p>' : '') +
       '<p class="q-text">' + h(q.text) + '</p>' + (q.say && 'speechSynthesis' in window ? '<button class="btn small say-btn" id="qSay" type="button">🔊 英文を聞く</button>' : '') +
       (useWrite(q) ? writeBox('qWrite') : '<div class="choices">' +
       quiz.order.map(function (ci, k) {
@@ -871,6 +877,11 @@
     }
     quiz.results.push({ q: q.id, ok: ok, unsure: unsure, dig: it.dig });
     WPS.Streak.touch();
+    var xr = WPS.Quest.onAnswer(ok, { hard: diffOf(q) === 3 });
+    quiz.xp += xr.xp; quiz.combo = ok ? quiz.combo + 1 : 0; if (quiz.combo > quiz.best) quiz.best = quiz.combo;
+    var cbx = document.getElementById('qCombo');
+    if (cbx) { cbx.textContent = quiz.combo >= 2 ? 'コンボ x' + quiz.combo : ''; cbx.classList.toggle('on', quiz.combo >= 2); }
+    showMsgs(xr.msg);
     S.save();
 
     // 適応型:間違えたら前提単元にさかのぼって1問追加(最大6問まで)
@@ -903,6 +914,7 @@
     var line = ok ? pick(LINES.correct) : unsure ? LINES.unsure[0] : pick(LINES.wrong);
     var last = quiz.i + 1 >= quiz.items.length;
     document.getElementById('feedback').innerHTML = noEmoji(
+      (xr.xp ? '<p class="xp-gain">+' + xr.xp + ' XP' + (quiz.combo >= 2 ? '<small>コンボ x' + quiz.combo + '</small>' : '') + '</p>' : '') +
       explainBox(q, ok, chosen) +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
       '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>');
@@ -1012,12 +1024,39 @@
     return html + '</div>';
   }
 
+  function showMsgs(msgs) { (msgs || []).forEach(function (m, i) { setTimeout(function () { toast(m); }, 900 + i * 2400); }); }
+  // 今週(月〜日)の学習した日
+  function weekRow() {
+    var set = WPS.Streak.studiedDays(), t = D.today(), off = (D.parse(t).getDay() + 6) % 7, out = '';
+    for (var i = 0; i < 7; i++) {
+      var d = D.add(t, i - off), st = set[d];
+      out += '<div class="sw-d' + (st === 'study' ? ' on' : st === 'frozen' ? ' frz' : '') + (d === t ? ' today' : '') + '"><span>' + '月火水木金土日'[i] + '</span><i>' + (st === 'study' ? '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') + '</i></div>';
+    }
+    return '<div class="sw-row">' + out + '</div>';
+  }
+  WPS.weekRow = weekRow;
   function finishQuiz() {
+    var n0 = quiz.results.length, c0 = quiz.results.filter(function (x) { return x.ok; }).length;
+    quiz.sec = Math.round((Date.now() - (quiz.t0 || Date.now())) / 1000);
+    showMsgs(WPS.Quest.onSession(n0, c0)); S.save();
     lastResult = quiz;
     quiz = null;
     go('#result');
   }
 
+  // レッスン完了の成果(獲得XP・正解率・タイム)
+  function lessonTiles(xp, ratio, sec, best) {
+    sec = sec || 0;
+    return '<div class="lc-tiles"><div class="lc lc-xp"><span>獲得XP</span><b>' + xp + '</b></div><div class="lc lc-acc"><span>正解率</span><b>' + Math.round(ratio * 100) + '%</b></div><div class="lc lc-time"><span>タイム</span><b>' + Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2) + '</b></div></div>' +
+      (best >= 3 ? '<p class="lc-combo">最高コンボ <b>x' + best + '</b></p>' : '');
+  }
+  WPS.lessonTiles = lessonTiles;
+  function streakCelebrate() {
+    var n = WPS.Streak.count();
+    return '<section class="card sc-card"><p class="sc-msg">' + (n <= 1 ? '新しい連続記録がスタートしたね! 毎日少しずつ続けて、記録をのばそう。' : '今日の分もクリア! ' + n + '日続いているよ。この調子!') + '</p>' +
+      '<div class="sc-num">' + n + '</div><p class="sc-lbl">日連続記録</p>' + weekRow() + '</section>';
+  }
+  WPS.streakCelebrate = streakCelebrate;
   function renderResult() {
     var r = lastResult;
     if (!r) return renderTest();
@@ -1031,7 +1070,8 @@
       : ratio >= 0.5 ? 'いいね！ 半分以上できてるよ。間違えたところが、きみの「伸びしろ」だね。'
       : '大丈夫！ 苦手が見つかったのは大きな一歩。ここから一気に伸ばしていこう！';
     var html = '<section class="card center">' + pinpo(96, mood) + '<h1>' + h(r.title) + ' の結果</h1>' +
-      '<div class="big-num">' + c + '<small> / ' + n + ' 問正解</small></div><p>' + msg + '</p></section>';
+      '<div class="big-num">' + c + '<small> / ' + n + ' 問正解</small></div><p>' + msg + '</p>' + lessonTiles(r.xp || 0, ratio, r.sec, r.best) + '</section>';
+    if (r.first && WPS.Streak.studiedToday()) html = streakCelebrate() + html;
     var ids = Object.keys(wrongUnits);
     if (ids.length) {
       html += '<section class="card"><h2>見つかった苦手(つまずきポイント)</h2><div class="unit-list">';
@@ -1636,6 +1676,7 @@
   function gradeCard(g) {
     var qid = deck.items[deck.i];
     WPS.SRS.grade(qid, g);
+    showMsgs(WPS.Quest.onAnswer(g === 'good', { small: true }).msg);
     deck.done++;
     if (g === 'good') deck.good++;
     if (g === 'again' && !deck.again[qid]) { deck.again[qid] = true; deck.items.push(qid); } // もう一度出す
@@ -2211,7 +2252,7 @@
     if (s.lastLevel !== L.level) { s.lastLevel = L.level; S.save(); }
     if (up) setTimeout(function () { dialog('<div class="center">' + pinpo(96, 'cheer') + '<h2>🎉 レベルアップ！</h2><p class="lv-big">Lv.' + L.level + '</p><p>称号:<b>' + h(L.title) + '</b></p><p>ここまで続けてきたきみは、本当にすごいよ！</p></div>', [{ label: 'やったね！', cls: 'primary' }]); }, 300);
     return '<section class="card level"><div class="lv-row"><div class="lv-badge">Lv.' + L.level + '</div><div class="lv-main"><b>' + h(L.title) + '</b><div class="progress"><i style="width:' + L.pct + '%"></i></div><small class="muted">次のレベルまで ' + (L.to - L.xp) + ' XP' + (L.nextTitle ? ' ／ Lv.' + L.nextAt + 'で「' + h(L.nextTitle) + '」' : '') + '</small></div></div>' +
-      '<p class="hint">問題を解く・単語帳・やる事のチェック・連続記録で経験値(XP)がたまるよ。まちがえても、挑戦した分の XP が入るよ。</p></section>';
+      '<p class="hint">問題を解く・単語帳・単語トレーニング・やる事のチェック・連続記録で経験値(XP)がたまるよ。まちがえても、挑戦した分の XP が入るよ。難関レベルの正解と5問連続正解には、ボーナスがつくよ。</p></section>';
   }
 
   /* ========== 大学データ(偏差値・共通テスト得点率) ========== */

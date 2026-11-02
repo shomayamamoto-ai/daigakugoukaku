@@ -734,6 +734,7 @@ WPS.Level = (function () {
     Object.keys(s.days).forEach(function (d) { var c = s.days[d].checks || {}; Object.keys(c).forEach(function (k) { if (c[k]) x += 15; }); });
     x += (s.memos || []).length * 5;
     x += WPS.Streak.best() * 10;
+    x += (s.xp && s.xp.extra) || 0; // 単語トレーニング・コンボ・クエストのボーナス(js/quest.js)
     return x;
   }
   function need(L) { return 30 * L * (L + 1); } // レベルLになるのに必要な合計経験値(L≧1。レベル1は0から)

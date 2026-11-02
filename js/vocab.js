@@ -248,7 +248,7 @@ WPS.makeVocab = function (ctx) {
     var ls = lists(), subs = [];
     ls.forEach(function (x) { if (subs.indexOf(x.L[0]) < 0) subs.push(x.L[0]); });
     if (subs.indexOf(st.subj) < 0 || L[0] !== st.subj) st.subj = L[0];
-    var html = recordCard();
+    var html = recordCard() + WPS.Quest.card(h);
     html += '<section class="card"><h2>覚える単語帳</h2>' +
       '<div class="filter-row"><span class="f-label">教科</span><div class="seg">' + subs.map(function (k) { return '<button type="button" class="seg-btn' + (k === st.subj ? ' on' : '') + '" data-vsubj="' + k + '">' + subjName(k) + '</button>'; }).join('') + '</div></div>' +
       '<div class="filter-row"><span class="f-label">種類</span><div class="seg">' + ls.filter(function (x) { return x.L[0] === st.subj; }).map(function (x) {
@@ -313,7 +313,7 @@ WPS.makeVocab = function (ctx) {
     if (!list.length) { toast('この範囲には単語がありません'); return false; }
     if (all.length < 4) { toast('4択にするには4語以上が必要です'); return false; }
     var its = list.slice(0, diag ? 30 : +c.n);
-    qz = { L: L, all: all, items: its, base: its.length, again: {}, diag: !!diag, i: 0, res: [], t0: Date.now() };
+    qz = { L: L, all: all, items: its, base: its.length, again: {}, diag: !!diag, i: 0, res: [], t0: Date.now(), xp: 0, combo: 0, best: 0, first: !WPS.Streak.studiedToday() };
     prepQ();
     return true;
   }
@@ -331,7 +331,7 @@ WPS.makeVocab = function (ctx) {
     var prompt = e2j ? x.t : x.m, lab = function (y) { return e2j ? y.m : y.t; };
     var done = !!qz.ans, retry = qz.i >= qz.base;
     var cut = done ? idiomsWith(L, x) : [];
-    return '<div class="vt-qhead"><button type="button" class="vt-link" id="vqQuit">中断</button><b>' + (qz.diag ? '語彙力診断 ' : '') + (qz.i + 1) + '問目<small> / ' + qz.items.length + '</small></b><button type="button" class="vt-link" id="vqPass"' + (done ? ' disabled' : '') + '>パス</button></div>' +
+    return '<div class="vt-qhead"><button type="button" class="vt-link" id="vqQuit">中断</button><b>' + (qz.combo >= 2 ? '<span class="combo on">コンボ x' + qz.combo + '</span>' : '') + (qz.diag ? '語彙力診断 ' : '') + (qz.i + 1) + '問目<small> / ' + qz.items.length + '</small></b><button type="button" class="vt-link" id="vqPass"' + (done ? ' disabled' : '') + '>パス</button></div>' +
       '<div class="progress"><i style="width:' + Math.round(qz.i / qz.items.length * 100) + '%"></i></div>' +
       (+c.timer && !done ? '<div class="vt-timebar"><i id="vqTime" style="animation-duration:' + c.timer + 's"></i></div>' : '') +
       '<section class="card vt-qcard">' + (retry ? '<span class="vt-again">もう一度やってみましょう</span>' : '') + bmBtn('q', isBm(x)) + (isEn(L) || canSpeak ? spBtn('q', 'vt-say-q') : '') +
@@ -354,6 +354,9 @@ WPS.makeVocab = function (ctx) {
     qz.ans = { ok: ok, kind: ok ? 'ok' : kind, pick: pick };
     addTime((Date.now() - qz.start) / 1000 + 2);
     mark(x, ok);
+    var xr = WPS.Quest.onAnswer(ok, { vocab: true });
+    qz.xp += xr.xp; qz.combo = ok ? qz.combo + 1 : 0; if (qz.combo > qz.best) qz.best = qz.combo;
+    toasts(xr.msg);
     if (qz.i < qz.base) qz.res.push({ x: x, ok: ok, kind: kind });
     // 学習モード:間違えた単語は最後にもう一度出す(1回だけ)
     if (!ok && !qz.diag && +vt().cfg.retry && !qz.again[x.key]) { qz.again[x.key] = 1; qz.items.push(x); }
@@ -363,12 +366,15 @@ WPS.makeVocab = function (ctx) {
     ctx.render();
     if (ok) tmr = setTimeout(function () { if (qz && qz.ans && location.hash === '#vocab') next(); }, 1300);
   }
+  function toasts(ms) { (ms || []).forEach(function (m, i) { setTimeout(function () { toast(m); }, 900 + i * 2400); }); }
   function next() {
     clearT();
     if (!qz) return;
     qz.i++;
     if (qz.i >= qz.items.length) {
       st.mode = 'result';
+      qz.sec = Math.round((Date.now() - qz.t0) / 1000);
+      toasts(WPS.Quest.onSession(qz.res.length, qz.res.filter(function (y) { return y.ok; }).length)); save();
       if (qz.diag && !S.isView()) { var d = diagCalc(qz.res), v = vt(); v.diag = (v.diag || []).concat([{ d: D.today(), list: qz.L[2], p: Math.round(d.p * 1000) / 1000, est: round10(d.p * qz.all.length) }]).slice(-30); save(); }
     }
     else prepQ();
@@ -402,7 +408,9 @@ WPS.makeVocab = function (ctx) {
     var C = 2 * Math.PI * 70;
     if (qz.diag) return diagHTML(r, C);
     var html = '<section class="card vt-result"><h2>結果</h2><p class="muted small">' + h(qz.L[1]) + '・' + r.length + '問</p>' +
-      '<div class="vt-ring"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="bg"/><circle cx="80" cy="80" r="70" class="fg" style="stroke-dasharray:' + (C * p / 100).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg><div><small>正解率</small><b>' + p + '<small>%</small></b><span>' + okN + ' / ' + r.length + '問</span></div></div>';
+      '<div class="vt-ring"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="bg"/><circle cx="80" cy="80" r="70" class="fg" style="stroke-dasharray:' + (C * p / 100).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg><div><small>正解率</small><b>' + p + '<small>%</small></b><span>' + okN + ' / ' + r.length + '問</span></div></div>' +
+      (WPS.lessonTiles ? WPS.lessonTiles(qz.xp, okN / Math.max(1, r.length), qz.sec, qz.best) : '');
+    if (qz.first && WPS.streakCelebrate && WPS.Streak.studiedToday()) html = WPS.streakCelebrate() + html;
     if (isEn(qz.L) && (qz.L[2] === 'en_m' || qz.L[2] === 'en_h')) {
       var by = {}; POS.forEach(function (k) { by[k] = [0, 0]; });
       r.forEach(function (y) { var k = posOf(qz.L, y.x); by[k][1]++; if (y.ok) by[k][0]++; });
@@ -494,7 +502,7 @@ WPS.makeVocab = function (ctx) {
       b.addEventListener('click', function () {
         var i = +b.getAttribute('data-vopen');
         sh.open[i] = !sh.open[i];
-        if (sh.open[i]) { sh.hist.push(i); addTime(4); sayItem(sh.L, sh.items[i]); }
+        if (sh.open[i]) { sh.hist.push(i); addTime(4); sayItem(sh.L, sh.items[i]); toasts(WPS.Quest.bump('vocab', 1)); save(); }
         var li = b.parentNode; li.classList.toggle('open', !!sh.open[i]);
         var head = view.querySelector('.vt-qhead small'); if (head) head.textContent = ' ' + sh.open.filter(Boolean).length + ' / ' + sh.items.length;
         view.querySelector('#vsUndo').disabled = !sh.hist.length;
@@ -551,7 +559,7 @@ WPS.makeVocab = function (ctx) {
     function commit() {
       var six = so.list.slice(so.at, so.at + 6);
       six.forEach(function (x, i) { if (so.sel[i]) { flag(x, true); so.picked++; } else flag(x, false); });
-      so.seen += six.length; addTime(six.length * 3); save();
+      so.seen += six.length; addTime(six.length * 3); toasts(WPS.Quest.bump('vocab', six.length)); save();
       so.at += 6; so.round++; so.sel = {};
     }
     var nx = view.querySelector('#voNext'); if (nx) nx.addEventListener('click', function () { commit(); ctx.render(); });
@@ -750,9 +758,10 @@ WPS.makeVocab = function (ctx) {
         }).join('') + '</div></section>';
     }
     var sc = T[st.talk.i], role = st.talk.role, ja = st.talk.ja !== false;
+    if (st.talk.build) return st.talk.build.end ? buildEnd(sc) : buildHTML(sc);
     return '<div class="vt-qhead"><button type="button" class="vt-link" id="vkBack">一覧へ</button><b>' + h(sc.title) + '</b><span></span></div>' +
       '<section class="card"><p class="vk-scene">' + h(sc.en) + '</p>' +
-      '<div class="seg"><button type="button" class="seg-btn' + (!role ? ' on' : '') + '" data-vkrole="0">会話を見る</button><button type="button" class="seg-btn' + (role ? ' on' : '') + '" data-vkrole="1">ロールプレイ(あなたの番をかくす)</button><button type="button" class="seg-btn' + (ja ? ' on' : '') + '" id="vkJa">和訳</button></div>' +
+      '<div class="seg"><button type="button" class="seg-btn' + (!role && !st.talk.build ? ' on' : '') + '" data-vkrole="0">会話を見る</button><button type="button" class="seg-btn' + (st.talk.build ? ' on' : '') + '" data-vkrole="2">並べかえ練習</button><button type="button" class="seg-btn' + (role ? ' on' : '') + '" data-vkrole="1">ロールプレイ(あなたの番をかくす)</button><button type="button" class="seg-btn' + (ja ? ' on' : '') + '" id="vkJa">和訳</button></div>' +
       (canSpeak ? '<button type="button" class="btn primary vk-all" id="vkAll">会話をぜんぶ聞く</button>' : '') +
       '<ol class="vk-lines">' + sc.lines.map(function (ln, i) {
         var me = ln[0] === 'B', hid = role && me && !st.talk.open[i];
@@ -767,13 +776,14 @@ WPS.makeVocab = function (ctx) {
     if (!st.talk) return;
     var sc = T[st.talk.i];
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
-    view.querySelectorAll('[data-vkrole]').forEach(function (b) { b.addEventListener('click', function () { st.talk.role = b.getAttribute('data-vkrole') === '1'; st.talk.open = {}; if (st.talk.role) st.talk.ja = false; re(); }); });
+    view.querySelectorAll('[data-vkrole]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-vkrole'); stopSpeak(); talkGen++; st.talk.build = null; if (v === '2') st.talk.build = newBuild(sc, 0); st.talk.role = v === '1'; st.talk.open = {}; if (st.talk.role) st.talk.ja = false; re(); }); });
+    if (st.talk.build) return buildAfter(view, sc);
     view.querySelector('#vkJa').addEventListener('click', function () { st.talk.ja = !(st.talk.ja !== false); re(); });
     view.querySelectorAll('[data-vkl]').forEach(function (li) {
       li.addEventListener('click', function (e) {
         if (e.target.closest('[data-vsay]')) return;
         var i = +li.getAttribute('data-vkl');
-        if (li.classList.contains('hid')) { st.talk.open[i] = true; addTime(6); re(); if (canSpeak) { stopSpeak(); say1(sc.lines[i][1], 'en'); } }
+        if (li.classList.contains('hid')) { st.talk.open[i] = true; addTime(6); if (sc.lines.every(function (ln, j) { return ln[0] !== 'B' || st.talk.open[j]; })) talkDone(); re(); if (canSpeak) { stopSpeak(); say1(sc.lines[i][1], 'en'); } }
       });
     });
     view.querySelectorAll('[data-vsay^="k"]').forEach(function (b) { b.addEventListener('click', function () { stopSpeak(); say1(sc.lines[+b.getAttribute('data-vsay').slice(1)][1], 'en'); }); });
@@ -781,6 +791,7 @@ WPS.makeVocab = function (ctx) {
     if (all) all.addEventListener('click', function () {
       stopSpeak(); var g = ++talkGen, i = 0;
       (function step() {
+        if (g === talkGen && i >= sc.lines.length) talkDone();
         if (g !== talkGen || i >= sc.lines.length || location.hash !== '#vocab') return;
         var ln = sc.lines[i], el = view.querySelector('[data-vkl="' + i + '"]');
         view.querySelectorAll('.vk-line.now').forEach(function (x) { x.classList.remove('now'); }); if (el) el.classList.add('now');
@@ -790,7 +801,59 @@ WPS.makeVocab = function (ctx) {
       })();
     });
   }
-  var talkGen = 0;
+  var talkGen = 0, talkDoneMap = {};
+  function talkDone() { var k = D.today() + ':' + st.talk.i; if (talkDoneMap[k]) return; talkDoneMap[k] = 1; toasts(WPS.Quest.bump('talk', 1)); save(); }
+  // 並べかえ練習:和訳を見て、単語カードを正しい順に並べて英文を作る
+  function newBuild(sc, li) {
+    var ln = sc.lines[li], words = ln[1].split(' ');
+    var others = [];
+    sc.lines.forEach(function (o, j) { if (j !== li) o[1].split(' ').forEach(function (w) { if (words.indexOf(w) < 0 && others.indexOf(w) < 0) others.push(w); }); });
+    var extra = shuffle(others).slice(0, Math.min(3, Math.max(2, Math.round(words.length / 3))));
+    var tiles = shuffle(words.concat(extra).map(function (w, k) { return { w: w, k: k } }));
+    return { li: li, words: words, tiles: tiles, picked: [], res: null, okN: 0 };
+  }
+  function buildHTML(sc) {
+    var b = st.talk.build, ln = sc.lines[b.li], done = b.li >= sc.lines.length;
+    var head = '<div class="vt-qhead"><button type="button" class="vt-link" id="vkBack">一覧へ</button><b>' + h(sc.title) + '</b><span></span></div>' +
+      '<section class="card"><div class="seg"><button type="button" class="seg-btn" data-vkrole="0">会話を見る</button><button type="button" class="seg-btn on" data-vkrole="2">並べかえ練習</button><button type="button" class="seg-btn" data-vkrole="1">ロールプレイ(あなたの番をかくす)</button></div>';
+    var used = {}; b.picked.forEach(function (k) { used[k] = 1; });
+    return head + '<div class="progress"><i style="width:' + Math.round(b.li / sc.lines.length * 100) + '%"></i></div>' +
+      '<p class="vb-ask">この文を英語にしてください<small>' + (ln[0] === 'B' ? 'あなた' : h(sc.who || '相手')) + 'のセリフ ' + (b.li + 1) + ' / ' + sc.lines.length + '</small></p>' +
+      '<div class="vb-ja">' + h(ln[2]) + '</div>' +
+      '<div class="vb-ans' + (b.res ? (b.res.ok ? ' ok' : ' ng') : '') + '" aria-label="あなたの答え">' + (b.picked.length ? b.picked.map(function (k) { var t = b.tiles.filter(function (x) { return x.k === k; })[0]; return '<button type="button" class="vb-tile in" data-vbout="' + k + '"' + (b.res ? ' disabled' : '') + '>' + h(t.w) + '</button>'; }).join('') : '<span class="muted small">下の単語をタップして並べよう</span>') + '</div>' +
+      '<div class="vb-bank">' + b.tiles.map(function (t) { return '<button type="button" class="vb-tile' + (used[t.k] ? ' used' : '') + '" data-vbin="' + t.k + '"' + (used[t.k] || b.res ? ' disabled' : '') + '>' + h(t.w) + '</button>'; }).join('') + '</div>' +
+      (b.res ? '<div class="vb-res ' + (b.res.ok ? 'ok' : 'ng') + '"><b>' + (b.res.ok ? '○ 正解! よくできました' : '✕ おしい! 正しい文はこちら') + '</b><p class="vk-en">' + h(ln[1]) + '</p>' + (canSpeak ? '<button type="button" class="btn small" id="vbSay">英文を聞く</button>' : '') + '</div>' +
+        '<button type="button" class="btn primary big vt-next" id="vbNext">' + (b.li + 1 >= sc.lines.length ? '結果を見る' : '次へ') + '</button>'
+        : '<div class="vb-btns"><button type="button" class="btn" id="vbClear"' + (b.picked.length ? '' : ' disabled') + '>やり直す</button><button type="button" class="btn primary" id="vbCheck"' + (b.picked.length ? '' : ' disabled') + '>答え合わせ</button></div>') + '</section>';
+  }
+  function buildEnd(sc) {
+    var b = st.talk.build;
+    return '<div class="vt-qhead"><button type="button" class="vt-link" id="vkBack">一覧へ</button><b>' + h(sc.title) + '</b><span></span></div>' +
+      '<section class="card center"><h2>並べかえ練習 おわり</h2><p>' + sc.lines.length + '文のうち <b>' + b.okN + '文</b> 正解しました。</p><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-vkrole="2">もう一度</button><button type="button" class="btn" data-vkrole="0">会話を見る</button></div></section>';
+  }
+  function buildAfter(view, sc) {
+    var b = st.talk.build;
+    function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
+    view.querySelectorAll('[data-vbin]').forEach(function (x) { x.addEventListener('click', function () { b.picked.push(+x.getAttribute('data-vbin')); re(); }); });
+    view.querySelectorAll('[data-vbout]').forEach(function (x) { x.addEventListener('click', function () { var k = +x.getAttribute('data-vbout'); b.picked.splice(b.picked.indexOf(k), 1); re(); }); });
+    var cl = view.querySelector('#vbClear'); if (cl) cl.addEventListener('click', function () { b.picked = []; re(); });
+    var ck = view.querySelector('#vbCheck');
+    if (ck) ck.addEventListener('click', function () {
+      var ans = b.picked.map(function (k) { return b.tiles.filter(function (x) { return x.k === k; })[0].w; }).join(' ');
+      var ok = ans === b.words.join(' ');
+      b.res = { ok: ok }; if (ok) b.okN++;
+      judgeMark(ok ? 'ok' : 'ng'); addTime(10);
+      toasts(WPS.Quest.onAnswer(ok, { extra: true }).msg); save();
+      if (canSpeak) { stopSpeak(); say1(sc.lines[b.li][1], 'en'); }
+      re();
+    });
+    var sy = view.querySelector('#vbSay'); if (sy) sy.addEventListener('click', function () { stopSpeak(); say1(sc.lines[b.li][1], 'en'); });
+    var nx = view.querySelector('#vbNext');
+    if (nx) nx.addEventListener('click', function () {
+      if (b.li + 1 >= sc.lines.length) { talkDone(); b.li = sc.lines.length; b.end = true; ctx.render(); window.scrollTo(0, 0); return; }
+      var okN = b.okN; st.talk.build = newBuild(sc, b.li + 1); st.talk.build.okN = okN; ctx.render();
+    });
+  }
 
   /* ========== 画面の組み立て ========== */
   function render() {
