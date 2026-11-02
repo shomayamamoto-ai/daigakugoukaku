@@ -300,7 +300,8 @@ WPS.makeVocab = function (ctx) {
     html += '<section class="card vt-quick"><button type="button" class="vt-auto" data-vmode="auto"><b>自動出題</b><small>忘れかけ→苦手→新しい語の順に、いま復習すると効果が高い語を選んで出題</small></button>' +
       '<div class="vt-quick2"><button type="button" class="vt-weakc" data-vweak="1"><b>苦手な単語</b><span>' + cnt.weak + '<small>語</small></span></button>' +
       (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
-      '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p></section>';
+      '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p>' +
+      '<div class="vt-links"><a href="#cards">間隔反復の復習カード</a><a href="#words">単語・用語の一覧</a></div></section>';
     html += recordCard() + WPS.Quest.card(h);
     html += shelf(L);
     html += '<section class="card"><h2>覚える単語帳</h2>' +
