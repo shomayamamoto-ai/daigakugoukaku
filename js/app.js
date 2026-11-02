@@ -132,9 +132,9 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon
     }[route] || renderHome;
-    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) ? '' : pageBand(route);
+    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
     if (fn.after) fn.after(parts[1]);
     window.scrollTo(0, 0);
@@ -145,7 +145,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -630,7 +630,7 @@
 
     var wl = wrongList();
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
-    html += '<section class="quick"><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -716,6 +716,7 @@
     var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; });
     var html = say('テストといっても、成績をつけるためじゃないよ。<b>きみの「つまずきポイント」を見つけるため</b>のものだから、わからない問題は「わからない」ボタンを押してね。高校の問題で間違えたら、自動で中学の単元までさかのぼって原因を調べるよ。', 'think', 64);
     var chosen = t.profile.subjects || Object.keys(WPS.SUBJECTS);
+    html += '<section class="card vt-entry"><a class="vt-entry-a" href="#ronjutsu"><b>論述カットイン(日本史・世界史)</b><small>問いに答えて、模範解答のキーワードで自己採点。完成度70%で定着</small></a></section>';
     html += '<section class="card"><h2>📝 受験で使う教科をえらぶ</h2><p class="muted">大学・学部によって必要な教科は違うよ。使う教科だけをえらぶと、診断とロードマップがその教科だけになるよ。</p><div class="seg">' +
       Object.keys(WPS.SUBJECTS).map(function (k) { var on = chosen.indexOf(k) >= 0; return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-subj="' + k + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
     html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">えらんだ教科から、きみの学年に合った問題を出すよ。</p>' +
@@ -2198,6 +2199,9 @@
     okList: function (L) { return wordListOk(L, S.get().profile.grade, A.allStats()); }
   });
   function renderVocab() { return VT.render(); }
+  var RJ = WPS.makeRonjutsu({ h: h, toast: toast, shuffle: shuffle, render: render });
+  function renderRon() { return RJ.render(); }
+  renderRon.after = function () { RJ.after(); };
   renderVocab.after = function () { VT.after(); };
 
   /* ========== 教科別の勉強法・季節ごとのミッション ========== */
