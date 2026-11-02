@@ -625,7 +625,7 @@ WPS.makeVocab = function (ctx) {
       '<section class="card"><div class="vt-sum"><div class="vt-bar" aria-hidden="true"><i class="ok" style="width:' + Math.round(cnt.ok / Math.max(1, all.length) * 100) + '%"></i><i class="fade" style="width:' + Math.round(cnt.fade / Math.max(1, all.length) * 100) + '%"></i><i class="weak" style="width:' + Math.round(cnt.weak / Math.max(1, all.length) * 100) + '%"></i></div>' +
       '<p class="vt-legend"><span class="ok">覚えた ' + Math.round(cnt.ok / Math.max(1, all.length) * 100) + '%</span><span class="weak">苦手 ' + Math.round(cnt.weak / Math.max(1, all.length) * 100) + '%</span></p></div>' +
       '<div class="seg">' + [['all', 'すべて'], ['bm', 'しおり'], ['weak', '苦手'], ['fade', '忘れかけ'], ['ok', '覚えた'], ['new', '未学習']].map(function (o) {
-        return '<button type="button" class="seg-btn' + (st.filt === o[0] ? ' on' : '') + '" data-vfilt=""' + o[0] + '">' + o[1] + '<small> ' + cnt[o[0]] + '</small></button>';
+        return '<button type="button" class="seg-btn' + (st.filt === o[0] ? ' on' : '') + '" data-vfilt="' + o[0] + '">' + o[1] + '<small> ' + cnt[o[0]] + '</small></button>';
       }).join('') + '</div>' +
       '<div class="vw-tools"><input id="vwq" value="' + h(q) + '" placeholder="単語・意味で検索" aria-label="単語・意味で検索"><button type="button" class="btn small" id="vwHide">' + (st.hideW ? '意味を表示' : '意味をかくす') + '</button></div>' +
       (st.filt !== 'all' && shown.length ? '<button type="button" class="btn primary" id="vwQuiz">この' + shown.length + '語で4択テスト</button>' : '') + '</section>';
