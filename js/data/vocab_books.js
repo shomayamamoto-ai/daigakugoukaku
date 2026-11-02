@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは「大学受験 基礎」Part 1 だけ入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは「大学受験 基礎」Part 1〜2 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -315,6 +315,308 @@ detail|詳細
 advantage|利点、有利
 disadvantage|不利な点|派
 disadvantaged|恵まれない|派
+`;
+WPS.VBOOK_DATA.base[2] = `
+quality|質、品質、特性
+correct|正しい、訂正する
+correction|訂正、修正|派
+major|主要な、大きな、専攻する
+majority|大多数、過半数|派
+terrible|ひどい、恐ろしい
+similar|似ている、同様の
+similarly|同様に|派
+similarity|類似(点)|派
+reduce|減らす
+reduction|減少、削減|派
+pile|積み重ね、山、積み重ねる
+prepare|準備する
+preparation|準備|派
+opportunity|機会、好機
+ancient|古代の、昔からの
+rent|借りる、賃貸する、家賃
+rental|賃貸(の)、レンタル|派
+present|現在の、出席している、贈り物、提示する、贈る
+presence|存在、出席|派
+diet|食事、ダイエット、(日本の)国会
+site|場所、用地、(ウェブ)サイト
+instrument|器具、楽器
+tune|曲、調子、(楽器を)調律する
+pronounce|発音する
+sign|しるし、兆候、標識、署名する
+publish|出版する、公表する
+display|展示する、表示、展示
+trust|信頼する、信頼
+depend|(depend onで)～しだいである、頼る
+dependent|頼っている、依存している|派
+independent|独立した|派
+rely|(rely onで)頼る、当てにする
+reliability|信頼性|派
+pray|祈る
+prefer|～のほうを好む
+preference|好み|派
+hate|ひどく嫌う、憎む
+anxious|心配して、(anxious toで)しきりに～したがる
+bother|面倒をかける、悩ませる
+disturb|邪魔をする、乱す
+disturbance|妨害、騒ぎ|派
+favor|親切な行為、支持する、好意
+favorable|好意的な、有利な|派
+result|結果、(result inで)～という結果になる、(result fromで)～から生じる
+effect|影響、効果、結果、(変化を)もたらす
+effective|効果的な|派
+effectively|効果的に|派
+influence|影響、影響を与える
+purpose|目的
+complete|完全な、完成させる
+completely|完全に|派
+completion|完成、完了|派
+insist|(insist onで)主張する、言い張る
+insistent|しつこい、強く主張する|派
+insistence|主張、強要|派
+object|物体、目的、(object toで)反対する
+objective|客観的な、目標|派
+praise|ほめる、称賛
+reply|返事をする、返事
+whisper|ささやく、ささやき
+observe|観察する、(規則を)守る、(意見を)述べる
+observation|観察、(観察に基づく)意見|派
+observer|観察者|派
+experiment|実験、実験する
+experimental|実験の、実験的な|派
+overcome|克服する、打ち勝つ
+aim|ねらう、目指す、目的
+challenge|難題、挑戦、異議を唱える、挑む
+challenging|やりがいのある、難しいが面白い|派
+mental|精神の、心の
+mentally|精神的に|派
+recover|(recover fromで)回復する、取り戻す
+citizen|市民、国民
+citizenship|市民権|派
+impact|影響、衝撃
+religion|宗教
+benefit|利益、恩恵、(benefit fromで)恩恵を受ける、～のためになる
+official|公式の、役人
+volunteer|ボランティア、自ら進んで申し出る
+policy|政策、方針、保険証券
+charge|料金、責任、(料金を)請求する、(罪で)告発する、充電する
+occupation|職業、占領
+structure|構造、建造物
+structural|構造の|派
+architecture|建築(様式)
+surface|表面
+edge|端、ふち、優位
+connect|つなぐ、結びつける
+connection|つながり、関係|派
+crime|犯罪
+punish|罰する
+enemy|敵
+destination|目的地、行き先
+transportation|交通機関、輸送
+treat|扱う、治療する、(treat A to Bで)AにBをおごる
+refuse|断る、拒む
+refusal|拒否|派
+spread|広がる、広げる
+bend|曲げる、曲がる
+bow|おじぎ(をする)、弓
+strike|打つ、(考えが)思い浮かぶ、(災害が)襲う、ストライキ
+striking|目立つ、印象的な|派
+beat|打ち負かす、繰り返したたく、(心臓が)鼓動する
+participate|(participate inで)参加する
+participation|参加|派
+exist|存在する
+existence|存在|派
+require|必要とする、要求する
+requirement|必要条件|派
+required|必須の、必要な|派
+last|続く、最後の、この前の
+examine|調べる、検査する
+examination|試験、検査|派
+gain|得る、増す
+search|捜す、捜索
+recognize|認識する、それとわかる
+notice|気づく、通知、掲示
+noticeable|目立つ、顕著な|派
+aware|気づいている、知っている
+awareness|意識、認識|派
+unaware|気づいていない|派
+doubt|疑う、疑い
+doubtful|疑わしい|派
+remove|取り除く
+removable|取り外せる|派
+disaster|災害、大惨事
+environment|環境
+proper|適切な、ふさわしい
+improper|不適切な|派
+sort|種類、分類する
+positive|前向きな、確かな、陽性の
+pure|純粋な、混じりけのない
+negative|否定的な、陰性の
+rough|粗い、大まかな、(天候・海が)荒れた
+contrast|対比、対照
+calm|落ち着いた、静かな
+tend|～する傾向がある、世話をする
+tendency|傾向|派
+general|一般的な、全体の、将軍
+ordinary|普通の、平凡な
+dozen|ダース、12個
+match|合う、好敵手、試合
+reward|報酬、ほうび、報いる
+rewarding|やりがいのある|派
+flavor|風味、味
+bitter|苦い、つらい
+track|足跡、線路、追跡する
+locate|(位置を)突き止める、置く
+location|位置、場所|派
+surround|取り囲む
+surrounding|周囲の|派
+define|定義する
+definition|定義|派
+announce|発表する、知らせる
+envy|うらやむ、ねたみ
+envious|うらやましがる|派
+respect|尊敬する、尊敬、点
+respectful|敬意を表する、礼儀正しい|派
+respectively|それぞれ|派
+emotion|感情
+courage|勇気
+discourage|やる気をなくさせる、(discourage A from doingで)Aに～するのを思いとどまらせる|派
+method|方法
+medium|中くらいの、媒体、手段
+ray|光線
+pain|痛み、苦痛
+painful|痛い、つらい|派
+thumb|親指
+committee|委員会
+poverty|貧困
+origin|起源、生まれ
+original|元の、独創的な|派
+originally|もともと|派
+project|計画、事業、予測する、投影する
+element|要素、元素
+link|つながり、結びつける
+murder|殺人、殺す
+rob|(人から)奪う、強盗をする
+robber|強盗|派
+float|浮かぶ、漂う
+floating|浮かんでいる|派
+address|住所、演説、(問題に)取り組む、話しかける
+approach|近づく、取り組み方、接近
+warn|警告する
+warning|警告|派
+force|力、強いる
+appeal|(appeal toで)訴える・興味を引く、魅力、上訴
+react|(react toで)反応する
+reaction|反応|派
+reactive|反応しやすい|派
+principal|主要な、校長
+mobile|動かせる、移動式の、携帯電話
+unit|単位、一団
+era|時代
+remote|遠い、遠く離れた
+altogether|完全に、全部で
+somehow|何とかして、どういうわけか
+poison|毒、毒を入れる
+recipe|調理法、秘訣
+factor|要因、要素
+creature|生き物
+recent|最近の
+recently|最近|派
+lecture|講義、講演
+weapon|武器
+discuss|話し合う、議論する
+excuse|言い訳、許す
+explain|説明する
+explanation|説明|派
+technology|科学技術
+technological|科学技術の|派
+invent|発明する
+develop|発達する、開発する、(病気を)発症する
+development|発達、開発|派
+developer|開発者、(土地の)開発業者|派
+effort|努力
+create|創造する、生み出す
+creation|創造、創作|派
+save|救う、節約する、保存する
+saving|節約、(savingsで)貯金|派
+medicine|薬、医学
+breathe|呼吸する
+thirsty|のどが渇いた
+fever|熱
+tear|涙、引き裂く
+tradition|伝統
+traditional|伝統的な|派
+native|母国の、生まれつきの、その土地の
+local|地元の、地域の
+fashion|流行、方法、形作る
+fashionable|流行の|派
+fashioned|(old-fashionedで)時代遅れの|派
+public|公共の、一般の人々
+publicity|宣伝、世間の注目|派
+capital|首都、資本、大文字(の)
+cost|費用、(費用が)かかる
+company|会社、仲間、一緒にいること
+crowd|群衆、群がる
+passenger|乗客
+elderly|年配の
+probably|おそらく
+support|支える、支援する、支持する
+mistake|間違い、(mistake A for Bで)AをBと間違える
+check|調べる、阻止する、小切手
+hide|隠す、隠れる
+sew|縫う
+raise|上げる、育てる、(問題を)提起する、(資金を)集める
+serve|(料理を)出す、仕える、役に立つ、(serve asで)～の役目を果たす
+servant|使用人|派
+bear|耐える、(費用・責任を)負う、(子を)産む、クマ
+happen|起こる
+appear|現れる、～のように見える
+disappear|消える|派
+appearance|外見、出現|派
+remain|～のままである、残る
+belong|(belong toで)所属している、～のものである
+base|基礎、(base A on Bで)AをBに基づかせる
+basement|地下室|派
+accept|受け入れる
+acceptance|受け入れ、受諾|派
+mind|気にする、心、知性
+concentrate|(concentrate onで)集中する
+concentration|集中|派
+ground|地面、根拠
+view|眺め、見解、～とみなす
+seed|種
+senior|年上の、上級の
+graduate|(graduate fromで)卒業する、卒業生
+graduation|卒業|派
+review|復習、批評、見直す
+imagine|想像する
+guess|推測する、推測
+expect|期待する、予想する
+expecting|妊娠している|派
+insect|昆虫
+earthquake|地震
+temperature|温度、体温
+degree|(温度などの)度、程度、学位
+flood|洪水、あふれさせる
+polite|礼儀正しい、丁寧な
+lonely|孤独な、寂しい
+lazy|怠惰な
+ugly|醜い
+fault|欠点、責任、断層
+ideal|理想的な、理想
+matter|重要である、問題、事柄、物質
+false|誤った、偽の
+tight|きつい、ぴんと張った
+empty|空の
+direct|直接の、指揮する、(注意を)向ける
+direction|方向、指示|派
+director|監督、取締役|派
+familiar|よく知られた、(be familiar withで)～をよく知っている
+unfamiliar|よく知らない、不慣れな|派
+unfamiliarity|不慣れ|派
+add|加える
+count|数える、重要である、(count onで)当てにする
+countless|無数の|派
+rate|割合、速度、評価する
 `;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
