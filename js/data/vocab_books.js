@@ -15,6 +15,7 @@ WPS.VBOOKS = [
     parts: [[106, 0, '早稲田 政治経済']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {} };
+if (WPS.KOBUN_BOOK) { WPS.VBOOKS.push(WPS.KOBUN_BOOK); WPS.VBOOK_DATA.kobun = WPS.VBOOK_DATA_KOBUN; }
 WPS.VBOOK_DATA.base[1] = `
 blame|～を責める、～のせいにする
 claim|主張する、要求する、主張、(命を)奪う

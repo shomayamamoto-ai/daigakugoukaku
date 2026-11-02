@@ -2097,7 +2097,7 @@
   var WORD_LISTS = [
     ['eng', '大学受験 基礎', 'en_h', 'e_h5', 'en'], ['eng', '早慶上理', 'en_sokei', null, 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
     ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
-    ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kogo', 'j_kogo'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
+    ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kobun_bk', null, 'kobun'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
     ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
     ['sci', '電流と電気', 'denki', 's_m1'], ['sci', '力', 'chikara', 's_force'], ['sci', '光と音', 'hikari', 's_light'], ['sci', '化学変化', 'kagaku_m', 's_m2'], ['sci', '化学式', 'kagakushiki', 's_m2'], ['sci', 'イオン', 'ion', 's_ion'],
     ['sci', '元素記号', 'genso', 's_struct'], ['sci', '物質の構造', 'busshitsu', 's_struct'], ['sci', '酸と塩基', 'sanenki', 's_acid'], ['sci', '生物(中学)', 'seibutsu_m', 's_m3'], ['sci', '細胞・遺伝', 'saibo', 's_cell'],
