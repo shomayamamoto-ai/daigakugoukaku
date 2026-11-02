@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは「大学受験 基礎」Part 1〜6・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは「大学受験 基礎」Part 1〜7・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -1825,6 +1825,308 @@ frank|率直な
 frankly|率直に|派
 e-mail|Eメール
 joke|冗談
+`;
+WPS.VBOOK_DATA.base[7] = `
+newspaper|新聞
+title|題名、肩書き、権利
+poem|詩
+textbook|教科書
+dictionary|辞書
+college|大学
+quiz|小テスト
+homework|宿題
+battery|電池
+oil|石油、油
+coal|石炭
+metal|金属
+steel|鋼鉄
+astronaut|宇宙飛行士
+drug|薬、薬物
+come across|偶然出会う、偶然見つける
+come out|発売される、出てくる
+come up with|思いつく
+count on [upon]|頼る、当てにする
+cut down [back] on|減らす
+drop in [on]|ちょっと立ち寄る
+feel free to|自由に～する、遠慮なく～する
+get along (with)|仲よくやっていく
+get out of|～から逃れる、～から出る
+get over|～から回復する、乗り越える
+get through|切り抜ける、終える
+give way (to)|譲歩する、崩れる
+go along with|賛成する、従う
+head for|～へ向かう
+keep [bear] in mind|心に留めておく
+keep [stay] in touch (with)|連絡を取り続ける
+learn (how) to|～できるようになる
+look back (on)|振り返る
+look into|調査する、のぞき込む
+look over|目を通す
+look up to|尊敬する
+make a difference (to)|影響がある、違いを生む
+make [earn] a living|生計を立てる
+make up|構成する、でっち上げる、(make up forで)埋め合わせる
+pass away|亡くなる
+point out|指摘する
+put off|延期する、やる気をなくさせる
+put together|組み立てる、まとめる
+put up with|我慢する
+run after|追いかける
+run away (from)|逃げる
+run out of|使い果たす
+stand for|表す、意味する
+stand out|目立つ、ずば抜けている
+take A for B|AをBだと思う(間違える)
+take place|起こる、行われる
+take up|始める、(時間・場所を)占める
+work on|取り組む
+all at once|突然
+all the way|はるばる、ずっと
+along with|～と一緒に
+at least|少なくとも
+at (the) most|せいぜい、多くても
+by way of|～を通って、～経由で
+for some time|かなり長い間
+face to face (with)|面と向かって
+first of all|まず第一に
+in advance|あらかじめ
+in all|全部で
+in place of|～の代わりに
+in return (for)|お返しに
+in the long run|長い目で見れば
+in time (for)|間に合うように
+on sale|販売されて、特売中で
+on time|時間通りに
+one by one|1つずつ
+out of the question|論外で、不可能で
+side by side (with)|並んで
+become|～になる、似合う
+take|連れて行く、持って行く、(時間・労力を)要する、～と受け取る
+put|置く、言い表す
+bring|持ってくる、連れてくる
+send|送る
+make|作る、～にする、～させる
+know|知っている
+knowledge|知識|派
+hear|聞こえる、耳にする
+begin|始める、始まる
+cloth|布
+clothing|衣類|派
+iron|鉄、アイロン
+peace|平和、静けさ
+other|ほかの、別の、(the otherで)もう一方
+each|それぞれ(の)
+both|両方(の)
+either|どちらか(の)、(否定文で)～もまた
+neither|どちらも～ない
+anything|(疑問文・条件文で)何か、(肯定文で)何でも
+nothing|何も～ない
+everything|すべての物
+everyone|みんな
+someone|誰か
+anyone|(疑問文で)誰か、(肯定文で)誰でも
+nobody|誰も～ない
+asleep|眠って
+alive|生きている
+excited|興奮して、わくわくして
+strange|奇妙な、見知らぬ
+stranger|見知らぬ人、不案内な人|派
+few|(a fewで)少しの、ほとんどない
+little|(a littleで)少しの、ほとんどない、小さい
+well|健康で、上手に、十分に、井戸
+already|すでに、もう
+yet|(否定文で)まだ、(疑問文で)もう、それにもかかわらず
+ever|これまでに、いつか
+twice|2度、2倍
+only|～だけ、唯一の
+always|いつも
+sometimes|時々
+whatever|何が～しようとも、～するものは何でも
+whichever|どちらが～しようとも
+whenever|～するときはいつでも
+wherever|～する所ならどこでも
+believe in|～の存在を信じる、～を信頼する
+bring out|引き出す、出版する
+bring up|育てる、(話題を)持ち出す
+call for|必要とする、要求する
+call off|中止する
+decide on [upon]|決める
+feel like (-ing)|～したい気がする
+give up (-ing)|～することをやめる、あきらめる
+go on (-ing)|～し続ける
+have [be] nothing to do with|何も関係がない
+lie in [with]|～にある
+make oneself understood|自分の考えを伝える
+pass on|伝える、回す
+put away|片付ける
+put on|身につける
+take [have] a walk|散歩する
+take time (to do)|(～するのに)時間がかかる
+tell A from B|AとBを区別する
+throw away|捨てる
+try on|試着する
+turn A into B|AをBに変える
+turn off|(電気などを)消す
+turn on|(電気などを)つける
+turn out to be|～であることがわかる
+turn over|ひっくり返す
+be known for|～のことで有名だ
+be unable to|～することができない
+be used to (-ing)|～することに慣れている
+be willing to|～してもかまわない、進んで～する
+as ~ as ever|相変わらず～で
+as usual|いつものように
+as well|～もまた
+at a loss|途方に暮れて
+at present|現在
+at the age of|～歳で
+before long|間もなく
+for a while|しばらくの間
+for sure [certain]|確かに
+for the sake of|～のために
+in a [one] way|ある意味で
+in danger of|～の恐れがあって
+in (actual) fact|実際には
+in turn|順番に、今度は逆に、その結果として
+little by little|少しずつ
+no doubt|きっと、疑いなく
+one after another [the other]|次々と
+right away [off]|直ちに
+so far|これまでのところ
+the other day|先日
+to one's surprise|驚いたことに
+as [so] far as|～する限りは
+as many [much] as|～も多くの
+both A and B|AもBも
+either A or B|AかBのどちらか
+each other|お互い
+every other|1つおきの、～おきに
+something is wrong with|～はどこか調子が悪い
+What is ~ like?|～はどのようなものですか
+program|計画、番組、プログラム
+friendship|友情、交友関係
+dry|乾燥した、乾かす
+lock|鍵をかける、錠
+list|一覧表、リスト
+noise|騒音、物音
+circle|円、仲間
+proud|誇りに思って
+fortunately|幸運にも
+unfortunately|不運にも、残念ながら|派
+less|より少なく、より少ない
+because|なぜなら、～なので
+identify|特定する、(identify withで)共感する
+misidentify|誤認する|派
+identification|特定、身分証明書|派
+manufacture|製造する、製造
+manufacturer|製造業者|派
+occupy|占める、占領する
+advise|忠告する
+advice|助言、忠告|派
+expose|さらす、暴露する
+cure|治療する、治療法
+region|地域
+shift|変化、移す、移る、交替勤務
+embarrass|恥ずかしい思いをさせる
+approve|承認する、(approve ofで)賛成する
+approval|承認|派
+impress|感銘を与える
+impressive|印象的な|派
+impression|印象|派
+concern|関係する、心配させる、懸念、関心事
+concerned|関心を持っている、心配している、関係のある|派
+concerning|～に関して|派
+disappoint|失望させる
+employ|雇う、用いる
+employment|雇用|派
+unemployment|失業|派
+encounter|偶然出会う、遭遇
+puzzle|戸惑わせる、難問
+combine|結びつける、組み合わせる
+combination|組み合わせ|派
+determine|決める、決心させる
+determination|決心、決定|派
+individual|個人、個々の
+vary|さまざまである、異なる
+various|さまざまな|派
+variety|種類、多様性|派
+variable|変数、変わりやすい|派
+variation|変化、変動|派
+varied|さまざまな、変化に富んだ|派
+medical|医療の
+particular|特定の、(be particular aboutで)～にうるさい
+particularly|特に|派
+range|範囲、(range from A to Bで)AからBに及ぶ
+specific|特定の、具体的な
+due|(due toで)～が原因で、予定されている、支払期限の来た
+characteristic|特徴、特有の
+despite|～にもかかわらず
+potential|潜在的な、可能性、潜在能力
+account|(account forで)占める・説明する、口座、説明
+accounting|経理、会計|派
+stretch|伸ばす、広がる
+stretcher|担架|派
+congratulate|祝う
+store|保存する、蓄える、店
+cell|細胞、独房
+decade|10年
+communicate|伝える、意思を通じ合う
+communication|伝達、コミュニケーション|派
+arrange|手配する、並べる
+arrangement|手配、配置|派
+property|財産、(物質の)特性、不動産
+efficient|効率的な
+efficiency|能率、効率|派
+delight|喜ばせる、喜び
+delightful|楽しい、愉快な|派
+access|利用(する権利)、接近、アクセスする
+accessible|利用しやすい、近づきやすい|派
+industry|産業、勤勉
+industrial|産業の|派
+economy|経済、節約
+economic|経済の、経済学上の|派
+economical|経済的な、節約になる|派
+economist|経済学者|派
+aspect|側面
+spill|こぼす
+accord|一致、協定、与える
+according|(according toで)～によれば|派
+interest|関心、利益、利子、興味を持たせる
+interested|興味を持って|派
+interesting|おもしろい|派
+complex|複雑な、複合体、コンプレックス
+complexity|複雑さ|派
+significant|重要な、かなりの
+significance|重要性|派
+essential|不可欠な
+perceive|認識する、気づく
+perception|認識、知覚|派
+weigh|～の重さがある、重さを測る、比較検討する
+weight|重さ、体重|派
+face|直面する、～に面する、顔
+decorate|装飾する
+decoration|飾り|派
+decorative|装飾の|派
+mass|大量、大衆、質量
+massive|大量の、巨大な|派
+eventually|最終的に、結局
+revolution|革命、回転
+previous|前の
+deny|否定する、与えない
+superior|より優れている、上司
+electric|電気の、電動の
+electricity|電気|派
+electrical|電気の|派
+succeed|(succeed inで)成功する、(家業などを)継ぐ
+successful|成功した|派
+success|成功|派
+successor|後継者|派
+successfully|うまく|派
+succession|連続、継承|派
+fundamental|根本的な
+fundamentalism|原理主義|派
+conduct|行う、(熱・電気を)伝える、指揮する、行動
+moral|道徳的な、教訓
 `;
 WPS.VBOOK_DATA.base[14] = `
 adjective|形容詞
