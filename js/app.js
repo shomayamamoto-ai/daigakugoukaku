@@ -572,6 +572,7 @@
     var s = S.get(), p = s.profile;
     var rm = R.build();
     var tt = R.todayTasks(rm);
+    vocabTasks(rm).forEach(function (x) { tt.tasks.push(x); });
     var streak = WPS.Streak.count();
     var studied = WPS.Streak.studiedToday();
     var left = Math.ceil(WPS.Streak.hoursLeft());
@@ -639,6 +640,7 @@
 
     var wl = wrongList();
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
+    html += weekSummary();
     html += whyCard();
     html += '<section class="quick"><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
@@ -1446,7 +1448,9 @@
       if (!units.length) return;
       var days = Math.max(units.length, D.diff(today, until) + 1), per = days / units.length, items = [];
       units.forEach(function (u, i) { var s0 = D.add(today, Math.round(i * per)), e0 = D.add(today, Math.max(Math.round((i + 1) * per) - 1, Math.round(i * per))); items.push({ s: s0, e: e0, label: u.label, done: u.done, href: href }); });
-      out.push({ name: name, color: color, items: items, perDay: Math.ceil(units.reduce(function (a, u) { return a + (u.done ? 0 : u.n); }, 0) / Math.max(1, D.diff(today, until) + 1)), until: until, rest: units.filter(function (u) { return !u.done; }).length, total: units.length });
+      var remain = units.reduce(function (a, u) { return a + (u.done ? 0 : u.n); }, 0), raw = Math.ceil(remain / Math.max(1, D.diff(today, until) + 1)), cap = name === '一問一答' ? 0 : +((t.profile.vocabCap === undefined ? 30 : t.profile.vocabCap));
+      var per = cap && raw > cap ? cap : raw;
+      out.push({ name: name, color: color, items: items, perDay: per, raw: raw, capped: per < raw, finish: per ? D.add(today, Math.ceil(remain / per)) : today, remain: remain, until: until, rest: units.filter(function (u) { return !u.done; }).length, total: units.length });
     }
     function bookUnits(bookId) {
       var b = (WPS.VBOOKS || []).filter(function (x) { return x.id === bookId; })[0]; if (!b || !b.bank || !WPS.BANK[b.bank]) return [];
@@ -1463,12 +1467,42 @@
     }
     return out;
   }
+  // 今日のやる事に「単語・暗記のノルマ」を加える(単語トレーニングで学習した語数で自動チェック)
+  function vocabTasks(rm) {
+    if (!S.get().attempts.length) return [];
+    var w = (S.get().vt || {}).w || {}, t0 = D.parse(D.today()).getTime(), out = [];
+    function todayCount(bank) { var n = 0; Object.keys(w).forEach(function (k) { if (k.indexOf(bank + '|') === 0 && w[k].l >= t0) n++; }); return n; }
+    vocabPlan(rm).forEach(function (v) {
+      if (v.name === '一問一答' || !v.perDay) return;
+      var dd = { u: todayCount(v.name === '英単語' ? 'en_h' : 'kobun_bk') };
+      var cur = v.items.filter(function (it) { return !it.done; })[0]; if (!cur) return;
+      out.push({ key: 'vp-' + v.name, kind: 'auto', icon: '', title: v.name + ' ' + v.perDay + '語', sub: cur.label + 'を単語トレーニングで(4択・赤シート・スワイプなど)', progress: Math.min(dd.u, v.perDay) + '/' + v.perDay, action: '#vocab', done: dd.u >= v.perDay });
+    });
+    return out;
+  }
+  // 週のまとめ:今週と先週を数字で比べる
+  function weekSummary(title) {
+    var s = S.get(), wk = weekKey(), pw = D.add(wk, -7), mins = VT.minutesByDay ? VT.minutesByDay() : {};
+    function sum(from) {
+      var to = D.add(from, 6), r = { q: 0, ok: 0, min: 0, words: 0, days: 0 };
+      s.attempts.forEach(function (a) { if (a.d >= from && a.d <= to && a.src !== 'school') { r.q++; if (a.ok) r.ok++; } });
+      for (var i = 0; i < 7; i++) { var d = D.add(from, i); if (mins[d]) { r.min += mins[d]; r.days++; } var v = ((s.vt || {}).daily || {})[d]; if (v) r.words += v.u; }
+      return r;
+    }
+    var a = sum(wk), b = sum(pw);
+    if (!a.q && !b.q && !a.words && !b.words) return '';
+    function row(label, x, y, unit, fmt) { var d = x - y; return '<tr><th>' + label + '</th><td><b>' + (fmt ? fmt(x) : x) + '</b>' + unit + '</td><td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + (d > 0 ? '+' : d < 0 ? '−' : '±') + (fmt ? fmt(Math.abs(d)) : Math.abs(d)) + '</td></tr>'; }
+    var acc = function (r) { return r.q ? Math.round(r.ok / r.q * 100) : 0; };
+    return '<section class="card wk-sum"><h2>' + (title || '今週のまとめ') + '<small> 先週との比較</small></h2><table>' +
+      row('学習した日', a.days, b.days, '日') + row('学習時間', a.min, b.min, '分') + row('解いた問題', a.q, b.q, '問') + row('正答率', acc(a), acc(b), '%') + row('学習した単語', a.words, b.words, '語') +
+      '</table><p class="hint">学習時間は、問題を解いた時刻・単語トレーニング・集中タイマーから計算した目安です。週は月曜はじまりです。</p></section>';
+  }
   function vocabPlanCard(rm) {
     var vp = vocabPlan(rm); if (!vp.length) return '';
     return '<section class="card"><h2>単語・暗記の進め方</h2><p class="muted small">' + h(vp[0].until.slice(5).replace('-', '/')) + '(基礎〜標準の完成)までに1周するペースです。8割を「覚えた」にすると、そのPart・分類に✓がつきます。</p><ul class="vp-list">' + vp.map(function (v) {
       var cur = v.items.filter(function (it) { return !it.done; })[0];
-      return '<li style="--c:' + v.color + '"><b>' + h(v.name) + '</b><span>1日あたり 約<strong>' + v.perDay + '</strong>' + (v.name === '一問一答' ? '問' : '語') + '</span><small>残り ' + v.rest + ' / ' + v.total + (cur ? '・いま:' + h(cur.label) : '・完了') + '</small><a class="btn small" href="' + (v.name === '一問一答' ? '#jhq' : '#vocab') + '">進める</a></li>';
-    }).join('') + '</ul><p class="hint">英単語は「大学受験 基礎」、古文単語は全分類、一問一答は時代ごとで計算しています。2周目は、忘れかけ・苦手だけを「自動出題」でくり返すのが効率的です。</p></section>';
+      return '<li style="--c:' + v.color + '"><b>' + h(v.name) + '</b><span>1日あたり 約<strong>' + v.perDay + '</strong>' + (v.name === '一問一答' ? '問' : '語') + '</span><small>残り ' + v.rest + ' / ' + v.total + (cur ? '・いま:' + h(cur.label) : '・完了') + (v.capped ? '<br><em class="vp-warn">上限に合わせたため、1周目の完了は' + h(v.finish.slice(5).replace('-', '/')) + 'ごろ(目標' + h(v.until.slice(5).replace('-', '/')) + ')</em>' : '') + '</small><a class="btn small" href="' + (v.name === '一問一答' ? '#jhq' : '#vocab') + '">進める</a></li>';
+    }).join('') + '</ul><div class="vp-cap"><span>1日に覚える単語の上限</span><div class="seg">' + [[20, '20語'], [30, '30語'], [50, '50語'], [0, 'なし']].map(function (o) { var cur = rm.target.profile.vocabCap === undefined ? 30 : +rm.target.profile.vocabCap; return '<button type="button" class="seg-btn' + (cur === o[0] ? ' on' : '') + '" data-vcap="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div></div><p class="hint">英単語は「大学受験 基礎」、古文単語は全分類、一問一答は時代ごとで計算しています。2周目は、忘れかけ・苦手だけを「自動出題」でくり返すのが効率的です。</p></section>';
   }
   function ganttSection(rm, plan) {
     var t = rm.target, today = D.today(), start = today.slice(0, 7) + '-01', end = t.exam;
@@ -1604,6 +1638,7 @@
       }).join('') + '<button type="button" class="btn primary" id="kptSave">振り返りを保存する</button></section>';
   }
   renderRoadmap.after = function () {
+    view.querySelectorAll('[data-vcap]').forEach(function (b) { b.addEventListener('click', function () { S.get().profile.vocabCap = +b.getAttribute('data-vcap'); S.save(); var y = window.scrollY; render(); window.scrollTo(0, y); }); });
     bindCalendar();
     var ks = document.getElementById('kptSave');
     if (ks) ks.addEventListener('click', function () {
@@ -2001,6 +2036,7 @@
     }
     html += '</table></section>';
     html += MK.historyCard().replace('模試の記録', '生徒の模試の記録');
+    html += weekSummary('生徒の今週のまとめ');
     html += whyCard('生徒のミスの原因(直近30日)');
     html += kptReport();
     return html;
