@@ -2318,7 +2318,7 @@
     var html = '<section class="card"><h2>プロフィール・志望校</h2>' + profileForm(p, '保存する') + '</section>';
     html += '<section class="card"><h2>使い方</h2><div class="btns"><button type="button" class="btn" id="replayTour">はじめての案内をもう一度見る</button><button type="button" class="btn" id="logoutBtn">ログアウト</button><a class="btn" href="manual.html" target="_blank" rel="noopener">使い方マニュアル(動画つき)</a></div></section>';
     html += '<section class="card"><h2>テーマカラー</h2><p class="muted small">アプリ全体の色を選べます。文字の読みやすさ(コントラスト)は、どの色でも保つようにしています。</p><div class="pal-list">' + PALETTES.map(function (x) {
-      return '<button type="button" class="pal' + ((p.palette || 'sky') === x[0] ? ' on' : '') + '" data-pal="' + x[0] + '" aria-pressed="' + ((p.palette || 'sky') === x[0]) + '"><span class="pal-sw">' + x[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><b>' + x[1] + '</b></button>';
+      return '<button type="button" class="pal' + ((p.palette || 'jade') === x[0] ? ' on' : '') + '" data-pal="' + x[0] + '" aria-pressed="' + ((p.palette || 'jade') === x[0]) + '"><span class="pal-sw">' + x[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><b>' + x[1] + '</b></button>';
     }).join('') + '</div></section>';
     var tg = R.target();
     html += '<section class="card"><h2>📊 配点を募集要項に合わせる</h2>' +
@@ -2618,14 +2618,16 @@
   }, { passive: true });
   /* ---------- テーマカラー(配色パレット) ---------- */
   var PALETTES = [
-    ['sky', '晴天スカイ(標準)', ['#04143a', '#1146d6', '#0fa3b8']],
+    ['jade', '翡翠グリーン(標準)', ['#0f4536', '#1d8466', '#b8913f']],
+    ['sky', '晴天スカイ', ['#04143a', '#1146d6', '#0fa3b8']],
     ['sage', '朝露セージ', ['#2f4a3f', '#3f7a5e', '#8fb59a']],
     ['navy', '月光ネイビー', ['#1c2d4a', '#405d85', '#8199bb']],
     ['coral', '珊瑚の砂浜', ['#4a3a3a', '#c4574b', '#e7a99a']],
     ['grape', '霜のブルーベリー', ['#2e2a4d', '#5b4f9e', '#b7b6d6']],
     ['amber', 'シネマアンバー', ['#352f2a', '#9a5f22', '#d2ae6e']]
   ];
-  function applyPalette() { var p = S.get().profile.palette || 'sky'; document.documentElement.setAttribute('data-palette', p); }
+  function applyPalette() { var pr = S.get().profile; if (pr.palette === 'sky' && !pr.palMig1) { pr.palette = 'jade'; pr.palMig1 = 1; } var p = pr.palette || 'jade'; // 標準を翡翠グリーンに変更(以前の標準「晴天スカイ」の人も一度だけ切りかえ)
+    document.documentElement.setAttribute('data-palette', p); }
   WPS.applyPalette = applyPalette;
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-pal]'); if (!b) return;
