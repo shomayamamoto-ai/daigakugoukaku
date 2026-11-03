@@ -1199,5 +1199,11 @@ WPS.makeVocab = function (ctx) {
   });
   function inMode() { return !!st.mode; }
   function setList(i) { st.list = i; st.src = 'all'; st.mode = null; }
-  return { render: render, after: after, inMode: inMode, setList: setList, statusOf: statusOf, memOf: memOf, posOf: posOf, minutesByDay: minutesByDay };
+  // 単語帳の進み具合(覚えた語数)を本・Partごとに数える
+  function bookProgress(bank) {
+    var w = (S.get().vt || {}).w || {}, by = {}, all = 0, ok = 0;
+    (WPS.BANK[bank] || []).forEach(function (x) { var p = x.part || 1, r = w[bank + '|' + x.t]; by[p] = by[p] || [0, 0]; by[p][1]++; all++; if (r && statusOf(r) === 'ok') { by[p][0]++; ok++; } });
+    return { by: by, all: all, ok: ok };
+  }
+  return { bookProgress: bookProgress, render: render, after: after, inMode: inMode, setList: setList, statusOf: statusOf, memOf: memOf, posOf: posOf, minutesByDay: minutesByDay };
 };

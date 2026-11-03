@@ -1436,6 +1436,40 @@
     return html;
   }
   /* ========== ロードマップのタイムライン(ガントチャート形式) ========== */
+  // 単語・暗記の計画:今日から「基礎〜標準の完成」までに、Part・分類を均等に割り振る(終わったPartは✓)
+  function vocabPlan(rm) {
+    var t = rm.target, today = D.today(), w = t.weights || {}, out = [];
+    var std = rm.phases.filter(function (p) { return p.key === 'standard'; })[0], rep = rm.phases.filter(function (p) { return p.key === 'repair'; })[0];
+    var until = std ? std.end : D.add(today, Math.round(D.diff(today, t.exam) * 0.7));
+    if (until <= today) until = D.add(today, 30);
+    function spread(name, color, units, href) {
+      if (!units.length) return;
+      var days = Math.max(units.length, D.diff(today, until) + 1), per = days / units.length, items = [];
+      units.forEach(function (u, i) { var s0 = D.add(today, Math.round(i * per)), e0 = D.add(today, Math.max(Math.round((i + 1) * per) - 1, Math.round(i * per))); items.push({ s: s0, e: e0, label: u.label, done: u.done, href: href }); });
+      out.push({ name: name, color: color, items: items, perDay: Math.ceil(units.reduce(function (a, u) { return a + (u.done ? 0 : u.n); }, 0) / Math.max(1, D.diff(today, until) + 1)), until: until, rest: units.filter(function (u) { return !u.done; }).length, total: units.length });
+    }
+    function bookUnits(bookId) {
+      var b = (WPS.VBOOKS || []).filter(function (x) { return x.id === bookId; })[0]; if (!b || !b.bank || !WPS.BANK[b.bank]) return [];
+      var pr = VT.bookProgress(b.bank);
+      return Object.keys(pr.by).map(Number).sort(function (a, c) { return a - c; }).map(function (n) { var v = pr.by[n], info = b.parts[n - 1]; return { label: b.named && info ? info[2] : 'Part' + n, n: v[1], done: v[0] / v[1] >= 0.8 }; });
+    }
+    if (w.eng > 0) spread('英単語', '#2f6bf2', bookUnits('base'), '#vocab');
+    if (w.jpn > 0 && !WPS.isJHStudent(t.profile.grade)) spread('古文単語', '#0f8a6b', bookUnits('kobun'), '#vocab');
+    if (w.soc > 0 && !WPS.isJHStudent(t.profile.grade)) {
+      var hq = [], mst = function (Q, key) { var r = (S.get()[key] || {}).r || {}, n = +((S.get()[key] || {}).cfg || {}).n || 1; return function (yo) { var qs = Q.filter(function (q) { return q.yo === yo; }); return { n: qs.length, done: qs.length && qs.filter(function (q) { return r[q.id] && r[q.id].s >= n; }).length / qs.length >= 0.8 }; }; };
+      var jm = mst(WPS.JHQ || [], 'jhq'); (WPS.JHQ_META ? WPS.JHQ_META.yoko : []).forEach(function (y) { var v = jm(y[0]); if (v.n) hq.push({ label: '日本史 ' + y[1], n: v.n, done: v.done }); });
+      var wm = mst(WPS.WHQ || [], 'whq'); (WPS.WHQ_META ? WPS.WHQ_META.yoko : []).forEach(function (y) { var v = wm(y[0]); if (v.n) hq.push({ label: '世界史 ' + y[1], n: v.n, done: v.done }); });
+      spread('一問一答', '#c27803', hq, '#jhq');
+    }
+    return out;
+  }
+  function vocabPlanCard(rm) {
+    var vp = vocabPlan(rm); if (!vp.length) return '';
+    return '<section class="card"><h2>単語・暗記の進め方</h2><p class="muted small">' + h(vp[0].until.slice(5).replace('-', '/')) + '(基礎〜標準の完成)までに1周するペースです。8割を「覚えた」にすると、そのPart・分類に✓がつきます。</p><ul class="vp-list">' + vp.map(function (v) {
+      var cur = v.items.filter(function (it) { return !it.done; })[0];
+      return '<li style="--c:' + v.color + '"><b>' + h(v.name) + '</b><span>1日あたり 約<strong>' + v.perDay + '</strong>' + (v.name === '一問一答' ? '問' : '語') + '</span><small>残り ' + v.rest + ' / ' + v.total + (cur ? '・いま:' + h(cur.label) : '・完了') + '</small><a class="btn small" href="' + (v.name === '一問一答' ? '#jhq' : '#vocab') + '">進める</a></li>';
+    }).join('') + '</ul><p class="hint">英単語は「大学受験 基礎」、古文単語は全分類、一問一答は時代ごとで計算しています。2周目は、忘れかけ・苦手だけを「自動出題」でくり返すのが効率的です。</p></section>';
+  }
   function ganttSection(rm, plan) {
     var t = rm.target, today = D.today(), start = today.slice(0, 7) + '-01', end = t.exam;
     var total = Math.max(1, D.diff(start, end) + 1);
@@ -1448,8 +1482,13 @@
       return (href ? '<a href="' + href + '"' : '<span') + ' class="gt-bar ' + cls + '" style="left:' + l.toFixed(2) + '%;width:' + w.toFixed(2) + '%" title="' + h(label) + '">' + h(label) + (href ? '</a>' : '</span>');
     }
     var lanes = [];
+    ganttSection.lastPx = undefined;
     // マイルストーン
-    lanes.push(['マイルストーン', 'ms2', (plan || []).filter(function (x) { return x.kind !== 'goal' && x.kind !== 'exam'; }).map(function (x) { return '<span class="gt-ms gt-ms2 bp-' + x.kind + '" style="left:' + pos(x.date).toFixed(2) + '%" title="' + h(x.date + ' ' + x.title + ':' + x.detail) + '"><i></i>' + h(x.title.replace('の中間目標', '').replace('志望校の', '')) + '</span>'; }).join('')]);
+    lanes.push(['マイルストーン', 'ms2', (plan || []).filter(function (x) { return x.kind !== 'goal' && x.kind !== 'exam'; }).map(function (x) {
+      // 近すぎるマイルストーンは名前を出さず(点にふれると表示)、文字の重なりを防ぐ
+      var l = pos(x.date), px = l / 100 * W, show = !(ganttSection.lastPx !== undefined && px - ganttSection.lastPx < 120);
+      if (show) ganttSection.lastPx = px;
+      return '<span class="gt-ms gt-ms2 bp-' + x.kind + '" style="left:' + l.toFixed(2) + '%" title="' + h(x.date + ' ' + x.title + ':' + x.detail) + '"><i></i>' + (show ? h(x.title.replace('の中間目標', '').replace('志望校の', '')) : '') + '</span>'; }).join('')]);
     lanes.unshift(['試験日', 'ms', t.milestones.map(function (mi) { return '<span class="gt-ms" style="left:' + pos(mi.date).toFixed(2) + '%" title="' + h(mi.label + ' ' + mi.date) + '"><i></i>' + h(mi.label.replace(/\(.*?\)/g, '').replace('大学入学', '').replace('(目安)', '')) + '</span>'; }).join('')]);
     // フェーズ
     lanes.push(['フェーズ', 'ph', rm.phases.map(function (ph) { return bar(ph.start, ph.end, ph.name, 'ph-' + ph.key); }).join('')]);
@@ -1462,6 +1501,10 @@
       });
       if (bars) lanes.push([WPS.SUBJECTS[sj].name, 'sj-' + sj, bars, WPS.SUBJECTS[sj].color]);
     });
+    // 単語・暗記の進め方(本のPart・古文単語の分類・一問一答を、基礎〜標準の時期に割り振る)
+    vocabPlan(rm).forEach(function (vp) {
+      lanes.push([vp.name, 'vp', vp.items.map(function (it) { return bar(it.s, it.e, it.label + (it.done ? ' ✓' : ''), 'vp' + (it.done ? ' done' : ''), it.href); }).join(''), vp.color]);
+    });
     // 自分の予定
     var td = calTodos(), my = '';
     Object.keys(td).forEach(function (d) { if (d >= start && d <= end) td[d].forEach(function (x) { my += bar(d, d, x.t, 'todo' + (x.done ? ' done' : '')); }); });
@@ -1472,7 +1515,7 @@
       '<div class="gt-scroll"><div class="gt-inner" style="width:' + W + 'px"><div class="gt-head">' + months.map(function (mm) { return '<span>' + (mm[1] === 1 || mm === months[0] ? mm[0] + '年' : '') + mm[1] + '月</span>'; }).join('') + '</div>' +
       lanes.map(function (L) { return '<div class="gt-row ' + L[1] + '"' + (L[3] ? ' style="--c:' + L[3] + '"' : '') + '>' + L[2] + '</div>'; }).join('') +
       '<b class="gt-now" style="left:' + nowL.toFixed(2) + '%"><small>今日</small></b></div></div></div>' +
-      '<p class="hint">教科の行のバーは、その週に仕上げる単元です(タップすると単元の学習へ)。診断を進めると、苦手に合わせて自動で組み直されます。</p></section>';
+      '<p class="hint">教科の行のバーは、その週に仕上げる単元です(タップすると単元の学習へ)。英単語・古文単語・一問一答の行は、Partや分類を進める時期です。診断を進めると、苦手に合わせて自動で組み直されます。</p></section>' + vocabPlanCard(rm);
     return html;
   }
   function renderRoadmap() {
