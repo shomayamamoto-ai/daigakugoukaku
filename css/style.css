@@ -2321,3 +2321,44 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .pl-step output { min-width: 64px; text-align: center; font-size: 12px; color: var(--muted); }
 .pl-step output b { font-size: 24px; font-weight: 300; color: var(--text); font-feature-settings: "tnum"; margin-right: 2px; }
 .pl-round { width: 62px; height: 62px; } .pl-round small { font-size: 9px; letter-spacing: 0; white-space: nowrap; }
+/* タイマー:やること・科目・オプション・記録 */
+.pl-task { margin: 0 0 14px; display: grid; gap: 8px; }
+.pl-task input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid rgba(212, 175, 90, .4); background: rgba(0, 0, 0, .22); color: #fffaf0; font: inherit; font-size: 14px; }
+.pl-task input::placeholder { color: rgba(244, 236, 216, .5); }
+.pl-task input:focus { outline: 2px solid #d4af5a; outline-offset: 1px; }
+.pl-subj { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.pl-subj button { border: 1px solid rgba(212, 175, 90, .4); background: transparent; color: rgba(244, 236, 216, .85); font: inherit; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.pl-subj button.on { background: #d4af5a; color: #1c2a20; border-color: #d4af5a; }
+.pl-opts { display: grid; gap: 0; margin: 4px 0 14px; border-top: 1px solid var(--line); }
+.pl-opt { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); cursor: pointer; position: relative; }
+.pl-opt span { flex: 1; min-width: 0; }
+.pl-opt b { display: block; font-size: 14.5px; }
+.pl-opt small { color: var(--muted); font-size: 12px; }
+.pl-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pl-opt i { flex: none; width: 46px; height: 26px; border-radius: 999px; background: var(--line); position: relative; transition: background .2s; }
+.pl-opt i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .2s; }
+.pl-opt input:checked + i { background: linear-gradient(135deg, #d9b664, #b48c40); }
+.pl-opt input:checked + i::after { transform: translateX(20px); }
+.pl-opt input:focus-visible + i { outline: 2px solid var(--primary); outline-offset: 2px; }
+.pl-h3 { font-size: 15px; margin: 6px 0 2px; }
+.pl-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; height: 120px; align-items: end; margin: 6px 0 8px; }
+.pl-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.pl-bar i { display: block; width: 70%; min-height: 3px; border-radius: 6px 6px 2px 2px; background: color-mix(in srgb, var(--primary) 45%, var(--card)); }
+.pl-bar.today i { background: linear-gradient(180deg, #e6c77a, #b48c40); }
+.pl-bar em { font-style: normal; font-size: 10px; color: var(--muted); font-feature-settings: "tnum"; }
+.pl-bar span { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.pl-subsum { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; margin: 0 0 8px; }
+.pl-subsum span { background: var(--primary-weak); border-radius: 999px; padding: 2px 10px; }
+.pl-log { margin-bottom: 12px; }
+.pl-log summary { cursor: pointer; font-weight: 700; font-size: 14px; padding: 6px 0; }
+.pl-log ul { list-style: none; padding: 0; margin: 4px 0; }
+.pl-log li { display: flex; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 13px; min-width: 0; }
+.pl-log time { color: var(--muted); font-feature-settings: "tnum"; flex: none; }
+.pl-log b { flex: none; } .pl-log em { flex: none; font-style: normal; font-size: 11px; background: var(--primary-weak); border-radius: 6px; padding: 0 6px; }
+.pl-log span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+/* ほかのページにいるときの、残り時間の小さなボタン */
+.pomo-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border-radius: 999px; background: #0f3d31; color: #f6e3a8; font-size: 13px; font-weight: 700; text-decoration: none; font-feature-settings: "tnum"; border: 1px solid rgba(212, 175, 90, .5); flex: none; }
+.pomo-chip i { width: 8px; height: 8px; border-radius: 50%; background: #d4af5a; animation: plPulse 1.6s ease-in-out infinite; }
+.pomo-chip.short i, .pomo-chip.long i { background: #9fe0c5; }
+.topbar .pomo-chip { margin-left: 0; }
+@media (max-width: 640px) { .pomo-chip { position: fixed; top: calc(66px + env(safe-area-inset-top, 0px)); right: 10px; z-index: 60; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); } }

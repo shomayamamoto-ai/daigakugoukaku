@@ -1499,10 +1499,14 @@
     if (was === 'work') {
       pomo.count++;
       var s = S.get(), d = D.today(); s.pomo = s.pomo || {}; s.pomo[d] = (s.pomo[d] || 0) + 1;
+      // 集中の記録(日付・時刻・分・科目・やること)。新しい順に最大300件
+      s.pomoLog = s.pomoLog || []; s.pomoLog.unshift({ d: d, t: Date.now(), m: pomo.work, s: pomo.subj || '', k: (pomo.task || '').slice(0, 40) }); if (s.pomoLog.length > 300) s.pomoLog.length = 300;
       WPS.Streak.touch(); S.save();
       pomo.mode = pomo.count % 4 === 0 ? 'long' : 'short';
     } else pomo.mode = 'work';
-    pomo.run = false; pomo.left = pomoLen(pomo.mode); pomoSave(); beep();
+    pomo.run = false; pomo.left = pomoLen(pomo.mode);
+    if (pomo.auto) { pomo.end = Date.now() + pomo.left * 1000; pomo.run = true; } // 自動で次を始める
+    pomoSave(); if (pomo.sound !== false) beep();
     toast(was === 'work' ? '集中おつかれさま！ ' + (pomo.mode === 'long' ? pomo.long : pomo.short) + '分休もう' : '休けい終わり。次の集中をはじめよう');
     try { if (window.Notification && Notification.permission === 'granted') new Notification('Aqualium', { body: was === 'work' ? '集中タイム終了。休けいしよう' : '休けい終了。次の集中をはじめよう' }); } catch (e) { /* 無視 */ }
   }
@@ -1510,8 +1514,29 @@
     if (pomo.run && pomoRemain() <= 0) { pomoFinish(); if ((location.hash || '').slice(1) === 'timer') render(); }
     var el = document.getElementById('pomoTime');
     if (el) { var r = pomoRemain(); el.textContent = pomoFmt(r); pomoDraw(r); }
+    pomoChip();
   }, 500);
   function pomoFmt(r) { return ('0' + Math.floor(r / 60)).slice(-2) + ':' + ('0' + r % 60).slice(-2); }
+  // 動いている間は、タブの題名と画面の上の小さなボタンに残り時間を出す(ほかのページにいても分かる)
+  var BASE_TITLE = document.title, PL = { work: '集中', short: '小休けい', long: '長い休けい' };
+  function pomoChip() {
+    var r = pomoRemain(), onTimer = (location.hash || '').slice(1).split('/')[0] === 'timer';
+    document.title = pomo.run ? '▶ ' + pomoFmt(r) + ' ' + PL[pomo.mode] + ' | ' + BASE_TITLE : BASE_TITLE;
+    var c = document.getElementById('pomoChip');
+    if (!pomo.run || onTimer || document.body.classList.contains('locked')) { if (c) c.remove(); return; }
+    if (!c) { c = document.createElement('a'); c.id = 'pomoChip'; c.className = 'pomo-chip'; c.href = '#timer'; var tb = document.querySelector('.topbar .tb-search'); if (tb) tb.parentNode.insertBefore(c, tb); else return; }
+    c.className = 'pomo-chip ' + pomo.mode; c.setAttribute('aria-label', 'タイマー ' + PL[pomo.mode] + ' 残り ' + pomoFmt(r));
+    c.innerHTML = '<i></i>' + pomoFmt(r);
+  }
+  // 画面を消さない(対応しているブラウザだけ)
+  var wakeLock = null;
+  function pomoWake() {
+    try {
+      if (pomo.run && pomo.wake && navigator.wakeLock && !wakeLock) navigator.wakeLock.request('screen').then(function (w) { wakeLock = w; w.addEventListener('release', function () { wakeLock = null; }); }).catch(function () { });
+      if ((!pomo.run || !pomo.wake) && wakeLock) { wakeLock.release(); wakeLock = null; }
+    } catch (e) { }
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') pomoWake(); });
   // 残り時間に合わせて、金色の輪と先端の光る点を動かす
   function pomoDraw(r) {
     var f = Math.max(0, Math.min(1, r / pomoLen(pomo.mode))), ring = document.getElementById('pomoRing'), tip = document.getElementById('pomoTip');
@@ -1520,6 +1545,18 @@
   }
   var POMO_SET = { work: { l: '集中', min: 5, max: 120, step: 5, d: '1回の集中タイム' }, short: { l: '小休けい', min: 1, max: 30, step: 1, d: '集中のあいだの短い休み' }, long: { l: '長い休けい', min: 5, max: 60, step: 5, d: '4セットごとの長い休み' } };
   var POMO_PRESET = [['standard', '標準', 25, 5, 15], ['short', 'みじかめ', 15, 3, 10], ['deep', 'じっくり', 50, 10, 30], ['exam', '本番形式', 60, 10, 20]];
+  // 集中の記録:直近7日の棒グラフ・今日の科目別・最近の記録
+  function pomoHistory(s) {
+    var log = s.pomoLog || [], today = D.today(), days = [], mx = 1;
+    for (var i = 6; i >= 0; i--) { var d = D.add(today, -i), m = log.filter(function (x) { return x.d === d; }).reduce(function (a, x) { return a + x.m; }, 0); if (!m && (s.pomo || {})[d]) m = s.pomo[d] * 25; days.push([d, m]); mx = Math.max(mx, m); }
+    var bySub = {}; log.filter(function (x) { return x.d === today; }).forEach(function (x) { var k = x.s || 'none'; bySub[k] = (bySub[k] || 0) + x.m; });
+    var total7 = days.reduce(function (a, x) { return a + x[1]; }, 0);
+    return '<h3 class="pl-h3">集中の記録</h3><p class="muted small">直近7日で合計 <b>' + WPS.Time.label(total7) + '</b></p><div class="pl-bars" role="img" aria-label="直近7日の集中時間">' + days.map(function (x) {
+      var dd = D.parse(x[0]); return '<div class="pl-bar' + (x[0] === today ? ' today' : '') + '"><em>' + (x[1] ? x[1] : '') + '</em><i style="height:' + Math.round(x[1] / mx * 100) + '%"></i><span>' + '日月火水木金土'[dd.getDay()] + '</span></div>';
+    }).join('') + '</div>' +
+      (Object.keys(bySub).length ? '<p class="pl-subsum">今日:' + Object.keys(bySub).map(function (k) { return '<span>' + h(k === 'none' ? '科目なし' : WPS.SUBJECTS[k].name) + ' ' + WPS.Time.label(bySub[k]) + '</span>'; }).join('') + '</p>' : '') +
+      (log.length ? '<details class="pl-log"><summary>最近の記録(' + Math.min(log.length, 20) + '件)</summary><ul>' + log.slice(0, 20).map(function (x) { var t = new Date(x.t); return '<li><time>' + x.d.slice(5).replace('-', '/') + ' ' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) + '</time><b>' + x.m + '分</b>' + (x.s && WPS.SUBJECTS[x.s] ? '<em>' + h(WPS.SUBJECTS[x.s].name) + '</em>' : '') + '<span>' + h(x.k || '') + '</span></li>'; }).join('') + '</ul></details>' : '');
+  }
   function renderTimer() {
     var r = pomoRemain(), s = S.get(), today = (s.pomo || {})[D.today()] || 0;
     var labels = { work: '集中', short: '小休けい', long: '長い休けい' }, en = { work: 'FOCUS', short: 'SHORT BREAK', long: 'LONG BREAK' };
@@ -1536,10 +1573,11 @@
       '<circle id="pomoRing" cx="120" cy="120" r="100" class="pl-arc" style="stroke-dashoffset:' + ((1 - r / pomoLen(pomo.mode)) * 628).toFixed(1) + '"/>' +
       '<circle id="pomoTip" cx="220" cy="120" r="5" class="pl-tip"/></svg>' +
       '<div class="pl-num"><span class="pl-en">' + en[pomo.mode] + '</span><b id="pomoTime">' + pomoFmt(r) + '</b><span class="pl-sub">' + labels[pomo.mode] + '・' + pomoLen(pomo.mode) / 60 + '分</span><span class="pl-dots" aria-label="' + setN + ' / 4 セット">' + dots + '</span></div></div>' +
-      '<div class="pl-ctrl"><button type="button" class="pl-round" id="pomoReset" aria-label="リセット"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg><small>リセット</small></button>' +
+      '<div class="pl-task"><input id="pomoTask" type="text" maxlength="40" placeholder="今からやること(例:数Ⅱ 微分の練習問題)" value="' + h(pomo.task || '') + '" aria-label="今からやること"><div class="pl-subj" role="group" aria-label="科目">' + Object.keys(WPS.SUBJECTS).map(function (k) { return '<button type="button" data-psubj="' + k + '" class="' + (pomo.subj === k ? 'on' : '') + '" aria-pressed="' + (pomo.subj === k) + '">' + h(WPS.SUBJECTS[k].name) + '</button>'; }).join('') + '</div></div>' +
+'<div class="pl-ctrl"><button type="button" class="pl-round" id="pomoReset" aria-label="リセット"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg><small>リセット</small></button>' +
       '<button type="button" class="pl-go" id="pomoGo">' + (running ? '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>一時停止' : '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>' + (paused ? '再開' : 'スタート')) + '</button>' +
       '<button type="button" class="pl-round" id="pomoSkip" aria-label="次へ"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg><small>次へ</small></button></div>' +
-      '<div class="pl-stats"><div><span>今日の集中</span><b>' + today + '<small>回</small></b><em>' + WPS.Time.label(today * pomo.work) + '</em></div><div><span>直近7日</span><b>' + week + '<small>回</small></b><em>1日平均 ' + (Math.round(week / 7 * 10) / 10) + '回</em></div><div><span>このセット</span><b>' + setN + '<small>/4</small></b><em>4回で長い休けい</em></div></div></section>';
+      '<div class="pl-stats"><div><span>今日の集中</span><b>' + today + '<small>回</small></b><em>' + WPS.Time.label((s.pomoLog || []).filter(function (x) { return x.d === D.today(); }).reduce(function (a, x) { return a + x.m; }, 0) || today * pomo.work) + '</em></div><div><span>直近7日</span><b>' + week + '<small>回</small></b><em>1日平均 ' + (Math.round(week / 7 * 10) / 10) + '回</em></div><div><span>このセット</span><b>' + setN + '<small>/4</small></b><em>4回で長い休けい</em></div></div></section>';
     // 時間の設定:－/＋で1分(または5分)ずつ。よく使う組み合わせはワンタップで
     var cur = POMO_PRESET.filter(function (x) { return x[2] === pomo.work && x[3] === pomo.short && x[4] === pomo.long; })[0];
     html += '<section class="card pl-set"><h2>時間の設定</h2><div class="pl-presets" role="group" aria-label="おすすめの組み合わせ">' + POMO_PRESET.map(function (x) {
@@ -1547,11 +1585,18 @@
     }).join('') + '</div><div class="pl-rows">' + ['work', 'short', 'long'].map(function (k) {
       var c = POMO_SET[k], v = pomo[k];
       return '<div class="pl-row"><div class="pl-rl"><b>' + c.l + '</b><small>' + c.d + '</small></div><div class="pl-step"><button type="button" data-pstep="' + k + '" data-d="-1" aria-label="' + c.l + 'を' + c.step + '分へらす"' + (v <= c.min ? ' disabled' : '') + '>－</button><output aria-live="polite"><b>' + v + '</b>分</output><button type="button" data-pstep="' + k + '" data-d="1" aria-label="' + c.l + 'を' + c.step + '分ふやす"' + (v >= c.max ? ' disabled' : '') + '>＋</button></div></div>';
-    }).join('') + '</div><ol class="steps"><li>やることを1つ決めて、集中タイムをスタート(標準は25分)。</li><li>終わったら短い休けい。スマホやSNSは見ずに、目と体を休める。</li><li>4セットごとに長めの休けいをとる。</li></ol><p class="hint">集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。ほかの画面に移ってもタイマーは進みます。</p></section>';
+    }).join('') + '</div><div class="pl-opts">' + [['auto', '自動で次を始める', '集中→休けい→集中…を止めずに続けます'], ['sound', '終わりの音を鳴らす', '時間になったら3回鳴らします'], ['wake', '画面を消さない', 'タイマー中はスマホの画面が暗くなりません(対応する端末のみ)']].map(function (o) {
+      var on = o[0] === 'sound' ? pomo.sound !== false : !!pomo[o[0]];
+      return '<label class="pl-opt"><span><b>' + o[1] + '</b><small>' + o[2] + '</small></span><input type="checkbox" role="switch" data-popt="' + o[0] + '"' + (on ? ' checked' : '') + '><i aria-hidden="true"></i></label>';
+    }).join('') + '</div>' + pomoHistory(s) + '<ol class="steps"><li>やることを1つ決めて、集中タイムをスタート(標準は25分)。</li><li>終わったら短い休けい。スマホやSNSは見ずに、目と体を休める。</li><li>4セットごとに長めの休けいをとる。</li></ol><p class="hint">集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。ほかの画面に移ってもタイマーは進みます。</p></section>';
     return html;
   }
   renderTimer.after = function () {
-    function re() { pomoSave(); render(); }
+    // 画面を描き直しても、読んでいた位置にとどまる(＋/－を押しても上に戻らない)
+    function re() { var y = window.scrollY; pomoSave(); pomoWake(); render(); window.scrollTo(0, y); }
+    var tk = document.getElementById('pomoTask'); if (tk) tk.addEventListener('input', function () { pomo.task = tk.value; pomoSave(); });
+    view.querySelectorAll('[data-psubj]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-psubj'); pomo.subj = pomo.subj === k ? '' : k; re(); }); });
+    view.querySelectorAll('[data-popt]').forEach(function (c) { c.addEventListener('change', function () { pomo[c.getAttribute('data-popt')] = c.checked; re(); }); });
     document.getElementById('pomoGo').addEventListener('click', function () {
       if (pomo.run) { pomo.left = pomoRemain(); pomo.run = false; }
       else { pomo.end = Date.now() + pomoRemain() * 1000; pomo.run = true; try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* 無視 */ } }
@@ -2684,19 +2729,21 @@
   }
   /* ---------- はじめての案内ツアー(初回だけ自動。設定からいつでも見直せる) ---------- */
   var TOUR = [
-    { t: 'ようこそ、Aqualiumへ', d: 'アプリの使い方を、30秒で案内します。画面の光っている場所を見ながら「次へ」を押してください。' },
-    { sel: '.nav a[data-r="home"]', route: 'home', t: 'ホーム', d: '毎日ここから。上のタブで「今日の学習」と「診断・練習」を切りかえます。「今日の学習」の「次の一手」に、いま一番効果の高い学習が出ます。' },
-    { sel: '.hub-tabs a[data-tab="test"]', route: 'test', t: '診断・練習', d: 'ホームの上のタブ「診断・練習」です。まずは診断テストで苦手を見つけます。レベル別演習、模試モード、日本史・世界史の一問一答と論述もここから。' },
+    { t: 'ようこそ、Aqualiumへ', d: 'アプリの使い方を、1分で案内します。画面の光っている場所を見ながら「次へ」を押してください。' },
+    { sel: '.nav a[data-r="home"]', route: 'home', t: 'ホーム', d: '毎日ここから。上のタブで「今日の学習」と「診断・練習」を切りかえます。「次の一手」に、いま一番効果の高い学習が1つだけ出ます。' },
+    { sel: '.hub-tabs a[data-tab="test"]', route: 'test', t: '診断・練習', d: 'まずは診断テストで苦手を見つけます。答えのあとには「もっとくわしく」や、語句の「ほかの意味」も出ます。レベル別演習・模試モード・一問一答もここから。' },
     { sel: '.nav a[data-r="roadmap"]', t: '計画(ロードマップ)', d: '志望校と受験日から逆算した計画です。タイムライン・カレンダー・単元マップ・週の振り返りがあります。' },
-    { sel: '.nav a[data-r="books"]', t: 'テキスト', d: '科目ごとの教科書・参考書。知識ゼロから読める解説・例題(板書)・まとめを読んで、そのまま問題を解けます。' },
-    { sel: '.nav a[data-r="vocab"]', t: '単語帳', d: '英単語・古文単語・英熟語・早慶上理の単語帳。4択・赤シート・スワイプ・聞き流しなどで覚えます。' },
-    { sel: '.nav a[data-r="timer"]', t: 'タイマー', d: '25分集中＋5分休けいのポモドーロタイマー。集中した時間は学習時間に入ります。' },
+    { sel: '.nav a[data-r="books"]', t: 'テキスト', d: '中学・高校の全286単元の教科書。図・例題・「さらに深く」・入試レベルの実戦演習・練習問題まで、読んでそのまま問題を解けます。' },
+    { sel: '.nav a[data-r="vocab"]', t: '単語帳', d: '英単語・英熟語・古文単語・早慶上理の単語帳。4択・赤シート・スワイプ・聞き流しなどで覚えます。' },
+    { sel: '.nav a[data-r="timer"]', t: 'タイマー', d: '集中と休けいをくり返すポモドーロタイマー。やることと科目を決めてスタート。ほかのページにいても、上に残り時間が出ます。' },
     { sel: '.nav a[data-r="tutor"]', t: '先生用', d: '先生・保護者向けのレポート。苦手の原因、ミスの傾向、週のまとめが見られます。' },
     { sel: '.nav a[data-r="manual"]', t: 'マニュアル', d: '動画つきの使い方マニュアル。下のメニューと同じ順番で、各画面の使い方を説明しています。' },
     { sel: '.topbar a[href="#search"]', t: '検索(🔍)', d: '単元・単語・人物・できごとを、まとめて探せます。' },
-    { sel: '.topbar .gear', t: '設定', d: '志望校・勉強時間・テーマカラーの変更、データの引き継ぎはここ。この案内も、設定からもう一度見られます。' },
+    { sel: '.topbar .tb-tools', t: '資料(元素表・世界地図)', d: '元素の周期表と、国名・都市入りの世界地図。どのページの上でも開けて、「—」で最小化できます。' },
+    { sel: '.topbar .gear', t: '設定', d: '志望校・勉強時間・テーマカラーの変更、データの引き継ぎ、ログアウトはここ。この案内も、設定からもう一度見られます。' },
     { t: '準備OK！', d: 'くわしい使い方は、動画つきの「使い方マニュアル」で確認できます。さっそく診断テストから始めましょう。', link: 'manual.html' }
   ];
+
   var tourI = -1;
   function maybeTour(route) {
     var s = S.get();
