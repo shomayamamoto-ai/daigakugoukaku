@@ -584,3 +584,91 @@ WPS.LESSONS = WPS.LESSONS || {};
     next: '中学理科の全分野が終わったら、「標準レベル:中学理科の計算」と「入試レベル:中学理科の総合」で計算問題をまとめて練習しましょう。天体の問題で使った「1時間15度」のような比例の考え方が、計算問題でも役立ちます。'
   };
 })(WPS.LESSONS);
+
+// ===== 図解の追加(各単元の既存の節に図を差しこむ) =====
+(function (L) {
+  function put(id, idx, k, v) { var s = L[id] && L[id].secs[idx]; if (s && !s[k]) s[k] = v; }
+
+  // 光と音:凸レンズの作図
+  put('s_light', 3, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="凸レンズの作図。物体が焦点距離の2倍より遠いと、反対側に上下逆で物体より小さい実像ができる"><line x1="5" y1="80" x2="215" y2="80" class="ax"/><ellipse cx="110" cy="80" rx="6" ry="48" class="tr"/><circle cx="75" cy="80" r="2.5" class="pt"/><circle cx="145" cy="80" r="2.5" class="pt"/><circle cx="40" cy="80" r="2" class="pt"/><circle cx="180" cy="80" r="2" class="pt"/><line x1="20" y1="80" x2="20" y2="50" class="cv2"/><path d="M16 56 L20 50 L24 56" class="cv2"/><path d="M20 50 L110 50 L190 118.6" class="cv"/><line x1="20" y1="50" x2="190" y2="106.7" class="cv"/><line x1="167" y1="80" x2="167" y2="99" class="cv2"/><path d="M163 93 L167 99 L171 93" class="cv2"/><text x="4" y="14">物体が2Fより遠いとき</text><text x="6" y="44">物体</text><text x="118" y="36">凸レンズ</text><text x="72" y="95">F</text><text x="146" y="72">F</text><text x="34" y="95">2F</text><text x="176" y="74">2F</text><text x="96" y="140">実像:逆向き・小さい</text></svg>');
+
+  // 力:水圧と浮力
+  put('s_force', 4, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="水中の物体にはたらく水圧。下の面のほうが深いので水圧が大きく、上下の水圧の差が浮力になる。横からの水圧はつりあう"><rect x="15" y="30" width="190" height="115" class="fl"/><line x1="15" y1="30" x2="205" y2="30" class="ax"/><rect x="85" y="62" width="50" height="46" class="bx"/><line x1="110" y1="44" x2="110" y2="60" class="cv2"/><path d="M106 54 L110 60 L114 54" class="cv2"/><line x1="110" y1="136" x2="110" y2="110" class="cv2"/><path d="M106 116 L110 110 L114 116" class="cv2"/><line x1="66" y1="85" x2="83" y2="85" class="cv2"/><path d="M77 81 L83 85 L77 89" class="cv2"/><line x1="154" y1="85" x2="137" y2="85" class="cv2"/><path d="M143 81 L137 85 L143 89" class="cv2"/><line x1="97" y1="102" x2="97" y2="70" class="cv"/><path d="M93 76 L97 70 L101 76" class="cv"/><text x="103" y="90">浮力</text><text x="4" y="14">浮力=上下の面の水圧の差</text><text x="22" y="60">水</text><text x="116" y="52">水圧 小</text><text x="116" y="132">水圧 大</text><text x="18" y="140">横の力はつりあう</text></svg>');
+
+  // 電流:オームの法則のグラフ
+  put('s_m1', 1, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="電圧と電流のグラフ。どちらも原点を通る直線で、抵抗が小さいほど傾きが急"><line x1="35" y1="125" x2="205" y2="125" class="ax"/><line x1="35" y1="125" x2="35" y2="18" class="ax"/><line x1="35" y1="125" x2="175" y2="35" class="cv"/><line x1="35" y1="125" x2="195" y2="85" class="cv2"/><text x="40" y="16">電流 I[A]</text><text x="150" y="141">電圧 V[V]</text><text x="26" y="137">0</text><text x="124" y="38">抵抗 小</text><text x="150" y="112">抵抗 大</text><text x="56" y="141">I = V ÷ R</text></svg>');
+
+  // 運動:記録テープ
+  put('s_motion', 1, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="0.1秒ごとに切った記録テープを並べたもの。長さが同じなら等速直線運動、一定の割合でのびるならだんだん速くなる運動"><line x1="15" y1="120" x2="97" y2="120" class="ax"/><line x1="112" y1="120" x2="196" y2="120" class="ax"/><rect x="22" y="70" width="15" height="50" class="tr"/><rect x="40" y="70" width="15" height="50" class="tr"/><rect x="58" y="70" width="15" height="50" class="tr"/><rect x="76" y="70" width="15" height="50" class="tr"/><rect x="118" y="102" width="15" height="18" class="tr"/><rect x="136" y="84" width="15" height="36" class="tr"/><rect x="154" y="66" width="15" height="54" class="tr"/><rect x="172" y="48" width="15" height="72" class="tr"/><line x1="125" y1="102" x2="179" y2="48" class="dash"/><text x="4" y="14">0.1秒ごとに切ったテープを並べる</text><text x="34" y="62">長さ一定</text><text x="106" y="40">一定の割合でのびる</text><text x="14" y="137">→ 等速直線運動</text><text x="112" y="137">→ だんだん速く</text></svg>');
+  // 運動:ふりこのエネルギー
+  put('s_motion', 6, 'fig', '<svg viewBox="0 0 220 162" class="lz-fig" role="img" aria-label="ふりこの位置とエネルギー。位置エネルギーと運動エネルギーは移り変わるが、和の力学的エネルギーは一定"><line x1="30" y1="125" x2="205" y2="125" class="ax"/><line x1="30" y1="125" x2="30" y2="20" class="ax"/><line x1="30" y1="35" x2="200" y2="35" class="dash"/><path d="M30 35 Q115 215 200 35" class="cv2"/><path d="M30 125 Q115 -55 200 125" class="cv"/><text x="34" y="14">エネルギー</text><text x="50" y="29">力学的エネルギー(一定)</text><text x="26" y="139">A</text><text x="88" y="139">B(最下点)</text><text x="196" y="139">C</text><line x1="8" y1="153" x2="22" y2="153" class="cv"/><text x="26" y="157">運動エネルギー</text><line x1="112" y1="153" x2="126" y2="153" class="cv2"/><text x="130" y="157">位置エネルギー</text></svg>');
+
+  // 身のまわりの物質:気体の集め方
+  put('s_sol', 2, 'flow', { title: '気体の集め方の選び方', cols: 3, head: ['水上置換法', '上方置換法', '下方置換法'],
+    rows: [
+      [['水にとけにくい', 'b'], ['水にとけやすい', 'o', 1, '空気より軽い'], ['水にとけやすい', 'r', 1, '空気より重い']],
+      [['酸素・水素', 'b', 1, '純粋な気体を集めやすい'], ['アンモニア', 'o'], ['二酸化炭素など', 'r', 1, 'CO₂は水上置換法でも可']]
+    ] });
+  // 身のまわりの物質:溶解度曲線
+  put('s_sol', 6, 'fig', '<svg viewBox="0 0 220 160" class="lz-fig" role="img" aria-label="溶解度曲線。硝酸カリウムは温度で溶解度が大きく変わり、塩化ナトリウムはほとんど変わらない"><line x1="40" y1="130" x2="205" y2="130" class="ax"/><line x1="40" y1="130" x2="40" y2="18" class="ax"/><line x1="40" y1="68.9" x2="205" y2="68.9" class="dash"/><path d="M40 121.9 L60 117.2 L80 110.7 L100 102 L120 91 L140 77.8 L160 63.4 L180 45.7 L200 26.7" class="cv2"/><path d="M40 108.2 L120 107.8 L200 106.8" class="cv"/><text x="44" y="14">溶解度[g/水100g]</text><text x="37" y="142">0</text><text x="74" y="142">20</text><text x="114" y="142">40</text><text x="154" y="142">60</text><text x="194" y="142">80</text><text x="140" y="155">温度[℃]</text><text x="24" y="103">50</text><text x="18" y="72">100</text><text x="18" y="42">150</text><text x="80" y="58">硝酸カリウム</text><text x="128" y="122">塩化ナトリウム</text></svg>');
+
+  // 化学変化:酸化と還元
+  put('s_m2', 4, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="酸化銅と炭素の反応。酸化銅は酸素をうばわれて還元され、炭素は酸素と結びついて酸化される"><text x="4" y="14">酸化と還元は同時に起こる</text><text x="30" y="36">還元(酸素をうばわれる)</text><path d="M32 68 Q77 30 122 68" class="cv2"/><path d="M114 67 L122 68 L119 60" class="cv2"/><text x="14" y="84">2CuO</text><text x="54" y="84">+</text><text x="68" y="84">C</text><text x="86" y="84">→</text><text x="110" y="84">2Cu</text><text x="140" y="84">+</text><text x="156" y="84">CO₂</text><path d="M72 92 Q118 130 165 92" class="cv"/><path d="M157 93 L165 92 L162 100" class="cv"/><text x="60" y="132">酸化(酸素と結びつく)</text></svg>');
+  // 化学変化:結びつく質量の比
+  put('s_m2', 6, 'fig', '<svg viewBox="0 0 220 155" class="lz-fig" role="img" aria-label="金属の質量と酸化物の質量のグラフ。銅と酸化銅は4対5、マグネシウムと酸化マグネシウムは3対5の比例"><line x1="35" y1="125" x2="200" y2="125" class="ax"/><line x1="35" y1="125" x2="35" y2="18" class="ax"/><line x1="35" y1="125" x2="195" y2="50" class="cv"/><line x1="35" y1="125" x2="195" y2="25" class="cv2"/><circle cx="99" cy="95" r="3" class="pt"/><circle cx="83" cy="95" r="3" class="pt"/><line x1="35" y1="95" x2="99" y2="95" class="dash"/><text x="40" y="12">酸化物の質量[g]</text><text x="110" y="151">金属の質量[g]</text><text x="26" y="137">0</text><text x="67" y="137">0.5</text><text x="107" y="137">1.0</text><text x="147" y="137">1.5</text><text x="187" y="137">2.0</text><text x="14" y="99">1.0</text><text x="14" y="69">2.0</text><text x="14" y="39">3.0</text><text x="52" y="48">Mg→MgO(3:5)</text><text x="124" y="100">Cu→CuO(4:5)</text></svg>');
+
+  // イオン:原子のつくり
+  put('s_ion', 0, 'fig', '<svg viewBox="0 0 220 155" class="lz-fig" role="img" aria-label="ヘリウム原子の模式図。原子核は陽子2個と中性子2個、まわりに電子2個"><circle cx="75" cy="82" r="46" class="dash"/><circle cx="79" cy="78" r="6" class="bx"/><circle cx="71" cy="86" r="6" class="bx"/><circle cx="71" cy="78" r="6" class="pt"/><circle cx="79" cy="86" r="6" class="pt"/><circle cx="121" cy="82" r="4" class="tr"/><circle cx="29" cy="82" r="4" class="tr"/><text x="4" y="14">ヘリウム原子(模式図)</text><text x="58" y="108">原子核</text><text x="134" y="60">陽子の数</text><text x="134" y="74">=電子の数</text><text x="134" y="94">→ 全体で</text><text x="134" y="108">電気を帯びない</text><circle cx="10" cy="142" r="5" class="pt"/><text x="18" y="146">陽子(+)</text><circle cx="80" cy="142" r="5" class="bx"/><text x="88" y="146">中性子(0)</text><circle cx="152" cy="142" r="4" class="tr"/><text x="160" y="146">電子(−)</text></svg>');
+  // イオン:中和とイオンの数
+  put('s_ion', 6, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="塩酸に水酸化ナトリウム水溶液を加えたときのイオンの数。H+は中性で0になり、Cl-は一定、Na+はふえ続け、OH-は中性のあとからふえる"><line x1="30" y1="125" x2="205" y2="125" class="ax"/><line x1="30" y1="125" x2="30" y2="18" class="ax"/><line x1="110" y1="125" x2="110" y2="25" class="dash"/><line x1="30" y1="75" x2="180" y2="75" class="rt"/><line x1="30" y1="75" x2="110" y2="125" class="cv2"/><line x1="110" y1="125" x2="180" y2="81.25" class="cv2"/><line x1="30" y1="125" x2="180" y2="31.25" class="cv"/><text x="34" y="14">イオンの数</text><text x="113" y="36">中性</text><text x="184" y="35">Na⁺</text><text x="184" y="74">Cl⁻</text><text x="184" y="90">OH⁻</text><text x="40" y="100">H⁺</text><text x="36" y="142">加えたNaOH水溶液の体積 →</text></svg>');
+
+  // 計算:電熱線の上昇温度
+  put('sx_jh', 2, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="電熱線で水を温めた時間と上昇温度のグラフ。原点を通る直線で、電力が大きいほど傾きが急"><line x1="35" y1="125" x2="205" y2="125" class="ax"/><line x1="35" y1="125" x2="35" y2="18" class="ax"/><line x1="35" y1="125" x2="175" y2="35" class="cv2"/><line x1="35" y1="125" x2="195" y2="73.6" class="cv"/><text x="40" y="16">上昇温度[℃]</text><text x="26" y="137">0</text><text x="176" y="141">時間</text><text x="50" y="141">原点を通る直線</text><text x="118" y="36">電力 大</text><text x="150" y="106">電力 半分</text></svg>');
+  // 計算:置き方と圧力
+  put('sx_jh', 4, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="同じ直方体を3通りに置いたとき。重さは同じで、下の面積が小さいほど圧力が大きい"><line x1="4" y1="105" x2="216" y2="105" class="ax"/><rect x="8" y="90" width="60" height="15" class="tr"/><rect x="80" y="75" width="60" height="30" class="tr"/><rect x="165" y="45" width="30" height="60" class="tr"/><line x1="8" y1="105" x2="68" y2="105" class="cv2"/><line x1="80" y1="105" x2="140" y2="105" class="cv2"/><line x1="165" y1="105" x2="195" y2="105" class="cv2"/><text x="4" y="14">同じ直方体(5×10×20cm)・重さは同じ</text><text x="18" y="121">200cm²</text><text x="90" y="121">100cm²</text><text x="164" y="121">50cm²</text><text x="12" y="137">圧力 最小</text><text x="94" y="137">圧力 中</text><text x="152" y="137">圧力 最大</text></svg>');
+
+  // 計算(単位):「〜あたり」の公式と単位換算
+  put('sx_jh2', 0, 'flow', { title: '「〜あたり」で読む公式', cols: 2, head: ['公式', '意味(単位)'],
+    rows: [
+      [['速さ = 距離 ÷ 時間', 'b'], ['1秒あたりの距離', 'gr', 1, 'm/s']],
+      [['密度 = 質量 ÷ 体積', 'b'], ['1cm³あたりの質量', 'gr', 1, 'g/cm³']],
+      [['圧力 = 力 ÷ 面積', 'b'], ['1m²あたりの力', 'gr', 1, 'Pa']],
+      [['仕事率 = 仕事 ÷ 時間', 'b'], ['1秒あたりの仕事', 'gr', 1, 'W']],
+      [['濃度 = 溶質 ÷ 溶液 × 100', 'b'], ['溶液100gあたりの溶質', 'gr', 1, '%']]
+    ] });
+  put('sx_jh2', 1, 'flow', { title: '単位換算:かけるか、わるか', cols: 2,
+    rows: [
+      [['大きい単位 → 小さい単位', 'r', 1, '数がふえる → かけ算'], ['小さい単位 → 大きい単位', 'b', 1, '数が減る → わり算']],
+      [['2.5km → 2500m', 'r', 1, '2.5 × 1000'], ['300mA → 0.3A', 'b', 1, '300 ÷ 1000']],
+      [['1時間 = 3600秒', 'k', 1, '1分 = 60秒'], ['1m² = 10000cm²', 'k', 1, '100 × 100 倍']],
+      [['1kg の重力 = 10N', 'k', 1, '100g で 1N'], ['1cm³ = 1mL', 'k']]
+    ] });
+
+  // 生物のからだ:細胞のつくり・血液の循環
+  put('s_m3', 1, 'fig', '<svg viewBox="0 0 240 170" class="lz-fig" role="img" aria-label="植物の細胞と動物の細胞。核と細胞膜は共通で、細胞壁・葉緑体・液胞は植物の細胞だけにある"><rect x="10" y="30" width="90" height="95" class="bx"/><rect x="14" y="34" width="82" height="87" class="rt"/><ellipse cx="62" cy="85" rx="24" ry="26" class="fl"/><circle cx="32" cy="60" r="7" class="pt"/><ellipse cx="30" cy="102" rx="5" ry="3" class="tr"/><ellipse cx="52" cy="46" rx="5" ry="3" class="tr"/><ellipse cx="84" cy="48" rx="5" ry="3" class="tr"/><ellipse cx="86" cy="112" rx="5" ry="3" class="tr"/><line x1="16" y1="24" x2="12" y2="30" class="ax"/><text x="2" y="20">細胞壁</text><line x1="56" y1="25" x2="53" y2="42" class="ax"/><text x="44" y="20">葉緑体</text><text x="52" y="89">液胞</text><text x="27" y="81">核</text><ellipse cx="180" cy="80" rx="42" ry="34" class="tr"/><circle cx="180" cy="80" r="8" class="pt"/><text x="176" y="102">核</text><line x1="212" y1="34" x2="207" y2="52" class="ax"/><text x="196" y="28">細胞膜</text><text x="28" y="142">植物の細胞</text><text x="152" y="142">動物の細胞</text><text x="4" y="162">植物だけ:細胞壁・葉緑体・液胞</text></svg>');
+  put('s_m3', 5, 'chain', { title: '血液の循環(心臓から出て心臓にもどる)', items: [
+    ['体循環', '左心室 → 大動脈 → 全身', '酸素を多くふくむ動脈血が全身へ'],
+    ['体循環', '全身 → 大静脈 → 右心房 → 右心室', '二酸化炭素を多くふくむ静脈血がもどる'],
+    ['肺循環', '右心室 → 肺動脈 → 肺', '肺動脈には静脈血が流れる'],
+    ['肺循環', '肺 → 肺静脈 → 左心房 → 左心室', '肺で酸素を受け取った動脈血(肺静脈には動脈血)']] });
+
+  // 生命の連続性:減数分裂と受精・かけ合わせの表
+  put('s_cell', 3, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="ヒトの減数分裂と受精。体細胞46本から減数分裂で23本の生殖細胞ができ、受精で46本にもどる"><circle cx="35" cy="40" r="18" class="tr"/><circle cx="35" cy="115" r="18" class="tr"/><circle cx="110" cy="40" r="14" class="bx"/><circle cx="110" cy="115" r="14" class="bx"/><circle cx="185" cy="78" r="18" class="tr"/><line x1="56" y1="40" x2="92" y2="40" class="cv"/><path d="M86 36 L92 40 L86 44" class="cv"/><line x1="56" y1="115" x2="92" y2="115" class="cv"/><path d="M86 111 L92 115 L86 119" class="cv"/><line x1="125" y1="46" x2="166" y2="70" class="cv2"/><path d="M159 70 L166 70 L163 64" class="cv2"/><line x1="125" y1="109" x2="166" y2="86" class="cv2"/><path d="M159 86 L166 86 L163 92" class="cv2"/><text x="18" y="12">体細胞</text><text x="88" y="12">生殖細胞</text><text x="168" y="12">受精卵</text><text x="24" y="44">46本</text><text x="24" y="119">46本</text><text x="99" y="44">23本</text><text x="99" y="119">23本</text><text x="174" y="82">46本</text><text x="4" y="44">父</text><text x="4" y="119">母</text><text x="99" y="68">精子</text><text x="105" y="144">卵</text><text x="52" y="81">減数分裂</text><text x="128" y="82">受精</text><text x="150" y="114">23+23=46本</text></svg>');
+  put('s_cell', 4, 'flow', { title: 'Aa × Aa のかけ合わせの表 → 丸:しわ = 3:1', cols: 3, head: ['卵細胞 \\ 精細胞', 'A', 'a'],
+    rows: [
+      [['A', 'k'], ['AA', 'r', 1, '丸'], ['Aa', 'r', 1, '丸']],
+      [['a', 'k'], ['Aa', 'r', 1, '丸'], ['aa', 'b', 1, 'しわ']]
+    ],
+    legend: [['r', '丸(顕性形質)'], ['b', 'しわ(潜性形質)']] });
+
+  // 大地と天気:火成岩・地震
+  put('s_m4', 1, 'flow', { title: '火成岩の分類', cols: 4, head: ['', '白っぽい', '中間', '黒っぽい'],
+    rows: [
+      [['火山岩', 'o', 1, '急に冷える・斑状組織'], ['流紋岩', 'y'], ['安山岩', 'k'], ['玄武岩', 'b']],
+      [['深成岩', 'r', 1, 'ゆっくり冷える・等粒状組織'], ['花こう岩', 'y'], ['せん緑岩', 'k'], ['斑れい岩', 'b']]
+    ] });
+  put('s_m4', 2, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="地震の波の到着時刻と震源からの距離のグラフ。P波のほうが速く、初期微動継続時間は距離に比例して長くなる"><line x1="35" y1="125" x2="205" y2="125" class="ax"/><line x1="35" y1="125" x2="35" y2="18" class="ax"/><line x1="35" y1="125" x2="115" y2="30" class="cv"/><line x1="35" y1="125" x2="195" y2="30" class="cv2"/><line x1="81.3" y1="70" x2="127.6" y2="70" class="arc"/><line x1="81.3" y1="66" x2="81.3" y2="74" class="arc"/><line x1="127.6" y1="66" x2="127.6" y2="74" class="arc"/><text x="38" y="14">震源からの距離</text><text x="26" y="137">0</text><text x="66" y="142">地震発生からの時間 →</text><text x="92" y="30">P波</text><text x="168" y="30">S波</text><text x="156" y="66">初期微動</text><text x="156" y="79">継続時間</text></svg>');
+
+  // 地球と宇宙:日食と月食
+  put('s_space', 5, 'fig', '<svg viewBox="0 0 220 160" class="lz-fig" role="img" aria-label="日食は太陽・月・地球の順に並ぶ新月のとき、月食は太陽・地球・月の順に並ぶ満月のときに起こる"><text x="4" y="14">日食:太陽−月−地球(新月)</text><line x1="22" y1="26" x2="110" y2="37" class="dash"/><line x1="22" y1="58" x2="110" y2="47" class="dash"/><polygon points="110,37 172,42 110,47" class="fl"/><circle cx="22" cy="42" r="16" class="pt"/><circle cx="110" cy="42" r="5" class="bx"/><circle cx="175" cy="42" r="10" class="tr"/><text x="10" y="72">太陽</text><text x="105" y="62">月</text><text x="164" y="66">地球</text><text x="4" y="94">月食:太陽−地球−月(満月)</text><line x1="22" y1="104" x2="110" y2="110" class="dash"/><line x1="22" y1="136" x2="110" y2="130" class="dash"/><polygon points="110,110 195,116 195,124 110,130" class="fl"/><circle cx="22" cy="120" r="16" class="pt"/><circle cx="110" cy="120" r="10" class="tr"/><circle cx="175" cy="120" r="5" class="bx"/><text x="10" y="152">太陽</text><text x="99" y="148">地球</text><text x="171" y="140">月</text></svg>');
+})(WPS.LESSONS);
