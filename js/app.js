@@ -950,7 +950,7 @@
     var q = srchQ.trim().toLowerCase(), gr = S.get().profile.grade, st = A.allStats(), hits = [];
     if (q) srchIndex().forEach(function (x) {
       if (hits.length >= 60) return;
-      if (x.u && !WPS.unitAllowed(x.u, gr, st)) return;
+      if (x.u && !WPS.unitVisible(x.u, gr)) return;
       if (x.L && !wordListOk(x.L, gr, st)) return;
       if (String(x.t).toLowerCase().indexOf(q) >= 0 || String(x.m).toLowerCase().indexOf(q) >= 0) hits.push(x);
     });
@@ -1867,17 +1867,19 @@
     // 学年に合う単元が1つもない教科は出さない(中学生には高校の教科・高校向けの案内を出さない)
     var C = WPS.CURRICULUM.filter(function (g0) {
       if (g0.guideOnly) return !jhS;
-      return g0.courses.some(function (x) { return x.guide ? !jhS : WPS.courseUnits(g0, x).some(function (u) { return WPS.unitAllowed(u, grade0, stats); }); });
+      return g0.courses.some(function (x) { return x.guide ? !jhS : WPS.courseUnits(g0, x).some(function (u) { return WPS.unitVisible(u, grade0); }); });
     });
     var g = C.filter(function (x) { return x.id === cardFilter.group; })[0] || C[0];
     cardFilter.group = g.id;
     var c = g.courses.filter(function (x) { return x.id === cardFilter.course; })[0];
     var html = '<div class="tier"><span class="f-label">教科</span>' + seg('group', C.map(function (x) { return [x.id, x.guideOnly ? '他:' + x.name : x.name]; }), g.id) + '</div>';
     var grade = S.get().profile.grade;
-    var visCourses = g.courses.filter(function (x) { return x.guide ? !jhS : WPS.courseUnits(g, x).some(function (u) { return WPS.unitAllowed(u, grade, stats); }); });
+    var visCourses = g.courses.filter(function (x) { return x.guide ? !jhS : WPS.courseUnits(g, x).some(function (u) { return WPS.unitVisible(u, grade); }); });
+    // 高校生には、ふり返り用の中学の科目を高校の科目のあとに並べる
+    if (!jhS) { var jhC = function (x) { var us = x.guide ? [] : WPS.courseUnits(g, x); return us.length > 0 && us.every(function (u) { return WPS.STAGES.indexOf(u.stage) <= 2; }); }; visCourses = visCourses.filter(function (x) { return !jhC(x); }).concat(visCourses.filter(jhC)); }
     if (c && visCourses.indexOf(c) < 0) { c = null; cardFilter.course = 'all'; }
     html += '<div class="tier tier2"><span class="f-label">科目</span>' + seg('course', [['all', g.guideOnly ? '概要' : 'すべて']].concat(visCourses.map(function (x) {
-      var n = WPS.courseUnits(g, x).filter(function (u) { return WPS.unitAllowed(u, grade, stats); }).length;
+      var n = WPS.courseUnits(g, x).filter(function (u) { return WPS.unitVisible(u, grade); }).length;
       return [x.id, h(x.short || x.name) + (x.guide ? '' : '<small> ' + n + '</small>')];
     })), c ? c.id : 'all') + '</div>';
     // 文部科学省が求めている力
@@ -1900,7 +1902,7 @@
     }
     courses.forEach(function (x) {
       if (x.guide) { if (c) body += guideBox(x); else body += '<details class="guide-mini"><summary>' + h(x.name) + '(勉強法・入試での使われ方)</summary>' + guideBox(x) + '</details>'; return; }
-      var ok = function (u) { return WPS.unitAllowed(u, S.get().profile.grade, stats) && (mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]); };
+      var ok = function (u) { return WPS.unitVisible(u, S.get().profile.grade) && (mode !== 'cards' || cardFilter.scope !== 'weak' || weakSet[u.id]); };
       var us = WPS.courseUnits(g, x).filter(ok);
       if (!us.length && !(c && x.areas)) return;
       total += us.length;

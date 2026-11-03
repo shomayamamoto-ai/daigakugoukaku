@@ -272,6 +272,13 @@ WPS.Roadmap = (function () {
     return !!(st && (st.status === 'weak' || st.status === 'soso'));
   };
 
+  // 一覧・検索・テキストで「見られる」単元。高校生は中学の単元もふり返り用に見られる(中学生には高校の単元は出さない)
+  WPS.unitVisible = function (u, grade) {
+    if (typeof u === 'string') u = WPS.UNIT_MAP[u];
+    if (!u) return false;
+    return WPS.isJHStudent(grade) ? WPS.STAGES.indexOf(u.stage) <= 2 : true;
+  };
+
   function target() {
     var p = WPS.Store.get().profile;
     var school = WPS.SCHOOL_MAP[p.schoolId] || null;
