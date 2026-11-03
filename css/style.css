@@ -1987,3 +1987,9 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .zk-chain li.k-その後 { background: #8f7420; border-left-color: #fde68a; }
 .zk, .zk-c, .zk-chain { letter-spacing: 0; }
 .zk-flow .zk-c b { font-size: 13px; }
+
+/* レーダー:科目別の色見本 */
+.rd-grp { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; font-size: .74rem; color: var(--muted); margin: 0 0 8px; }
+.rd-grp span { display: inline-flex; align-items: center; gap: 4px; }
+.rd-grp i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.rd-lab { font-size: 11px; }

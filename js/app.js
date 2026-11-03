@@ -521,37 +521,64 @@
     return '<svg class="spark" viewBox="0 0 ' + w + ' ' + hh + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts.join(' ') + '"/></svg>';
   }
   // 教科のレーダーチャート:直近30日の正答率(あなた)と、それより前の正答率(1か月前まで)を重ねる
+  // レーダーチャートの軸:教科をさらに科目(現代文・古文・漢文、日本史・世界史 など)に分ける
+  var RD_AX = [
+    ['eng', 'eng', '英語'], ['m1', 'math', '数学ⅠA'], ['m2', 'math', '数学ⅡBC'], ['m3', 'math', '数学Ⅲ'],
+    ['gen', 'jpn', '現代文'], ['ko', 'jpn', '古文'], ['kan', 'jpn', '漢文'],
+    ['jh', 'soc', '日本史'], ['wh', 'soc', '世界史'], ['geo', 'soc', '地理'], ['civ', 'soc', '公民'],
+    ['phy', 'sci', '物理'], ['chem', 'sci', '化学'], ['bio', 'sci', '生物'], ['earth', 'sci', '地学'], ['info', 'info', '情報']
+  ];
+  var RD_COURSE = { math_jh: 'm1', math_1: 'm1', math_a: 'm1', math_2: 'm2', math_b: 'm2', math_c: 'm2', math_3: 'm3',
+    jpn_jh: 'gen', jpn_ron: 'gen', jpn_ko: 'ko', jpn_kan: 'kan', soc_jhis: 'jh', soc_jh: 'jh', soc_wh: 'wh', soc_jgeo: 'geo', soc_geo: 'geo', soc_jciv: 'civ', soc_kokyo: 'civ', soc_rinri: 'civ',
+    sci_phy: 'phy', sci_chem: 'chem', sci_bio: 'bio', sci_geo: 'earth', sci_jh1: 'phy', sci_jh2: 'bio' };
+  var RD_UNIT = { j_kobun_m: 'ko', j_kanbun_m: 'kan', jx_std: 'ko', hd_jpn: 'ko', s_sol: 'chem', s_m2: 'chem', s_ion: 'chem', s_m4: 'earth', s_space: 'earth' };
+  var rdMap = null;
+  function rdAxisOf(uid, subj) {
+    if (!rdMap) {
+      rdMap = {};
+      (WPS.CURRICULUM || []).forEach(function (g) { (g.courses || []).forEach(function (c) { var ax = RD_COURSE[c.id]; if (!ax) return; (c.areas || []).forEach(function (a) { (a.units || []).forEach(function (id) { if (!rdMap[id]) rdMap[id] = ax; }); }); (c.units || []).forEach(function (id) { if (!rdMap[id]) rdMap[id] = ax; }); }); });
+      Object.keys(RD_UNIT).forEach(function (id) { rdMap[id] = RD_UNIT[id]; });
+    }
+    if (uid && rdMap[uid]) return rdMap[uid];
+    return { eng: 'eng', info: 'info', math: 'm1', jpn: 'gen', soc: null, sci: null }[subj] || null;
+  }
   function subjectRadar(s) {
     var t = R.target(), subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return t.weights[k] > 0; });
-    if (subs.length < 3) return '';
     var since = Date.now() - 30 * 864e5, cur = {}, prev = {};
-    subs.forEach(function (k) { cur[k] = [0, 0]; prev[k] = [0, 0]; });
-    s.attempts.forEach(function (a) { if (!cur[a.s] || a.src === 'school') return; var o = a.t >= since ? cur : prev; o[a.s][1]++; if (a.ok) o[a.s][0]++; });
+    RD_AX.forEach(function (x) { cur[x[0]] = [0, 0]; prev[x[0]] = [0, 0]; });
+    s.attempts.forEach(function (a) { if (a.src === 'school' || subs.indexOf(a.s) < 0) return; var k = rdAxisOf(a.u, a.s); if (!k) return; var o = a.t >= since ? cur : prev; o[k][1]++; if (a.ok) o[k][0]++; });
+    // 日本史・世界史の一問一答の記録も、それぞれの軸に入れる(最後に解いた日で直近かどうかを判断)
+    [['jhq', 'jh'], ['whq', 'wh']].forEach(function (p) { if (subs.indexOf('soc') < 0) return; var r = (s[p[0]] || {}).r || {}; Object.keys(r).forEach(function (id) { var x = r[id], o = (x.l || 0) >= since ? cur : prev; o[p[1]][1] += x.n || 0; o[p[1]][0] += x.ok || 0; }); });
+    var axes = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0 && (cur[x[0]][1] || prev[x[0]][1]); });
+    if (axes.length < 3 || !axes.some(function (x) { return cur[x[0]][1]; })) return '';
     var pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
-    var hasPrev = subs.some(function (k) { return prev[k][1]; });
-    if (!subs.some(function (k) { return cur[k][1]; })) return '';
-    var W = 320, H = 300, cx = W / 2, cy = 150, R0 = 95, n = subs.length;
+    var nm = function (k) { return RD_AX.filter(function (x) { return x[0] === k; })[0][2]; };
+    var hasPrev = axes.some(function (x) { return prev[x[0]][1]; });
+    var many = axes.length > 8, W = 360, H = many ? 340 : 310, cx = W / 2, cy = H / 2, R0 = many ? 100 : 98, n = axes.length;
     var pt = function (i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n, r = R0 * v / 100; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
     var poly = function (vals) { return vals.map(function (v, i) { var p = pt(i, v || 0); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); };
     var g = '';
-    [20, 40, 60, 80, 100].forEach(function (lv) { g += '<polygon class="rd-grid' + (lv === 80 ? ' goal' : '') + '" points="' + poly(subs.map(function () { return lv; })) + '"/>'; });
-    subs.forEach(function (k, i) { var p = pt(i, 100); g += '<line class="rd-ax" x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; });
+    [20, 40, 60, 80, 100].forEach(function (lv) { g += '<polygon class="rd-grid' + (lv === 80 ? ' goal' : '') + '" points="' + poly(axes.map(function () { return lv; })) + '"/>'; });
+    axes.forEach(function (x, i) { var p = pt(i, 100); g += '<line class="rd-ax" x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; });
     [0, 40, 80].forEach(function (lv) { var p = pt(0, lv); g += '<text class="rd-tick" x="' + (p[0] + 4) + '" y="' + (p[1] + 4) + '">' + lv + '</text>'; });
-    var cv = subs.map(function (k) { return pc(cur, k); }), pv = subs.map(function (k) { return pc(prev, k); });
+    var cv = axes.map(function (x) { return pc(cur, x[0]); }), pv = axes.map(function (x) { return pc(prev, x[0]); });
     if (hasPrev) g += '<polygon class="rd-prev" points="' + poly(pv) + '"/>';
     g += '<polygon class="rd-cur" points="' + poly(cv) + '"/>';
-    cv.forEach(function (v, i) { if (v === null) return; var p = pt(i, v); g += '<circle class="rd-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5"><title>' + WPS.SUBJECTS[subs[i]].name + ' ' + v + '%</title></circle>'; });
-    subs.forEach(function (k, i) {
-      var p = pt(i, 122), anc = Math.abs(p[0] - cx) < 8 ? 'middle' : p[0] > cx ? 'start' : 'end', v = cv[i];
-      g += '<text class="rd-lab" x="' + p[0].toFixed(1) + '" y="' + (p[1] + 4).toFixed(1) + '" text-anchor="' + anc + '">' + WPS.SUBJECTS[k].name + '<tspan class="rd-v" dx="4">' + (v === null ? '—' : v + '%') + '</tspan></text>';
+    cv.forEach(function (v, i) { if (v === null) return; var p = pt(i, v); g += '<circle class="rd-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5"><title>' + axes[i][2] + ' ' + v + '%</title></circle>'; });
+    axes.forEach(function (x, i) {
+      var p = pt(i, many ? 118 : 120), anc = Math.abs(p[0] - cx) < 10 ? 'middle' : p[0] > cx ? 'start' : 'end', v = cv[i], col = (WPS.SUBJECTS[x[1]] || {}).color || 'currentColor';
+      // 名前と%を2行にして、軸が多くても重ならないようにする
+      g += '<text class="rd-lab" x="' + p[0].toFixed(1) + '" y="' + (p[1] - 2).toFixed(1) + '" text-anchor="' + anc + '"><tspan fill="' + col + '">' + x[2] + '</tspan><tspan class="rd-v" x="' + p[0].toFixed(1) + '" dy="13">' + (v === null ? '—' : v + '%') + '</tspan></text>';
     });
-    var best = subs.slice().filter(function (k) { return pc(cur, k) !== null; }).sort(function (a, b) { return pc(cur, b) - pc(cur, a); });
+    var best = axes.map(function (x) { return x[0]; }).filter(function (k) { return pc(cur, k) !== null; }).sort(function (a, b) { return pc(cur, b) - pc(cur, a); });
     var top = best[0], low = best[best.length - 1];
-    var up = hasPrev ? subs.filter(function (k) { return pc(cur, k) !== null && pc(prev, k) !== null; }).map(function (k) { return [k, pc(cur, k) - pc(prev, k)]; }).sort(function (a, b) { return b[1] - a[1]; })[0] : null;
-    return '<div class="rd-box"><h3>教科バランス(正答率)</h3><svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="教科ごとの正答率のレーダーチャート">' + g + '</svg>' +
+    var up = hasPrev ? axes.map(function (x) { return x[0]; }).filter(function (k) { return pc(cur, k) !== null && pc(prev, k) !== null; }).map(function (k) { return [k, pc(cur, k) - pc(prev, k)]; }).sort(function (a, b) { return b[1] - a[1]; })[0] : null;
+    var grp = subs.filter(function (k) { return axes.some(function (x) { return x[1] === k; }); }).map(function (k) { return '<span><i style="background:' + WPS.SUBJECTS[k].color + '"></i>' + WPS.SUBJECTS[k].name + '</span>'; }).join('');
+    return '<div class="rd-box"><h3>科目バランス(正答率)</h3><svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="科目ごとの正答率のレーダーチャート">' + g + '</svg>' +
       '<p class="rd-leg"><span class="cur">あなた(直近30日)</span>' + (hasPrev ? '<span class="prev">1か月前まで</span>' : '') + '<span class="goal">得意の目安 80%</span></p>' +
-      '<div class="rd-note"><b>読み方</b>形が大きく、まるいほど、どの教科もバランスよく解けています。' + (top && low && top !== low ? '<br>いちばん強いのは<b>' + WPS.SUBJECTS[top].name + '(' + pc(cur, top) + '%)</b>、のびしろが大きいのは<b>' + WPS.SUBJECTS[low].name + '(' + pc(cur, low) + '%)</b>です。' : '') +
-      (up && up[1] > 0 ? '<br>1か月前より<b>' + WPS.SUBJECTS[up[0]].name + 'が' + up[1] + 'pt</b>上がりました。' : '') + '<br><small>アプリで解いた問題の正答率です。問題の難しさは教科ごとにちがうため、模試の偏差値とは一致しません。</small></div></div>';
+      '<p class="rd-grp">' + grp + '</p>' +
+      '<div class="rd-note"><b>読み方</b>形が大きく、まるいほど、どの科目もバランスよく解けています。「—」はまだ直近30日に解いていない科目です。' + (top && low && top !== low ? '<br>いちばん強いのは<b>' + nm(top) + '(' + pc(cur, top) + '%)</b>、のびしろが大きいのは<b>' + nm(low) + '(' + pc(cur, low) + '%)</b>です。' : '') +
+      (up && up[1] > 0 ? '<br>1か月前より<b>' + nm(up[0]) + 'が' + up[1] + 'pt</b>上がりました。' : '') + '<br><small>アプリで解いた問題(日本史・世界史は一問一答もふくむ)の正答率です。問題の難しさは科目ごとにちがうため、模試の偏差値とは一致しません。</small></div></div>';
   }
   function dashboard(s, stats, opt) {
     opt = opt || {};
