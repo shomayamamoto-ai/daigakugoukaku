@@ -282,7 +282,7 @@ WPS.makeVocab = function (ctx) {
     return '<section class="card"><h2>早慶上理(学部ごと)</h2>' + WPS.SOKEI_PLAN.map(function (u) {
       return '<h3 class="sk-u">' + h(u.univ) + (u.all ? '<small>全学部 ' + u.all + '語(重複を除いた数)</small>' : '') + '</h3><div class="sk-grid">' + u.fac.map(function (f) {
         var key = f[2] || u.univ + ' ' + f[0].replace(/学部$/, ''), idx = names.indexOf(key), ready = idx >= 0 && sid;
-        return '<button type="button" class="sk-f' + (ready ? '' : ' off') + '"' + (ready ? ' data-sk="' + idx + '" data-skl="' + sid.i + '"' : ' disabled') + '><b>' + h(f[0]) + '</b><small>' + f[1] + '語・' + (ready ? '入力済み' : '準備中') + '</small></button>';
+        return '<button type="button" class="sk-f' + (ready ? '' : ' off') + '"' + (ready ? ' data-sk="' + idx + '" data-skl="' + sid.i + '"' : ' disabled') + '><b>' + h(f[0]) + '</b><small>' + (ready ? (bk.parts[idx][0] + bk.parts[idx][1] >= f[1] ? f[1] + '語・入力済み' : (bk.parts[idx][0] + bk.parts[idx][1]) + ' / ' + f[1] + '語・入力中') : f[1] + '語・準備中') + '</small></button>';
       }).join('') + '</div>';
     }).join('') + '<p class="hint">準備中の学部は、単語の画像を送っていただければ追加します。</p></section>';
   }
