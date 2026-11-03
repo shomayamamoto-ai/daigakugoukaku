@@ -1833,7 +1833,7 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .bk-toc h3 { font-size: .95rem; margin: 14px 0 4px; color: var(--primary); }
 .bk-toc ol { margin: 0; padding-left: 1.8em; } .bk-toc li { padding: 2px 0; }
 .bk-toc li a { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 0; color: var(--text); text-decoration: none; border-bottom: 1px dashed var(--line); }
-.bk-toc li a span { flex: 1; min-width: 0; } .bk-toc li.off { opacity: .45; }
+.bk-toc li a span { flex: 1; min-width: 0; } .bk-toc li.off { opacity: .8; }
 .bk-toc em { font-style: normal; font-size: .7rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; }
 .bk-ok { background: #dcfce7; color: #15803d; } .bk-weak { background: #fde4ec; color: #be123c; } .bk-bm { background: #fff4cc; color: #8a5a00; }
 .bk-page { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px 20px; }
@@ -2057,3 +2057,48 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 /* ヘッダー:ロゴは左、ほかのボタンは常に右づめ(ログイン画面で🔍・設定が隠れていても) */
 .topbar .logo { margin-right: auto !important; }
 .topbar .tb-search { margin-left: 0; }
+
+/* デイリークエスト:押すとその画面へ */
+.q-list a.q-go { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; color: inherit; text-decoration: none; border-radius: 10px; }
+.q-list a.q-go:hover .q-body b, .q-list a.q-go:focus-visible .q-body b { color: var(--primary); }
+.q-arrow { font-style: normal; color: var(--primary); margin-left: 6px; font-weight: 800; }
+.q-list li.done .q-arrow { display: none; }
+
+/* 黒板(確認問題)の答え:青い文字にならないよう、黄色のチョーク文字に固定 */
+.bk-board .bk-ans b, .bk-board .bk-exp b, .bk-board p b { color: #fde68a !important; background: rgba(253, 230, 138, .14) !important; border-bottom: 0 !important; }
+.q-list li { display: block; } .q-list a.q-go .q-body { flex: 1; min-width: 0; }
+/* 本棚:上の列で中学・高校を切りかえ */
+.bk-lv { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); margin-bottom: 10px; }
+.bk-lv-btn { padding: 10px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.bk-lv-btn.on { background: var(--primary); color: #fff; }
+.bk-tools input { width: 100%; }
+
+/* ===== 科目バランス:大きく見やすく+チェックリスト ===== */
+.rd-wrap { display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
+@media (min-width: 760px) { .rd-wrap { grid-template-columns: minmax(0, 1.7fr) minmax(200px, 1fr); } }
+.radar { max-width: 560px !important; }
+.rd-lab { font-size: 12px !important; }
+.rd-check { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--primary) 4%, var(--card)); }
+.rd-ck-h { display: flex; justify-content: space-between; align-items: center; margin: 0 0 6px; font-weight: 800; font-size: 14px; }
+.rd-ck-all { border: 1px solid var(--line); background: var(--card); color: var(--primary); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.rd-check fieldset { border: 0; margin: 0 0 6px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.rd-check legend { font-size: 12px; font-weight: 800; padding: 0; margin-bottom: 4px; width: 100%; }
+.rd-ck { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 13px; cursor: pointer; user-select: none; }
+.rd-ck input { margin: 0; accent-color: var(--primary); width: 15px; height: 15px; }
+.rd-ck small { color: var(--muted); font-size: 11px; }
+.rd-ck.on { border-color: var(--primary); background: var(--primary-weak); font-weight: 700; }
+.rd-few { margin: 8px 0; color: var(--muted); }
+
+/* 解説:ことばの使い方・例文・類義語/対義語 */
+.fb-word { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--card); border-left: 4px solid #10b981; }
+.fb-word small { display: block; font-weight: 800; color: #0f9f6e; margin-bottom: 4px; }
+.fb-word p { margin: 4px 0; line-height: 1.75; }
+.fb-word .fw-h { font-weight: 700; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.fb-word ul { margin: 2px 0 4px; padding-left: 1.2em; } .fb-word li { line-height: 1.7; margin: 2px 0; }
+.fw-rel { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.fw-rel b { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, #10b981 14%, var(--card)); color: #0f9f6e; margin-right: 6px; }
+/* 復習のすすめ:理由つき */
+.rv-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 8px; }
+.rv-list li { display: grid; gap: 4px; }
+.rv-list .review-chip { justify-self: start; }
+.rv-why { font-size: 13px; line-height: 1.7; color: var(--muted); }

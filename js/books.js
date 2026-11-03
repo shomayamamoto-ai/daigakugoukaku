@@ -7,7 +7,7 @@
 window.WPS = window.WPS || {};
 WPS.makeBooks = function (ctx) {
   var h = ctx.h, S = WPS.Store;
-  var st = { subj: 'all', q: '', sort: 'order', grid: false };
+  var st = { lv: null, q: '', sort: 'order', grid: false };
   function B() { var s = S.get(); if (!s.books) s.books = { read: {}, bm: {}, last: null }; return s.books; }
   function allowed(u) { var p = S.get().profile; return WPS.unitAllowed(u, p.grade, ctx.stats()); }
 
@@ -22,7 +22,7 @@ WPS.makeBooks = function (ctx) {
           : [{ name: c.name, topics: [], units: (c.units || []).filter(function (id) { return WPS.UNIT_MAP[id]; }) }];
         chapters = chapters.filter(function (ch) { return ch.units.length; });
         var units = []; chapters.forEach(function (ch) { ch.units.forEach(function (id) { if (units.indexOf(id) < 0) units.push(id); }); });
-        if (!units.length || !units.some(function (id) { return allowed(WPS.UNIT_MAP[id]); })) return;
+        if (!units.length) return; // 学年に関係なく、すべての本を本棚に出す(中学・高校は上の列で切りかえ)
         out.push({ id: c.id, name: c.name, short: c.short, subj: g.subj, stage: c.stage, chapters: chapters, units: units });
       });
     });
@@ -42,17 +42,19 @@ WPS.makeBooks = function (ctx) {
 
   /* ---------- 本棚 ---------- */
   function shelf() {
-    var bs = books(), subs = [];
-    bs.forEach(function (b) { if (subs.indexOf(b.subj) < 0) subs.push(b.subj); });
-    if (st.subj !== 'all' && subs.indexOf(st.subj) < 0) st.subj = 'all';
+    var bs = books();
+    // 上の列で「中学」「高校」を切りかえる(はじめは学年に合わせる)
+    var jhGrade = WPS.isJHStudent && WPS.isJHStudent(S.get().profile.grade);
+    if (!st.lv) st.lv = jhGrade ? 'jh' : 'hs';
+    var isJH = function (b) { return b.stage === 'jh'; };
     var q = st.q.trim();
-    var list = bs.filter(function (b) { return (st.subj === 'all' || b.subj === st.subj) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { return WPS.UNIT_MAP[id].name.indexOf(q) >= 0; })); });
+    var list = bs.filter(function (b) { return (st.lv === 'jh' ? isJH(b) : !isJH(b)) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { return WPS.UNIT_MAP[id].name.indexOf(q) >= 0; })); });
     if (st.sort === 'recent') { var t = B().t || {}; list.sort(function (a, c) { return (t[c.id] || 0) - (t[a.id] || 0); }); }
     var last = B().last && WPS.UNIT_MAP[B().last.u] ? B().last : null;
     var html = '';
     if (last) { var lb = bookOf(last.b); if (lb) html += '<section class="card bk-resume"><a href="#books/' + lb.id + '/' + last.u + '"><span>続きから読む</span><b>' + h(lb.name) + '・' + h(WPS.UNIT_MAP[last.u].name) + '</b></a></section>'; }
-    html += '<div class="bk-bar"><div class="seg">' + [['all', 'すべて']].concat(subs.map(function (k) { return [k, WPS.SUBJECTS[k].name]; })).map(function (o) { return '<button type="button" class="seg-btn' + (st.subj === o[0] ? ' on' : '') + '" data-bks="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
-      '<div class="bk-tools"><input id="bkq" type="search" value="' + h(st.q) + '" placeholder="本・単元を検索" aria-label="本・単元を検索"><button type="button" class="btn small" id="bkSort">' + (st.sort === 'recent' ? '最近読んだ順' : '教科の順') + '</button><button type="button" class="btn small" id="bkGrid" aria-label="表示の切り替え">' + (st.grid ? '一覧' : '表紙') + '</button></div></div>';
+    html += '<div class="bk-bar"><div class="bk-lv" role="tablist" aria-label="中学・高校">' + [['jh', '中学'], ['hs', '高校']].map(function (o) { return '<button type="button" role="tab" class="bk-lv-btn' + (st.lv === o[0] ? ' on' : '') + '" aria-selected="' + (st.lv === o[0]) + '" data-bklv="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="bk-tools"><input id="bkq" type="search" value="' + h(st.q) + '" placeholder="本・単元を検索" aria-label="本・単元を検索"></div></div>';
     html += '<section class="card bk-shelf' + (st.grid ? ' grid' : '') + '">' + (list.length ? list.map(function (b) {
       var n = readCount(b);
       return '<a class="bk-item" href="#books/' + b.id + '">' + cover(b) + '<div class="bk-meta"><b>' + h(b.name) + '</b><small>' + b.chapters.length + '章・' + b.units.length + '単元</small><span class="bk-prog"><i style="width:' + Math.round(n / b.units.length * 100) + '%"></i></span><small>読んだ ' + n + ' / ' + b.units.length + '</small></div></a>';
@@ -205,9 +207,7 @@ WPS.makeBooks = function (ctx) {
       return;
     }
     if (b) return;
-    view.querySelectorAll('[data-bks]').forEach(function (x) { x.addEventListener('click', function () { st.subj = x.getAttribute('data-bks'); re(); }); });
-    view.querySelector('#bkSort').addEventListener('click', function () { st.sort = st.sort === 'recent' ? 'order' : 'recent'; re(); });
-    view.querySelector('#bkGrid').addEventListener('click', function () { st.grid = !st.grid; re(); });
+    view.querySelectorAll('[data-bklv]').forEach(function (x) { x.addEventListener('click', function () { st.lv = x.getAttribute('data-bklv'); re(); }); });
     var q = view.querySelector('#bkq'), tm;
     q.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { st.q = q.value; re(); var el = document.getElementById('bkq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }, 250); });
   }

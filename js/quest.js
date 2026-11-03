@@ -88,7 +88,9 @@ WPS.Quest = (function () {
     var ps = progress(), d = peek(), all = ps.every(function (p) { return p.done; });
     return '<section class="card quest"><div class="q-head"><div><h2>デイリークエスト</h2><p class="muted small">3つ全部で「おやすみチケット」を1枚(最大2枚)</p></div><span class="q-left" title="今日の残り時間">あと' + hoursLeft() + '時間</span></div>' +
       '<ul class="q-list">' + ps.map(function (p) {
-        return '<li class="' + (p.done ? 'done' : '') + '"><div class="q-body"><b>' + h(p.q.t) + '</b><div class="q-bar"><i style="width:' + Math.round(p.v / p.q.goal * 100) + '%"></i><span>' + p.v + ' / ' + p.q.goal + '</span></div></div>' + chest(p.done) + '</li>';
+        // 押すと、そのクエストをこなせる画面へ移動する
+        var go = { pomo: '#timer', vocab: '#vocab', talk: '#vocab', hard: '#test', combo: '#test', ans: '#test', perfect: '#test', xp: '#test' }[p.q.id] || '#test';
+        return '<li class="' + (p.done ? 'done' : '') + '"><a class="q-go" href="' + go + '" data-qid="' + p.q.id + '"><div class="q-body"><b>' + h(p.q.t) + '<em class="q-arrow" aria-hidden="true">›</em></b><div class="q-bar"><i style="width:' + Math.round(p.v / p.q.goal * 100) + '%"></i><span>' + p.v + ' / ' + p.q.goal + '</span></div></div>' + chest(p.done) + '</a></li>';
       }).join('') +
       '<li class="locked"><div class="q-body"><b>明日のクエスト</b><span class="muted small">公開まであと' + hoursLeft() + '時間</span></div>' + chest(false) + '</li></ul>' +
       '<p class="q-xp">今日 <b>' + d.xp + '</b> XP ／ 累計 <b>' + WPS.Level.info().xp + '</b> XP' + (d.best >= 2 ? ' ／ 今日の最高コンボ <b>' + d.best + '</b>' : '') + (all ? ' ／ <b class="ok">今日のクエスト完了!</b>' : '') + '</p></section>';

@@ -558,9 +558,17 @@
     // 日本史・世界史の一問一答の記録も、それぞれの軸に入れる(最後に解いた日で直近かどうかを判断)
     [['jhq', 'jh'], ['whq', 'wh']].forEach(function (p) { if (subs.indexOf('soc') < 0) return; var r = (s[p[0]] || {}).r || {}; Object.keys(r).forEach(function (id) { var x = r[id], o = (x.l || 0) >= since ? cur : prev; o[p[1]][1] += x.n || 0; o[p[1]][0] += x.ok || 0; }); });
     // 受験で使う教科の科目は、まだ解いていなくても軸に出す(「—」と表示)。理科なら物理・化学・生物・地学がそろって見える
-    var axes = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0; });
-    if (axes.length < 3 || !axes.some(function (x) { return cur[x[0]][1]; })) return '';
     var pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
+    // チェックリストで選んだ科目だけをグラフに入れる(はじめは受験で使う教科の科目すべて)
+    var pool = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0; });
+    var sel = Array.isArray(s.radarSel) ? s.radarSel : null;
+    var axes = sel ? pool.filter(function (x) { return sel.indexOf(x[0]) >= 0; }) : pool;
+    if (!pool.some(function (x) { return cur[x[0]][1]; })) return '';
+    var checklist = '<div class="rd-check"><p class="rd-ck-h">グラフに入れる科目<button type="button" class="rd-ck-all" data-rdall="1">すべて</button></p>' +
+      subs.map(function (k) { var xs = pool.filter(function (x) { return x[1] === k; }); if (!xs.length) return '';
+        return '<fieldset><legend style="color:' + WPS.SUBJECTS[k].color + '">' + WPS.SUBJECTS[k].name + '</legend>' + xs.map(function (x) { var on = axes.indexOf(x) >= 0;
+          return '<label class="rd-ck' + (on ? ' on' : '') + '"><input type="checkbox" data-rdax="' + x[0] + '"' + (on ? ' checked' : '') + '><span>' + x[2] + '</span><small>' + (pc(cur, x[0]) === null ? '—' : pc(cur, x[0]) + '%') + '</small></label>'; }).join('') + '</fieldset>'; }).join('') + '</div>';
+    if (axes.length < 3) return '<div class="rd-box"><h3>科目バランス(正答率)</h3><div class="rd-wrap"><p class="rd-few">グラフにするには、科目を3つ以上えらんでください。</p>' + checklist + '</div></div>';
     var nm = function (k) { return RD_AX.filter(function (x) { return x[0] === k; })[0][2]; };
     var hasPrev = axes.some(function (x) { return prev[x[0]][1]; });
     var many = axes.length > 8, lots = axes.length > 12, W = lots ? 380 : 360, H = lots ? 370 : many ? 340 : 310, cx = W / 2, cy = H / 2, R0 = lots ? 104 : many ? 100 : 98, n = axes.length;
@@ -583,9 +591,9 @@
     var top = best[0], low = best[best.length - 1];
     var up = hasPrev ? axes.map(function (x) { return x[0]; }).filter(function (k) { return pc(cur, k) !== null && pc(prev, k) !== null; }).map(function (k) { return [k, pc(cur, k) - pc(prev, k)]; }).sort(function (a, b) { return b[1] - a[1]; })[0] : null;
     var grp = subs.filter(function (k) { return axes.some(function (x) { return x[1] === k; }); }).map(function (k) { return '<span><i style="background:' + WPS.SUBJECTS[k].color + '"></i>' + WPS.SUBJECTS[k].name + '</span>'; }).join('');
-    return '<div class="rd-box"><h3>科目バランス(正答率)</h3><svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="科目ごとの正答率のレーダーチャート">' + g + '</svg>' +
+    return '<div class="rd-box"><h3>科目バランス(正答率)</h3><div class="rd-wrap"><div class="rd-graph"><svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="科目ごとの正答率のレーダーチャート">' + g + '</svg>' +
       '<p class="rd-leg"><span class="cur">あなた(直近30日)</span>' + (hasPrev ? '<span class="prev">1か月前まで</span>' : '') + '<span class="goal">得意の目安 80%</span></p>' +
-      '<p class="rd-grp">' + grp + '</p>' +
+      '<p class="rd-grp">' + grp + '</p></div>' + checklist + '</div>' +
       '<div class="rd-note"><b>読み方</b>形が大きく、まるいほど、どの科目もバランスよく解けています。「—」はまだ直近30日に解いていない科目です。' + (top && low && top !== low ? '<br>いちばん強いのは<b>' + nm(top) + '(' + pc(cur, top) + '%)</b>、のびしろが大きいのは<b>' + nm(low) + '(' + pc(cur, low) + '%)</b>です。' : '') +
       (up && up[1] > 0 ? '<br>1か月前より<b>' + nm(up[0]) + 'が' + up[1] + 'pt</b>上がりました。' : '') + '<br><small>アプリで解いた問題(日本史・世界史は一問一答もふくむ)の正答率です。問題の難しさは科目ごとにちがうため、模試の偏差値とは一致しません。</small></div></div>';
   }
@@ -733,6 +741,17 @@
     }
     return html;
   }
+  // 科目バランスのチェックリスト(ホーム・先生用どちらでも動くよう、まとめて受ける)
+  document.addEventListener('change', function (e) {
+    var cb = e.target; if (!cb || !cb.matches || !cb.matches('[data-rdax]')) return;
+    var box = cb.closest('.rd-box'); if (!box) return;
+    var keys = [].slice.call(box.querySelectorAll('[data-rdax]')).filter(function (x) { return x.checked; }).map(function (x) { return x.getAttribute('data-rdax'); });
+    var st0 = S.get(); st0.radarSel = keys; if (!S.isView()) S.save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('[data-rdall]'); if (!b) return;
+    var st0 = S.get(); delete st0.radarSel; if (!S.isView()) S.save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+  });
   renderHome.after = function () {
     mountOwl('owlHome', true);
     var sb = document.getElementById('startBasic');
@@ -1250,16 +1269,24 @@
       html += '<div class="fb-why"><small>あなたの答え「' + h(chosen) + '」が違う理由</small><p>' + h(why) + '</p></div>';
     }
     html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
+    // ことばの問題:使い方・例文・類義語・対義語
+    var wm = (q.text || '').match(/「([^」]{1,12})」/), wn = wm && WPS.WORDNOTE && WPS.WORDNOTE[wm[1]];
+    if (wn) html += '<div class="fb-word"><small>「' + h(wm[1]) + '」の使い方</small>' + (wn.use ? '<p>' + h(wn.use) + '</p>' : '') +
+      (wn.ex && wn.ex.length ? '<p class="fw-h">例文</p><ul>' + wn.ex.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : '') +
+      ((wn.syn && wn.syn.length) || (wn.ant && wn.ant.length) ? '<p class="fw-rel">' + (wn.syn && wn.syn.length ? '<span><b>類義語</b>' + wn.syn.map(h).join('・') + '</span>' : '') + (wn.ant && wn.ant.length ? '<span><b>対義語</b>' + wn.ant.map(h).join('・') + '</span>' : '') + '</p>' : '') + '</div>';
     html += WPS.Fig.draw(q.fig);
     if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';
     var pt = pointFor(q, u);
     if (pt) html += '<details class="fb-point"><summary>📌 ' + (q.fact ? 'おぼえ方のヒント' : 'この単元(' + h(u.name) + ')のポイント') + '</summary><p>' + h(pt) + '</p></details>';
     else html += '<p class="fb-unit muted small">単元:' + h(u.name) + '</p>';
-    if (!ok && u.prereq.length) {
-      html += '<div class="fb-review"><small>🔍 つまずいたら、この単元にもどって復習しよう</small><div class="chips">' + u.prereq.map(function (pid) {
-        var pu = WPS.UNIT_MAP[pid];
-        return '<a class="review-chip" href="#study/' + pid + '">' + pu.stage + ' ' + h(pu.name) + '</a>';
-      }).join('') + '</div></div>';
+    // 復習をすすめるのは、この単元の問題を解くのに「実際に使う」土台の単元だけ(理由つき)
+    var WHY = WPS.PREREQ_WHY || {};
+    var pres = u.prereq.filter(function (pid) { var w = WHY[u.id + '>' + pid]; return WPS.UNIT_MAP[pid] && (!w || w.keep !== false); });
+    if (!ok && pres.length) {
+      html += '<div class="fb-review"><small>🔍 つまずいたら、この単元にもどって復習しよう</small><ul class="rv-list">' + pres.map(function (pid) {
+        var pu = WPS.UNIT_MAP[pid], w = WHY[u.id + '>' + pid];
+        return '<li><a class="review-chip" href="#study/' + pid + '">' + pu.stage + ' ' + h(pu.name) + '</a>' + (w && w.why ? '<span class="rv-why">' + h(w.why) + '</span>' : '') + '</li>';
+      }).join('') + '</ul></div>';
     }
     return html + '</div>';
   }
