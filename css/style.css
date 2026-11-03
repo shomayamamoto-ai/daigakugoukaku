@@ -1876,3 +1876,40 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .rd-leg .cur::before { background: rgba(79, 178, 214, .35); border: 2px solid #3aa7d0; } .rd-leg .prev::before { background: rgba(126, 186, 98, .3); border: 2px solid #6aa84f; } .rd-leg .goal::before { border-top: 2px dashed #e6b422; height: 0; border-radius: 0; }
 .rd-note { background: var(--primary-weak); border-radius: 12px; padding: 10px 12px; font-size: .88rem; line-height: 1.75; }
 .rd-note small { color: var(--muted); }
+
+/* ===== テキスト本文(ゼロから読める解説) ===== */
+.lz-goal { margin: 10px 0 14px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--brand, #2563eb) 9%, transparent); border-left: 4px solid var(--brand, #2563eb); }
+.lz-goal b { display: block; font-size: 13px; color: var(--brand, #2563eb); margin-bottom: 4px; }
+.lz-goal p { margin: 0; line-height: 1.8; }
+.bk-sec p { line-height: 1.9; margin: 0 0 .7em; overflow-wrap: anywhere; }
+.bk-sec p b, .lz-terms dd b, .lz-steps b { background: linear-gradient(transparent 62%, #ffe48a 62%); color: inherit; }
+.lz-intro { background: color-mix(in srgb, #f59e0b 8%, transparent); border-radius: 12px; padding: 4px 12px 2px; }
+.lz-figw { margin: 6px 0 12px; text-align: center; }
+.lz-fig { width: 100%; max-width: 340px; height: auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+.lz-fig text { font-size: 11px; fill: #1f2937; }
+.lz-fig .ax { stroke: #94a3b8; stroke-width: 1.2; fill: none; }
+.lz-fig .cv { stroke: #2563eb; stroke-width: 2.4; fill: none; }
+.lz-fig .cv2 { stroke: #e11d48; stroke-width: 2.2; fill: none; }
+.lz-fig .dash { stroke: #64748b; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
+.lz-fig .fl { fill: rgba(37, 99, 235, .15); stroke: none; }
+.lz-fig .pt { fill: #e11d48; }
+.lz-fig .tr { fill: rgba(37, 99, 235, .08); stroke: #2563eb; stroke-width: 2; }
+.lz-fig .rt { fill: none; stroke: #2563eb; stroke-width: 1.2; }
+.lz-fig .arc { fill: none; stroke: #e11d48; stroke-width: 1.6; }
+.lz-fig .bx { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.2; }
+.lz-steps { margin: 8px 0; padding-left: 1.4em; }
+.lz-steps li { margin: 4px 0; line-height: 1.8; }
+.lz-steps li::marker { color: #fde68a; font-weight: 700; }
+.lz-ex .bk-ans b { color: #fde68a; background: none; }
+.lz-terms { margin: 0; display: grid; gap: 6px; }
+.lz-terms div { display: grid; grid-template-columns: minmax(84px, 30%) 1fr; gap: 8px; padding: 8px 10px; border-radius: 10px; background: var(--card2, #f6f7fb); }
+.lz-terms dt { font-weight: 700; overflow-wrap: anywhere; }
+.lz-terms dd { margin: 0; line-height: 1.7; overflow-wrap: anywhere; }
+.lz-miss ul, .lz-sum ul { margin: 0; padding-left: 0; list-style: none; }
+.lz-miss li, .lz-sum li { position: relative; padding: 6px 0 6px 26px; line-height: 1.75; border-bottom: 1px dashed #e5e7eb; }
+.lz-miss li::before { content: '✕'; position: absolute; left: 4px; color: #e11d48; font-weight: 700; }
+.lz-sum li::before { content: '✓'; position: absolute; left: 4px; color: #16a34a; font-weight: 700; }
+.lz-tip { font-size: 14px; color: var(--muted, #64748b); }
+.lz-wip { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #fff7e6; color: #8a5a00; font-size: 14px; }
+.lz-has { background: #e0ecff; color: #1d4ed8; }
+@media (prefers-color-scheme: dark) { .lz-fig { background: #f8fafc; } }

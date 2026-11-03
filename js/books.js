@@ -87,17 +87,41 @@ WPS.makeBooks = function (ctx) {
     s.attempts.forEach(function (a) { if (a.u === u.id && a.q) last[a.q] = a; });
     return Object.keys(last).filter(function (id) { return !last[id].ok; }).slice(-3).map(function (id) { return { q: WPS.Q(id), a: last[id] }; }).filter(function (x) { return x.q; });
   }
+  // 【 】を太字にして表示(先にエスケープする)
+  function rt(t) { return h(t || '').replace(/【([^】]*)】/g, '<b>$1</b>'); }
+  function paras(t) { return (t || '').split('\n').map(function (x) { return '<p>' + rt(x) + '</p>'; }).join(''); }
+  function preLinks(u) {
+    return '<p class="bk-pre">わからないときは、先にこの単元へ:' + u.prereq.map(function (pid) { var pb = books().filter(function (x) { return x.units.indexOf(pid) >= 0; })[0]; return pb ? '<a href="#books/' + pb.id + '/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>' : '<a href="#study/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>'; }).join('、') + '</p>';
+  }
   function page(b, id) {
     var u = WPS.UNIT_MAP[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
     var ch = b.chapters.filter(function (c) { return c.units.indexOf(id) >= 0; })[0], bm = !!B().bm[id];
     var stt = ctx.stats()[id], ex = examples(u), ms = mistakes(u);
     var html = '<div class="bk-reader"><div class="bk-tb"><a href="#books/' + b.id + '" aria-label="目次へ">‹ 目次</a><b>' + h(b.short) + '</b><button type="button" class="bk-bmb' + (bm ? ' on' : '') + '" id="bkBm" aria-pressed="' + bm + '" aria-label="しおり"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z" fill="currentColor"/></svg></button></div>';
     html += '<article class="bk-page"><p class="bk-crumb">' + h(ch ? ch.name : '') + '</p><h1>' + h(u.name) + '</h1><p class="bk-sub">' + h(WPS.SUBJECTS[u.subj].name) + '・' + h(u.stage) + (stt && stt.n ? '・正答率 ' + Math.round(stt.acc * 100) + '%' : '') + '</p>';
-    html += '<section class="bk-sec"><h2><span>1</span>この単元の要点</h2><p class="bk-point">' + h(u.point) + '</p></section>';
-    if (ch && ch.topics && ch.topics.length) html += '<section class="bk-sec"><h2><span>2</span>この章で学ぶこと</h2><ul class="bk-topics">' + ch.topics.map(function (t) { return '<li>' + h(t) + '</li>'; }).join('') + '</ul></section>';
-    if (u.prereq && u.prereq.length) html += '<p class="bk-pre">わからないときは、先にこの単元へ:' + u.prereq.map(function (pid) { var pb = books().filter(function (x) { return x.units.indexOf(pid) >= 0; })[0]; return pb ? '<a href="#books/' + pb.id + '/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>' : '<a href="#study/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>'; }).join('、') + '</p>';
-    html += '<section class="bk-sec"><h2><span>' + (ch && ch.topics && ch.topics.length ? 3 : 2) + '</span>例題で確かめよう</h2>' + ex.map(function (q, k) {
-      return '<div class="bk-board"><div class="bk-bh"><b>' + h(u.name) + ' 例題' + (k + 1) + '</b><em>' + ['', '基本', '標準', '発展'][q.level || 1] + '</em></div>' +
+    var L = (WPS.LESSONS || {})[id], n = 0;
+    function sec(t, cls) { n++; return '<section class="bk-sec' + (cls ? ' ' + cls : '') + '"><h2><span>' + n + '</span>' + h(t) + '</h2>'; }
+    if (L) {
+      html += '<div class="lz-goal"><b>この単元でできるようになること</b><p>' + rt(L.goal) + '</p></div>';
+      if (u.prereq && u.prereq.length) html += preLinks(u);
+      html += sec('まずはイメージ', 'lz-intro') + paras(L.intro) + '</section>';
+      L.secs.forEach(function (x) {
+        html += sec(x.h) + paras(x.t) + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + (x.ex || []).map(function (e, k) {
+          return '<div class="bk-board lz-ex"><div class="bk-bh"><b>やってみよう' + (x.ex.length > 1 ? (k + 1) : '') + '</b><em>例題</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' +
+            '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p></div></div>';
+        }).join('') + '</section>';
+      });
+      if (L.terms && L.terms.length) html += sec('ことばの整理') + '<dl class="lz-terms">' + L.terms.map(function (t) { return '<div><dt>' + h(t[0]) + '</dt><dd>' + rt(t[1]) + '</dd></div>'; }).join('') + '</dl></section>';
+      if (L.miss && L.miss.length) html += sec('よくあるまちがい', 'lz-miss') + '<ul>' + L.miss.map(function (t) { return '<li>' + rt(t) + '</li>'; }).join('') + '</ul></section>';
+      if (L.sum && L.sum.length) html += sec('まとめ', 'lz-sum') + '<ul>' + L.sum.map(function (t) { return '<li>' + rt(t) + '</li>'; }).join('') + '</ul></section>';
+    } else {
+      html += sec('この単元の要点') + '<p class="bk-point">' + h(u.point) + '</p>' + (u.tip ? '<p class="lz-tip">' + h(u.tip) + '</p>' : '') + '</section>';
+      if (ch && ch.topics && ch.topics.length) html += sec('この章で学ぶこと') + '<ul class="bk-topics">' + ch.topics.map(function (t) { return '<li>' + h(t) + '</li>'; }).join('') + '</ul></section>';
+      if (u.prereq && u.prereq.length) html += preLinks(u);
+      html += '<p class="lz-wip">この単元の「ゼロから読める解説」は準備中です。</p>';
+    }
+    html += sec(L ? '確認問題' : '例題で確かめよう') + (L ? '<p class="muted small">本文を読んだら、解いて確かめましょう。</p>' : '') + ex.map(function (q, k) {
+      return '<div class="bk-board"><div class="bk-bh"><b>' + (L ? '確認問題' : '例題') + (k + 1) + '</b><em>' + ['', '基本', '標準', '発展'][q.level || 1] + '</em></div>' +
         '<div class="bk-bb"><p class="bk-q">' + h(q.text) + '</p>' + (q.choices && q.choices.length > 2 ? '<ol class="bk-ch4" type="A">' + q.choices.slice().sort().map(function (c) { return '<li>' + h(c) + '</li>'; }).join('') + '</ol>' : '') +
         '<details><summary>答えと解説を見る</summary><p class="bk-ans">答え:<b>' + h(q.answer) + '</b></p><p class="bk-exp">' + h(q.exp || '') + '</p></details></div></div>';
     }).join('') + '</section>';
