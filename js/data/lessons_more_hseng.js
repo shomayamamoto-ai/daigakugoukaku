@@ -1018,4 +1018,193 @@
     ]
   });
 
+  /* ===== el_sound 音の変化 ===== */
+  add('el_sound', {
+    secs: [
+      {
+        h: 'さらに深く:数字の聞き取り ― 強勢の位置と「まとまり」の読み方',
+        t: 'リスニングで失点しやすいのが、数字です。数字の聞きまちがいは、知識不足というより、【強勢の位置】と【数の読み方のまとまり】を知らないことから起こります。\n①【-teen と -ty】thirteen(13)と thirty(30)のように、つづりも音も似た数があります。手がかりは強勢の位置です。-teen は後ろの teen に強勢があり、長くはっきり /tiːn/ と聞こえます。-ty は前の音節に強勢があり、ty は短く弱く読まれます。アメリカ英語では、thirty の t が、ら行に近い音になることもあります(「サーディ」のように聞こえる)。ただし、数を数えるときなど、-teen の強勢が前に移ることもあるので、最後の音の長さ(/tiːn/ の n まで聞こえるか)もあわせて確かめます。\n②【大きな数】英語は、数を【3けたずつ】区切って読みます。1,000 は thousand、1,000,000 は million です。例:25,300 → twenty-five thousand three hundred。日本語の「万」の区切りとちがうので、「thousand の前の数 × 1,000」と考えます。また、1,500 は one thousand five hundred のほかに、fifteen hundred とも読まれます。\n③【年号・時刻・小数】1985 は nineteen eighty-five と2けたずつ、2026 は twenty twenty-six または two thousand (and) twenty-six と読みます。時刻の a quarter past seven は7時15分、ten to nine は8時50分(9時の10分前)です。2.5 million は two point five million で、250万です。\n数字は、聞いたらすぐに算用数字でメモするのが原則です。英語のまま覚えておこうとすると、次の情報を聞きのがします。',
+        key: '-teen は後ろに強勢があり長い、-ty は前に強勢があり短い。大きな数は3けたずつ区切り、thousand・million の前の数をかけ算する。',
+        ex: [{
+          q: '次の英語を、算用数字で表そう。\n(1) fifteen hundred (2) a quarter past seven (3) nineteen eighty-five (4) two point five million',
+          hint: '(1) は「15 × 100」、(2) の quarter は「4分の1」。',
+          steps: [
+            '(1) fifteen hundred は「15 × 100」で、1,500 です。one thousand five hundred と同じ数です。',
+            '(2) quarter は「4分の1」で、1時間の4分の1は15分です。past は「〜を過ぎて」なので、「7時を15分過ぎた」7時15分です。',
+            '(3) 年号は2けたずつ読むので、nineteen(19)+ eighty-five(85)で、1985年です。',
+            '(4) two point five は 2.5、million は100万なので、2.5 × 1,000,000 = 2,500,000 です。'
+          ],
+          a: '(1) 1,500 (2) 7:15 (3) 1985(年) (4) 2,500,000',
+          check: '(4) は、日本語にすると250万です。million を「100万」と覚えておき、「前の数 × 100万」と計算すれば、けたのまちがいを防げます。'
+        }]
+      },
+      {
+        h: '実戦演習:\'d と \'s の正体を文法で決める',
+        t: '会話では、I\'d・he\'d・she\'s のような短縮形がとても弱く、速く発音されます。しかも \'d には had と would、\'s には is・has・us(Let\'s)・所有の \'s と、いくつもの正体があります。音だけでは区別できないので、【後ろの形から文法で決める】ことが大切です。\n\'d の見分け方:後ろが【過去分詞】なら had(He\'d already left.)。後ろが【原形】なら would(I\'d like to 〜・I\'d rather 〜)。ただし、had better は後ろが原形でも had です(You\'d better go.)。would have + 過去分詞 は \'d have と聞こえます。\n\'s の見分け方:後ろが【〜ing】なら is(He\'s going.)。後ろが【過去分詞】なら、has(He\'s gone.:完了)か is(It\'s made in Japan.:受動)で、文脈で決めます。Let\'s の \'s は us です。\n落とし穴は、\'d や \'s が聞こえずに、文全体の時制や意味を取りちがえることです。仮定法や完了形の文では、この小さな音が意味を決めています。',
+        key: '\'d は後ろが過去分詞なら had、原形なら would(had better は例外)。\'s は後ろが〜ing なら is、過去分詞なら has か受動の is。',
+        ex: [
+          {
+            q: '次の文の \'d が、had と would のどちらかを答えよう。\n(1) He\'d already left when I arrived.\n(2) I\'d rather stay home tonight.\n(3) You\'d better take an umbrella.',
+            hint: '\'d の後ろの動詞の形を見よう。',
+            steps: [
+              '(1) \'d の後ろは already left で、left は leave の過去分詞です。過去分詞の前なので had で、had already left(もう出発していた)という過去完了です。',
+              '(2) \'d の後ろは rather stay です。would rather + 原形(むしろ〜したい)の形なので would です。',
+              '(3) \'d の後ろは better take です。had better + 原形(〜したほうがよい)の形なので had です。',
+              '(3) は後ろが原形でも had になる例外なので、had better は形ごと覚えておきます。'
+            ],
+            a: '(1) had(私が着いたとき、彼はもう出発していた) (2) would(今夜はむしろ家にいたい) (3) had(かさを持っていったほうがいいよ)',
+            check: '(1) は when I arrived(過去の基準)より前のことなので、過去完了になるという文法の面からも確かめられます。'
+          },
+          {
+            q: '次の文の2つの \'d が、それぞれ had と would のどちらかを答え、和訳しよう。\nShe\'d have helped you if you\'d asked her.',
+            hint: '仮定法過去完了の形を思い出そう。',
+            steps: [
+              '1つ目の She\'d の後ろは have helped で、助動詞 + have + 過去分詞 の形です。have は原形なので、\'d は would です。',
+              '2つ目の you\'d の後ろは asked で、過去分詞です。そのため \'d は had で、if you had asked(もし頼んでいたら)となります。',
+              '全体は、If + had + 過去分詞, would have + 過去分詞 の仮定法過去完了です。',
+              '「もし彼女に頼んでいたら、彼女はあなたを手伝っていただろう」と訳します。実際には頼まなかったことになります。'
+            ],
+            a: 'She\'d = would、you\'d = had/もしあなたが頼んでいたら、彼女は手伝ってくれただろうに。',
+            check: '\'d が聞き取れないと、She have helped you if you asked her. のように聞こえ、仮定法だと気づけません。仮定法の形を知っていると、聞こえにくい \'d を文法で補えます。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '放送で「The tickets are thirty dollars.」と流れた。thirteen と聞きまちがえないための手がかりを、2つ答えよう。', a: '(例)①強勢が前の thir にあり、後ろの ty は短く弱い。②最後に長い /tiːn/(ティーン)の音が聞こえない。', exp: 'thirty(30)は、前の音節 thir に強勢があり、後ろの ty は短く弱く読まれます。一方、thirteen(13)は、ふつう後ろの teen に強勢があり、/tiːn/ と長くはっきり読まれ、最後の n まで聞こえます。アメリカ英語では、thirty の t が、ら行に近い音に変わることもあります。どちらか迷ったときは、チケットの値段として自然か、合計金額と合うか、などの文脈も手がかりにします。数字は聞いたらすぐに算用数字でメモしましょう。' },
+      { lv: 3, q: '次の文の \'s が、それぞれ何の短縮形かを答えよう。\n(1) He\'s gone to the library.\n(2) She\'s talking on the phone.\n(3) Let\'s take a break.', a: '(1) has (2) is (3) us', exp: '(1) は \'s の後ろが gone(go の過去分詞)です。go の完了形 has gone(行ってしまった)なので has です。受動の is gone とは考えません。(2) は後ろが talking(〜ing)なので、進行形の is です。(3) の Let\'s は Let us(〜しよう)の短縮形で、\'s は us です。\'s には、このほかに Tom\'s bag(トムのかばん)のような所有の意味もあります。音では区別できないので、後ろの形(過去分詞か 〜ing か)と文脈で決めることが大切です。' },
+      { lv: 3, q: '次の英語が表す時刻・数を、算用数字で答えよう。\n(1) ten to nine (2) half past eleven (3) forty-two thousand six hundred', a: '(1) 8:50 (2) 11:30 (3) 42,600', exp: '(1) to は「〜まで・〜の前」なので、ten to nine は「9時まであと10分」、つまり8時50分です。to を見て「9時10分」とまちがえないようにしましょう。(2) half は「半分」で、1時間の半分は30分です。past は「〜を過ぎて」なので、11時30分です。(3) thousand の前の forty-two に1,000をかけて42,000、そこに six hundred(600)を足して42,600です。英語は3けたずつ区切るので、日本語の「4万2600」と区切りがちがう点に注意しましょう。' }
+    ],
+    faq: [
+      ['数字は、聞きながら英語のままメモしたほうがいいですか。', '算用数字でメモするのがおすすめです。forty-two thousand のように英語で書こうとすると時間がかかり、次の情報を聞きのがしてしまいます。数字が出そうな問題では、先読みの段階で「値段」「人数」などの枠を作り、聞こえた数字をすぐに書きこみましょう。割引や合計の計算が必要な問題では、計算は放送が終わってからにし、聞いている間は数字を正確に書きとることに集中します。'],
+      ['短縮形の \'ll も、聞き取りにくいですか。', 'とても聞き取りにくい音です。I\'ll・we\'ll・it\'ll の \'ll は、弱く短い /l/ の音だけになるので、I go と I\'ll go の区別がつきにくくなります。手がかりは、tomorrow・next week などの未来の語や、その場で決めた意志を表す場面かどうか、という文脈です。I\'ll be there. のように、\'ll の後ろに be が来ると比較的気づきやすいです。音読やディクテーションで、自分でも \'ll を発音する練習をすると、耳でも気づけるようになります。']
+    ]
+  });
+
+  /* ===== el_short 短い対話 ===== */
+  add('el_short', {
+    secs: [
+      {
+        h: 'さらに深く:会話の決まり文句は「文字どおり」に訳さない',
+        t: '短い対話の問題では、会話でよく使われる【決まり文句】の意味が分からないと、答えを正反対に選んでしまうことがあります。とくに、否定語が入っているのに意味は肯定、という表現に注意が必要です。\n【強い同意】I couldn\'t agree more.(大賛成だ)→ 直訳は「これ以上同意できない」ですが、「もうこれ以上ないほど同意している」という意味です。You can say that again.(本当にそのとおり)、Tell me about it.(ほんとにそうだよ)も同じ仲間です。\n【やんわり断る】I\'m afraid I can\'t make it.(残念だけど、都合がつかない)→ make it は「間に合う・都合をつける」。I\'ll pass.(私はやめておく)、I wish I could.(できればいいんだけど=できない)、Maybe some other time.(また今度ね)も断りの表現です。\n【判断を相手にまかせる】It\'s up to you.(あなたに任せる)、Either is fine with me.(どちらでもいいよ)\n【あいさつ・お礼への返事】Don\'t mention it.(どういたしまして)、No problem.(いいよ・どういたしまして)\n【控えめな否定】Not really.(あまり〜ない)→ Do you like horror movies? — Not really. は「あまり好きではない」です。\nなぜこうした表現が多いのでしょうか。会話では、相手との関係を保つために、はっきりした No を避けたり、気持ちを大げさに表したりすることがよくあります。決まり文句は、そうした気持ちを短く伝えるための「型」なのです。\n選択肢では、これらの表現が「B agrees with A strongly.」「B cannot come.」のように言いかえられます。決まり文句を見たら、【話し手の立場(賛成か反対か、行くか行かないか)】に置きかえて考えましょう。',
+        key: 'I couldn\'t agree more は大賛成、I wish I could は断り。決まり文句は文字どおりに訳さず、話し手の立場(賛成・反対、行く・行かない)に置きかえる。',
+        ex: [{
+          q: '次の対話で、B は A の意見に賛成しているか、反対しているか答えよう。\nA: I think we should start preparing for the school festival earlier this year.\nB: I couldn\'t agree more. Last year we were in such a hurry.\n(和訳:A:今年は、学園祭の準備をもっと早く始めたほうがいいと思う。B:まったく同感だよ。去年はすごくあわただしかったからね。)',
+          hint: 'couldn\'t の否定にまどわされないように。後ろの文もヒント。',
+          steps: [
+            'B の I couldn\'t agree more. は、直訳すると「これ以上同意することはできないだろう」です。',
+            'これは「同意の度合いがもう最大で、これ以上は同意しようがない」という意味で、強い賛成を表す決まり文句です。',
+            '続く Last year we were in such a hurry.(去年はとてもあわただしかった)は、早く準備を始めるべき理由になっていて、賛成の立場と合っています。',
+            'したがって、B は A の意見に強く賛成しています。'
+          ],
+          a: '賛成している(強く賛成している)。',
+          check: 'couldn\'t の否定だけを聞いて「反対」と選ぶのがひっかけです。決まり文句の後の文が、立場を確かめる手がかりになることが多いので、最後まで聞きましょう。'
+        }]
+      },
+      {
+        h: '実戦演習:「次に何をするか」「どこでの会話か」を問う問題',
+        t: '短い対話では、「What will the woman do next?(女性は次に何をするか)」や「Where are they talking?(どこで話しているか)」という設問がよく出ます。\n「次の行動」の問題の戦略は、①対話に出てくる行動をすべてメモする、②first・before・after that・then などの【順番の語】に注意する、③提案や依頼に相手が応じたか(OK・Sure)を確かめる、の3段階です。落とし穴は、対話の中で最初に出た行動や、断られた提案を選んでしまうことです。\n「場所」の問題では、場所の名前が直接言われないことが多いので、【場所に結びつく語】(ticket・platform なら駅、prescription なら薬局、check in ならホテル・空港)から判断します。',
+        key: '次の行動は、順番の語(first・then)と、提案が受け入れられたかで決まる。場所は、場所に結びつく語の組み合わせから判断する。',
+        ex: [
+          {
+            q: '次の対話を読んで、女性が最初にすることを答えよう。\nW: I\'m going to the post office. Do you need anything?\nM: Actually, could you buy some stamps for me?\nW: Sure. Oh, but first I have to return this book to the library.\nM: The library closes at five, so you\'d better hurry.\n(和訳:女性:郵便局に行くけど、何か必要なものはある? 男性:実は、切手を買ってきてくれる? 女性:いいよ。あ、でも先にこの本を図書館に返さないと。男性:図書館は5時に閉まるから、急いだほうがいいよ。)',
+            hint: 'first という語に注目しよう。',
+            steps: [
+              '対話に出てくる行動は、「郵便局に行く」「切手を買う」「図書館に本を返す」の3つです。',
+              '女性は、最初に郵便局に行くと言っていますが、3回目の発言で but first I have to return this book to the library(でも先に、この本を図書館に返さないといけない)と言っています。',
+              'first(最初に)という順番の語があるので、図書館に本を返すことが最初の行動です。',
+              '男性の「5時に閉まるから急いだほうがいい」も、図書館に先に行くことと合っています。'
+            ],
+            a: '図書館に本を返しに行く。',
+            check: '最初の発言に出た「郵便局に行く」を選ぶのがひっかけです。but first や Oh, wait などの合図の後で、予定の順番が変わっていないかを確かめましょう。'
+          },
+          {
+            q: '次の対話を読んで、(1) 会話の場所、(2) 男性が次にすることを答えよう。\nM: Excuse me. Does this bus go to the city hospital?\nW: No, it doesn\'t. You need the Number 12. It leaves from the stop across the street.\nM: Oh, thank you. I\'ll go over there right away.\n(和訳:男性:すみません。このバスは市立病院に行きますか。女性:いいえ、行きません。12番のバスに乗る必要があります。通りの向かい側の停留所から出ます。男性:ああ、ありがとう。すぐにそちらに行きます。)',
+            hint: 'this bus と the stop across the street から、今いる場所を考えよう。',
+            steps: [
+              '男性は this bus(このバス)と言っているので、バスのすぐ近く、つまりバス停にいると考えられます。',
+              '女性の the stop across the street(通りの向かい側の停留所)という言い方も、今いる場所が別のバス停であることを示しています。',
+              '男性の目的地は病院ですが、会話をしている場所は病院ではありません。',
+              '男性は最後に I\'ll go over there right away.(すぐにそちらに行きます)と言っているので、次の行動は、通りの向かい側のバス停に行って12番のバスに乗ることです。'
+            ],
+            a: '(1) バス停(バスのそば) (2) 通りの向かい側のバス停に行き、12番のバスに乗る。',
+            check: '「病院」という語が聞こえたので「病院」を選ぶのがひっかけです。目的地と、今いる場所を区別しましょう。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '次の対話で、B は映画に行くか答えよう。\nA: We\'re going to see a movie tonight. Do you want to come?\nB: I\'ll pass. I have a lot of homework to do.\n(和訳:A:今夜、映画を見に行くんだ。来る? B:私はやめておく。宿題がたくさんあるから。)', a: '行かない。', exp: 'I\'ll pass. は「(誘いなどを)やめておく・遠慮する」という意味の決まり文句です。pass には「通り過ぎる」という意味があり、「その誘いは通り過ぎる(=見送る)」と考えると分かりやすいでしょう。続く I have a lot of homework to do.(宿題がたくさんある)も、断る理由になっています。pass には、ほかに「(試験に)合格する」(pass the exam)、「(物を)手渡す」(Pass me the salt.)、「(時間が)たつ」(Time passes quickly.)などの意味もあります。' },
+      { lv: 3, q: '次の対話で、B の発言の意味として最も適切なものを答えよう。\nA: This summer is so hot. I can\'t sleep at night.\nB: You can say that again.\n(和訳:A:今年の夏は本当に暑いね。夜も眠れないよ。B:(  )。)', a: 'まったくそのとおりだ(A の意見に強く同意している)。', exp: 'You can say that again. は、直訳すると「あなたはそれをもう一度言ってもいい」ですが、「もう一度言ってもいいくらい、そのとおりだ」という強い同意を表す決まり文句です。「もう一度言ってください」という聞き返しの意味ではありません。聞き返すときは、Could you say that again? や Pardon? を使います。似た形でも、can と could、主語や疑問文かどうかで意味がまったく変わるので、決まり文句はかたまりで覚えましょう。' },
+      { lv: 3, q: '次の対話を読んで、男性が次にすることを答えよう。\nM: Shall I call the restaurant to book a table for tonight?\nW: Thanks, but I already did it this morning. Could you check the train times instead?\nM: Sure, I\'ll look them up now.\n(和訳:男性:今夜のレストランの席を予約するために、電話しようか。女性:ありがとう、でも今朝もう予約したの。代わりに電車の時刻を調べてくれる? 男性:いいよ、今調べるね。)', a: '電車の時刻を調べる。', exp: '男性は最初に「レストランに電話して予約しようか」と申し出ていますが、女性は Thanks, but I already did it(もう予約した)と断っています。そのうえで、instead(代わりに)を使って「電車の時刻を調べてくれる?」と別のことを頼み、男性が Sure, I\'ll look them up now.(いいよ、今調べる)と応じています。したがって、次の行動は電車の時刻を調べることです。最初に出た「レストランに電話する」を選ぶのがひっかけです。look up は「(辞書・時刻表などで)調べる」という意味で、代名詞 them は look と up の間に置かれています。' }
+    ],
+    faq: [
+      ['会話の決まり文句は、どれくらい覚えればいいですか。', 'まずは、賛成・反対、誘いを受ける・断る、お礼・おわびへの返事など、【立場を表す表現】を優先して覚えましょう。I couldn\'t agree more・I\'ll pass・It\'s up to you・Not really・I wish I could などは、正解を決める手がかりになりやすい表現です。問題を解いていて知らない決まり文句に出会ったら、スクリプトで確かめ、場面といっしょにノートにまとめていくと、自然に数が増えていきます。'],
+      ['Do you mind if 〜? と聞かれて、「いいですよ」と答えるときは Yes ですか。', '注意が必要な質問です。mind は「いやだと思う・気にする」という意味なので、Do you mind if I open the window? は「窓を開けたら、あなたはいやですか」とたずねています。「いいですよ」と答えるなら、No, not at all.(いいえ、全然かまいません)や Of course not. のように、否定の形で答えます。Yes と答えると「いやです」という意味になります。ただし実際の会話では、Sure. と答える人もいるので、リスニングでは返事の後の文や様子から判断しましょう。']
+    ]
+  });
+
+  /* ===== el_long 長い英語(講義・議論) ===== */
+  add('el_long', {
+    secs: [
+      {
+        h: 'さらに深く:講義の「定義」と「強調」の合図を聞きのがさない',
+        t: '講義では、新しい用語の【定義】と、話し手が特に大事だと考える【強調】の部分が、設問でねらわれやすくなります。どちらにも決まった言い方(合図)があるので、合図を知っておくと、聞くべき場所が分かります。\n【定義の合図】\n・X is called Y.(X は Y とよばれる)/X is known as Y.(X は Y として知られる)\n・Y refers to X.(Y とは X のことを指す)/By Y, I mean X.(Y というのは、X という意味です)\n・in other words(言いかえれば)/that is(つまり)\n例:Food that is thrown away even though it can still be eaten is called "food loss."(まだ食べられるのに捨てられる食品は「フードロス」とよばれる)\n専門用語が分からなくても、定義の合図の前後に、やさしい英語での説明があります。用語そのものより、その説明をメモしましょう。\n【強調の合図】\n・The key point is 〜(大切な点は〜)/What I want to stress is 〜(私が強調したいのは〜)\n・Remember that 〜(〜を覚えておいてください)/This is important because 〜\n強調の合図の後は、講義の要点です。設問の「講義の主な内容」や、内容一致の正解につながることが多くあります。\nさらに、【反対の情報で定義を固める】話し方もあります。This does not mean 〜. Rather, …(これは〜という意味ではない。むしろ…)は、よくある誤解を否定してから、正しい意味を示す型です。not の後ではなく、Rather の後が正しい説明です。',
+        key: 'is called・refers to・in other words は定義、The key point is・Remember that は強調の合図。合図の後の説明や要点をメモする。',
+        ex: [{
+          q: '次の講義の一部を読んで、「フードマイレージ」とは何かを日本語で答えよう。\nWhen we buy food, we don\'t usually think about how far it has traveled. The distance food travels from where it is produced to where it is eaten is called "food miles." In other words, food miles tell us how far our food has come.\n(和訳は解答で示す)',
+          hint: 'is called の前の部分と、In other words の後を見よう。',
+          steps: [
+            '定義の合図 is called が2文目にあります。is called の前の主語が、food miles の説明です。',
+            '主語は The distance food travels from where it is produced to where it is eaten(食品が、生産された場所から食べられる場所まで移動する距離)です。',
+            'さらに In other words(言いかえれば)の後で、「食品がどれくらい遠くから来たか」と、やさしく言いかえています。',
+            'この2つから、food miles は「食品が生産地から消費される場所まで運ばれる距離」のことだと分かります。'
+          ],
+          a: '食品が、生産された場所から食べられる場所まで運ばれる距離(食品がどれだけ遠くから来たか)。\n和訳:食べ物を買うとき、私たちはふつう、それがどれだけ遠くから運ばれてきたかを考えない。食品が生産された場所から食べられる場所まで移動する距離は「フードマイレージ」とよばれる。言いかえれば、フードマイレージは、私たちの食べ物がどれくらい遠くから来たかを教えてくれる。',
+          check: '用語(food miles)を知らなくても、定義の合図の前後を聞けば答えられることを確かめましょう。where it is produced と where it is eaten の where は「〜する場所」という意味です。'
+        }]
+      },
+      {
+        h: '実戦演習:講義を聞いてワークシートと内容一致に答える',
+        t: '講義の問題では、1回しか聞けない長い英語から、①ワークシートの空欄の情報と、②講義全体の要点の両方を取り出す必要があります。\n戦略は、①先読みで、ワークシートの見出しと空欄に入る情報の種類(数字・割合・理由など)を確かめる、②講義の予告(There are two main reasons …)を聞いたら、メモに枠を作る、③定義・強調の合図と、However などの転換の合図に注意して、要点をメモする、④聞き終わったら、空欄をすぐに埋め、要点のメモから内容一致の選択肢を選ぶ、の4段階です。\n落とし穴は、具体的な数字の聞き取りに集中しすぎて、講義の結論(The key point is 〜)を聞きのがすことです。数字はメモに書いたら、すぐに話の流れに意識をもどしましょう。',
+        key: '数字はメモに書いたらすぐに流れへもどる。結論は強調の合図や However の後に来るので、そこで要点をメモする。',
+        ex: [
+          {
+            q: '次の講義の一部を読んで、ワークシートの空欄 ①・② を埋めよう。\n講義:Our city surveyed 500 households about food waste. About 40 percent of them said they throw away food at least once a week. There are two main reasons. The first is that people buy more food than they need. The second is that they forget about food in the back of the refrigerator.\nワークシート:調査した世帯数:500/週1回以上食品を捨てる世帯:約( ① )世帯/主な理由:必要以上に買う、( ② )\n(和訳:私たちの市は、食品の廃棄について500世帯を調査した。そのうち約40パーセントが、少なくとも週に1回は食品を捨てると答えた。主な理由は2つある。1つ目は、必要以上に食品を買うこと。2つ目は、冷蔵庫の奥の食品のことを忘れてしまうことだ。)',
+            hint: '① は割合から世帯数を計算する。② は The second の後。',
+            steps: [
+              '先読みで、① は「世帯の数」、② は「理由」だと確かめておきます。',
+              '① 講義では割合(About 40 percent)で言われているので、世帯数に直す必要があります。500 × 0.4 = 200 で、約200世帯です。',
+              '② 講義の There are two main reasons. が予告で、The first … The second … と順に理由が述べられています。',
+              '2つ目の理由は、they forget about food in the back of the refrigerator(冷蔵庫の奥の食品のことを忘れる)です。'
+            ],
+            a: '① 200 ② 冷蔵庫の奥の食品を忘れてしまう',
+            check: '① で「40」と書くのがひっかけです。空欄の単位(世帯)と、講義の単位(パーセント)がちがうときは、計算が必要です。500 × 40 ÷ 100 = 200 と確かめましょう。'
+          },
+          {
+            q: '講義の続きを読んで、講義の要点として最も適切なものを選ぼう。\n講義の続き:Some people think the best solution is to tell everyone to stop buying too much. However, that is not easy. The key point is that small changes in how we store food can make a big difference. For example, putting older food at the front of the refrigerator helps us remember to eat it.\n(和訳:食べ物を買いすぎないよう、みんなに呼びかけるのがいちばんの解決策だと考える人もいる。しかし、それは簡単ではない。大切な点は、食品の保存のしかたを少し変えるだけで、大きなちがいが生まれうるということだ。たとえば、古い食品を冷蔵庫の手前に置くと、それを食べることを思い出しやすくなる。)\n① Telling people to stop buying too much is the easiest solution.\n② Changing the way we store food can reduce food waste.\n③ People should buy a bigger refrigerator.\n④ Older food should be thrown away first.',
+            hint: 'The key point is の後が要点。',
+            steps: [
+              '1文目の Some people think 〜 は、ほかの人の考え(一般論)です。',
+              '2文目の However で、「それは簡単ではない」と一般論を否定しています。',
+              '3文目に強調の合図 The key point is があり、その後の「食品の保存のしかたを少し変えるだけで、大きなちがいが生まれうる」が要点です。',
+              '4文目の For example は、その要点の具体例です。要点を言いかえた ② が正解です。'
+            ],
+            a: '②',
+            check: '① は However で否定された一般論、③ は本文にない内容、④ は具体例(古い食品を手前に置いて食べる)とは逆の内容です。make a big difference(大きなちがいを生む)が、選択肢では reduce food waste(食品の廃棄を減らす)と言いかえられていることも確かめましょう。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '講義で次の英文が聞こえた。「ヒートアイランド現象」とは何かを、日本語で答えよう。\nCities are often warmer than the areas around them. This is known as the "heat island" effect.\n(和訳:都市は、まわりの地域よりも気温が高いことが多い。これは「ヒートアイランド」現象として知られている。)', a: '都市が、そのまわりの地域よりも気温が高くなる現象。', exp: '2文目の is known as(〜として知られている)が定義の合図です。主語の This は、前の文の内容「都市は、まわりの地域よりも暖かいことが多い」をまとめて受けています。つまり、heat island effect の説明は、This が指している1文目にあります。このように、定義の合図の前に説明が来ることもあれば、後に来ることもあります。指示語 This・These が何を指しているかを確かめると、用語の意味をつかめます。effect には「効果」のほか、「影響・結果」の意味もあり、ここでは「現象」と訳すと自然です。' },
+      { lv: 3, q: '講義で次の英文が聞こえた。話し手が否定している考えと、正しいと述べている考えを、それぞれ日本語で答えよう。\nBeing bilingual does not mean that you speak two languages perfectly. Rather, it means that you can use two languages in your daily life.\n(和訳:バイリンガルであるということは、2つの言語を完ぺきに話せるという意味ではない。むしろ、日常生活で2つの言語を使えるという意味である。)', a: '否定している考え:2つの言語を完ぺきに話せることが、バイリンガルである。/正しいと述べている考え:日常生活で2つの言語を使えることが、バイリンガルである。', exp: 'does not mean 〜. Rather, …(〜という意味ではない。むしろ…)は、よくある誤解を否定してから、正しい意味を示す型です。話し手の考えは、not の後ではなく、Rather の後にあります。リスニングでは、bilingual・two languages・perfectly などの語が聞こえたところで答えを決めると、否定されている部分を正解だと思いこんでしまいます。not と Rather のセットを聞いたら、「前は誤解、後ろが正解」と整理しましょう。rather には、would rather(むしろ〜したい)や rather difficult(かなり難しい)の使い方もあります。' },
+      { lv: 3, q: '講義で次の英文が聞こえた。最初の年の利用者数が4,000人だったとき、3年目の利用者数を答えよう。\nIn its second year, the number of people using the new library doubled. In the third year, it increased by another 2,000.\n(和訳:2年目に、新しい図書館の利用者の数は2倍になった。3年目には、さらに2,000人増えた。)', a: '10,000人', exp: '最初の年が4,000人で、2年目に doubled(2倍になった)ので、4,000 × 2 = 8,000人です。3年目は increased by another 2,000(さらに2,000人増えた)なので、8,000 + 2,000 = 10,000人です。by は「差」を表し、increase by 2,000 は「2,000だけ増える」、increase to 2,000 なら「2,000まで増える」です。another は「さらに・もう1つの」という意味で、前の増加に加えて増えたことを示しています。講義の数値の問題では、「何倍」と「何人増えた」を順番に計算する必要があるので、メモに年ごとの数を書きこんでおきましょう。' }
+    ],
+    faq: [
+      ['講義の中で、定義の合図が聞き取れなかったらどうすればいいですか。', '合図の語そのものが聞き取れなくても、用語の前後に、やさしい言いかえや具体例が続くことがよくあります。知らない用語が聞こえたら、「この後に説明が来るはずだ」と予測して、説明の部分をメモしましょう。また、同じ用語が講義の中で何度もくり返されることもあります。1回目で意味が分からなくても、2回目、3回目に出てきたときの文脈から意味を補えます。'],
+      ['講義の内容について、自分の知識で答えてもいいですか。', '答えは、必ず講義の内容にもとづいて選びます。背景知識は、内容を予測したり、聞き取りを助けたりするのに役立ちますが、講義で述べられていないことを正解にしてはいけません。とくに、一般によく言われていることでも、講義の話し手が否定している場合があります。「講義でそう言っていたか」をメモで確かめ、自分の知識と講義の内容がちがうときは、講義の内容を優先しましょう。']
+    ]
+  });
+
 })(WPS.LESSONS);

@@ -4,7 +4,7 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v133';
+var CACHE = 'wps-v134';
 var FILES = [
   './', './index.html', './manual.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
   './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/units_math.js', './js/data/units_extra2.js', './js/data/units_extra3.js', './js/data/units_adv.js', './js/data/units_hard.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/banks_more.js', './js/data/vocab_jh.js', './js/data/vocab_idiom.js', './js/data/vocab_idiom2.js', './js/data/vocab_sci.js', './js/data/vocab_merge.js', './js/data/vocab_kobun.js', './js/data/vocab_books.js', './js/data/emoji.js', './js/data/history_ctx.js',

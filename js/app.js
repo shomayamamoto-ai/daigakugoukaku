@@ -1509,20 +1509,45 @@
   setInterval(function () {
     if (pomo.run && pomoRemain() <= 0) { pomoFinish(); if ((location.hash || '').slice(1) === 'timer') render(); }
     var el = document.getElementById('pomoTime');
-    if (el) { var r = pomoRemain(); el.textContent = Math.floor(r / 60) + ':' + ('0' + r % 60).slice(-2); var ring = document.getElementById('pomoRing'); if (ring) ring.style.strokeDashoffset = (1 - r / pomoLen(pomo.mode)) * 628; }
+    if (el) { var r = pomoRemain(); el.textContent = pomoFmt(r); pomoDraw(r); }
   }, 500);
+  function pomoFmt(r) { return ('0' + Math.floor(r / 60)).slice(-2) + ':' + ('0' + r % 60).slice(-2); }
+  // 残り時間に合わせて、金色の輪と先端の光る点を動かす
+  function pomoDraw(r) {
+    var f = Math.max(0, Math.min(1, r / pomoLen(pomo.mode))), ring = document.getElementById('pomoRing'), tip = document.getElementById('pomoTip');
+    if (ring) ring.style.strokeDashoffset = ((1 - f) * 628).toFixed(1);
+    if (tip) { var a = 2 * Math.PI * f; tip.setAttribute('cx', (120 + 100 * Math.cos(a)).toFixed(2)); tip.setAttribute('cy', (120 + 100 * Math.sin(a)).toFixed(2)); tip.style.opacity = f > 0.002 ? 1 : 0; }
+  }
+  var POMO_SET = { work: { l: '集中', min: 5, max: 120, step: 5, d: '1回の集中タイム' }, short: { l: '小休けい', min: 1, max: 30, step: 1, d: '集中のあいだの短い休み' }, long: { l: '長い休けい', min: 5, max: 60, step: 5, d: '4セットごとの長い休み' } };
+  var POMO_PRESET = [['standard', '標準', 25, 5, 15], ['short', 'みじかめ', 15, 3, 10], ['deep', 'じっくり', 50, 10, 30], ['exam', '本番形式', 60, 10, 20]];
   function renderTimer() {
     var r = pomoRemain(), s = S.get(), today = (s.pomo || {})[D.today()] || 0;
-    var labels = { work: '集中', short: '小休けい', long: '長い休けい' };
+    var labels = { work: '集中', short: '小休けい', long: '長い休けい' }, en = { work: 'FOCUS', short: 'SHORT BREAK', long: 'LONG BREAK' };
     var week = 0; for (var i = 0; i < 7; i++) week += (s.pomo || {})[D.add(D.today(), -i)] || 0;
-    var html = '<section class="card pomo"><div class="seg" role="group" aria-label="モード">' + ['work', 'short', 'long'].map(function (k) { return '<button type="button" class="seg-btn' + (pomo.mode === k ? ' on' : '') + '" data-pmode="' + k + '">' + labels[k] + '</button>'; }).join('') + '</div>' +
-      '<div class="pomo-dial ' + pomo.mode + '"><svg viewBox="0 0 220 220" aria-hidden="true"><defs><linearGradient id="pomoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#04143a"/><stop offset=".55" stop-color="#1146d6"/><stop offset="1" stop-color="#0fa3b8"/></linearGradient></defs><circle cx="110" cy="110" r="100" class="pr-bg"/><circle id="pomoRing" cx="110" cy="110" r="100" class="pr-fg" style="stroke-dashoffset:' + ((1 - r / pomoLen(pomo.mode)) * 628) + '"/></svg>' +
-      '<div class="pomo-num"><small>' + labels[pomo.mode] + '</small><b id="pomoTime">' + Math.floor(r / 60) + ':' + ('0' + r % 60).slice(-2) + '</b><small>' + (pomo.count % 4) + ' / 4 セット</small></div></div>' +
-      '<div class="pomo-btns"><button type="button" class="btn primary big" id="pomoGo">' + (pomo.run ? '一時停止' : r < pomoLen(pomo.mode) ? '再開' : 'スタート') + '</button><button type="button" class="btn big" id="pomoReset">リセット</button><button type="button" class="btn big" id="pomoSkip">次へ</button></div>' +
-      '<div class="kpis"><div class="kpi focal"><span class="kpi-l">今日の集中</span><b class="kpi-v">' + today + '<small>回(' + WPS.Time.label(today * pomo.work) + ')</small></b></div><div class="kpi"><span class="kpi-l">直近7日</span><b class="kpi-v">' + week + '<small>回</small></b></div></div></section>';
-    html += '<section class="card"><h2>時間の設定</h2><div class="form-2">' + [['work', '集中(分)', [15, 20, 25, 30, 45, 50, 60]], ['short', '小休けい(分)', [3, 5, 10]], ['long', '長い休けい(分)', [10, 15, 20, 30]]].map(function (x) {
-      return '<label>' + x[1] + '<select data-pset="' + x[0] + '">' + x[2].map(function (v) { return '<option' + (pomo[x[0]] === v ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select></label>';
-    }).join('') + '</div><ol class="steps"><li>やることを1つ決めて、集中タイムをスタート(初期設定は25分)。</li><li>終わったら5分休けい。スマホやSNSは見ずに、目と体を休める。</li><li>4セットごとに長めの休けい(15分)をとる。</li></ol><p class="hint">集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。ほかの画面に移ってもタイマーは進みます。</p></section>';
+    var ticks = '';
+    for (var t = 0; t < 60; t++) { var ang = t / 60 * 2 * Math.PI, big = t % 5 === 0, r1 = big ? 106 : 109, r2 = 114; ticks += '<line x1="' + (120 + r1 * Math.cos(ang)).toFixed(2) + '" y1="' + (120 + r1 * Math.sin(ang)).toFixed(2) + '" x2="' + (120 + r2 * Math.cos(ang)).toFixed(2) + '" y2="' + (120 + r2 * Math.sin(ang)).toFixed(2) + '" class="' + (big ? 'tk big' : 'tk') + '"/>'; }
+    var setN = pomo.count % 4, dots = '';
+    for (var k = 0; k < 4; k++) dots += '<i class="' + (k < setN ? 'on' : k === setN && pomo.mode === 'work' ? 'now' : '') + '"></i>';
+    var running = pomo.run, paused = !running && r < pomoLen(pomo.mode);
+    var html = '<section class="pomo-lux ' + pomo.mode + (running ? ' run' : '') + '">' +
+      '<div class="pl-modes" role="group" aria-label="モード">' + ['work', 'short', 'long'].map(function (k) { return '<button type="button" class="' + (pomo.mode === k ? 'on' : '') + '" data-pmode="' + k + '" aria-pressed="' + (pomo.mode === k) + '">' + labels[k] + '</button>'; }).join('') + '</div>' +
+      '<div class="pl-dial"><svg viewBox="0 0 240 240" aria-hidden="true"><defs><linearGradient id="plGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e3a8"/><stop offset=".5" stop-color="#d4af5a"/><stop offset="1" stop-color="#a8823a"/></linearGradient><radialGradient id="plFace" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#1d5a47"/><stop offset="1" stop-color="#0b2b22"/></radialGradient><filter id="plGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter></defs>' +
+      '<circle cx="120" cy="120" r="94" fill="url(#plFace)"/><g class="pl-ticks">' + ticks + '</g><circle cx="120" cy="120" r="100" class="pl-track"/>' +
+      '<circle id="pomoRing" cx="120" cy="120" r="100" class="pl-arc" style="stroke-dashoffset:' + ((1 - r / pomoLen(pomo.mode)) * 628).toFixed(1) + '"/>' +
+      '<circle id="pomoTip" cx="220" cy="120" r="5" class="pl-tip"/></svg>' +
+      '<div class="pl-num"><span class="pl-en">' + en[pomo.mode] + '</span><b id="pomoTime">' + pomoFmt(r) + '</b><span class="pl-sub">' + labels[pomo.mode] + '・' + pomoLen(pomo.mode) / 60 + '分</span><span class="pl-dots" aria-label="' + setN + ' / 4 セット">' + dots + '</span></div></div>' +
+      '<div class="pl-ctrl"><button type="button" class="pl-round" id="pomoReset" aria-label="リセット"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg><small>リセット</small></button>' +
+      '<button type="button" class="pl-go" id="pomoGo">' + (running ? '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>一時停止' : '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>' + (paused ? '再開' : 'スタート')) + '</button>' +
+      '<button type="button" class="pl-round" id="pomoSkip" aria-label="次へ"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg><small>次へ</small></button></div>' +
+      '<div class="pl-stats"><div><span>今日の集中</span><b>' + today + '<small>回</small></b><em>' + WPS.Time.label(today * pomo.work) + '</em></div><div><span>直近7日</span><b>' + week + '<small>回</small></b><em>1日平均 ' + (Math.round(week / 7 * 10) / 10) + '回</em></div><div><span>このセット</span><b>' + setN + '<small>/4</small></b><em>4回で長い休けい</em></div></div></section>';
+    // 時間の設定:－/＋で1分(または5分)ずつ。よく使う組み合わせはワンタップで
+    var cur = POMO_PRESET.filter(function (x) { return x[2] === pomo.work && x[3] === pomo.short && x[4] === pomo.long; })[0];
+    html += '<section class="card pl-set"><h2>時間の設定</h2><div class="pl-presets" role="group" aria-label="おすすめの組み合わせ">' + POMO_PRESET.map(function (x) {
+      return '<button type="button" class="' + (cur && cur[0] === x[0] ? 'on' : '') + '" data-ppre="' + x[0] + '"><b>' + x[1] + '</b><small>' + x[2] + '・' + x[3] + '・' + x[4] + '分</small></button>';
+    }).join('') + '</div><div class="pl-rows">' + ['work', 'short', 'long'].map(function (k) {
+      var c = POMO_SET[k], v = pomo[k];
+      return '<div class="pl-row"><div class="pl-rl"><b>' + c.l + '</b><small>' + c.d + '</small></div><div class="pl-step"><button type="button" data-pstep="' + k + '" data-d="-1" aria-label="' + c.l + 'を' + c.step + '分へらす"' + (v <= c.min ? ' disabled' : '') + '>－</button><output aria-live="polite"><b>' + v + '</b>分</output><button type="button" data-pstep="' + k + '" data-d="1" aria-label="' + c.l + 'を' + c.step + '分ふやす"' + (v >= c.max ? ' disabled' : '') + '>＋</button></div></div>';
+    }).join('') + '</div><ol class="steps"><li>やることを1つ決めて、集中タイムをスタート(標準は25分)。</li><li>終わったら短い休けい。スマホやSNSは見ずに、目と体を休める。</li><li>4セットごとに長めの休けいをとる。</li></ol><p class="hint">集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。ほかの画面に移ってもタイマーは進みます。</p></section>';
     return html;
   }
   renderTimer.after = function () {
@@ -1535,7 +1560,16 @@
     document.getElementById('pomoReset').addEventListener('click', function () { pomo.run = false; pomo.left = pomoLen(pomo.mode); re(); });
     document.getElementById('pomoSkip').addEventListener('click', function () { pomo.run = false; pomo.mode = pomo.mode === 'work' ? (pomo.count % 4 === 3 ? 'long' : 'short') : 'work'; pomo.left = pomoLen(pomo.mode); re(); });
     view.querySelectorAll('[data-pmode]').forEach(function (b) { b.addEventListener('click', function () { pomo.mode = b.getAttribute('data-pmode'); pomo.run = false; pomo.left = pomoLen(pomo.mode); re(); }); });
-    view.querySelectorAll('[data-pset]').forEach(function (sel) { sel.addEventListener('change', function () { pomo[sel.getAttribute('data-pset')] = +sel.value; if (!pomo.run) pomo.left = pomoLen(pomo.mode); re(); }); });
+    view.querySelectorAll('[data-pstep]').forEach(function (b) { b.addEventListener('click', function () {
+      var k = b.getAttribute('data-pstep'), c = POMO_SET[k], v = pomo[k] + (+b.getAttribute('data-d')) * c.step;
+      // 5分きざみの項目で、半端な値(例:3分)からでも、きざみにそろえる
+      if (c.step > 1) v = Math.round(v / c.step) * c.step;
+      pomo[k] = Math.max(c.min, Math.min(c.max, v)); if (!pomo.run) pomo.left = pomoLen(pomo.mode); re();
+    }); });
+    view.querySelectorAll('[data-ppre]').forEach(function (b) { b.addEventListener('click', function () {
+      var x = POMO_PRESET.filter(function (y) { return y[0] === b.getAttribute('data-ppre'); })[0]; if (!x) return;
+      pomo.work = x[2]; pomo.short = x[3]; pomo.long = x[4]; if (!pomo.run) pomo.left = pomoLen(pomo.mode); re();
+    }); });
   };
 
   /* ========== ゴールから逆算したマイルストーン ========== */
