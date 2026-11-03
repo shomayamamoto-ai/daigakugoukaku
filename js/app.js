@@ -533,12 +533,12 @@
   var RD_AX = [
     ['eng', 'eng', '英語'], ['m1', 'math', '数学ⅠA'], ['m2', 'math', '数学ⅡB'], ['m3', 'math', '数学ⅢC'],
     ['gen', 'jpn', '現代文'], ['ko', 'jpn', '古文'], ['kan', 'jpn', '漢文'],
-    ['jh', 'soc', '日本史'], ['wh', 'soc', '世界史'], ['geo', 'soc', '地理'], ['civ', 'soc', '公民'],
+    ['hs', 'soc', '歴史総合'], ['jh', 'soc', '日本史'], ['wh', 'soc', '世界史'], ['geo', 'soc', '地理'], ['civ', 'soc', '公民'],
     ['phy', 'sci', '物理'], ['chem', 'sci', '化学'], ['bio', 'sci', '生物'], ['earth', 'sci', '地学'], ['info', 'info', '情報']
   ];
   var RD_COURSE = { math_jh: 'm1', math_1: 'm1', math_a: 'm1', math_2: 'm2', math_b: 'm2', math_c: 'm3', math_3: 'm3',
     jpn_jh: 'gen', jpn_ron: 'gen', jpn_ko: 'ko', jpn_kan: 'kan', soc_jhis: 'jh', soc_jh: 'jh', soc_wh: 'wh', soc_jgeo: 'geo', soc_geo: 'geo', soc_jciv: 'civ', soc_kokyo: 'civ', soc_rinri: 'civ',
-    sci_phy: 'phy', sci_chem: 'chem', sci_bio: 'bio', sci_geo: 'earth', sci_jh1: 'phy', sci_jh2: 'bio' };
+    sci_phy: 'phy', sci_chem: 'chem', sci_bio: 'bio', sci_geo: 'earth', sci_p4: 'phy', sci_c4: 'chem', sci_b4: 'bio', sci_g4: 'earth', soc_hsogo: 'hs', sci_jh1: 'phy', sci_jh2: 'bio' };
   var RD_UNIT = { j_kobun_m: 'ko', j_kanbun_m: 'kan', jx_std: 'ko', hd_jpn: 'ko', s_sol: 'chem', s_m2: 'chem', s_ion: 'chem', s_m4: 'earth', s_space: 'earth' };
   var rdMap = null;
   function rdAxisOf(uid, subj) {
