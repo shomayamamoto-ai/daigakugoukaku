@@ -12,11 +12,11 @@ WPS.VBOOKS = [
   { id: 'plus', name: '大学受験 中級', total: 1631 },
   { id: 'idiom', name: '英熟語', total: 1376 },
   { id: 'sokei', name: '早慶上理', note: '学部ごと', bank: 'en_sokei', named: 1,
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文']] }
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工']] }
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124]] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122]] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {} };
@@ -3235,6 +3235,133 @@ nuance|微妙な違い、ニュアンス
 trajectory|軌道、軌跡
 rampant|はびこった、蔓延した
 suffice|十分である
+propensity|傾向、性向
+`;
+// 3 = 早稲田 理工(基幹・創造・先進)
+WPS.VBOOK_DATA.sokei[3] = `
+abound|たくさんある、満ちている
+correlate|相関する、関連づける
+fishery|漁業、漁場
+optimize|最適化する
+parameter|変数、(判断の)要素・範囲
+administrative|行政の、管理の
+administrator|管理者、行政官
+affiliation|所属、提携
+altruistic|利他的な
+appraisal|評価、査定
+aqueous|水の、水性の
+authoritarian|権威主義の
+aversion|嫌悪、強い反感
+benevolence|善意、慈悲
+benevolent|慈悲深い、善意の
+biodiversity|生物多様性
+biotechnology|生命工学、バイオテクノロジー
+breach|違反、破れ目、(約束などを)破る
+calculus|微積分
+caloric|カロリーの
+capitulation|降伏
+cognition|認知
+composite|複合の、合成物
+continuum|連続体
+cult|カルト、熱狂的な崇拝
+defection|離反、亡命
+depletion|枯渇、減少
+dietary|食事の
+dire|悲惨な、差し迫った
+divisive|分裂を招く
+dosage|服用量
+eccentricity|風変わりなこと、奇抜さ
+efficacy|効能、有効性
+enticing|心をそそる、魅力的な
+epistemic|認識の、知識に関する
+eventual|最終的な、結果として起こる
+explanatory|説明的な
+exploratory|探査の、探索的な
+fiscal|財政の、会計の
+hike|引き上げ、値上げ、ハイキング
+hippocampus|海馬
+inequity|不公平
+innovator|革新者、新しいものを生み出す人
+intensify|強める、強まる
+iteration|反復、くり返し
+lofty|高尚な、非常に高い
+logarithm|対数
+maneuver|巧みに動かす、策略
+maximal|最大の
+mindset|考え方、心構え
+molecular|分子の
+moratorium|一時停止、(支払いの)猶予
+negligible|無視できるほどの
+neurobiological|神経生物学の
+neuroscience|神経科学
+onward|前へ、先へ
+operational|運用上の、作動可能な
+optimal|最適な
+optimum|最適の、最適条件
+pathology|病理学
+payoff|見返り、成果
+pest|害虫、厄介者
+proposition|提案、命題
+quantitative|量的な
+reciprocal|相互の、互恵的な
+reciprocity|相互性、互恵
+rigorous|厳密な、厳しい
+sect|宗派、分派
+socioeconomic|社会経済的な
+stark|明白な、まったくの
+stressor|ストレス要因
+systematically|体系的に、組織的に
+temporal|時間の、世俗の
+textual|本文の、文章上の
+tranquility|静けさ、平穏
+trawler|トロール漁船
+unison|一致、(in unisonで)声をそろえて
+wastage|浪費、損耗
+ascribe|(ascribe A to Bで)AをBのせいにする・Bに帰する
+inherent|固有の、本来備わっている
+contradict|矛盾する、反論する
+monetary|金銭の、通貨の
+protocol|議定書、手順、規約
+incorporate|取り入れる、組み込む
+comprise|～から成る、構成する
+undermine|弱める、むしばむ
+intuition|直感
+comprehend|理解する
+criteria|基準(criterionの複数形)
+integrity|誠実さ、完全性
+formulate|(計画などを)まとめる、明確に述べる
+compliance|(法令などに)従うこと、順守
+curb|抑制する、歩道の縁石
+artifact|人工物、遺物
+autonomy|自治、自主性
+adverse|不利な、有害な
+coherent|首尾一貫した
+integral|不可欠な
+entity|存在、実体
+intrinsic|固有の、本質的な
+empirical|経験による、実証的な
+preliminary|予備的な
+potent|強力な、効き目のある
+custody|親権、拘留、保護管理
+proponent|支持者、提唱者
+plausible|もっともらしい
+coalition|連立、連合
+pervasive|広く行き渡った
+encompass|含む、取り囲む
+alleviate|軽減する、和らげる
+eradicate|根絶する
+mitigate|緩和する、和らげる
+fallacy|誤った考え、誤謬
+altruism|利他主義
+bilateral|二国間の、双方の
+pivotal|極めて重要な
+detrimental|有害な
+robust|頑強な、しっかりした
+scrutiny|精査、綿密な調査
+equilibrium|均衡、平衡
+resilience|回復力、しなやかさ
+exemplify|例証する、よい例となる
+deplete|使い果たす、激減させる
 propensity|傾向、性向
 `;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
