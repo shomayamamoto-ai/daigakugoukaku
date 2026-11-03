@@ -169,38 +169,35 @@ WPS.makeBooks = function (ctx) {
   }
 
   // 本文データ(約2MB)は、テキストを開いたときに初めて読み込む(アプリの起動を軽くするため)
-  var LV = '20261105j', LFILES = ['lessons_1', 'lessons_2', 'lessons_3', 'lessons_4', 'lessons_5', 'lessons_6', 'lessons_7', 'lessons_8', 'lessons_9', 'lessons_10', 'lessons_new_hsogo', 'lessons_new_geo', 'lessons_new_rinri', 'lessons_new_phys', 'lessons_new_chem', 'lessons_new_bio', 'lessons_new_earth', 'lessons_new_kyotsu', 'lessons_new_englis', 'lessons_new_life', 'lessons_new_jhlang', 'lessons_new_jhmss', 'lessons_new_jhist', 'lessons_new_whista', 'lessons_new_whistb', 'lessons_new_civics', 'lessons_new_geob', 'lessons_zukai'];
-  var lState = 0; // 0:未読込 1:読込中 2:完了 3:失敗
-  function ensureLessons() {
-    if (lState === 2) return true;
-    if (lState === 1) return false;
-    lState = 1;
-    var i = 0;
-    (function nextFile() {
-      if (i >= LFILES.length) { lState = 2; if (/^#books/.test(location.hash)) ctx.render(); return; }
-      var sc = document.createElement('script'); sc.src = 'js/data/' + LFILES[i++] + '.js?v=' + LV;
-      sc.onload = nextFile;
-      sc.onerror = function () { lState = 3; if (/^#books/.test(location.hash)) ctx.render(); };
-      document.head.appendChild(sc);
-    })();
-    return false;
+  var LV = '20261106a';
+  // テキスト本文は、開いた単元のファイル(js/lessons/<単元ID>.js)だけを読み込む
+  var lFail = {}, lLoading = {};
+  function lessonReady(id) { return !!(WPS.LESSONS && WPS.LESSONS[id]) || lFail[id] === 1; }
+  function loadLesson(id) {
+    if (lLoading[id]) return; lLoading[id] = 1;
+    var sc = document.createElement('script'); sc.src = 'js/lessons/' + id + '.js?v=' + LV;
+    function done() { if (location.hash.indexOf('/' + id) >= 0) ctx.render(); }
+    sc.onload = done;
+    sc.onerror = function () { lFail[id] = 1; lLoading[id] = 0; done(); };
+    document.head.appendChild(sc);
   }
   function render(arg) {
-    if (!ensureLessons()) {
-      if (lState === 3) { lState = 0; return '<section class="card"><p>テキストの読み込みに失敗しました。通信の状態を確かめて、もう一度開いてください。</p><a class="btn" href="#books">もう一度読み込む</a></section>'; }
-      return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>';
-    }
     var p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
-    if (b && p[1] && WPS.UNIT_MAP[p[1]]) return page(b, p[1]);
+    if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
+      if (!lessonReady(p[1])) { loadLesson(p[1]); return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>'; }
+      var out = page(b, p[1]);
+      if (lFail[p[1]] === 1) { lFail[p[1]] = 2; out = '<p class="card muted small">解説の本文を読み込めませんでした。通信の状態を確かめて、ページを開き直してください。</p>' + out; }
+      return out;
+    }
     if (b) return toc(b);
     return shelf();
   }
   function after(arg) {
-    if (lState !== 2) return;
     var view = document.getElementById('view'), p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       var id = p[1];
+      if (!view.querySelector('#bkBm')) return; // 読み込み中
       if (!S.isView()) { var bb = B(); bb.read[id] = Date.now(); bb.last = { b: b.id, u: id }; bb.t = bb.t || {}; bb.t[b.id] = Date.now(); S.save(); }
       view.querySelector('#bkBm').addEventListener('click', function () { var m = B().bm; if (m[id]) delete m[id]; else m[id] = Date.now(); S.save(); this.classList.toggle('on', !!m[id]); this.setAttribute('aria-pressed', !!m[id]); });
       view.querySelector('#bkPractice').addEventListener('click', function () { ctx.practice(id); });
