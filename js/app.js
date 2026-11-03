@@ -132,7 +132,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
@@ -146,7 +146,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -594,6 +594,7 @@
     }
 
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
+    html += nextAction(tt);
     html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。タップすると分解するよ。</small></div></section>';
 
     // 診断がまだの場合
@@ -638,7 +639,8 @@
 
     var wl = wrongList();
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
-    html += '<section class="quick"><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += whyCard();
+    html += '<section class="quick"><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -650,6 +652,7 @@
     mountOwl('owlHome', true);
     var sb = document.getElementById('startBasic');
     if (sb) sb.addEventListener('click', function () { var ids = levelPick(1, null, 10); if (!ids.length) { toast('問題が見つかりませんでした'); return; } startQuiz(ids, 'study', '基礎レベル演習'); });
+    var na = document.getElementById('naRetry'); if (na) na.addEventListener('click', function () { var r = document.getElementById('retryWrong'); if (r) r.click(); });
     var rw = document.getElementById('retryWrong');
     if (rw) rw.addEventListener('click', function () { startQuiz(wrongList().slice(0, 10), 'retry', '間違い直し'); });
     view.querySelectorAll('button[data-task]').forEach(function (b) {
@@ -775,6 +778,71 @@
   };
 
   // まだ正解できていない「間違えた問題」(新しい順)。同じ問題を後で正解していれば外す
+  // アプリ内検索:単元・英単語・古文単語・用語・一問一答・論述をまとめて探す
+  var srchQ = '';
+  function srchIndex() {
+    if (srchIndex.c) return srchIndex.c;
+    var out = [];
+    WPS.UNITS.forEach(function (u) { out.push({ k: '単元', t: u.name, m: WPS.SUBJECTS[u.subj].name + '・' + u.stage, href: '#study/' + u.id, u: u }); });
+    WORD_LISTS.forEach(function (L) { (WPS.BANK[L[2]] || []).forEach(function (x) { out.push({ k: L[1], t: L[4] === 'year' ? x.t + '年' : x.t, m: x.m, L: L }); }); });
+    (WPS.JHQ || []).forEach(function (q) { out.push({ k: '日本史', t: q.a, m: q.q, href: '#jhq' }); });
+    (WPS.WHQ || []).forEach(function (q) { out.push({ k: '世界史', t: q.a, m: q.q, href: '#whq' }); });
+    (WPS.RONJUTSU || []).forEach(function (q) { out.push({ k: '論述', t: q.topic, m: q.q, href: '#ronjutsu' }); });
+    return (srchIndex.c = out);
+  }
+  function renderSearch() {
+    var q = srchQ.trim().toLowerCase(), gr = S.get().profile.grade, st = A.allStats(), hits = [];
+    if (q) srchIndex().forEach(function (x) {
+      if (hits.length >= 60) return;
+      if (x.u && !WPS.unitAllowed(x.u, gr, st)) return;
+      if (x.L && !wordListOk(x.L, gr, st)) return;
+      if (String(x.t).toLowerCase().indexOf(q) >= 0 || String(x.m).toLowerCase().indexOf(q) >= 0) hits.push(x);
+    });
+    return '<section class="card"><input id="srchIn" type="search" value="' + h(srchQ) + '" placeholder="単元名・単語・人物・できごとなど" aria-label="アプリ内検索" autocomplete="off">' +
+      (q ? '<p class="muted small">' + (hits.length >= 60 ? '60件以上見つかりました(はじめの60件)' : hits.length + '件') + '</p><ul class="srch-list">' + hits.map(function (x) {
+        var inner = '<em>' + h(x.k) + '</em><b>' + h(x.t) + '</b><span>' + h(x.m) + '</span>';
+        return '<li>' + (x.href ? '<a href="' + x.href + '">' + inner + '</a>' : '<div>' + inner + '</div>') + '</li>';
+      }).join('') + '</ul>' : '<p class="muted small">単元・英単語・古文単語・用語・日本史/世界史の一問一答・論述から探せます。</p>') + '</section>';
+  }
+  renderSearch.after = function () {
+    var inp = document.getElementById('srchIn'), tm;
+    inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+    inp.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { srchQ = inp.value; var y = window.scrollY; render(); window.scrollTo(0, y); }, 200); });
+  };
+  // 次の一手:いま一番効果が高い学習を1つだけ示す
+  function nextAction(tt) {
+    var s = S.get(), wl = wrongList(), sm = WPS.SRS.summary(), task = tt.tasks.filter(function (x) { return !x.done && x.action; })[0];
+    var hasTest = s.attempts.some(function (a) { return a.src === 'test'; });
+    var a = null;
+    if (!hasTest) return '';
+    if (wl.length >= 3) a = { t: '間違い直し ' + Math.min(10, wl.length) + '問', why: 'まちがえた問題は、時間をおかずに解き直すと定着しやすい。', id: 'naRetry' };
+    else if (sm.due >= 5) a = { t: '復習カード ' + sm.due + '枚', why: '忘れかけたちょうど今が、思い出すのにいちばん効果的なタイミング。', href: '#cards' };
+    else if (task) a = { t: task.title, why: '今日のやる事のうち、まだ終わっていないもの。', href: task.action };
+    else a = { t: '単語トレーニング(自動出題)', why: '今日のやる事は完了。すき間時間に、忘れかけの単語を確認しよう。', href: '#vocab' };
+    return '<section class="card next-act"><p class="na-lbl">次の一手</p><b class="na-t">' + h(a.t) + '</b><p class="na-why">' + h(a.why) + '</p>' +
+      (a.id ? '<button type="button" class="btn primary big" id="' + a.id + '">今すぐやる</button>' : '<a class="btn primary big" href="' + a.href + '">今すぐやる</a>') + '</section>';
+  }
+  // まちがえた理由(ミスノート)
+  var WHY = [['care', 'ケアレスミス'], ['know', '覚えていなかった'], ['under', '理解があいまい'], ['read', '問題の読み違い']];
+  var WHY_TIP = {
+    care: '解き終えたら、計算・符号・単位・選択肢の記号を見直す「確認の1分」を習慣に。',
+    know: '単語帳・一問一答で、間隔をあけて何度も思い出す練習(間隔反復)を。',
+    under: '単元ページの解説を読み直し、なぜそうなるかを自分の言葉で説明してみよう。',
+    read: '問いの「〜でないもの」「すべて選べ」などに線を引いてから解こう。'
+  };
+  function whyStats(days) {
+    var s = S.get(), since = Date.now() - (days || 30) * 864e5, c = {}, n = 0;
+    s.attempts.forEach(function (a) { if (a.why && a.t >= since) { c[a.why] = (c[a.why] || 0) + 1; n++; } });
+    return { c: c, n: n };
+  }
+  function whyCard(title) {
+    var w = whyStats(30); if (w.n < 3) return '';
+    var top = WHY.slice().sort(function (a, b) { return (w.c[b[0]] || 0) - (w.c[a[0]] || 0); })[0];
+    return '<section class="card why-card"><h2>' + (title || 'ミスの原因(直近30日)') + '</h2><div class="why-bars">' + WHY.map(function (x) {
+      var v = w.c[x[0]] || 0, p = Math.round(v / w.n * 100);
+      return '<div class="why-row' + (x === top ? ' top' : '') + '"><span>' + x[1] + '</span><div class="why-track"><i style="width:' + p + '%"></i></div><b>' + v + '</b></div>';
+    }).join('') + '</div><p class="why-tip"><b>いちばん多いのは「' + top[1] + '」</b>' + WHY_TIP[top[0]] + '</p></section>';
+  }
   function wrongList() {
     var s = S.get(), last = {}, gr = s.profile.grade, st = A.allStats();
     s.attempts.forEach(function (a) { if (a.q && a.src !== 'card' && a.src !== 'oral') last[a.q] = a; });
@@ -925,12 +993,20 @@
     document.getElementById('feedback').innerHTML = noEmoji(
       (xr.xp ? '<p class="xp-gain">+' + xr.xp + ' XP' + (quiz.combo >= 2 ? '<small>コンボ x' + quiz.combo + '</small>' : '') + '</p>' : '') +
       explainBox(q, ok, chosen) +
+      (!ok && !unsure ? '<div class="why-box"><p>まちがえた理由は?(1つ選ぶと、苦手の分析に使います)</p><div class="why-btns">' + WHY.map(function (w) { return '<button type="button" class="btn small" data-why="' + w[0] + '">' + w[1] + '</button>'; }).join('') + '</div></div>' : '') +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
       '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>');
     document.getElementById('nextQ').addEventListener('click', function () {
       if (last) { finishQuiz(); return; }
       quiz.i++; quiz.answered = false; quiz.order = null;
       render();
+    });
+    view.querySelectorAll('[data-why]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var st = S.get(), a = st.attempts[st.attempts.length - 1];
+        if (a && a.q === q.id) { a.why = b.getAttribute('data-why'); S.save(); }
+        view.querySelectorAll('[data-why]').forEach(function (x) { x.classList.toggle('primary', x === b); });
+      });
     });
     document.getElementById('nextQ').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -1877,6 +1953,7 @@
       html += '<tr><th>第' + (k + 1) + '回</th><td>' + what + '</td></tr>';
     }
     html += '</table></section>';
+    html += whyCard('生徒のミスの原因(直近30日)');
     html += kptReport();
     return html;
   }
