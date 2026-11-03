@@ -91,22 +91,25 @@
 (function () {
   var dataEl = document.getElementById('hlData'); if (!dataEl) return;
   var HL; try { HL = JSON.parse(dataEl.textContent); } catch (e) { return; }
+  var dev = window.innerWidth >= 900 ? 'pc' : 'sp';
   var DUR = 5000, hi = 0, si = 0, timer = null, start = 0, left = DUR, paused = false, lastFocus = null;
   var sv = document.createElement('div'); sv.className = 'sv'; sv.hidden = true;
   sv.setAttribute('role', 'dialog'); sv.setAttribute('aria-modal', 'true'); sv.setAttribute('aria-label', 'アプリの画面');
-  sv.innerHTML = '<div class="sv-box"><div class="sv-bars"></div><div class="sv-head"><img alt=""><b></b><button type="button" class="sv-x" aria-label="閉じる">×</button></div>' +
+  sv.innerHTML = '<div class="sv-box"><div class="sv-bars"></div><div class="sv-head"><img alt=""><b></b><div class="sv-dev" role="group" aria-label="画面の種類"><button type="button" data-dev="sp">スマホ</button><button type="button" data-dev="pc">パソコン</button></div><button type="button" class="sv-x" aria-label="閉じる">×</button></div>' +
     '<div class="sv-stage"><img alt=""></div><div class="sv-cap" aria-live="polite"><b></b><p></p></div>' +
     '<button type="button" class="sv-tap prev" aria-label="前の画面"></button><button type="button" class="sv-tap next" aria-label="次の画面"></button><p class="sv-hint">右をタップで次へ・左で前へ・長押しで一時停止</p></div>';
   document.body.appendChild(sv);
   var bars = sv.querySelector('.sv-bars'), img = sv.querySelector('.sv-stage img'), headImg = sv.querySelector('.sv-head img'), headT = sv.querySelector('.sv-head b'), capT = sv.querySelector('.sv-cap b'), capP = sv.querySelector('.sv-cap p');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function preload(h) { (HL[h] || { slides: [] }).slides.forEach(function (x) { var i = new Image(); i.src = x.img; }); }
+  function preload(h) { (HL[h] || { slides: [] }).slides.forEach(function (x) { var i = new Image(); i.src = dev === 'pc' ? x.img.replace('.webp', '_pc.webp') : x.img; }); }
   function show() {
     var h = HL[hi], x = h.slides[si];
     bars.innerHTML = h.slides.map(function (_, k) { return '<i class="' + (k < si ? 'done' : '') + '"><b></b></i>'; }).join('');
     headImg.src = h.slides[0].img.replace('.webp', '_s.webp');
     headT.innerHTML = ''; headT.appendChild(document.createTextNode(h.name)); var sm = document.createElement('small'); sm.textContent = (si + 1) + ' / ' + h.slides.length; headT.appendChild(sm);
-    img.src = x.img; img.alt = h.name + ':' + x.t; capT.textContent = x.t; capP.textContent = x.d;
+    sv.classList.toggle('pc', dev === 'pc');
+    [].forEach.call(sv.querySelectorAll('[data-dev]'), function (b) { var on = b.getAttribute('data-dev') === dev; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    img.src = dev === 'pc' ? x.img.replace('.webp', '_pc.webp') : x.img; img.alt = h.name + ':' + x.t; capT.textContent = x.t; capP.textContent = x.d;
     var btn = document.querySelector('.hlc[data-hl="' + hi + '"]'); if (btn) btn.classList.add('seen');
     left = DUR; run();
     if (si === 0) preload(hi + 1);
@@ -129,6 +132,8 @@
   function close() { clearTimeout(timer); sv.hidden = true; document.body.classList.remove('sv-open'); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('[data-hl]'); if (b) open(+b.getAttribute('data-hl')); });
   sv.querySelector('.sv-x').addEventListener('click', close);
+  // スマホ版・パソコン版の切りかえ(今の画面のまま、表示だけ変える)
+  sv.querySelector('.sv-dev').addEventListener('click', function (e) { var b = e.target.closest('[data-dev]'); if (!b) return; dev = b.getAttribute('data-dev'); var keep = left; show(); left = keep; preload(hi); });
   var holdT = null, held = false;
   ['prev', 'next'].forEach(function (k) {
     var b = sv.querySelector('.sv-tap.' + k);

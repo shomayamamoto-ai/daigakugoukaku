@@ -543,3 +543,13 @@ body.sv-open { overflow: hidden; }
 .float-top { width: 52px; min-height: 52px; font-size: 16px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; transition: transform .12s, background .12s; position: relative; }
 .float-top::after { content: ""; position: absolute; inset: -8px; } /* 見た目より広く押せる */
 .float-top:active { transform: scale(.92); background: #e8eefc; }
+
+/* ハイライト:スマホ版・パソコン版の切りかえ */
+.sv-dev { display: inline-flex; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .14); flex: none; }
+.sv-dev button { border: 0; background: transparent; color: #fff; font: inherit; font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.sv-dev button.on { background: #fff; color: #0b1530; }
+.sv.pc .sv-box { width: min(1120px, 100vw); }
+.sv.pc .sv-stage { padding: 4px 12px; }
+.sv.pc .sv-stage img { aspect-ratio: 16 / 10; border-radius: 12px; border-width: 4px; }
+.sv-head b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 900px) { .hl-circles { max-width: 1140px; gap: 18px; } }

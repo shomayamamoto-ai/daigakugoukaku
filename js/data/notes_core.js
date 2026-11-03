@@ -57,8 +57,8 @@ WPS.QDEEP = WPS.QDEEP || {};
   };
 
   // 量の多いノートは、起動のあとで読み込む
-  WPS.NOTE_FILES = ['qdeep_ejm', 'qdeep_sci', 'wordnote_jp2', 'wordnote_en_jh', 'wordnote_en_h1', 'wordnote_en_h2', 'wordnote_scisoc'];
-  var state = 0, VER = '20261106c';
+  WPS.NOTE_FILES = ['qdeep_ejm', 'qdeep_sci', 'qdeep_soc', 'wordnote_jp2', 'wordnote_en_jh', 'wordnote_en_h1', 'wordnote_en_h2', 'wordnote_scisoc'];
+  var state = 0, VER = '20261106d';
   WPS.loadNotes = function () {
     if (state) return; state = 1;
     var files = WPS.NOTE_FILES.slice();
