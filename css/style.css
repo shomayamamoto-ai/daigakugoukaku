@@ -1766,3 +1766,13 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .wk-sum td { text-align: right; padding: 8px 0 8px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .wk-sum td b { font-size: 1.1rem; margin-right: 2px; }
 .wk-sum td.up { color: var(--ok); font-weight: 700; } .wk-sum td.down { color: var(--ng); font-weight: 700; }
+/* 単元マップ */
+.m-good { --m: #22a04b; } .m-soso { --m: #e6b422; } .m-weak { --m: #e5484d; } .m-fade { --m: #8b7fd6; } .m-un { --m: #c7cfdc; }
+.map-total { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--line); margin: 6px 0; }
+.map-total i { display: block; height: 100%; background: var(--m); }
+.map-leg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .8rem; color: var(--muted); margin: 0 0 10px; }
+.map-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--m); margin-right: 4px; vertical-align: middle; }
+.map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; }
+.map-cell { display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-height: 64px; padding: 8px; border-radius: 10px; text-decoration: none; color: var(--text); background: color-mix(in srgb, var(--m) 22%, var(--card)); border-left: 4px solid var(--m); min-width: 0; }
+.map-cell b { font-size: .8rem; line-height: 1.35; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.map-cell small { font-size: max(12px, .7rem); color: var(--muted); font-weight: 700; }

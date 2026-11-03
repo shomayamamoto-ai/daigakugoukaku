@@ -132,7 +132,7 @@
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, map: renderMap
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
@@ -146,7 +146,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], map: ['Unit Map', '単元マップ']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -642,7 +642,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -784,6 +784,51 @@
   var MK = WPS.makeMock({ h: h, toast: toast, shuffle: shuffle, render: render, levelPick: levelPick, diffOf: diffOf, confirm: function (msg, fn, lab) { ask(msg, lab, fn); } });
   function renderMock() { return MK.render(); }
   renderMock.after = function () { MK.after(); };
+  /* ---------- 単元マップ:全単元の定着度を色で一覧(ヒートマップ)。忘れかけも見える ---------- */
+  var mapSubj = null;
+  function unitLast(id) { var s = S.get(), t = 0; for (var i = s.attempts.length - 1; i >= 0; i--) { var a = s.attempts[i]; if (a.u === id) { t = a.t; break; } } return t; }
+  function mapState(st, last) {
+    if (st.status === 'untested') return 'un';
+    if (st.status === 'good' && last && Date.now() - last > 21 * 864e5) return 'fade'; // 3週間以上さわっていない得意単元は「忘れかけ」
+    return st.status;
+  }
+  function renderMap() {
+    var p = S.get().profile, stats = A.allStats(), t = R.target(), subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return t.weights[k] > 0; });
+    if (!mapSubj || subs.indexOf(mapSubj) < 0) mapSubj = subs[0];
+    var LBL = { good: '得意', soso: 'もう少し', weak: '苦手', fade: '忘れかけ', un: '未挑戦' };
+    var all = WPS.UNITS.filter(function (u) { return WPS.unitAllowed(u, p.grade, stats); });
+    var cnt = { good: 0, soso: 0, weak: 0, fade: 0, un: 0 };
+    all.forEach(function (u) { if (t.weights[u.subj] > 0) cnt[mapState(stats[u.id], unitLast(u.id))]++; });
+    var tot = Object.keys(cnt).reduce(function (a, k) { return a + cnt[k]; }, 0) || 1;
+    var html = '<section class="card"><p class="muted small">受験で使う教科の全単元を、定着度で色分けしています。マスをタップすると、その単元の学習へ進みます。3週間以上解いていない「得意」は「忘れかけ」になります。</p>' +
+      '<div class="map-total">' + ['good', 'soso', 'fade', 'weak', 'un'].map(function (k) { return '<i class="m-' + k + '" style="width:' + (cnt[k] / tot * 100).toFixed(1) + '%"></i>'; }).join('') + '</div>' +
+      '<p class="map-leg">' + ['good', 'soso', 'fade', 'weak', 'un'].map(function (k) { return '<span><i class="m-' + k + '"></i>' + LBL[k] + ' ' + cnt[k] + '</span>'; }).join('') + '</p>' +
+      '<div class="seg">' + subs.map(function (k) { return '<button type="button" class="seg-btn' + (k === mapSubj ? ' on' : '') + '" data-mapsub="' + k + '">' + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
+    // 科目(コース)ごとにまとめる
+    var groups = {};
+    all.filter(function (u) { return u.subj === mapSubj; }).forEach(function (u) { var c = WPS.courseOfUnit ? WPS.courseOfUnit(u.id) : null, k = c ? c.short : u.stage; (groups[k] = groups[k] || []).push(u); });
+    Object.keys(groups).forEach(function (g) {
+      var us = groups[g];
+      html += '<section class="card"><h2>' + h(g) + '<small class="muted"> ' + us.length + '単元</small></h2><div class="map-grid">' + us.map(function (u) {
+        var stt = stats[u.id], ms = mapState(stt, unitLast(u.id));
+        return '<a class="map-cell m-' + ms + '" href="#study/' + u.id + '" title="' + h(u.name + '・' + LBL[ms] + (stt.n ? '(正答率' + Math.round(stt.acc * 100) + '%)' : '')) + '"><b>' + h(u.name) + '</b><small>' + LBL[ms] + (stt.n ? ' ' + Math.round(stt.acc * 100) + '%' : '') + '</small></a>';
+      }).join('') + '</div></section>';
+    });
+    var fade = all.filter(function (u) { return u.subj === mapSubj && mapState(stats[u.id], unitLast(u.id)) === 'fade'; });
+    if (fade.length) html += '<section class="card"><h2>忘れかけの単元を確認</h2><p class="muted small">' + fade.length + '単元から1問ずつ出題します。</p><button type="button" class="btn primary" id="mapFade">' + Math.min(10, fade.length) + '問 解く</button></section>';
+    return html;
+  }
+  renderMap.after = function () {
+    view.querySelectorAll('[data-mapsub]').forEach(function (b) { b.addEventListener('click', function () { mapSubj = b.getAttribute('data-mapsub'); render(); }); });
+    var f = document.getElementById('mapFade');
+    if (f) f.addEventListener('click', function () {
+      var p = S.get().profile, stats = A.allStats();
+      var ids = shuffle(WPS.UNITS.filter(function (u) { return u.subj === mapSubj && WPS.unitAllowed(u, p.grade, stats) && mapState(stats[u.id], unitLast(u.id)) === 'fade'; })).slice(0, 10)
+        .map(function (u) { return pickQuestion(u.id, 2, {}); }).filter(Boolean);
+      if (!ids.length) { toast('問題が見つかりませんでした'); return; }
+      startQuiz(ids, 'study', '忘れかけの確認');
+    });
+  };
   // アプリ内検索:単元・英単語・古文単語・用語・一問一答・論述をまとめて探す
   var srchQ = '';
   function srchIndex() {
@@ -1556,7 +1601,7 @@
     var rm = R.build();
     var t = rm.target, p = t.profile;
     var html = '';
-    html += '<section class="card"><div class="row-between"><h1>🗺️ ' + h(p.name) + 'さん専用ロードマップ</h1><a class="btn small" href="#settings">志望校を変更</a></div>' +
+    html += '<section class="card"><div class="row-between"><h1>🗺️ ' + h(p.name) + 'さん専用ロードマップ</h1><span class="btns"><a class="btn small" href="#map">単元マップ</a><a class="btn small" href="#settings">志望校を変更</a></span></div>' +
       '<div class="target"><div><b>' + h(t.school ? t.school.name : '志望校未設定') + '</b>' + (p.schoolName ? '<br><span class="muted">' + h(p.schoolName) + '</span>' : '') +
       '<br><span class="muted">' + h(p.track || '') + ' ／ 本番 ' + h(t.exam) + '</span></div><div class="big-num">あと' + rm.days + '<small>日</small></div></div>';
     html += milestoneLine(t) + goalCard(p, true);
