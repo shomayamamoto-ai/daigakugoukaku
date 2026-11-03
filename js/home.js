@@ -67,8 +67,18 @@
 
 // 「ページの先頭へ」(▲)とロゴ:ヘッダーは画面に固定されているため、#top へのリンクだけではスクロールしない。明示的に一番上へ戻す
 (function () {
+  // タップ直後に反応するよう pointerup でも動かす(click が遅れたり、取りこぼされたりする端末向け)
+  var lastUp = 0;
+  document.addEventListener('pointerup', function (e) {
+    var a = e.target.closest && e.target.closest('.float-top');
+    if (!a || e.pointerType === 'mouse') return;
+    lastUp = Date.now(); e.preventDefault();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href="#top"]');
+    if (a && Date.now() - lastUp < 600) { e.preventDefault(); return; }
     if (!a) return;
     e.preventDefault();
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -536,3 +536,10 @@ body.sv-open { overflow: hidden; }
 /* 筆記体ロゴ:q・g・p などの下の部分と、A の左の飾りが切れないよう、背景(グラデーション)の範囲を広げる */
 .script-word, .origin-word, .brand-word, .logo-word, .pb-en, .ttl .en, .hero-en, .banner-en, .login-en { padding: .02em .14em .28em .12em !important; margin-left: -.12em; margin-bottom: -.28em; -webkit-box-decoration-break: clone; box-decoration-break: clone; overflow: visible; }
 .origin-word { display: inline-block; }
+
+/* 右下の▲(ページの先頭へ):iPhone の Safari では画面の下ぎりぎりをタップすると、ボタンより先にブラウザのツールバーが反応する。
+   ボタンを少し上に上げ、押せる範囲を広げ、押したときの反応を見えるようにする */
+.float { bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+.float-top { width: 52px; min-height: 52px; font-size: 16px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; transition: transform .12s, background .12s; position: relative; }
+.float-top::after { content: ""; position: absolute; inset: -8px; } /* 見た目より広く押せる */
+.float-top:active { transform: scale(.92); background: #e8eefc; }
