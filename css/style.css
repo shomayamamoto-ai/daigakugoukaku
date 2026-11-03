@@ -1993,3 +1993,19 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .rd-grp span { display: inline-flex; align-items: center; gap: 4px; }
 .rd-grp i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .rd-lab { font-size: 11px; }
+
+/* ===== ログイン画面 ===== */
+body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, body.locked .page-toc, body.locked .to-top { display: none !important; }
+.login-wrap { min-height: calc(100vh - 140px); display: flex; align-items: center; justify-content: center; padding: 24px 0; }
+.login-card { width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px; box-shadow: 0 16px 40px rgba(4, 20, 58, .12); }
+.login-en { margin: 0; font-family: "Allura", "Brush Script MT", cursive; font-size: 2rem; color: var(--primary); line-height: 1.1; }
+.login-card h1 { margin: 2px 0 4px; font-size: 1.4rem; }
+.login-card form { display: grid; gap: 14px; margin-top: 16px; }
+.login-card label { display: grid; gap: 6px; font-weight: 700; font-size: .9rem; }
+.login-card input { width: 100%; min-width: 0; font-size: 16px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg, #fff); color: var(--text); }
+.login-card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-weak); }
+.pw-row { display: flex; gap: 6px; }
+.pw-eye { flex: none; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); font-weight: 700; font-size: .8rem; cursor: pointer; }
+.login-err { min-height: 1.2em; margin: 0; color: #d92d4a; font-size: .85rem; font-weight: 700; }
+.login-card .btn.big { width: 100%; }
+.login-note { margin: 16px 0 0; line-height: 1.8; text-align: center; }
