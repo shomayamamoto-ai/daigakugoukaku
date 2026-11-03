@@ -12,12 +12,12 @@ WPS.VBOOKS = [
   { id: 'plus', name: '大学受験 中級', total: 1631 },
   { id: 'idiom', name: '英熟語', total: 1376 },
   { id: 'sokei', name: '早慶上理', note: '学部ごと', bank: 'en_sokei', named: 1,
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工']] }
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療']] }
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122]] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {} };
 if (WPS.KOBUN_BOOK) { WPS.VBOOKS.push(WPS.KOBUN_BOOK); WPS.VBOOK_DATA.kobun = WPS.VBOOK_DATA_KOBUN; }
@@ -3363,6 +3363,131 @@ resilience|回復力、しなやかさ
 exemplify|例証する、よい例となる
 deplete|使い果たす、激減させる
 propensity|傾向、性向
+`;
+// 4 = 慶應 看護医療学部(122語)
+WPS.VBOOK_DATA.sokei[4] = `
+hike|引き上げ、値上げ、ハイキング
+vintage|年代物の、(ワインの)醸造年
+appreciation|感謝、正しい理解、(価値の)上昇
+compassionate|思いやりのある、情け深い
+lineage|血統、系統
+receptor|受容体
+spite|悪意、(in spite ofで)～にもかかわらず
+systematically|体系的に、組織的に
+abnormal|異常な
+achiever|成功者、達成した人
+ailment|(軽い)病気、不調
+allure|魅力、誘惑する
+altruistic|利他的な
+antidote|解毒剤、(問題の)解決策
+ascertain|突き止める、確かめる
+authoritative|権威ある、信頼できる
+avian|鳥の、鳥類の
+awe|畏敬の念
+blatant|露骨な、あからさまな
+bliss|至福、この上ない喜び
+brim|(容器の)縁、帽子のつば
+byproduct|副産物
+cardiac|心臓の
+catharsis|心の浄化、カタルシス
+cathartic|浄化作用のある
+chemotherapy|化学療法
+comprehensible|理解できる、わかりやすい
+consolidate|統合する、強化する
+continuum|連続体
+cosmic|宇宙の
+daunting|ひるませるような、気が遠くなるような
+dopamine|ドーパミン
+embryo|胚、胎児
+equinox|春分・秋分
+felicity|至福、(表現の)適切さ
+flare|ぱっと燃え上がる、(感情などが)激化する
+fort|砦、要塞
+generalization|一般化
+hippocampus|海馬
+imperative|必須の、絶対に必要なこと、命令形の
+intensify|強める、強まる
+linguist|言語学者
+logistic|物流の、兵站の
+mantle|外套、マント、(地球の)マントル
+menthol|メントール
+mint|ミント、造幣局、作り出す
+monastic|修道院の、修道士の
+neurobiology|神経生物学
+neurological|神経の、神経学の
+optimal|最適な
+pediatrician|小児科医
+perfectionism|完璧主義
+preconception|先入観
+proliferate|急増する、拡散する
+qualitatively|質的に
+quantitative|量的な
+ranger|森林警備隊員
+reciprocity|相互性、互恵
+replete|満ちた、(replete withで)～でいっぱいの
+resonance|共鳴、反響
+resuscitation|蘇生
+rigorously|厳密に、厳格に
+ripple|さざ波、波紋
+scour|探し回る、こすって磨く
+shepherd|羊飼い、導く
+snobbish|気取った、お高くとまった
+sodium|ナトリウム
+spike|急増、とげ、急上昇する
+spiral|らせん、悪循環、らせん状に動く
+splinter|破片、裂ける
+stimuli|刺激(stimulusの複数形)
+sulfate|硫酸塩
+supervise|監督する
+synchronization|同期、同時性
+synchronize|同期させる、同時に起こる
+tardiness|遅刻、遅れ
+temporal|時間の、世俗の
+trauma|トラウマ、心の傷
+unkempt|だらしない、手入れされていない
+upbeat|楽観的な、陽気な
+vegan|完全菜食主義者
+villain|悪役、悪党
+vocalization|発声
+designate|指定する、任命する
+skeptical|懐疑的な、疑い深い
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい、弱い
+advocate|提唱者、擁護者、主張する
+manifest|明らかな、明らかに示す
+incorporate|取り入れる、組み込む
+illuminate|照らす、解明する
+comprehend|理解する
+discreet|慎重な、思慮深い
+dispense|分配する、(dispense withで)～なしで済ませる
+fluctuate|変動する
+integrity|誠実さ、完全性
+nonetheless|それにもかかわらず
+ubiquitous|至る所にある
+acute|深刻な、鋭い、急性の
+disrupt|混乱させる、かき乱す
+deficient|不足している、欠けている
+controversy|論争
+compliance|(法令などに)従うこと、順守
+sanction|制裁、認可、認可する
+contend|争う、(強く)主張する
+physiological|生理的な、生理学の
+proclaim|宣言する
+deduce|推定する、推論する
+resilient|回復力のある、しなやかな
+susceptible|影響を受けやすい、かかりやすい
+onset|始まり、(病気の)発症
+intrinsic|固有の、本質的な
+lest|～しないように
+immerse|没頭させる、浸す
+culprit|犯人、(問題の)元凶
+threshold|始まり、しきい値、限界点、敷居
+altruism|利他主義
+propel|推進する
+devoid|(devoid ofで)～が欠けている
+physiology|生理学
+disperse|分散させる、散らばる
+attest|証明する、証言する
 `;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
