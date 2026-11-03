@@ -2009,3 +2009,18 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 .login-err { min-height: 1.2em; margin: 0; color: #d92d4a; font-size: .85rem; font-weight: 700; }
 .login-card .btn.big { width: 100%; }
 .login-note { margin: 16px 0 0; line-height: 1.8; text-align: center; }
+
+/* ===== テキスト本文:充実版の部品 ===== */
+.lz-map { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; border: 1px dashed var(--line); }
+.lz-map b { font-size: 13px; color: var(--muted); }
+.lz-map ol { margin: 4px 0 0; padding-left: 1.4em; font-size: 14px; line-height: 1.8; }
+.lz-pre { background: color-mix(in srgb, #10b981 8%, var(--card)); border-radius: 12px; padding: 4px 12px 2px; }
+.lz-key { margin: 6px 0 12px; padding: 10px 12px; border-radius: 10px; border-left: 4px solid #e11d48; background: color-mix(in srgb, #e11d48 7%, var(--card)); line-height: 1.8; }
+.lz-key b { display: block; font-size: 12px; color: #e11d48; margin-bottom: 2px; }
+.lz-hint { margin: 6px 0; font-size: 14px; color: #bbf7d0; }
+.lz-check { margin: 6px 0 0; font-size: 14px; color: #bfdbfe; }
+.lz-faq details { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 0 0 8px; background: var(--card); }
+.lz-faq summary { font-weight: 700; cursor: pointer; line-height: 1.7; }
+.lz-faq details p { margin: 8px 0 0; }
+.lz-next { margin: 14px 0 0; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--primary) 8%, var(--card)); line-height: 1.8; }
+.lz-next b { display: block; font-size: 12px; color: var(--primary); }

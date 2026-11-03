@@ -130,16 +130,21 @@ WPS.makeBooks = function (ctx) {
     if (L) {
       html += '<div class="lz-goal"><b>この単元でできるようになること</b><p>' + rt(L.goal) + '</p></div>';
       if (u.prereq && u.prereq.length) html += preLinks(u);
+      // この単元の地図(節の見出しの一覧)
+      html += '<nav class="lz-map" aria-label="この単元の流れ"><b>この単元の流れ</b><ol>' + L.secs.map(function (x) { return '<li>' + h(x.h) + '</li>'; }).join('') + '</ol></nav>';
       html += sec('まずはイメージ', 'lz-intro') + paras(L.intro) + '</section>';
+      if (L.pre) html += sec('まずは前提のおさらい', 'lz-pre') + paras(L.pre) + '</section>';
       L.secs.forEach(function (x) {
-        html += sec(x.h) + paras(x.t) + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
+        html += sec(x.h) + paras(x.t) + (x.key ? '<p class="lz-key"><b>ここが大事</b>' + rt(x.key) + '</p>' : '') + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
           return '<div class="bk-board lz-ex"><div class="bk-bh"><b>やってみよう' + (x.ex.length > 1 ? (k + 1) : '') + '</b><em>例題</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' +
-            '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p></div></div>';
+            (e.hint ? '<p class="lz-hint">ヒント:' + rt(e.hint) + '</p>' : '') + '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p>' + (e.check ? '<p class="lz-check">確かめ:' + rt(e.check) + '</p>' : '') + '</div></div>';
         }).join('') + '</section>';
       });
+      if (L.faq && L.faq.length) html += sec('よくある疑問', 'lz-faq') + L.faq.map(function (f) { return '<details><summary>' + rt(f[0]) + '</summary>' + paras(f[1]) + '</details>'; }).join('') + '</section>';
       if (L.terms && L.terms.length) html += sec('ことばの整理') + '<dl class="lz-terms">' + L.terms.map(function (t) { return '<div><dt>' + h(t[0]) + '</dt><dd>' + rt(t[1]) + '</dd></div>'; }).join('') + '</dl></section>';
       if (L.miss && L.miss.length) html += sec('よくあるまちがい', 'lz-miss') + '<ul>' + L.miss.map(function (t) { return '<li>' + rt(t) + '</li>'; }).join('') + '</ul></section>';
       if (L.sum && L.sum.length) html += sec('まとめ', 'lz-sum') + '<ul>' + L.sum.map(function (t) { return '<li>' + rt(t) + '</li>'; }).join('') + '</ul></section>';
+      if (L.next) html += '<p class="lz-next"><b>次に学ぶこと</b>' + rt(L.next) + '</p>';
     } else {
       html += sec('この単元の要点') + '<p class="bk-point">' + h(u.point) + '</p>' + (u.tip ? '<p class="lz-tip">' + h(u.tip) + '</p>' : '') + '</section>';
       if (ch && ch.topics && ch.topics.length) html += sec('この章で学ぶこと') + '<ul class="bk-topics">' + ch.topics.map(function (t) { return '<li>' + h(t) + '</li>'; }).join('') + '</ul></section>';
