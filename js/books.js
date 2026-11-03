@@ -93,6 +93,32 @@ WPS.makeBooks = function (ctx) {
   function preLinks(u) {
     return '<p class="bk-pre">わからないときは、先にこの単元へ:' + u.prereq.map(function (pid) { var pb = books().filter(function (x) { return x.units.indexOf(pid) >= 0; })[0]; return pb ? '<a href="#books/' + pb.id + '/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>' : '<a href="#study/' + pid + '">' + h(WPS.UNIT_MAP[pid].name) + '</a>'; }).join('、') + '</p>';
   }
+  // 図解(色ブロックの流れ図・模式地図・因果の鎖)。ラベルはすべてエスケープする
+  function legend(lg) { return lg && lg.length ? '<p class="zk-lg">' + lg.map(function (x) { return '<span><i class="z-' + x[0] + '"></i>' + h(x[1]) + '</span>'; }).join('') + '</p>' : ''; }
+  function cellIn(c) { return '<b>' + h(c[0]) + '</b>' + (c[3] ? '<small>' + h(c[3]) + '</small>' : ''); }
+  function zukai(x) {
+    var out = '';
+    if (x.flow) {
+      var f = x.flow, cols = f.cols || 4;
+      out += '<figure class="zk"><figcaption>' + h(f.title || '') + '</figcaption><div class="zk-flow' + (cols >= 5 ? ' sm' : '') + '" style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr))">' +
+        (f.head ? f.head.map(function (t) { return '<span class="zk-hd">' + h(t) + '</span>'; }).join('') : '') +
+        f.rows.map(function (r) { return r.map(function (c) { return '<div class="zk-c z-' + c[1] + '" style="grid-column:span ' + (c[2] || 1) + '">' + cellIn(c) + '</div>'; }).join(''); }).join('') +
+        '</div>' + legend(f.legend) + '</figure>';
+    }
+    if (x.tmap) {
+      var m = x.tmap;
+      out += '<figure class="zk"><figcaption>' + h(m.title || '') + '</figcaption><div class="zk-map" style="grid-template-columns:repeat(' + m.cols + ',minmax(0,1fr));grid-template-rows:repeat(' + m.rows + ',minmax(52px,auto))">' +
+        m.cells.map(function (c) { return '<div class="zk-c z-' + c[1] + '" style="grid-column:' + c[2] + ' / span ' + (c[4] || 1) + ';grid-row:' + c[3] + ' / span ' + (c[5] || 1) + '"><b>' + h(c[0]) + '</b>' + (c[6] ? '<small>' + h(c[6]) + '</small>' : '') + '</div>'; }).join('') +
+        '</div>' + legend(m.legend) + (m.note ? '<p class="zk-note">' + h(m.note) + '</p>' : '') + '</figure>';
+    }
+    if (x.chain) {
+      var c = x.chain;
+      out += '<figure class="zk"><figcaption>' + h(c.title || '') + '</figcaption><ol class="zk-chain">' + c.items.map(function (it) {
+        return '<li class="k-' + h(it[0]) + '"><em>' + h(it[0]) + '</em><b>' + h(it[1]) + '</b>' + (it[2] ? '<small>' + h(it[2]) + '</small>' : '') + '</li>';
+      }).join('') + '</ol></figure>';
+    }
+    return out;
+  }
   function page(b, id) {
     var u = WPS.UNIT_MAP[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
     var ch = b.chapters.filter(function (c) { return c.units.indexOf(id) >= 0; })[0], bm = !!B().bm[id];
@@ -106,7 +132,7 @@ WPS.makeBooks = function (ctx) {
       if (u.prereq && u.prereq.length) html += preLinks(u);
       html += sec('まずはイメージ', 'lz-intro') + paras(L.intro) + '</section>';
       L.secs.forEach(function (x) {
-        html += sec(x.h) + paras(x.t) + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + (x.ex || []).map(function (e, k) {
+        html += sec(x.h) + paras(x.t) + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
           return '<div class="bk-board lz-ex"><div class="bk-bh"><b>やってみよう' + (x.ex.length > 1 ? (k + 1) : '') + '</b><em>例題</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' +
             '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p></div></div>';
         }).join('') + '</section>';

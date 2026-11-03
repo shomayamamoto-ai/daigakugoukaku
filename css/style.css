@@ -1957,3 +1957,33 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .lz-has { background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); }
 /* ヘッダー:ロゴは左、🔍・サービス紹介・設定は右づめ */
 .topbar .tb-search { margin-left: auto; }
+
+/* ===== 歴史の図解(色ブロックの流れ図・模式地図・因果の鎖) ===== */
+.zk { margin: 8px 0 16px; padding: 10px; border-radius: 12px; background: #141c2e; color: #fff; }
+.zk figcaption { font-weight: 800; font-size: 15px; margin: 2px 2px 8px; color: #fff; }
+.zk-flow, .zk-map { display: grid; gap: 3px; }
+.zk-hd { font-size: 11px; font-weight: 700; color: #cbd5e1; text-align: center; padding: 2px 0; overflow-wrap: anywhere; }
+.zk-c { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 7px 4px; min-height: 44px; min-width: 0; border-radius: 3px; color: #fff; }
+.zk-c b { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; word-break: auto-phrase; }
+.zk-c small { display: block; font-size: 11px; line-height: 1.35; opacity: .92; margin-top: 2px; overflow-wrap: anywhere; }
+.zk-flow.sm .zk-c b, .zk-map .zk-c b { font-size: 12.5px; }
+.zk-flow.sm .zk-c small, .zk-map .zk-c small { font-size: 10.5px; }
+.z-r { background: #a51d24; } .z-rr { background: #e11d2a; } .z-b { background: #1d3577; } .z-g { background: #8f7420; }
+.z-k { background: #4b5563; } .z-gr { background: #5d8f22; } .z-o { background: #b45309; }
+.z-y { background: #fbe9a0; color: #3b2f0a; } .z-p { background: #f6b4b0; color: #4a1515; }
+.z-sea { background: #bcd9f3; color: #1e3a5f; } .z-out { background: #e7e5df; color: #44403c; } .z-e { background: transparent; }
+.zk-lg { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 8px 2px 0; font-size: 12px; color: #e2e8f0; }
+.zk-lg span { display: inline-flex; align-items: center; gap: 5px; }
+.zk-lg i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(255,255,255,.4); }
+.zk-note { margin: 6px 2px 0; font-size: 12px; color: #cbd5e1; line-height: 1.6; }
+.zk-chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.zk-chain li { position: relative; padding: 8px 12px 8px 12px; border-radius: 8px; background: #1d3577; border-left: 5px solid #93c5fd; }
+.zk-chain li + li::before { content: '↓'; position: absolute; top: -21px; left: 50%; transform: translateX(-50%); font-weight: 800; color: #fde68a; font-size: 16px; }
+.zk-chain em { display: inline-block; font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.18); margin-bottom: 3px; }
+.zk-chain b { display: block; font-size: 14.5px; line-height: 1.5; }
+.zk-chain small { display: block; font-size: 12px; color: #dbe4f3; line-height: 1.6; margin-top: 2px; }
+.zk-chain li.k-背景, .zk-chain li.k-原因 { background: #4b5563; border-left-color: #cbd5e1; }
+.zk-chain li.k-結果 { background: #a51d24; border-left-color: #fca5a5; }
+.zk-chain li.k-その後 { background: #8f7420; border-left-color: #fde68a; }
+.zk, .zk-c, .zk-chain { letter-spacing: 0; }
+.zk-flow .zk-c b { font-size: 13px; }
