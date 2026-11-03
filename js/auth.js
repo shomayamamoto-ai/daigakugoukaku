@@ -8,7 +8,7 @@
 window.WPS = window.WPS || {};
 (function () {
   var USERS = [
-    { id: 'shoma', salt: 'W+wiBjVug5bMQRUsv09cIA==', it: 210000, hash: '+phtPICQs72g8TF2zf9vWFC5XbeeNMlDqaB/aoxxXQI=' }
+    { id: 'shoma', salt: 'pK59trsB9q1sP4Px0dDgGg==', it: 210000, hash: 'AMPbITFBgUCDCcwHwt0C4ZQf7ppbwWerwRKlNtR6N9A=' }
   ];
   var KEY = 'wps_auth_v1', DAYS = 30, LOCK = 'wps_auth_lock';
   function b64(buf) { var s = '', a = new Uint8Array(buf); for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
