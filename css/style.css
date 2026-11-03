@@ -1578,3 +1578,24 @@ body { background: var(--bg); letter-spacing: .04em; }
 .wq-rl li { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .wq-rl span { font-size: .88rem; color: var(--muted); overflow-wrap: anywhere; }
 .wq-rl b { overflow-wrap: anywhere; }
+/* ===== UX最適化:目次・上へ・タップ領域・最小文字 ===== */
+.page-toc { position: sticky; top: 0; z-index: 8; display: flex; gap: 6px; overflow-x: auto; margin: 0 -4px 12px; padding: 8px 4px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); scrollbar-width: none; }
+.page-toc::-webkit-scrollbar { display: none; }
+.page-toc a { flex: none; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: .8rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.to-top { position: fixed; right: 14px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 11; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--primary); box-shadow: 0 6px 18px rgba(4, 20, 58, .18); display: grid; place-items: center; cursor: pointer; opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+.to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+.hist-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.hist-links a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 6px; border-radius: 14px; border: 1px solid var(--line); background: var(--primary-weak); color: var(--text); text-decoration: none; min-width: 0; }
+.hist-links b { font-size: 1rem; } .hist-links small { font-size: .74rem; color: var(--muted); }
+/* 押しやすさ:ボタンは高さ40px以上 */
+#view .btn, #view .seg-btn, #view .wq-chip, #view .wq-pill, #view .vt-link { min-height: 40px; }
+#view .btn.small { min-height: 36px; }
+/* 読みやすさ:補足の文字は12px以上 */
+#view small, #view .hint, #view .muted.small, #view .small { font-size: max(12px, .78rem); }
+.nav a { font-size: max(11px, .68rem); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#view .status, #view .stage-tag, #view .tag, #view .cal-dow, #view .sp-badge, #view .pin, #view .gt-head, #view .gt-lab { font-size: max(12px, .72rem); }
+#view .check { min-width: 36px; min-height: 36px; }
+#view a.mini { min-height: 36px; display: inline-flex; align-items: center; }
+#view .link { padding: 6px 0; }

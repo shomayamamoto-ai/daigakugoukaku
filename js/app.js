@@ -137,6 +137,7 @@
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) ? '' : pageBand(route);
     view.innerHTML = noEmoji(band + fn(parts[1]));
     if (fn.after) fn.after(parts[1]);
+    pageTools();
     window.scrollTo(0, 0);
   }
 
@@ -716,11 +717,11 @@
     var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; });
     var html = say('テストといっても、成績をつけるためじゃないよ。<b>きみの「つまずきポイント」を見つけるため</b>のものだから、わからない問題は「わからない」ボタンを押してね。高校の問題で間違えたら、自動で中学の単元までさかのぼって原因を調べるよ。', 'think', 64);
     var chosen = t.profile.subjects || Object.keys(WPS.SUBJECTS);
-    html += '<section class="card vt-entry"><a class="vt-entry-a" href="#jhq"><b>日本史 一問一答</b><small>ヨコ(時代)・タテ(分野)・年号で範囲をしぼって4択/見て答える</small></a><a class="vt-entry-a" href="#whq"><b>世界史 一問一答</b><small>ヨコ(時代・地域)・タテ(国)・年号で範囲をしぼって4択/見て答える</small></a><a class="vt-entry-a" href="#ronjutsu"><b>論述カットイン(日本史・世界史)</b><small>問いに答えて、模範解答のキーワードで自己採点。完成度70%で定着</small></a></section>';
     html += '<section class="card"><h2>📝 受験で使う教科をえらぶ</h2><p class="muted">大学・学部によって必要な教科は違うよ。使う教科だけをえらぶと、診断とロードマップがその教科だけになるよ。</p><div class="seg">' +
       Object.keys(WPS.SUBJECTS).map(function (k) { var on = chosen.indexOf(k) >= 0; return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-subj="' + k + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
     html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">えらんだ教科から、きみの学年に合った問題を出すよ。</p>' +
       '<button class="btn primary big" data-start="all">診断をはじめる</button></section>';
+    html += '<section class="card"><h2>暗記・論述(日本史・世界史)</h2><div class="hist-links"><a href="#jhq"><b>日本史</b><small>一問一答</small></a><a href="#whq"><b>世界史</b><small>一問一答</small></a><a href="#ronjutsu"><b>論述</b><small>カットイン</small></a></div></section>';
     var dl = +(t.profile.diffLevel || 1);
     html += '<section class="card lvl-card"><h2>レベル別演習(10問)</h2><p class="muted small">志望校のレベルに合わせて、問題の難しさを選べるよ。</p>' +
       '<div class="lvl-pick" role="group" aria-label="レベル">' + [1, 2, 3].map(function (d) {
@@ -2193,6 +2194,31 @@
     document.getElementById('wDeck').addEventListener('click', function () { startDeck(ids(20), L[1]); });
   };
 
+
+  /* ---------- 長いページの目次と「上へ」ボタン ---------- */
+  function pageTools() {
+    var old = document.getElementById('toTop'); if (old) old.remove();
+    var hs = [].slice.call(view.querySelectorAll('section.card > h2:first-child, section.card > .row-between > h2, section.card > div > h2:first-child')).filter(function (x) { return x.offsetParent !== null && x.textContent.trim(); });
+    if (document.documentElement.scrollHeight > window.innerHeight * 3) {
+      var b = document.createElement('button'); b.id = 'toTop'; b.type = 'button'; b.className = 'to-top'; b.setAttribute('aria-label', 'ページの上へ');
+      b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>';
+      b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      document.body.appendChild(b);
+      var onS = function () { b.classList.toggle('show', window.scrollY > window.innerHeight); };
+      window.removeEventListener('scroll', pageTools.s || onS); pageTools.s = onS; window.addEventListener('scroll', onS, { passive: true }); onS();
+    }
+    if (hs.length < 6) return;
+    var nav = document.createElement('nav'); nav.className = 'page-toc'; nav.setAttribute('aria-label', 'このページの目次');
+    hs.forEach(function (x, i) {
+      var id = 'sec-' + i; x.id = x.id || id;
+      var a = document.createElement('a'); a.href = '#'; a.textContent = x.textContent.replace(/[(（].*$/, '').trim().slice(0, 14);
+      a.addEventListener('click', function (e) { e.preventDefault(); var y = x.getBoundingClientRect().top + window.scrollY - nav.getBoundingClientRect().bottom - 8; window.scrollTo({ top: y, behavior: 'smooth' }); });
+      nav.appendChild(a);
+    });
+    var band = view.querySelector('.page-band');
+    if (band) band.insertAdjacentElement('afterend', nav); else view.insertBefore(nav, view.firstChild);
+    var tb = document.querySelector('.topbar'); if (tb) nav.style.top = tb.getBoundingClientRect().height + 'px';
+  }
   /* ========== 単語トレーニング(js/vocab.js) ========== */
   var VT = WPS.makeVocab({
     h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems,
