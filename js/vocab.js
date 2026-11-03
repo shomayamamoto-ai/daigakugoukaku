@@ -23,6 +23,10 @@ WPS.makeVocab = function (ctx) {
     if (!s.vt) s.vt = {};
     var v = s.vt;
     v.w = v.w || {}; v.min = v.min || {}; v.cfg = v.cfg || {};
+    if (!v.kbm && WPS.BANK.kobun_nk) { // 古文単語を3冊に分けたとき、難関私大・古典常識の記録を移す
+      ['kobun_nk', 'kobun_jo'].forEach(function (bk) { (WPS.BANK[bk] || []).forEach(function (x) { var o = 'kobun_bk|' + x.t; if (v.w[o] && !v.w[bk + '|' + x.t]) v.w[bk + '|' + x.t] = v.w[o]; }); });
+      v.kbm = 1;
+    }
     v.daily = v.daily || {};
     var c = v.cfg, d = { grad: 2, allm: 0, retry: 1, order: 'rand', dir: 'e2j', n: 10, timer: 0, speak: 1, lang: 'both', rate: 'normal', voice: 'female', hide: 'm' };
     Object.keys(d).forEach(function (k) { if (c[k] === undefined) c[k] = d[k]; });
@@ -293,7 +297,7 @@ WPS.makeVocab = function (ctx) {
     if (!books.length) return '';
     return '<section class="card"><h2>' + (L[0] === 'eng' ? '英単語帳' : '単語帳') + '</h2><div class="vb-shelf">' + books.map(function (b) {
       var id = b.bank && b.done ? lists().filter(function (o) { return o.L[2] === b.bank; })[0] : null, on = id && L[2] === b.bank;
-      var sub = id ? (on ? '使用中・' : '') + (b.total ? '見出し ' + b.doneMain.toLocaleString() + ' / ' + b.total.toLocaleString() + '語' + (b.done > b.doneMain ? '(派生 ' + (b.done - b.doneMain).toLocaleString() + ')' : '') : b.parts.length + (b.id === 'kobun' ? '分類・' : '学部・') + b.done.toLocaleString() + '語') : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
+      var sub = id ? (on ? '使用中・' : '') + (b.total ? '見出し ' + b.doneMain.toLocaleString() + ' / ' + b.total.toLocaleString() + '語' + (b.done > b.doneMain ? '(派生 ' + (b.done - b.doneMain).toLocaleString() + ')' : '') : b.parts.length + (/^kobun/.test(b.id) ? '分類・' : '学部・') + b.done.toLocaleString() + '語') : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
       return '<button type="button" class="vb-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + '><b>' + h(b.name) + '</b><small>' + sub + '</small></button>';
     }).join('') + '</div></section>';
   }
@@ -332,7 +336,7 @@ WPS.makeVocab = function (ctx) {
         return '<button type="button" class="seg-btn' + (st.src === o[0] ? ' on' : '') + '" data-vsrc="' + o[0] + '">' + o[1] + '</button>';
       }).join('') + '</div>' +
       '<div class="vt-range"><span>番号で指定</span><label>No.<input type="number" id="vrA" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[0] : 1) + '" inputmode="numeric"></label><span>〜</span><label>No.<input type="number" id="vrB" min="1" max="' + n + '" value="' + (/^r/.test(st.src) ? st.src.slice(1).split('-')[1] : Math.min(n, 50)) + '" inputmode="numeric"></label><button type="button" class="btn small" id="vrGo">この範囲にする</button></div>' +
-      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + (isBook ? (all[0].bk === 'sokei' ? '学部から選ぶ(全' + secs + '学部)' : all[0].bk === 'kobun' ? '分類から選ぶ(全' + secs + '分類)' : 'Partから選ぶ(全' + secs + 'Part)') : SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)') + '</summary><div class="vt-sec-list">';
+      '<details class="vt-secs"' + (/^s/.test(st.src) ? ' open' : '') + '><summary>' + (isBook ? (all[0].bk === 'sokei' ? '学部から選ぶ(全' + secs + '学部)' : /^kobun/.test(all[0].bk) ? '分類から選ぶ(全' + secs + '分類)' : 'Partから選ぶ(全' + secs + 'Part)') : SEC + '語ずつのセクションから選ぶ(全' + secs + 'セクション)') + '</summary><div class="vt-sec-list">';
     for (var k = 0; k < secs; k++) {
       var part = all.slice(SS[k].from, SS[k].to), dn = part.filter(function (x) { return x.d; }).length, okn = part.filter(function (x) { return statusOf(w[x.key]) === 'ok'; }).length;
       html += '<button type="button" class="vt-sec' + (st.src === 's' + k ? ' on' : '') + '" data-vsrc="s' + k + '"><b>' + h(SS[k].label) + '</b><small>' + (isBook ? '見出し' + (part.length - dn) + '・派生' + dn : h(part[0].t) + ' 〜') + '</small><span class="vt-sec-bar"><i style="width:' + Math.round(okn / part.length * 100) + '%"></i></span><em>' + okn + '/' + part.length + '</em></button>';

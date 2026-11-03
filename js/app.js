@@ -1522,7 +1522,7 @@
       return Object.keys(pr.by).map(Number).sort(function (a, c) { return a - c; }).map(function (n) { var v = pr.by[n], info = b.parts[n - 1]; return { label: b.named && info ? info[2] : 'Part' + n, n: v[1], done: v[0] / v[1] >= 0.8 }; });
     }
     if (w.eng > 0) spread('英単語', '#2f6bf2', bookUnits('base'), '#vocab');
-    if (w.jpn > 0 && !WPS.isJHStudent(t.profile.grade)) spread('古文単語', '#0f8a6b', bookUnits('kobun'), '#vocab');
+    if (w.jpn > 0 && !WPS.isJHStudent(t.profile.grade)) spread('古文単語', '#0f8a6b', bookUnits('kobun').concat(bookUnits('kobun_nk'), bookUnits('kobun_jo')), '#vocab');
     if (w.soc > 0 && !WPS.isJHStudent(t.profile.grade)) {
       var hq = [], mst = function (Q, key) { var r = (S.get()[key] || {}).r || {}, n = +((S.get()[key] || {}).cfg || {}).n || 1; return function (yo) { var qs = Q.filter(function (q) { return q.yo === yo; }); return { n: qs.length, done: qs.length && qs.filter(function (q) { return r[q.id] && r[q.id].s >= n; }).length / qs.length >= 0.8 }; }; };
       var jm = mst(WPS.JHQ || [], 'jhq'); (WPS.JHQ_META ? WPS.JHQ_META.yoko : []).forEach(function (y) { var v = jm(y[0]); if (v.n) hq.push({ label: '日本史 ' + y[1], n: v.n, done: v.done }); });
@@ -1538,7 +1538,7 @@
     function todayCount(bank) { var n = 0; Object.keys(w).forEach(function (k) { if (k.indexOf(bank + '|') === 0 && w[k].l >= t0) n++; }); return n; }
     vocabPlan(rm).forEach(function (v) {
       if (v.name === '一問一答' || !v.perDay) return;
-      var dd = { u: todayCount(v.name === '英単語' ? 'en_h' : 'kobun_bk') };
+      var dd = { u: v.name === '英単語' ? todayCount('en_h') : todayCount('kobun_bk') + todayCount('kobun_nk') + todayCount('kobun_jo') };
       var cur = v.items.filter(function (it) { return !it.done; })[0]; if (!cur) return;
       out.push({ key: 'vp-' + v.name, kind: 'auto', icon: '', title: v.name + ' ' + v.perDay + '語', sub: cur.label + 'を単語トレーニングで(4択・赤シート・スワイプなど)', progress: Math.min(dd.u, v.perDay) + '/' + v.perDay, action: '#vocab', done: dd.u >= v.perDay });
     });
@@ -2361,7 +2361,7 @@
   var WORD_LISTS = [
     ['eng', '大学受験 基礎', 'en_h', 'e_h5', 'en'], ['eng', '早慶上理', 'en_sokei', null, 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
     ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
-    ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古文単語', 'kobun_bk', null, 'kobun'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
+    ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古典単語(共テ)', 'kobun_bk', null, 'kobun'], ['jpn', '難関私大 古文単語', 'kobun_nk', null, 'kobun'], ['jpn', '古典常識', 'kobun_jo', null, 'kobun'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
     ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
     ['sci', '電流と電気', 'denki', 's_m1'], ['sci', '力', 'chikara', 's_force'], ['sci', '光と音', 'hikari', 's_light'], ['sci', '化学変化', 'kagaku_m', 's_m2'], ['sci', '化学式', 'kagakushiki', 's_m2'], ['sci', 'イオン', 'ion', 's_ion'],
     ['sci', '元素記号', 'genso', 's_struct'], ['sci', '物質の構造', 'busshitsu', 's_struct'], ['sci', '酸と塩基', 'sanenki', 's_acid'], ['sci', '生物(中学)', 'seibutsu_m', 's_m3'], ['sci', '細胞・遺伝', 'saibo', 's_cell'],

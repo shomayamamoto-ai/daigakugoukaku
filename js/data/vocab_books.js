@@ -20,7 +20,18 @@ WPS.SOKEI_PLAN = [
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {} };
-if (WPS.KOBUN_BOOK) { WPS.VBOOKS.push(WPS.KOBUN_BOOK); WPS.VBOOK_DATA.kobun = WPS.VBOOK_DATA_KOBUN; }
+// 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
+if (WPS.KOBUN_BOOK) {
+  var KB = WPS.KOBUN_BOOK.parts, KD = WPS.VBOOK_DATA_KOBUN;
+  [['kobun', '古典単語', 'kobun_bk', 1, 8, function (n) { return n.replace(/^共テ /, ''); }],
+   ['kobun_nk', '難関私大 古文単語', 'kobun_nk', 9, 11, function (n) { return n.replace('MARCH早稲田 ', 'MARCH・早稲田 '); }],
+   ['kobun_jo', '古典常識', 'kobun_jo', 12, 18, function (n) { return n; }]].forEach(function (c) {
+    var parts = [], data = {};
+    for (var i = c[3]; i <= c[4]; i++) { var pr = KB[i - 1]; parts.push([pr[0], pr[1], c[5](pr[2])]); data[i - c[3] + 1] = KD[i]; }
+    WPS.VBOOKS.push({ id: c[0], name: c[1], bank: c[2], named: 1, subj: 'jpn', parts: parts, total: c[0] === 'kobun_jo' ? 199 : parts.reduce(function (a, x) { return a + x[0]; }, 0) }); // 古典常識は「住まい・調度・乗り物」の2語が未入力
+    WPS.VBOOK_DATA[c[0]] = data;
+  });
+}
 WPS.VBOOK_DATA.base[1] = `
 blame|～を責める、～のせいにする
 claim|主張する、要求する、主張、(命を)奪う
