@@ -1931,3 +1931,18 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .hub-tabs a { text-align: center; padding: 10px 6px; border-radius: 10px; font-weight: 700; font-size: 15px; color: var(--muted); text-decoration: none; white-space: nowrap; }
 .hub-tabs a.on { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(17, 70, 214, .25); }
 .hub-tabs a:not(.on):hover { background: var(--primary-weak); color: var(--primary); }
+
+/* ===== テキスト本文の重要語:マーカーをやめ、色つき太字+うすい下地に(ダークでも読みやすく) ===== */
+.bk-sec p b, .lz-terms dd b, .lz-steps b, .lz-goal p b, .lz-miss li b, .lz-sum li b {
+  background: rgba(37, 99, 235, .1); color: #1d4ed8; font-weight: 800;
+  padding: 0 .2em; margin: 0 .05em; border-radius: 4px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .bk-sec p b, :root:not([data-theme="light"]) .lz-terms dd b, :root:not([data-theme="light"]) .lz-steps b,
+  :root:not([data-theme="light"]) .lz-goal p b, :root:not([data-theme="light"]) .lz-miss li b, :root:not([data-theme="light"]) .lz-sum li b { background: rgba(255, 214, 102, .14); color: #ffd666; }
+}
+:root[data-theme="dark"] .bk-sec p b, :root[data-theme="dark"] .lz-terms dd b, :root[data-theme="dark"] .lz-steps b,
+:root[data-theme="dark"] .lz-goal p b, :root[data-theme="dark"] .lz-miss li b, :root[data-theme="dark"] .lz-sum li b { background: rgba(255, 214, 102, .14); color: #ffd666; }
+/* 黒板(緑の板)の中は、黄色のチョーク文字 */
+.bk-board .lz-steps b, .bk-board .bk-q b, .lz-ex .bk-ans b { background: rgba(253, 230, 138, .14) !important; color: #fde68a !important; }
