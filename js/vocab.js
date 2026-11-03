@@ -280,7 +280,7 @@ WPS.makeVocab = function (ctx) {
 
   // 早慶上理:大学・学部ごとの入力状況(入力済みは押すとその学部へ)
   function sokeiPlan(L) {
-    if (!WPS.SOKEI_PLAN || L[0] !== 'eng') return '';
+    if (!WPS.SOKEI_PLAN || L[0] !== 'eng' || L[2] !== 'en_sokei') return ''; // 早慶上理を選んでいるときだけ学部の一覧を出す
     var bk = (WPS.VBOOKS || []).filter(function (b) { return b.id === 'sokei'; })[0], names = bk && bk.parts ? bk.parts.map(function (p) { return p[2]; }) : [];
     var sid = lists().filter(function (o) { return o.L[2] === 'en_sokei'; })[0];
     return '<section class="card"><h2>早慶上理(学部ごと)</h2>' + WPS.SOKEI_PLAN.map(function (u) {
