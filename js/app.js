@@ -557,12 +557,13 @@
     s.attempts.forEach(function (a) { if (a.src === 'school' || subs.indexOf(a.s) < 0) return; var k = rdAxisOf(a.u, a.s); if (!k) return; var o = a.t >= since ? cur : prev; o[k][1]++; if (a.ok) o[k][0]++; });
     // 日本史・世界史の一問一答の記録も、それぞれの軸に入れる(最後に解いた日で直近かどうかを判断)
     [['jhq', 'jh'], ['whq', 'wh']].forEach(function (p) { if (subs.indexOf('soc') < 0) return; var r = (s[p[0]] || {}).r || {}; Object.keys(r).forEach(function (id) { var x = r[id], o = (x.l || 0) >= since ? cur : prev; o[p[1]][1] += x.n || 0; o[p[1]][0] += x.ok || 0; }); });
-    var axes = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0 && (cur[x[0]][1] || prev[x[0]][1]); });
+    // 受験で使う教科の科目は、まだ解いていなくても軸に出す(「—」と表示)。理科なら物理・化学・生物・地学がそろって見える
+    var axes = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0; });
     if (axes.length < 3 || !axes.some(function (x) { return cur[x[0]][1]; })) return '';
     var pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
     var nm = function (k) { return RD_AX.filter(function (x) { return x[0] === k; })[0][2]; };
     var hasPrev = axes.some(function (x) { return prev[x[0]][1]; });
-    var many = axes.length > 8, W = 360, H = many ? 340 : 310, cx = W / 2, cy = H / 2, R0 = many ? 100 : 98, n = axes.length;
+    var many = axes.length > 8, lots = axes.length > 12, W = lots ? 380 : 360, H = lots ? 370 : many ? 340 : 310, cx = W / 2, cy = H / 2, R0 = lots ? 104 : many ? 100 : 98, n = axes.length;
     var pt = function (i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n, r = R0 * v / 100; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
     var poly = function (vals) { return vals.map(function (v, i) { var p = pt(i, v || 0); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); };
     var g = '';
@@ -574,7 +575,7 @@
     g += '<polygon class="rd-cur" points="' + poly(cv) + '"/>';
     cv.forEach(function (v, i) { if (v === null) return; var p = pt(i, v); g += '<circle class="rd-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5"><title>' + axes[i][2] + ' ' + v + '%</title></circle>'; });
     axes.forEach(function (x, i) {
-      var p = pt(i, many ? 118 : 120), anc = Math.abs(p[0] - cx) < 10 ? 'middle' : p[0] > cx ? 'start' : 'end', v = cv[i], col = (WPS.SUBJECTS[x[1]] || {}).color || 'currentColor';
+      var p = pt(i, lots ? 122 : many ? 118 : 120), anc = Math.abs(p[0] - cx) < 10 ? 'middle' : p[0] > cx ? 'start' : 'end', v = cv[i], col = (WPS.SUBJECTS[x[1]] || {}).color || 'currentColor';
       // 名前と%を2行にして、軸が多くても重ならないようにする
       g += '<text class="rd-lab" x="' + p[0].toFixed(1) + '" y="' + (p[1] - 2).toFixed(1) + '" text-anchor="' + anc + '"><tspan fill="' + col + '">' + x[2] + '</tspan><tspan class="rd-v" x="' + p[0].toFixed(1) + '" dy="13">' + (v === null ? '—' : v + '%') + '</tspan></text>';
     });
