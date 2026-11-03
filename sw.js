@@ -4,13 +4,13 @@
  *  ・対応ブラウザでは、アプリを閉じていても1時間ごとに連続記録をチェックし、
  *    学習がまだなら通知します(Periodic Background Sync)。
  */
-var CACHE = 'wps-v89';
+var CACHE = 'wps-v90';
 var FILES = [
   './', './index.html', './manual.html', './home.html', './css/style.css', './css/home.css', './js/home.js',
   './js/data/units.js', './js/data/units_extra.js', './js/data/units_more.js', './js/data/units_math.js', './js/data/units_extra2.js', './js/data/units_extra3.js', './js/data/units_adv.js', './js/data/units_hard.js', './js/data/banks_lang.js', './js/data/banks_sci_soc.js', './js/data/banks_more.js', './js/data/vocab_jh.js', './js/data/vocab_idiom.js', './js/data/vocab_idiom2.js', './js/data/vocab_sci.js', './js/data/vocab_merge.js', './js/data/vocab_kobun.js', './js/data/vocab_books.js', './js/data/emoji.js', './js/data/history_ctx.js',
   './js/data/generators.js', './js/data/generators_more.js', './js/data/generators_math.js', './js/data/generators_extra2.js', './js/data/generators_extra3.js', './js/data/generators_adv.js', './js/data/generators_hard.js', './js/data/build.js', './js/data/schools.js', './js/data/exam_info.js', './js/data/methods.js', './js/data/curriculum.js',
   './js/data/univ_2027.js', './js/data/univ_2027_region.js', './js/data/univ_2027_private.js', './js/data/univ_2027_summary.js',
-  './js/engine.js', './js/figures.js', './js/notify.js', './js/sync.js', './js/owl3d.js', './js/data/ronjutsu.js', './js/ronjutsu.js', './js/data/whq.js', './js/data/jhq.js', './js/whq.js', './js/data/lessons_1.js', './js/books.js', './js/mock.js', './js/quest.js', './js/data/conversation.js', './js/vocab.js', './js/vendor/three.min.js', './js/app.js',
+  './js/engine.js', './js/figures.js', './js/notify.js', './js/sync.js', './js/owl3d.js', './js/data/ronjutsu.js', './js/ronjutsu.js', './js/data/whq.js', './js/data/jhq.js', './js/whq.js', './js/data/lessons_1.js', './js/data/lessons_2.js', './js/data/lessons_6.js', './js/data/lessons_10.js', './js/books.js', './js/mock.js', './js/quest.js', './js/data/conversation.js', './js/vocab.js', './js/vendor/three.min.js', './js/app.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './manifest.webmanifest'
 ];
 
