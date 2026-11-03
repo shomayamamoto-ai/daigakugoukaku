@@ -2053,3 +2053,7 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 .lz-dq em.lv1 { background: #dcfce7; color: #15803d; } .lz-dq em.lv2 { background: #e0ecff; color: #1d4ed8; } .lz-dq em.lv3 { background: #fde4ec; color: #be123c; }
 .lz-dl summary { cursor: pointer; font-weight: 700; color: var(--primary); font-size: 14px; }
 .lz-da { margin: 8px 0 4px !important; }
+
+/* ヘッダー:ロゴは左、ほかのボタンは常に右づめ(ログイン画面で🔍・設定が隠れていても) */
+.topbar .logo { margin-right: auto !important; }
+.topbar .tb-search { margin-left: 0; }
