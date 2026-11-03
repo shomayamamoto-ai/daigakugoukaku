@@ -138,6 +138,7 @@
     view.innerHTML = noEmoji(band + fn(parts[1]));
     if (fn.after) fn.after(parts[1]);
     pageTools();
+    maybeTour(route);
     window.scrollTo(0, 0);
   }
 
@@ -643,7 +644,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -2204,6 +2205,7 @@
     var perm = WPS.Notify.permission();
     var permLabel = { granted: '✅ 許可されています', denied: '⛔ ブロックされています(ブラウザの設定から許可してください)', default: '未設定', unsupported: 'このブラウザは通知に対応していません' }[perm];
     var html = '<section class="card"><h2>プロフィール・志望校</h2>' + profileForm(p, '保存する') + '</section>';
+    html += '<section class="card"><h2>使い方</h2><div class="btns"><button type="button" class="btn" id="replayTour">はじめての案内をもう一度見る</button><a class="btn" href="manual.html" target="_blank" rel="noopener">使い方マニュアル(動画つき)</a></div></section>';
     html += '<section class="card"><h2>テーマカラー</h2><p class="muted small">アプリ全体の色を選べます。文字の読みやすさ(コントラスト)は、どの色でも保つようにしています。</p><div class="pal-list">' + PALETTES.map(function (x) {
       return '<button type="button" class="pal' + ((p.palette || 'sky') === x[0] ? ' on' : '') + '" data-pal="' + x[0] + '" aria-pressed="' + ((p.palette || 'sky') === x[0]) + '"><span class="pal-sw">' + x[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><b>' + x[1] + '</b></button>';
     }).join('') + '</div></section>';
@@ -2232,6 +2234,7 @@
     return html;
   }
   renderSettings.after = function () {
+    var rt = document.getElementById('replayTour'); if (rt) rt.addEventListener('click', function () { window.scrollTo(0, 0); WPS.startTour(); });
     var s = S.get();
     bindProfileForm(function () { toast('保存したよ！ ロードマップも更新したよ'); render(); });
     var wf = document.getElementById('weightsForm');
@@ -2529,6 +2532,58 @@
       (function step(t) { var k = Math.min(1, (t - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - k, 3))); tn.nodeValue = comma ? v.toLocaleString() : String(v); if (k < 1) requestAnimationFrame(step); })(t0);
     });
   }
+  /* ---------- はじめての案内ツアー(初回だけ自動。設定からいつでも見直せる) ---------- */
+  var TOUR = [
+    { t: 'ようこそ、Aqualiumへ', d: 'アプリの使い方を、30秒で案内します。画面の光っている場所を見ながら「次へ」を押してください。' },
+    { sel: '.nav a[data-r="home"]', t: 'ホーム', d: '毎日ここから。「次の一手」に、いま一番効果の高い学習が出ます。今日のやる事・連続記録・クエストもここで確認します。' },
+    { sel: '.nav a[data-r="test"]', t: '診断・練習', d: 'まずは診断テストで苦手を見つけます。レベル別演習、模試モード、日本史・世界史の一問一答と論述もここから。' },
+    { sel: '.nav a[data-r="roadmap"]', t: 'ロードマップ', d: '志望校と受験日から逆算した計画です。タイムライン・カレンダー・単元マップ・週の振り返りがあります。' },
+    { sel: '.nav a[data-r="vocab"]', t: '単語帳', d: '英単語・古文単語・英熟語・早慶上理の単語帳。4択・赤シート・スワイプ・聞き流しなどで覚えます。' },
+    { sel: '.nav a[data-r="timer"]', t: 'タイマー', d: '25分集中＋5分休けいのポモドーロタイマー。集中した時間は学習時間に入ります。' },
+    { sel: '.nav a[data-r="tutor"]', t: '先生用', d: '先生・保護者向けのレポート。苦手の原因、ミスの傾向、週のまとめが見られます。' },
+    { sel: '.topbar a[href="#search"]', t: '検索', d: '単元・単語・人物・できごとを、まとめて探せます。' },
+    { sel: '.topbar .gear', t: '設定', d: '志望校・勉強時間・テーマカラーの変更、データの引き継ぎはここ。この案内も、設定からもう一度見られます。' },
+    { t: '準備OK！', d: 'くわしい使い方は、動画つきの「使い方マニュアル」で確認できます。さっそく診断テストから始めましょう。', link: 'manual.html' }
+  ];
+  var tourI = -1;
+  function maybeTour(route) {
+    var s = S.get();
+    if (s.tourDone || !s.profile.name || route === 'onboard' || S.isView() || EMBED_TOUR_OFF) return;
+    if (tourI < 0) setTimeout(function () { startTour(); }, 600);
+  }
+  var EMBED_TOUR_OFF = /[?&]notour/.test(location.search);
+  function startTour() { if (tourI >= 0) return; tourI = 0; showTour(); }
+  WPS.startTour = function () { tourI = -1; startTour(); };
+  function endTour() {
+    tourI = -1; var s = S.get(); s.tourDone = 1; S.save();
+    ['tourMask', 'tourBox', 'tourRing'].forEach(function (id) { var e = document.getElementById(id); if (e) e.remove(); });
+  }
+  function showTour() {
+    var st = TOUR[tourI]; if (!st) { endTour(); return; }
+    var mask = document.getElementById('tourMask') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'tourMask', className: 'tour-mask' }));
+    var ring = document.getElementById('tourRing') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'tourRing', className: 'tour-ring' }));
+    var box = document.getElementById('tourBox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'tourBox', className: 'tour-box' }));
+    box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+    var el = st.sel ? document.querySelector(st.sel) : null;
+    var last = tourI === TOUR.length - 1;
+    box.innerHTML = '<p class="tour-step">' + (tourI + 1) + ' / ' + TOUR.length + '</p><h2>' + h(st.t) + '</h2><p>' + h(st.d) + '</p>' +
+      (st.link ? '<p><a href="' + st.link + '" target="_blank" rel="noopener">使い方マニュアル(動画つき)を開く</a></p>' : '') +
+      '<div class="tour-btns"><button type="button" class="btn ghost" id="tourSkip">' + (last ? '閉じる' : 'スキップ') + '</button>' + (tourI ? '<button type="button" class="btn" id="tourPrev">戻る</button>' : '') + '<button type="button" class="btn primary" id="tourNext">' + (last ? 'はじめる' : '次へ') + '</button></div>';
+    if (el) {
+      var r = el.getBoundingClientRect(), pad = 6;
+      ring.style.cssText = 'display:block;left:' + (r.left - pad) + 'px;top:' + (r.top - pad) + 'px;width:' + (r.width + pad * 2) + 'px;height:' + (r.height + pad * 2) + 'px';
+      mask.classList.add('clear');
+      var below = r.top < window.innerHeight / 2;
+      box.className = 'tour-box ' + (below ? 'below' : 'above');
+      box.style.top = below ? (r.bottom + 16) + 'px' : ''; box.style.bottom = below ? '' : (window.innerHeight - r.top + 16) + 'px';
+    } else { ring.style.display = 'none'; mask.classList.remove('clear'); box.className = 'tour-box center'; box.style.top = ''; box.style.bottom = ''; }
+    document.getElementById('tourNext').onclick = function () { if (last) { endTour(); go('#test'); } else { tourI++; showTour(); } };
+    document.getElementById('tourSkip').onclick = endTour;
+    var pv = document.getElementById('tourPrev'); if (pv) pv.onclick = function () { tourI--; showTour(); };
+    document.getElementById('tourNext').focus();
+  }
+  window.addEventListener('resize', function () { if (tourI >= 0) showTour(); });
+  document.addEventListener('keydown', function (e) { if (tourI >= 0 && e.key === 'Escape') endTour(); });
   /* ---------- 長いページの目次と「上へ」ボタン ---------- */
   function pageTools() {
     motion();

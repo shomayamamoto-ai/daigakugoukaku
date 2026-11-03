@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aqualium 使い方マニュアル</title>
+<meta name="description" content="Aqualiumの使い方を、操作動画つきで説明します。">
+<meta name="robots" content="noindex">
+<link rel="icon" href="icons/icon.svg">
+<style>
+:root { --bg: #f4f7fb; --card: #fff; --text: #1b2440; --muted: #5d6a85; --line: #dfe6f2; --primary: #1146d6; --primary-weak: #e8eefc; }
+@media (prefers-color-scheme: dark) { :root { --bg: #07122b; --card: #0e1d3f; --text: #e8eef9; --muted: #a3b0c8; --line: #24375f; --primary: #7aa2ff; --primary-weak: #16295a; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif; line-height: 1.75; word-break: auto-phrase; }
+header { background: linear-gradient(115deg, #020b1f, #04143a 30%, #1146d6 62%, #0fa3b8); color: #fff; padding: 36px 16px 30px; }
+header .in, main { max-width: 860px; margin: 0 auto; }
+header p.en { margin: 0; font-family: "Brush Script MT", cursive; font-size: 1.6rem; opacity: .85; }
+header h1 { margin: 2px 0 8px; font-size: 1.7rem; letter-spacing: .02em; text-wrap: balance; }
+header a { color: #fff; }
+main { padding: 16px; }
+nav.toc { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+nav.toc::-webkit-scrollbar { display: none; }
+nav.toc a { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-weight: 700; font-size: .85rem; text-decoration: none; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin: 0 0 16px; scroll-margin-top: 60px; }
+.sec { display: grid; gap: 18px; align-items: start; }
+@media (min-width: 720px) { .sec { grid-template-columns: 300px minmax(0, 1fr); } }
+video { width: 100%; max-width: 300px; display: block; margin: 0 auto; border-radius: 22px; border: 6px solid #10182b; background: #10182b; aspect-ratio: 390 / 780; }
+h2 { margin: 0 0 6px; font-size: 1.25rem; }
+h2 small { display: block; font-size: .78rem; color: var(--primary); letter-spacing: .08em; }
+ol, ul { padding-left: 1.3em; margin: 8px 0; }
+li { margin: 4px 0; }
+.tip { background: var(--primary-weak); border-radius: 12px; padding: 10px 14px; font-size: .9rem; margin-top: 10px; }
+.tip b { display: block; }
+.cta { display: inline-block; margin-top: 6px; padding: 12px 20px; border-radius: 12px; background: var(--primary); color: #fff; font-weight: 800; text-decoration: none; }
+footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 16px 40px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header><div class="in">
+  <p class="en">Manual</p>
+  <h1>Aqualium 使い方マニュアル</h1>
+  <p>8つの場面を、操作動画つきで説明します。動画は音声なしです。字幕と、黄色い丸(タップした場所)を見ながら進めてください。</p>
+  <a class="cta" href="index.html">アプリを開く</a>
+</div></header>
+<main>
+<nav class="toc" aria-label="目次">
+  <a href="#s1">はじめての登録</a><a href="#s2">診断テスト</a><a href="#s3">ホーム</a><a href="#s4">ロードマップ</a><a href="#s5">単語帳</a><a href="#s6">日本史・世界史</a><a href="#s7">模試モード</a><a href="#s8">先生用・設定</a><a href="#faq">よくある質問</a>
+</nav>
+
+<section id="s1"><div class="sec">
+  <video src="manual/s1_start.mp4" poster="manual/s1_start.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 1</small>はじめての登録</h2>
+  <ol><li>ニックネーム・いまの学年を入力します。</li><li>志望校は「国公立／私立」の欄で大学名を入れて選びます。本命は自動で決まります。</li><li>「登録して診断テストへ進む」を押します。ニックネームを入れるまでは押せません。</li><li>初回だけ、画面の使い方を案内するポップアップが出ます。「次へ」で進み、「スキップ」でいつでも閉じられます。</li></ol>
+  <p class="tip"><b>案内をもう一度見たいとき</b>設定 →「使い方」→「はじめての案内をもう一度見る」</p></div>
+</div></section>
+
+<section id="s2"><div class="sec">
+  <video src="manual/s2_test.mp4" poster="manual/s2_test.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 2</small>診断テスト</h2>
+  <ol><li>下のメニュー「診断・練習」→「診断をはじめる」。約15問・10分です。</li><li>4択から選びます。わからないときは「わからない(先生に聞きたい)」を押すと、先生への質問メモに入ります。</li><li>まちがえたら、理由(ケアレスミス／覚えていなかった など)を選ぶと、ミスの分析に使われます。</li><li>高校の問題でつまずくと、中学の単元までさかのぼって原因を調べます。</li></ol>
+  <p class="tip"><b>レベル別演習</b>同じ画面で「基礎・標準・難関」を選んで10問ずつ練習できます。</p></div>
+</div></section>
+
+<section id="s3"><div class="sec">
+  <video src="manual/s3_home.mp4" poster="manual/s3_home.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 3</small>ホームの見方</h2>
+  <ul><li><b>次の一手</b>:いま一番効果の高い学習を1つだけ示します。迷ったらここを押します。</li><li><b>今日の学習時間</b>:目標(設定した勉強時間)と実績をリングで表示します。</li><li><b>今日のやる事</b>:単語のノルマなどは、終わると自動でチェックが付きます。</li><li><b>間違い直し・ミスの原因・今週のまとめ</b>:伸びない理由と、先週からの変化がわかります。</li></ul></div>
+</div></section>
+
+<section id="s4"><div class="sec">
+  <video src="manual/s4_roadmap.mp4" poster="manual/s4_roadmap.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 4</small>ロードマップ・単元マップ</h2>
+  <ul><li>志望校と受験日から逆算して、マイルストーン・週ごとの計画・カレンダーを自動で作ります。</li><li>上の目次ボタンで、見たい場所へ移動できます。</li><li>タイムラインは横にスクロールします。英単語・古文単語・一問一答の進め方の行もあります。</li><li>「単元マップ」で、全単元の定着度(得意／もう少し／忘れかけ／苦手／未挑戦)を色で確認できます。</li><li>週に1回、「今週の振り返り(KPT)」を書きます。</li></ul></div>
+</div></section>
+
+<section id="s5"><div class="sec">
+  <video src="manual/s5_vocab.mp4" poster="manual/s5_vocab.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 5</small>単語帳(単語トレーニング)</h2>
+  <ol><li>下のメニュー「単語帳」。いちばん上で教科と単語帳を選びます(英単語・英熟語・早慶上理・古典単語・難関私大・古典常識 など)。</li><li>「出題範囲」でPart・分類・苦手だけ などを選びます。</li><li>学び方を選びます:4択テスト／赤シート／苦手選別／スワイプ／聞き流し／単語リスト／語彙力診断。</li></ol>
+  <p class="tip"><b>迷ったら「自動出題」</b>忘れかけ→苦手→新しい語の順に、今やると効果が高い語を出します。</p></div>
+</div></section>
+
+<section id="s6"><div class="sec">
+  <video src="manual/s6_history.mp4" poster="manual/s6_history.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 6</small>日本史・世界史(一問一答・論述)</h2>
+  <ul><li>「診断・練習」→「暗記・論述」から開きます。</li><li>出題軸:ヨコ(時代)／タテ(分野・国)／年号。範囲・モード(暗記・ニガテ・未学習)・レベルを選んで始めます。</li><li>「見て答える」にすると、答えを見て自分で○✕をつけられます。</li><li>論述は、答えを考えてから模範解答の赤いキーワードをタップして採点します。70%以上で「定着」。</li></ul></div>
+</div></section>
+
+<section id="s7"><div class="sec">
+  <video src="manual/s7_mock.mp4" poster="manual/s7_mock.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 7</small>模試モード</h2>
+  <ul><li>10問15分〜30問45分を選びます。問題は志望校の配点に合わせて配分されます。</li><li>途中で答えは出ません。迷った問題は「あとで見直す」、問題の一覧から移動できます。</li><li>「提出する」で採点。教科別・レベル別の得点率と、時間のかかった問題がわかります。</li></ul></div>
+</div></section>
+
+<section id="s8"><div class="sec">
+  <video src="manual/s8_tutor.mp4" poster="manual/s8_tutor.jpg" controls playsinline muted preload="none"></video>
+  <div><h2><small>STEP 8</small>先生用レポートと設定</h2>
+  <ul><li>「先生用」:苦手の原因・口頭試問・ミスの傾向・週のまとめ・振り返り・模試の記録。授業や保護者との面談に使います。</li><li>「設定」:志望校・勉強時間・受験科目・テーマカラーの変更、別の端末への引き継ぎ。</li></ul></div>
+</div></section>
+
+<section id="faq"><h2>よくある質問</h2>
+<ul>
+  <li><b>データはどこに保存されますか?</b> 使っている端末(ブラウザ)の中です。機種変更のときは、設定の「引き継ぎコード」を使ってください。</li>
+  <li><b>動画が再生されません。</b> 再生ボタンを押してください。通信量を減らすため、自動では読み込みません。</li>
+  <li><b>案内のポップアップを消したい。</b>「スキップ」を押すと、次からは出ません。</li>
+</ul></section>
+</main>
+<footer>Aqualium</footer>
+</body>
+</html>
