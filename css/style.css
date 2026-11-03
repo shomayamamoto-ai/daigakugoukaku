@@ -2039,3 +2039,7 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 .brand-lg { margin: 0 0 6px; } .brand-lg .brand-word { font-size: 40px; } .brand-lg .brand-sub { font-size: 11px; }
 @media (max-width: 359px) { .topbar .brand-sub { display: none; } }
 .brand, .brand .brand-sub { font-weight: 400; }
+
+/* 筆記体ロゴ:q・g・p などの下の部分と、A の左の飾りが切れないよう、背景(グラデーション)の範囲を広げる */
+.script-word, .origin-word, .brand-word, .logo-word, .pb-en, .ttl .en, .hero-en, .banner-en, .login-en { padding: .02em .14em .28em .12em !important; margin-left: -.12em; margin-bottom: -.28em; -webkit-box-decoration-break: clone; box-decoration-break: clone; overflow: visible; }
+.origin-word { display: inline-block; }

@@ -532,3 +532,7 @@ body.sv-open { overflow: hidden; }
 .ft-logo { display: flex; flex-direction: column; line-height: 1.3; }
 .ft-brand .ft-logo b.script-word { font-size: 30px; background: linear-gradient(115deg, #ffffff 0%, #dbe6ff 38%, #8fb2ff 62%, #6fb6ff 76%, #5fe0ea 90%, #45c7d4 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .1em; }
 .ft-logo small { font-size: 10px; color: rgba(255, 255, 255, .7); }
+
+/* 筆記体ロゴ:q・g・p などの下の部分と、A の左の飾りが切れないよう、背景(グラデーション)の範囲を広げる */
+.script-word, .origin-word, .brand-word, .logo-word, .pb-en, .ttl .en, .hero-en, .banner-en, .login-en { padding: .02em .14em .28em .12em !important; margin-left: -.12em; margin-bottom: -.28em; -webkit-box-decoration-break: clone; box-decoration-break: clone; overflow: visible; }
+.origin-word { display: inline-block; }
