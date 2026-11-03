@@ -8,7 +8,7 @@
 window.WPS = window.WPS || {};
 (function () {
   var USERS = [
-    { id: 'shoma', salt: 'W+wiBjVug5bMQRUsv09cIA==', it: 210000, hash: 'fPDS/zb23K8vzAEzX+piHFxsovRDzzGCWSMq4axyzfg=' }
+    { id: 'shoma', salt: 'W+wiBjVug5bMQRUsv09cIA==', it: 210000, hash: '+phtPICQs72g8TF2zf9vWFC5XbeeNMlDqaB/aoxxXQI=' }
   ];
   var KEY = 'wps_auth_v1', DAYS = 30, LOCK = 'wps_auth_lock';
   function b64(buf) { var s = '', a = new Uint8Array(buf); for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
@@ -21,6 +21,8 @@ window.WPS = window.WPS || {};
       .then(function (k) { return crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: unb64(u.salt), iterations: u.it }, k, 256); })
       .then(b64);
   }
+  // 入力のゆれを吸収する(全角→半角・前後の空白・大文字小文字・長音やダッシュ類→半角ハイフン)
+  function norm(t) { t = (t || '').normalize ? (t || '').normalize('NFKC') : (t || ''); return t.trim().toLowerCase().replace(/[\u2010-\u2015\u2212\u30fc\uff70]/g, '-').replace(/\s+/g, ''); }
   var okCache = null;
   var Auth = {
     // 同期で判定できるように、ログイン時に「ユーザーのハッシュ+期限」から作った印を保存しておく
@@ -34,7 +36,7 @@ window.WPS = window.WPS || {};
     login: function (id, pw) {
       var lk = get(LOCK) || { n: 0, until: 0 };
       if (lk.until > Date.now()) return Promise.reject({ wait: Math.ceil((lk.until - Date.now()) / 1000) });
-      id = (id || '').trim();
+      id = norm(id); pw = norm(pw);
       var u = USERS.filter(function (x) { return x.id === id; })[0];
       var fail = function () { lk.n++; if (lk.n >= 5) { lk.until = Date.now() + 60000; lk.n = 0; } set(LOCK, lk); return Promise.reject({}); };
       if (!u || !pw) return fail();
@@ -47,10 +49,10 @@ window.WPS = window.WPS || {};
     logout: function () { set(KEY, null); okCache = false; },
     screen: function () {
       return '<section class="login-wrap"><div class="login-card">' +
-        '<p class="login-en">Aqualium</p><h1>ログイン</h1><p class="muted small">IDとパスワードを入力してください。</p>' +
+        '<p class="login-en">Aqualium</p><h1>ログイン</h1><p class="muted small">IDとパスワードを入力してください。大文字・小文字は区別しません。</p>' +
         '<form id="loginForm" autocomplete="on" novalidate>' +
         '<label>ID<input name="id" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>' +
-        '<label>パスワード<span class="pw-row"><input name="pw" type="password" autocomplete="current-password" required><button type="button" class="pw-eye" aria-label="パスワードを表示" aria-pressed="false">表示</button></span></label>' +
+        '<label>パスワード<span class="pw-row"><input name="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required><button type="button" class="pw-eye" aria-label="パスワードを表示" aria-pressed="false">表示</button></span></label>' +
         '<p class="login-err" role="alert" aria-live="assertive"></p>' +
         '<button type="submit" class="btn primary big">ログイン</button></form>' +
         '<p class="login-note small muted">ログインは、この端末で' + DAYS + '日間保たれます。<br><a href="home.html">サービス紹介</a>・<a href="manual.html">使い方マニュアル</a></p></div></section>';
