@@ -513,4 +513,256 @@
     ]
   });
 
+  /* ===== e_comp 比較 ===== */
+  add('e_comp', {
+    secs: [
+      {
+        h: 'さらに深く:than の後ろで起こる「省略・代動詞・倒置」',
+        t: 'than の後ろは、もともと【節(S + V)】です。ただ、くり返しになる部分が省略されたり、別の語に置きかえられたりするので、形が見えにくくなります。than の後ろを「もとの節」に戻せると、比較の文を正確に読めるようになります。\n①【省略】He is taller than I (am).(彼は私より背が高い)→ am が省略されています。\n②【代動詞 do】She sings better than her sister does.(彼女は姉より歌がうまい)→ does は sings の代わりです。\n③【時をずらした比較】The town is quieter than it was ten years ago.(その町は10年前より静かだ)→ 同じものの「今」と「昔」を比べています。than it used to be も同じです。\n④【過去分詞・形容詞だけが残る】The exam was easier than (I had) expected.(試験は思っていたよりやさしかった)/He came home later than usual.(彼はいつもより遅く帰宅した)/She is busier than ever.(彼女はこれまでになく忙しい)\n⑤【倒置】かたい書き言葉では、than の後ろで主語と動詞が入れかわることがあります。He ran faster than did any other runner.(彼はほかのどの走者よりも速く走った)→ 主語 any other runner が長いので、後ろに回っています。\n⑥【than 以下ごとの省略】I need a bigger bag.(もっと大きいかばんが必要だ)→ than this one(これより)が、文脈から分かるので省略されています。\n読解では、than の後ろに何が省略されているかを補うと、【何と何を比べているか】がはっきりします。とくに③の時の比較や④の than expected は、内容一致問題で「予想とちがった」「昔とちがう」という意味をとらえるカギになります。',
+        key: 'than の後ろはもともと節。省略・代動詞・時のずれ・倒置を「もとの節」に戻すと、何と何を比べているかが分かる。',
+        ex: [{
+          q: '何と何を比べているかを明らかにして、和訳しよう。\nThe problem turned out to be more serious than most people had thought.',
+          hint: 'than の後ろの had thought の目的語を補ってみよう。',
+          steps: [
+            'than の後ろは most people had thought で、thought の目的語が欠けています。',
+            'もとの形を補うと、than most people had thought (it would be) で、「多くの人が思っていた(問題の深刻さの)程度」と比べています。',
+            'つまり、「実際の深刻さ」と「人々が予想していた深刻さ」の比較です。had thought は、turned out(分かった)より前に思っていたことなので、過去完了になっています。',
+            '全体は「その問題は、多くの人が思っていたより深刻だと分かった」となります。'
+          ],
+          a: 'その問題は、多くの人が思っていたよりも深刻だということが分かった。(実際の深刻さと、人々の予想を比べている)',
+          check: '同じ内容は The problem was more serious than expected. とも言えます。than expected・than thought を見たら「予想と実際の比較」と読むくせをつけましょう。'
+        }]
+      },
+      {
+        h: '実戦演習:the を使う比較の慣用表現(all the 比較級・none the 比較級)',
+        t: '入試の和訳では、【all the + 比較級 + for(because)〜】(〜なので、それだけいっそう…)と、【none the + 比較級 + for 〜】(〜だからといって少しも…ない)がよくねらわれます。\nここで比較級の前につく the は、冠詞ではなく「その分だけ」という意味の副詞です。for 〜 や because 〜 が「その分」の理由を表し、all は強め、none は「まったく〜ない」の否定です。\n戦略は、①比較級の前の the を見つけたら、後ろに for・because があるかを探す、②「その理由の分だけ、いっそう〜」と直訳してから、③自然な日本語に整える、の3段階です。\n落とし穴は、all を「すべて」、none を「だれも〜ない」と訳してしまうことです。また、the 比較級, the 比較級(〜すればするほど)と形が似ているので、the が2つあるか1つかも確かめましょう。',
+        key: '比較級の前の the は「その分だけ」。all the 比較級 for 〜 は「〜なのでいっそう」、none the 比較級 for 〜 は「〜だからといって少しも…ない」。',
+        ex: [
+          {
+            q: '和訳しよう。\nI like her all the more because she is honest about her weaknesses.',
+            hint: 'all the more の the は「その分だけ」。その理由はどこ?',
+            steps: [
+              'all the more の後ろに because 〜 があるので、【all the + 比較級 + because 〜】の形です。',
+              'the は「その分だけ」、because 以下がその理由です。理由は「自分の弱点について正直だから」です。',
+              '直訳は「彼女が自分の弱点について正直なので、その分だけいっそう、私は彼女が好きだ」です。',
+              '自然な日本語に整えると、「自分の弱点を正直に認めるので、私はいっそう彼女が好きだ」となります。'
+            ],
+            a: '彼女は自分の弱点に正直なので、私はそれだけいっそう彼女のことが好きだ。',
+            check: '「もともと好きだが、その理由でさらに好きになる」という意味であることを確かめましょう。all を「すべて」と訳すと、「すべてもっと好き」という意味の通らない日本語になります。'
+          },
+          {
+            q: '和訳しよう。\nI listened to his long explanation, but I was none the wiser.',
+            hint: 'none the + 比較級 は「少しも〜ない」。',
+            steps: [
+              'none the wiser は【none the + 比較級】の形で、「その分だけ賢くなることがまったくない」という意味です。',
+              'ここでは for 〜 が省略されていますが、前の部分から「彼の長い説明を聞いたのに」が、その「分」にあたります。',
+              '直訳は「彼の長い説明を聞いたが、私は少しも賢くならなかった」です。',
+              'wiser は「事情が分かった」という意味で使われているので、「ちっとも分からなかった」と訳すと自然です。'
+            ],
+            a: '私は彼の長い説明を聞いたが、ちっとも分からなかった(前より少しも分かるようにならなかった)。',
+            check: 'none the wiser は、説明などを聞いた後も「前と同じで、分からないまま」という意味の決まった言い方です。none the less(それでもやはり)も同じしくみで、nonetheless と1語でも書きます。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に入る最も適切なものを選ぼう。\nPrices are much higher than ( ) last year.\n① they were ② it was ③ those ④ them', a: '① they were', exp: '比べているのは「今の物価」と「昨年の物価」で、同じものの時のずれを比べる形です。than の後ろはもとの節で、prices を代名詞にすると they、過去のことなので were になります。② it was は、主語の prices(複数)と数が合いません。③ those は than those of last year のように of 〜 をともなう形なら使えますが、those last year とはふつう言いません。④ them は節の主語になれません。比較級の前の much は「ずっと」と差の大きさを強める語です。' },
+      { lv: 3, q: '和訳し、less のはたらきを説明しよう。\nShe is less shy than she used to be.', a: '彼女は以前ほど内気ではない。/less + 原級 + than は「〜ほど…ではない」という、程度が低いほうを表す比較(劣等比較)。', exp: 'less は little の比較級で、less + 形容詞 + than 〜 は「〜より…の程度が低い」、つまり「〜ほど…ではない」という意味です。than she used to be は、同じ人の「今」と「昔」を比べる時のずれの比較で、「以前の彼女」と比べています。直訳の「以前より少なく内気だ」では不自然なので、「以前ほど内気ではない」と訳します。同じ内容は、She is not as shy as she used to be. とも書けます。less は「より少ない量」(less money)の意味でも使われます。' },
+      { lv: 3, q: '和訳しよう。\nI like him all the better for his faults.', a: '彼には欠点があるので、私はかえっていっそう彼が好きだ。', exp: '【all the + 比較級 + for 〜】の形で、for his faults が「その分」の理由を表します。better は well の比較級で、like 〜 better は「〜のほうが好きだ・〜がもっと好きだ」の意味です。直訳は「彼の欠点の分だけ、いっそう彼が好きだ」です。ふつう欠点は好きになる理由にはなりにくいので、「欠点があるからこそ、かえって」と訳すと、筆者の気持ちがよく伝わります。faults には「欠点」のほか、「(過失の)責任」(It\'s my fault.:私のせいだ)の意味もあります。' }
+    ],
+    faq: [
+      ['「ますます〜」は、比較級でどう表すの?', '【比較級 and 比較級】で表します。例:It is getting colder and colder.(ますます寒くなってきている)。more を使う長い形容詞では、more and more + 原級 にします。例:English is becoming more and more important.(英語はますます重要になっている)。× more important and more important とはしません。get・become・grow などの「〜になる」動詞といっしょに、進行形でよく使われます。'],
+      ['as 〜 as possible と as 〜 as S can は、同じ意味なの?', 'どちらも「できるだけ〜」で、ほぼ同じ意味です。例:Come as soon as possible. = Come as soon as you can.(できるだけ早く来て)。as 〜 as S can では、can を文の時制に合わせる必要があります。過去の文なら、He ran as fast as he could.(彼はできるだけ速く走った)と could にします。possible は形容詞なので、時制によって形が変わることはありません。']
+    ]
+  });
+
+  /* ===== e_h2 仮定法 ===== */
+  add('e_h2', {
+    secs: [
+      {
+        h: 'さらに深く:仮定法でていねいにお願いする・控えめに言う',
+        t: '仮定法は、事実に反する想像だけでなく、【ていねいな依頼】や【控えめな意見】を言うときにも、毎日のように使われています。if 節で「もし可能なら」という仮定を置き、相手に断る余地を残すことで、押しつけがましさを消しているのです。\n①【I would appreciate it if you could 〜】〜していただけるとありがたいのですが。例:I would appreciate it if you could send me the file by Friday.(金曜日までにファイルを送っていただけるとありがたいのですが)→ it は if 節の内容を指します。\n②【It would be + 形容詞 + if 〜】〜ならうれしい(助かる)のですが。例:It would be great if you could join us.(参加していただけたらうれしいです)\n③【Would you mind if I + 過去形 〜?】〜してもかまいませんか。例:Would you mind if I opened the window?(窓を開けてもかまいませんか)→ 答えは、かまわないなら Not at all. など否定の形になります。\n④【I would say 〜・I would think 〜】(私としては)〜だと思います。例:I would say this plan is a little risky.(この計画は少し危ないように思います)→ 意見を少しやわらかくします。\nこれらの表現では、主節の would と if 節の could(過去形)が、ふつうの仮定法と同じ形でそろっています。「現実から一歩離れた形で言う」という仮定法のしくみが、そのまま「相手との距離をとる=ていねいさ」につながっているのです。\n英作文のメールや手紙の問題では、命令文(Send me 〜.)より、こうした表現を使うと、場面に合った書き方として評価されやすくなります。',
+        key: 'I would appreciate it if you could 〜 などのていねいな表現は、仮定法の「現実から一歩離れる」しくみを使って、相手に断る余地を残している。',
+        ex: [{
+          q: '次の文を、I would appreciate it if 〜 を使って、ていねいな依頼の文に書きかえよう。\nTell me your schedule for next week.',
+          hint: '主節は would appreciate it、if 節は could + 原形。',
+          steps: [
+            'もとの文は命令文なので、目上の人やお客さんに使うと強すぎる言い方です。',
+            'I would appreciate it(〜ならありがたい)を主節にします。it は、後ろの if 節の内容を指します。',
+            'if 節は「あなたが教えてくれるなら」で、仮定法の形に合わせて could + 原形 にします。if you could tell me 〜 です。',
+            'できあがりは、I would appreciate it if you could tell me your schedule for next week. です。'
+          ],
+          a: 'I would appreciate it if you could tell me your schedule for next week.(来週のご予定を教えていただけるとありがたいのですが)',
+          check: 'it を落とした I would appreciate if 〜 は誤りです。appreciate は他動詞なので目的語が必要で、その位置に it を置きます。'
+        }]
+      },
+      {
+        h: '実戦演習:長文の仮定法から「本当にあったこと」を読み取る',
+        t: '長文読解の内容一致問題では、仮定法の文が出てくると、その【裏返しの事実】が問われることがよくあります。仮定法の文は「実際にはそうではなかった」ことを述べているので、書かれた内容をそのまま事実として選ぶと、まちがえるように作られています。\n戦略は、①would・could・might + have + 過去分詞 や、if 節の had + 過去分詞 を見つけたら、仮定法だと気づく、②if 節と主節の両方を、肯定・否定を逆にして「実際にあったこと」に書きかえる、③書きかえた事実と選択肢を照らし合わせる、の3段階です。\n落とし穴は、if 節が否定(had not 〜)のときです。否定の仮定の裏返しは肯定の事実になるので、頭の中で二重に逆にする必要があります。また、混合型(過去の仮定 + 今の結果)では、裏返しの事実も「過去」と「今」に分かれます。',
+        key: '仮定法の文は「事実の裏返し」。if 節と主節の肯定・否定を逆にして、実際にあったことを書き出してから選択肢を選ぶ。',
+        ex: [
+          {
+            q: '次の英文の内容に合うものを1つ選ぼう。\nMr. Sato opened a small bakery in 2015. If a new station had not been built near his shop the next year, he would have closed the bakery within a few years. Today, his bread is so popular that people come from other towns to buy it.\n(和訳:佐藤さんは2015年に小さなパン屋を開いた。もし翌年、店の近くに新しい駅ができていなかったら、彼は数年のうちに店を閉めていただろう。今では彼のパンはとても人気があり、ほかの町からも人々が買いに来る。)\n① The new station was built before the bakery opened.\n② A new station was built near the bakery in 2016.\n③ Mr. Sato closed the bakery within a few years.\n④ People in other towns do not know about the bakery.',
+          hint: 'If 〜 had not been built の裏返しの事実は?',
+          steps: [
+            '2文目は、if 節が had not been built、主節が would have closed なので、仮定法過去完了です。',
+            'if 節の裏返しは「実際には、翌年(2016年)店の近くに新しい駅ができた」です。否定の仮定なので、事実は肯定になります。',
+            '主節の裏返しは「実際には、店を閉めなかった」です。',
+            'したがって、② が本文に合います。① は「翌年」と合わず、③ は事実の逆、④ は3文目(ほかの町からも買いに来る)と矛盾します。'
+          ],
+          a: '②',
+          check: '③ は、仮定法の主節 he would have closed the bakery の語をそのまま使ったひっかけです。仮定法の主節は「実際には起きなかったこと」だと確かめましょう。the next year は2015年の翌年なので2016年です。'
+        },
+          {
+            q: '和訳しよう。\nHad it not been for the map you drew, we would still be lost in the mountains.',
+            hint: 'Had で始まる倒置と、主節の still be(今のこと)に注目。',
+            steps: [
+              '文頭の Had it not been for 〜 は、If it had not been for 〜(〜がなかったら)の if を省略した倒置の形です。過去のことの仮定です。',
+              '主節は would still be lost で、would + 原形 なので「今」のことです。過去の仮定と今の結果を組み合わせた混合型です。',
+              'the map you drew は、map と you の間に関係代名詞が省略された形で、「あなたが描いてくれた地図」です。',
+              '全体は「あなたが描いてくれた地図がなかったら、私たちは今もまだ山の中で迷っているだろう」となります。'
+            ],
+            a: 'あなたが描いてくれた地図がなかったら、私たちは今もまだ山の中で迷っているだろう。',
+            check: '裏返しの事実は、「(過去に)地図があったので、(今は)山で迷っていない」です。still と be が「今の状態」を表していることから、混合型だと確かめられます。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に入る最も適切なものを選ぼう。\nI would appreciate it if you ( ) reply by Friday.\n① can ② could ③ will ④ shall', a: '② could', exp: '主節に would があるので、if 節も仮定法の形(過去形)にそろえて could を使います。「もし可能なら返事をいただけるとありがたい」という、ていねいな依頼の表現です。日常の会話やメールでは if you can 〜 が使われることもありますが、仮定法の形にそろえた could のほうが、よりていねいで、文法問題でも正解になります。③ will や ④ shall は、仮定法の形と合いません。appreciate には「感謝する」のほか、「(価値を)正しく理解する・よさが分かる」の意味もあります。' },
+      { lv: 3, q: '次の2文の意味のちがいを説明しよう。\n(1) He looks as if he is sick.\n(2) He talks as if he knew everything.', a: '(1) 彼は具合が悪いように見える(本当に具合が悪いのかもしれないと話し手は思っている)。\n(2) 彼はまるで何でも知っているかのように話す(実際は知らないと話し手は思っている)。', exp: 'as if の後ろは、仮定法(過去形)だけでなく、直説法(現在形)も使われます。(1) の is は直説法で、話し手は「本当にそうかもしれない」と考えています。顔色などの根拠がある場合によく使われます。(2) の knew は仮定法で、今のことなのに過去形を使い、「実際はそうではない」という話し手の判断を示しています。つまり as if の後ろの時制は、内容が事実かどうかについての【話し手の判断】を表しているのです。入試の仮定法の問題では、過去形(過去完了)が基本の答えになります。' },
+      { lv: 3, q: '和訳し、Suppose のはたらきを説明しよう。\nSuppose you won a million yen, what would you do with it?', a: 'もし100万円当たったら、あなたはそれで何をしますか。/Suppose は「〜と仮定してみよう」という意味で、if と同じように仮定の節を作る。', exp: 'Suppose(Supposing)+ S + V は、「〜だとしたら」という意味で、if 節の代わりに使われます。この文では、won(過去形)と would do が組み合わさった仮定法過去になっています。「実際には当たる可能性は低いが、もし当たったら」という想像の気持ちが出ます。Suppose it rains tomorrow, what will you do? のように直説法で使えば、「現実に起こりうること」として話していることになります。suppose には、動詞で「〜だと思う」(I suppose so.:そうだと思う)、be supposed to 〜(〜することになっている)の意味もあります。' }
+    ],
+    faq: [
+      ['仮定法の主節では、would・could・might のどれを使えばいいの?', '言いたい意味で選びます。would は「〜するだろう」(結果の予測・意志)、could は「〜できるだろう」(可能)、might は「〜するかもしれない」(弱い可能性)です。例:If I had more time, I would travel.(旅行するだろう)/I could travel.(旅行できるだろう)/I might travel.(旅行するかもしれない)。和訳では、助動詞のちがいを訳し分けることが大切です。英作文で迷ったら、いちばん基本の would を使うと安全です。'],
+      ['What if 〜? は、どんな意味なの?', '【What (would happen) if 〜?】の省略した形で、「もし〜したらどうなるだろう」という意味です。例:What if we miss the last train?(終電に乗り遅れたらどうしよう)。ほかに、「〜したらどう?」という提案にも使われます。例:What if we take a taxi?(タクシーに乗ったらどうかな)。後ろは、起こりうることなら現在形、ありそうにない想像なら過去形(仮定法)にします。会話文の問題で、相手の心配や提案を表す表現として出てきます。']
+    ]
+  });
+
+  /* ===== e_emph 強調・倒置・省略・話法 ===== */
+  add('e_emph', {
+    secs: [
+      {
+        h: 'さらに深く:What 〜 is … の強調と、場所の倒置',
+        t: '強調構文 It is 〜 that … のほかにも、英語には情報の並びを変えて大事な部分を目立たせる形があります。ここでは2つを学びます。\n1つ目は【What 〜 is …】の形です。I need a long holiday.(私には長い休みが必要だ)を、What I need is a long holiday.(私に必要なのは、長い休みだ)とすると、「必要なものは何か」という問いを先に立て、答えの a long holiday を【文の最後】に置くことができます。英語は文の最後に新しい情報(焦点)を置く傾向があるので、この形は答えを強く印象づけます。\nこの形は、動詞のかたまりにも使えます。What I did was (to) call the police.(私がしたのは、警察に電話することだった)。また、【All you have to do is (to) 〜】(あなたは〜しさえすればよい)も同じ仲間です。\n2つ目は、【場所の語句を文頭に出す倒置】です。An old castle stood on the top of the hill. を、On the top of the hill stood an old castle.(丘の上には、古い城が立っていた)とすると、すでに見えている場所(古い情報)から話を始め、新しく登場する主語(an old castle)を最後に置けます。物語の場面の描写でよく使われます。\nこの倒置は、主に be・stand・lie・come・go などの【存在・移動を表す自動詞】で起こります。Here comes the bus.(ほら、バスが来た)も同じです。ただし、主語が代名詞のときは倒置しません。Here it comes.(ほら、来た)が正しく、× Here comes it. とは言いません。代名詞はすでに分かっている古い情報なので、文末に置く理由がないからです。',
+        key: 'What 〜 is … は答えを文末に置いて目立たせる形。場所の語句が文頭に出ると、存在・移動の自動詞の後ろに新しい主語が来る倒置が起こる(代名詞の主語では起こらない)。',
+        ex: [{
+          q: '次の文を、What で始まる強調の文に書きかえ、和訳しよう。\nI want to know the reason for his decision.',
+          hint: '「私が知りたいのは〜だ」という形にする。',
+          steps: [
+            'もとの文で目立たせたいのは、知りたい内容である the reason for his decision です。',
+            'それ以外の部分(I want to know)を、What の後ろに入れて主語のかたまりを作ります。What I want to know です。',
+            'その後ろに is を置き、目立たせたい部分を文の最後に置きます。',
+            'できあがりは、What I want to know is the reason for his decision. です。'
+          ],
+          a: 'What I want to know is the reason for his decision.(私が知りたいのは、彼がその決断をした理由だ)',
+          check: 'What I want to know の what は「〜こと・もの」の関係代名詞で、know の目的語が欠けた不完全な形になっていることを確かめましょう。It is the reason for his decision that I want to know. と強調構文にしても、ほぼ同じ意味になります。'
+        }]
+      },
+      {
+        h: '実戦演習:長い否定語句の倒置を「もとの語順」に戻す',
+        t: '難関大の和訳では、Never や Little のような1語の否定語だけでなく、【長い否定語句】が文頭に出た倒置がねらわれます。Under no circumstances(どんな事情があっても〜ない)、Not a single 〜(ただ1つの〜も…ない)、At no time(一度も〜ない)、In no way(決して〜ない)などです。また、Such is(was)〜 that …(〜はとても大きいので…)の倒置もよく出ます。\n戦略は、①文頭から、どこまでが前に出された語句かを見きわめる(直後に助動詞・be動詞 + S が来るところまで)、②その語句をもとの位置に戻して、ふつうの語順の文を作る、③ふつうの語順の文を訳してから、強調の気持ちを日本語に加える、の3段階です。\n落とし穴は、倒置のために出てきた did・should などの助動詞を、そのまま訳に入れてしまうことです。did は時制を示すためのもので、「した」と過去の意味になるだけです。',
+        key: '倒置の文は、前に出た語句の範囲を決めて、もとの位置に戻してから訳す。did・does は時制を示すだけで、特別な意味はない。',
+        ex: [
+          {
+            q: 'ふつうの語順の文に直し、和訳しよう。\nNot a single word did he say during the meeting.',
+            hint: '前に出ているのは Not a single word。did he say がその後ろ。',
+            steps: [
+              '文頭の Not a single word(ただ1語も〜ない)が前に出され、その後ろが did he say という疑問文の語順になっています。',
+              'もとの文に戻すと、he の後ろに否定の did not、動詞 say、目的語 a single word が来ます。He did not say a single word during the meeting. です。',
+              '倒置の did は、say が過去のことだと示すためのもので、もとの文の did not の did にあたります。',
+              '和訳は「彼は会議の間、ただの一言も話さなかった」です。前に出したことで「一言も」が強調されています。'
+            ],
+            a: 'He did not say a single word during the meeting./彼は会議の間、ただの一言も話さなかった。',
+            check: 'He said not a single word … とも書けますが、ふつうは did not say a single word の形になります。倒置の文を見たら、疑問文の語順を平叙文に戻す作業で確かめましょう。'
+          },
+          {
+            q: 'ふつうの語順の文に直し、和訳しよう。\nSuch was her surprise that she could not say a word.',
+            hint: 'Such は、何の内容を表している?',
+            steps: [
+              '文頭の Such が前に出され、was her surprise と be動詞 + 主語 の順になっています。主語は her surprise です。',
+              'もとの文は Her surprise was such that she could not say a word.(彼女の驚きはとても大きかったので、一言も言えなかった)です。',
+              'ここで such は「それほど大きなもの」という意味で、that 以下がその程度(結果)を表しています。',
+              'さらに自然な文にすると、She was so surprised that she could not say a word. と書きかえられます。'
+            ],
+            a: 'Her surprise was such that she could not say a word./彼女はあまりに驚いたので、一言も言えなかった。',
+            check: 'Such was 〜 that … は、so 〜 that … の倒置(So difficult was the test that …)と同じ「程度と結果」の形です。such のかたまりがどこまでかを、be動詞の位置で見きわめましょう。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に入る最も適切なものを選ぼう。\nAll you have to do is ( ) here until I come back.\n① wait ② waiting ③ waited ④ to waiting', a: '① wait(to wait も可)', exp: 'All you have to do is (to) 〜 は「あなたは〜しさえすればよい」という意味です。直訳は「あなたがしなければならないすべてのことは、〜することだ」で、What 〜 is … の強調と同じく、答え(すること)を文末に置いています。is の後ろは補語で、to 不定詞が基本ですが、to を省いた原形もよく使われます。② waiting や ③ waited は、この形では使いません。until I come back は時の副詞節なので、未来のことでも現在形 come になっている点も確認しましょう。' },
+      { lv: 3, q: '次の文の主語と動詞を答え、和訳しよう。\nAt the end of the long hallway stood a tall man in a black coat.', a: '主語:a tall man(in a black coat)、動詞:stood/長い廊下の突き当たりに、黒いコートを着た背の高い男が立っていた。', exp: '文頭の At the end of the long hallway は、前置詞で始まる場所の語句なので主語にはなりません。その後ろに動詞 stood が来て、主語の a tall man in a black coat が最後に置かれた、場所の倒置の文です。もとの語順は A tall man in a black coat stood at the end of the long hallway. です。場所から描写を始め、新しく登場する人物を最後に置くことで、読み手の目が廊下の先へ向かうような効果があります。hallway に冠詞 the がつき、man に a がついていることも、「場所=すでに分かっている」「男=新しく登場する」を示しています。' },
+      { lv: 3, q: '和訳しよう。\nUnder no circumstances should you open this door without permission.', a: 'どんな事情があっても、許可なくこのドアを開けてはいけない。', exp: 'Under no circumstances(どんな状況のもとでも〜ない)という否定の語句が文頭に出たので、後ろが should you open と疑問文の語順になっています。もとの文は You should not open this door without permission under any circumstances. です。no の否定の意味が文全体にかかるので、「開けるべきではない(=開けてはいけない)」と訳します。注意書きや規則の文でよく使われる、強い禁止の表現です。circumstance は「状況・事情」で、この表現では複数形 circumstances を使います。' }
+    ],
+    faq: [
+      ['場所の語句を文頭に出せば、いつでも倒置になるの?', 'いいえ。倒置が起こるのは、主に be・stand・lie・come・go などの存在や移動を表す自動詞の文で、しかも主語が名詞のときです。主語が代名詞なら倒置しません。例:Here he comes.(ほら、彼が来た)/Here it is.(はい、どうぞ・ほら、ここにある)。また、目的語をとる他動詞の文では、ふつう倒置は起こりません。In the park we played soccer.(公園で私たちはサッカーをした)は、場所を前に出しただけのふつうの語順です。'],
+      ['強調構文 It is 〜 that … と、What 〜 is … は、どう使い分けるの?', 'It is 〜 that … は、強調したい語句を文の前のほうに出し、「ほかでもなく〜が」と対比の気持ちを強く出す形です。What 〜 is … は、まず「何が問題か」を示してから、答えを文の最後に置く形で、説明や意見を述べるときに便利です。また、強調構文では動詞のかたまりを強調しにくいのに対して、What I did was (to) call the police. のように、What 〜 is … なら動作を焦点にできます。英作文では、主張を印象づけたいときに What is important is 〜 がよく使われます。']
+    ]
+  });
+
+  /* ===== ex_eng 文法問題の解き方 ===== */
+  add('ex_eng', {
+    secs: [
+      {
+        h: 'さらに深く:数えられる名詞・数えられない名詞と数量の語',
+        t: '誤り指摘や空所補充でよくねらわれるのが、名詞の【数えられる(可算)・数えられない(不可算)】の区別です。日本語では名詞の数をあまり気にしないので、まちがえやすい分野です。\n英語では、名詞を「1つずつ形の決まったもの」として見るか、「全体としての量・種類」として見るかで区別します。たとえば chair(いす)は1脚ずつ数えられますが、【furniture】(家具)は、いす・机・たんすなどをまとめた「家具類」という種類の名前なので、数えられません。\n入試でよく出る不可算名詞:information(情報)、advice(忠告)、news(知らせ)、furniture(家具)、baggage・luggage(手荷物)、homework(宿題)、equipment(設備)、work(仕事)\nこれらには a がつかず、複数形にもなりません。数えたいときは【a piece of 〜】を使います。例:a piece of advice(1つの忠告)、two pieces of furniture(家具2点)\n数量を表す語も、名詞の種類で使い分けます。\n・可算名詞の複数形に:many、few・a few、a number of\n・不可算名詞に:much、little・a little、an amount of\n・どちらにも:a lot of・lots of、some、any、plenty of\n注意したいのは、【同じ語でも意味によって可算・不可算が変わる】ことです。work は「仕事」なら不可算ですが、「作品」なら可算で、the works of Shakespeare(シェイクスピアの作品)と言います。paper も「紙」なら不可算、「新聞・論文」なら可算です。\n選択肢に many と much、few と little が並んでいたら、名詞の数え方の問題だと気づき、後ろの名詞が可算か不可算かを最初に確かめましょう。',
+        key: 'information・advice・furniture などは不可算で、a も -s もつかない。many・few は可算、much・little は不可算、a lot of・some はどちらにも使える。',
+        ex: [{
+          q: '次の文の誤りを直そう。\nShe gave me many useful advices about studying abroad.',
+          hint: 'advice は数えられる名詞? 数えられない名詞?',
+          steps: [
+            'まず名詞 advice に注目します。advice は「忠告・助言」という意味の不可算名詞です。',
+            '不可算名詞は複数形にならないので、advices は誤りで、advice にします。',
+            'さらに、many は可算名詞の複数形にしか使えないので、不可算名詞に使える a lot of か much に変えます。',
+            '肯定文では a lot of を使うのが自然なので、She gave me a lot of useful advice about studying abroad. とします。'
+          ],
+          a: 'She gave me a lot of useful advice about studying abroad.(彼女は留学について、役に立つ助言をたくさんくれた)',
+          check: '数を表したいなら、many useful pieces of advice のように piece を使えば many が使えます。名詞を直したら、前の数量の語も合っているか、セットで確かめましょう。'
+        }]
+      },
+      {
+        h: '実戦演習:主語と動詞の一致 ― 近いほうに合わせる・まとまりで見る',
+        t: '誤り指摘問題の定番は、主語と動詞の数の一致です。本文で学んだ Each of 〜・The number of 〜 のほかに、【2つの名詞を組み合わせた主語】と【まとまりとして見る主語】がよく出ます。\n①【either A or B・neither A nor B・not only A but also B】→ 動詞は【B(動詞に近いほう)】に合わせます。\n②【A as well as B】→ 中心は A なので、動詞は【A】に合わせます。\n③【時間・金額・距離】→ Ten years・Five thousand yen のように複数形でも、「1つのまとまり」として【単数扱い】にすることが多いです。\n④【the police】→ 警察官たちの集まりとして【複数扱い】です。\n戦略は、①主語のかたまりを丸ごと見つけ、②その中で動詞が合わせる「中心の名詞」を決め、③動詞の形(is・are、has・have、-s)を確かめる、の順です。落とし穴は、動詞のすぐ前の名詞に、反射的に合わせてしまうことです。',
+        key: 'either / neither / not only 〜 but also は「近いほう」、A as well as B は「A」に合わせる。時間・金額のまとまりは単数、the police は複数。',
+        ex: [
+          {
+            q: '( ) に入る最も適切なものを選ぼう。\nNeither my brother nor I ( ) going to the party tonight.\n① am ② is ③ are ④ be',
+            hint: 'neither A nor B の動詞は、どちらに合わせる?',
+            steps: [
+              '主語は Neither my brother nor I(兄も私も〜ない)です。',
+              'neither A nor B では、動詞は B、つまり動詞に近いほうの名詞に合わせます。B は I です。',
+              'I に合う be動詞の現在形は am です。',
+              'したがって、① am が正解です。'
+            ],
+            a: '① am(兄も私も、今夜のパーティーには行かない)',
+            check: '「2人だから複数の are」と考えるのがひっかけです。形がぎこちなく感じるときは、My brother isn\'t going to the party tonight, and neither am I. のように書きかえることもできます。'
+          },
+          {
+            q: '( ) に入る最も適切なものを選ぼう。\nThe teacher, as well as the students, ( ) surprised at the news.\n① was ② were ③ have been ④ are',
+            hint: 'A as well as B の中心は、A と B のどちら?',
+            steps: [
+              '主語は The teacher, as well as the students(生徒たちだけでなく先生も)です。',
+              'A as well as B は「B だけでなく A も」という意味で、文の中心は A(the teacher)です。',
+              'そのため、動詞は単数の the teacher に合わせます。',
+              '単数で過去の受動態の形になる ① was が正解です。'
+            ],
+            a: '① was(生徒たちだけでなく、先生もその知らせに驚いた)',
+            check: '直前の the students(複数)につられて were を選ばないことが大切です。コンマではさまれた as well as the students を、いったんかっこでくくると、主語が The teacher だけだと見えます。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に入る最も適切なものを選ぼう。\nCould you give me some ( ) on how to prepare for the interview?\n① advice ② advices ③ an advice ④ many advice', a: '① advice', exp: 'advice(忠告・助言)は不可算名詞なので、a(an)がつかず、複数形にもなりません。そのため ② advices と ③ an advice は誤りです。④ many は可算名詞の複数形に使う語なので、不可算名詞 advice には使えません。some は可算・不可算のどちらにも使えるので、some advice が正しい形です。advice の動詞形は advise(忠告する)で、つづりと発音(名詞は語末が /s/、動詞は /z/)がちがう点にも注意しましょう。' },
+      { lv: 3, q: '( ) に入る最も適切なものを選ぼう。\nThe police ( ) searching for the missing boy all night.\n① is ② are ③ has ④ was', a: '② are', exp: 'the police は、警察官の集まりを表す名詞で、-s がつかなくても【複数扱い】にします。そのため、be動詞は are です。① is・③ has・④ was は単数の主語に合わせる形なので誤りです。一人の警察官を言うときは、a police officer を使い、a police とは言いません。the police と同じように複数扱いになる名詞に、cattle(牛)、people(人々)があります。people は「民族・国民」の意味のときは可算名詞で、peoples と複数形にもなります。' },
+      { lv: 3, q: '次の文の誤りを直し、理由を説明しよう。\nTen years are a long time to wait for someone.', a: 'are → is', exp: 'Ten years は形の上では複数ですが、この文では「10年という1つの期間」をまとまりとして a long time(長い時間)と言いかえています。このように、時間・金額・距離を1つのまとまりとして見るときは、単数扱いにします。例:Five thousand yen is too expensive for a T-shirt.(Tシャツに5,000円は高すぎる)。一方、Ten years have passed since we met.(会ってから10年がたった)のように、1年1年が過ぎていくことを表すときは、複数扱いにすることもあります。数のまとまりで見るか、一つ一つで見るかを考えましょう。' }
+    ],
+    faq: [
+      ['news や mathematics は、-s で終わるのに単数扱いなのはなぜ?', 'news は「新しいことがら」という意味の1つの名詞で、-s は複数を表す語尾ではありません。そのため、The news was surprising.(その知らせは驚くべきものだった)と単数扱いにします。mathematics(数学)、physics(物理学)、economics(経済学)のような学問の名前も、1つの分野を表すので単数扱いです。例:Mathematics is my favorite subject.。語尾の形ではなく、何を表している名詞かで考えましょう。'],
+      ['family や team は、単数扱い? 複数扱い?', '集団を1つのまとまりとして見るときは単数、集団の一人一人を意識するときは複数扱いにします。例:My family is large.(私の家族は大家族だ)/My family are all early risers.(私の家族はみんな早起きだ)。複数扱いは、とくにイギリス英語でよく見られ、アメリカ英語では単数扱いが多いとされます。入試の文法問題では、文の意味が「まとまり」なのか「一人一人」なのかを手がかりに判断しましょう。']
+    ]
+  });
+
 })(WPS.LESSONS);
