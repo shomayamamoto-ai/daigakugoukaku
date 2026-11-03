@@ -2102,3 +2102,13 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 .rv-list li { display: grid; gap: 4px; }
 .rv-list .review-chip { justify-self: start; }
 .rv-why { font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+/* ===== 目次:押せる場所が分かるように、1単元ずつカード+「›」に ===== */
+.bk-toc ol { list-style: none; padding-left: 0; margin: 0 0 6px; display: grid; gap: 8px; counter-reset: bkn var(--start, 0); }
+.bk-toc li { padding: 0; counter-increment: bkn; }
+.bk-toc li a { position: relative; gap: 8px; padding: 12px 38px 12px 14px; border: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 12px; background: var(--card); box-shadow: 0 1px 2px rgba(4, 20, 58, .05); transition: background .15s, border-color .15s, transform .1s; cursor: pointer; }
+.bk-toc li a::before { content: counter(bkn); flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary-weak); color: var(--primary); font-size: 12px; font-weight: 800; }
+.bk-toc li a::after { content: '›'; position: absolute; right: 14px; top: 50%; transform: translateY(-52%); font-size: 22px; font-weight: 700; color: var(--primary); }
+.bk-toc li a span { font-weight: 600; }
+.bk-toc li a:hover, .bk-toc li a:focus-visible { background: var(--primary-weak); border-color: var(--primary); outline: none; }
+.bk-toc li a:active { transform: scale(.99); }

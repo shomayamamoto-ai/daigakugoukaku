@@ -68,7 +68,7 @@ WPS.makeBooks = function (ctx) {
     var html = '<div class="bk-reader"><div class="bk-tb"><a href="#books" aria-label="本棚へ戻る">‹ 本棚</a><b>' + h(b.short) + '</b><span></span></div>' +
       '<div class="bk-page bk-front">' + cover(b, true) + '<p class="muted small">' + b.chapters.length + '章・' + b.units.length + '単元。読んだページには✓がつきます。</p></div>' +
       '<section class="card bk-toc"><h2>目次</h2>' + b.chapters.map(function (ch, ci) {
-        return '<div class="bk-ch"><h3>第' + (ci + 1) + '章 ' + h(ch.name) + '</h3><ol start="' + n + '">' + ch.units.map(function (id) {
+        return '<div class="bk-ch"><h3>第' + (ci + 1) + '章 ' + h(ch.name) + '</h3><ol start="' + n + '" style="--start:' + (n - 1) + '">' + ch.units.map(function (id) {
           n++; var u = WPS.UNIT_MAP[id], ok = allowed(u), s = stats[id] ? stats[id].status : 'untested';
           return '<li class="' + (ok ? '' : 'off') + '"><a href="#books/' + b.id + '/' + id + '"><span>' + h(u.name) + '</span>' + (bm[id] ? '<em class="bk-bm">しおり</em>' : '') + (r[id] ? '<em class="bk-ok">✓</em>' : '') + (s === 'weak' ? '<em class="bk-weak">苦手</em>' : '') + '</a></li>';
         }).join('') + '</ol></div>';
