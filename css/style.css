@@ -2112,3 +2112,29 @@ body.locked .nav, body.locked .topbar .tb-search, body.locked .topbar .gear, bod
 .bk-toc li a span { font-weight: 600; }
 .bk-toc li a:hover, .bk-toc li a:focus-visible { background: var(--primary-weak); border-color: var(--primary); outline: none; }
 .bk-toc li a:active { transform: scale(.99); }
+
+/* ===== 下の階層へ進む部分を「ボタン」としてはっきり見せる ===== */
+/* 単元の行:カード+右端に「›」、押すと沈む */
+.unit-row { box-shadow: 0 2px 0 var(--line), 0 1px 3px rgba(4, 20, 58, .06); transition: background .15s, border-color .15s, transform .08s, box-shadow .08s; }
+.unit-row::after { content: '›'; flex: none; margin-left: 4px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--primary-weak); color: var(--primary); font-size: 20px; font-weight: 800; line-height: 1; }
+.unit-row:hover, .unit-row:focus-visible { background: var(--primary-weak); border-color: var(--primary); outline: none; }
+.unit-row:active { transform: translateY(2px); box-shadow: 0 0 0 var(--line); }
+/* 教科 → 科目 の切りかえ:ボタンらしい立体感と大きさ */
+.tier .seg { gap: 8px; }
+.tier .seg-btn { min-height: 40px; padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); font-weight: 700; box-shadow: 0 2px 0 var(--line); cursor: pointer; transition: transform .08s, box-shadow .08s, background .15s; }
+.tier .seg-btn:hover { border-color: var(--primary); }
+.tier .seg-btn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--line); }
+.tier .seg-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 2px 0 color-mix(in srgb, var(--primary) 60%, #000); }
+.tier .f-label { display: block; font-size: 12px; font-weight: 800; color: var(--muted); margin: 10px 0 6px; }
+.tier .f-label::after { content: ' ▼ えらぶ'; font-weight: 700; color: var(--primary); }
+/* 一問一答・論述などのリンクのタイル */
+.hist-links a { position: relative; box-shadow: 0 2px 0 var(--line); transition: transform .08s, box-shadow .08s, border-color .15s; padding-bottom: 22px; }
+.hist-links a::after { content: '開く ›'; position: absolute; bottom: 5px; font-size: 11px; font-weight: 800; color: var(--primary); }
+.hist-links a:hover { border-color: var(--primary); }
+.hist-links a:active { transform: translateY(2px); box-shadow: 0 0 0 var(--line); }
+/* 開いて読む部分(details):ボタンの見た目+開閉の向き */
+details.guide-mini > summary, .card details > summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: var(--primary-weak); color: var(--primary); font-weight: 800; cursor: pointer; }
+details.guide-mini > summary::-webkit-details-marker, .card details > summary::-webkit-details-marker { display: none; }
+details.guide-mini > summary::before, .card details > summary::before { content: '＋'; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 14px; flex: none; }
+details[open].guide-mini > summary::before, .card details[open] > summary::before { content: '－'; }
+.guide-mini { padding: 0; border: 0; }
