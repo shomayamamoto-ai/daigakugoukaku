@@ -1665,3 +1665,28 @@ h1, h2 { letter-spacing: .02em; }
 .sp-badge { background: var(--primary); }
 :root[data-palette]:not([data-palette="sky"]) .bubble { background: var(--primary-weak); }
 :root[data-palette]:not([data-palette="sky"]) .bubble::before { border-right-color: var(--primary-weak); }
+/* ===== 演出 第2弾・AIっぽさを直す ===== */
+.topbar { transition: transform .25s ease-out; }
+.topbar.tb-hide { transform: translateY(-110%); }
+.page-toc a.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.field-msg { display: block; color: var(--ng); font-weight: 700; min-height: 1em; margin-top: 4px; }
+input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ng) 15%, transparent); }
+@keyframes bmPop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.vt-bm.pop { animation: bmPop .35s ease-out; }
+/* 01 目的のないグラデーション:吹き出しは単色に */
+.bubble { background: var(--primary-weak) !important; }
+.bubble::before { border-right-color: var(--primary-weak) !important; }
+/* 03 全部同じ大きさのカード:いちばん使う4択テストを大きく */
+.vt-modes .m-quiz { grid-column: 1 / -1; padding: 18px; }
+.vt-modes .m-quiz b { font-size: 1.15rem; }
+/* KPT */
+.kpt label { display: grid; gap: 4px; margin-bottom: 10px; }
+.kpt label b { font-size: .88rem; }
+.kpt-k b { color: #15803d; } .kpt-p b { color: #be123c; } .kpt-t b { color: var(--primary); }
+.kpt textarea { width: 100%; font: inherit; }
+.kpt-prev { background: var(--primary-weak); border-radius: 10px; padding: 8px 12px; font-size: .9rem; }
+.kpt-prev b { display: block; font-size: .78rem; color: var(--muted); }
+.kpt-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.kpt-list li { display: grid; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.kpt-list em { font-style: normal; font-weight: 800; margin-right: 6px; color: var(--primary); }
+@media (prefers-reduced-motion: reduce) { .topbar.tb-hide { transform: none; } }

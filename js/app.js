@@ -349,7 +349,11 @@
     mountOwl('owlOnboard', true);
     // ニックネームを入れるまでボタンを押せないようにする(押した後に何が起きるかも文言で示す)
     var nm = view.querySelector('#profileForm [name=name]'), sb = view.querySelector('#profileForm [type=submit]');
-    if (nm && sb) { var chk = function () { sb.disabled = !nm.value.trim(); }; nm.addEventListener('input', chk); chk(); }
+    if (nm && sb) {
+      var msg = document.createElement('small'); msg.className = 'field-msg'; nm.insertAdjacentElement('afterend', msg);
+      var chk = function (show) { var ok = !!nm.value.trim(); sb.disabled = !ok; msg.textContent = ok ? '' : (show ? 'ニックネームを入力してください' : ''); nm.classList.toggle('invalid', !ok && show); };
+      nm.addEventListener('input', function () { chk(true); }); nm.addEventListener('blur', function () { chk(true); }); chk(false);
+    }
     bindProfileForm(function () { toast('よろしくね！ まずは診断テストから始めよう'); go('#test'); });
     document.getElementById('obTransferBtn').addEventListener('click', function () {
       try {
@@ -1455,12 +1459,36 @@
     });
     html += '</div>' + (rm.weeks.length > 8 ? '<button class="btn" id="moreWeeks">すべての週を表示</button>' : '') + '</section>';
 
+    html += kptCard();
     // 勉強法
     html += guideSection(t, Object.keys(w).filter(function (k) { return w[k] > 0; }));
     return html;
   }
+  function kptReport() {
+    var kp = S.get().kpt || {}, kw = Object.keys(kp).sort().reverse().slice(0, 4);
+    if (!kw.length) return '';
+    return '<section class="card"><h2>生徒の振り返り(KPT・直近4週)</h2><ul class="kpt-list">' + kw.map(function (d) { var o = kp[d]; return '<li><b>' + h(d.slice(5).replace('-', '/')) + 'の週</b>' + (o.k ? '<span><em>K</em>' + h(o.k) + '</span>' : '') + (o.p ? '<span><em>P</em>' + h(o.p) + '</span>' : '') + (o.t ? '<span><em>T</em>' + h(o.t) + '</span>' : '') + '</li>'; }).join('') + '</ul></section>';
+  }
+  // 週の振り返り(KPT:続けること・問題・次に試すこと)
+  function weekKey() { var t = D.today(), off = (D.parse(t).getDay() + 6) % 7; return D.add(t, -off); }
+  function kptCard() {
+    var s = S.get(), k = (s.kpt || {})[weekKey()] || {}, prev = Object.keys(s.kpt || {}).filter(function (x) { return x < weekKey(); }).sort().pop();
+    var pk = prev ? s.kpt[prev] : null;
+    return '<section class="card kpt"><h2>今週の振り返り(KPT)</h2><p class="muted small">週に1回、3つだけ書きます。書いた内容は先生用レポートにも残ります。</p>' +
+      (pk && pk.t ? '<p class="kpt-prev"><b>先週「次に試す」と決めたこと</b>' + h(pk.t) + '</p>' : '') +
+      [['k', 'Keep(続けること)', '例:朝の単語20語は毎日できた'], ['p', 'Problem(うまくいかなかったこと)', '例:数学の復習が週末にたまった'], ['t', 'Try(次の週に試すこと)', '例:数学は解いた日のうちに見直す']].map(function (x) {
+        return '<label class="kpt-' + x[0] + '"><b>' + x[1] + '</b><textarea data-kpt="' + x[0] + '" rows="2" placeholder="' + x[2] + '">' + h(k[x[0]] || '') + '</textarea></label>';
+      }).join('') + '<button type="button" class="btn primary" id="kptSave">振り返りを保存する</button></section>';
+  }
   renderRoadmap.after = function () {
     bindCalendar();
+    var ks = document.getElementById('kptSave');
+    if (ks) ks.addEventListener('click', function () {
+      var s = S.get(); s.kpt = s.kpt || {}; var o = {};
+      view.querySelectorAll('[data-kpt]').forEach(function (t) { o[t.getAttribute('data-kpt')] = t.value.trim().slice(0, 300); });
+      if (!o.k && !o.p && !o.t) { toast('どれか1つは書いてください'); return; }
+      o.at = Date.now(); s.kpt[weekKey()] = o; S.save(); toast('今週の振り返りを保存しました');
+    });
     view.querySelectorAll('[data-guide]').forEach(function (b) {
       b.addEventListener('click', function () {
         view.querySelectorAll('[data-guide]').forEach(function (x) { x.classList.toggle('on', x === b); });
@@ -1723,6 +1751,7 @@
       '<tr><th>解答数</th><td>テスト・演習 ' + testAttempts.length + '問 ／ 単語帳 ' + (s.attempts.length - testAttempts.length) + '枚</td></tr></table></section>';
 
     if (!testAttempts.length) {
+      html += kptReport();
       return html + '<section class="card">' + say('まだ診断データがありません。生徒に診断テストを受けてもらってから、生徒の端末の「先生にリンクで送る」で届いたリンクを開いてください。', 'think', 56) + '</section>';
     }
 
@@ -1848,6 +1877,7 @@
       html += '<tr><th>第' + (k + 1) + '回</th><td>' + what + '</td></tr>';
     }
     html += '</table></section>';
+    html += kptReport();
     return html;
   }
   renderTutor.after = function () {
@@ -2298,7 +2328,28 @@
     var band = view.querySelector('.page-band');
     if (band) band.insertAdjacentElement('afterend', nav); else view.insertBefore(nav, view.firstChild);
     var tb = document.querySelector('.topbar'); if (tb) nav.style.top = tb.getBoundingClientRect().height + 'px';
+    // スクロールスパイ:いま読んでいる見出しを目次で光らせる
+    var links = [].slice.call(nav.querySelectorAll('a'));
+    var spy = function () {
+      if (!nav.isConnected) { window.removeEventListener('scroll', spy); return; }
+      var line = nav.getBoundingClientRect().bottom + 24, cur = 0;
+      hs.forEach(function (x, i) { if (x.getBoundingClientRect().top <= line) cur = i; });
+      links.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
+      var on = links[cur]; if (on && (on.offsetLeft < nav.scrollLeft || on.offsetLeft + on.offsetWidth > nav.scrollLeft + nav.clientWidth)) nav.scrollLeft = on.offsetLeft - 12;
+    };
+    window.addEventListener('scroll', spy, { passive: true }); spy();
   }
+  // 隠れるヘッダー:下へ読むと上のバーが隠れ、上へ戻すと出てくる
+  (function () {
+    var last = 0;
+    window.addEventListener('scroll', function () {
+      var tb = document.querySelector('.topbar'); if (!tb) return;
+      var y = window.scrollY;
+      tb.classList.toggle('tb-hide', y > 120 && y > last + 4);
+      if (y < last - 4 || y < 120) tb.classList.remove('tb-hide');
+      last = y;
+    }, { passive: true });
+  })();
   /* ========== 単語トレーニング(js/vocab.js) ========== */
   var VT = WPS.makeVocab({
     h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems,

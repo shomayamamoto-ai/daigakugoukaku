@@ -456,7 +456,7 @@ WPS.makeVocab = function (ctx) {
     var sb = view.querySelector('[data-vsay="q"]');
     if (sb) sb.addEventListener('click', function () { sayItem(qz.L, x, true); });
     var bq = view.querySelector('[data-vbm="q"]');
-    if (bq) bq.addEventListener('click', function () { var on = toggleBm(x); bq.classList.toggle('on', on); bq.setAttribute('aria-pressed', on); toast(on ? 'しおりをつけました(出題範囲「しおり」で出題できます)' : 'しおりを外しました'); });
+    if (bq) bq.addEventListener('click', function () { var on = toggleBm(x); bq.classList.toggle('on', on); if (on) { bq.classList.remove('pop'); void bq.offsetWidth; bq.classList.add('pop'); } bq.setAttribute('aria-pressed', on); toast(on ? 'しおりをつけました(出題範囲「しおり」で出題できます)' : 'しおりを外しました'); });
     if (!qz.ans) {
       // 問題が出たら見出し(英語)だけを読み上げる(答えが聞こえないように)
       if (c.speak && qz.dir === 'e2j' && c.lang !== 'ja') { stopSpeak(); say1(x.t, isEn(qz.L) ? 'en' : 'ja'); }
