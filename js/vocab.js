@@ -297,13 +297,6 @@ WPS.makeVocab = function (ctx) {
     if (subs.indexOf(st.subj) < 0 || L[0] !== st.subj) st.subj = L[0];
     var td = vt().daily[D.today()] || { a: 0, u: 0 };
     var html = '';
-    html += '<section class="card vt-quick"><button type="button" class="vt-auto" data-vmode="auto"><b>自動出題</b><small>忘れかけ→苦手→新しい語の順に、いま復習すると効果が高い語を選んで出題</small></button>' +
-      '<div class="vt-quick2"><button type="button" class="vt-weakc" data-vweak="1"><b>苦手な単語</b><span>' + cnt.weak + '<small>語</small></span></button>' +
-      (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
-      '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p>' +
-      '<div class="vt-links"><a href="#cards">間隔反復の復習カード</a><a href="#words">単語・用語の一覧</a></div></section>';
-    html += recordCard() + WPS.Quest.card(h);
-    html += shelf(L);
     html += '<section class="card"><h2>覚える単語帳</h2>' +
       '<div class="filter-row"><span class="f-label">教科</span><div class="seg">' + subs.map(function (k) { return '<button type="button" class="seg-btn' + (k === st.subj ? ' on' : '') + '" data-vsubj="' + k + '">' + subjName(k) + '</button>'; }).join('') + '</div></div>' +
       '<div class="filter-row"><span class="f-label">種類</span><div class="seg">' + ls.filter(function (x) { return x.L[0] === st.subj; }).map(function (x) {
@@ -313,6 +306,12 @@ WPS.makeVocab = function (ctx) {
       '<div class="vt-bar" aria-hidden="true"><i class="ok" style="width:' + pc('ok') + '%"></i><i class="fade" style="width:' + pc('fade') + '%"></i><i class="weak" style="width:' + pc('weak') + '%"></i></div>' +
       '<p class="vt-legend"><span class="ok">覚えた ' + pc('ok') + '%</span><span class="fade">忘れかけ ' + cnt.fade + '語</span><span class="weak">苦手 ' + cnt.weak + '語</span><span>未学習 ' + cnt.new + '語</span></p></div>' + diagLast(L) +
       '<button type="button" class="btn small vt-mysets" data-vmode="sets">my単語帳を作る・編集する</button></section>';
+    html += shelf(L);
+    html += '<section class="card vt-quick"><button type="button" class="vt-auto" data-vmode="auto"><b>自動出題</b><small>忘れかけ→苦手→新しい語の順に、いま復習すると効果が高い語を選んで出題</small></button>' +
+      '<div class="vt-quick2"><button type="button" class="vt-weakc" data-vweak="1"><b>苦手な単語</b><span>' + cnt.weak + '<small>語</small></span></button>' +
+      (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
+      '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p>' +
+      '<div class="vt-links"><a href="#cards">間隔反復の復習カード</a><a href="#words">単語・用語の一覧</a></div></section>';
     // 出題範囲
     var SS = secsOf(all), secs = SS.length, isBook = !!(all[0] && all[0].part);
     html += '<section class="card"><h2>出題範囲 <small class="muted">' + h(srcLabel(st.src, n)) + '</small></h2><div class="seg">' +
@@ -364,6 +363,7 @@ WPS.makeVocab = function (ctx) {
         opt('voice', '読み上げ声色', [['female', '女性'], ['male', '男性']]) +
         '<p class="hint">声色は、端末に入っている声から近いものを選びます。端末によっては変わらないことがあります。</p>' : '') +
       '</details></section>';
+    html += recordCard() + WPS.Quest.card(h);
     return html;
   }
 
