@@ -143,7 +143,7 @@ WPS.makeBooks = function (ctx) {
         }).join('') + '</section>';
       });
       if (L.drill && L.drill.length) html += sec('練習問題', 'lz-drill') + '<p class="muted small">まず自分で解いてから、「答えと解き方」を押して確かめましょう。</p><ol class="lz-dl">' + L.drill.map(function (d) {
-        return '<li><p class="lz-dq"><em class="lv' + (d.lv || 1) + '">' + ['', '基本', '標準', '発展'][d.lv || 1] + '</em>' + rt(d.q) + '</p><details><summary>答えと解き方</summary><p class="lz-da">答え:<b>' + rt(d.a) + '</b></p>' + paras(d.exp) + '</details></li>';
+        return '<li><p class="lz-dq"><em class="lv' + (d.lv || 1) + '">' + ['', '基本', '標準', '発展'][d.lv || 1] + '</em>' + rt(d.q) + '</p><details><summary>答えと解き方</summary><p class="lz-da">答え:<b>' + rt(d.a) + '</b></p>' + paras(d.exp) + (WPS.wordNoteHTML ? WPS.wordNoteHTML(WPS.noteTerm(d.q)) : '') + '</details></li>';
       }).join('') + '</ol></section>';
       if (L.faq && L.faq.length) html += sec('よくある疑問', 'lz-faq') + L.faq.map(function (f) { return '<details><summary>' + rt(f[0]) + '</summary>' + paras(f[1]) + '</details>'; }).join('') + '</section>';
       if (L.terms && L.terms.length) html += sec('ことばの整理') + '<dl class="lz-terms">' + L.terms.map(function (t) { return '<div><dt>' + h(t[0]) + '</dt><dd>' + rt(t[1]) + '</dd></div>'; }).join('') + '</dl></section>';

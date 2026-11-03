@@ -132,6 +132,8 @@
       return;
     }
     document.body.classList.remove('locked');
+    // くわしい解説のデータは、画面が出たあとに少し待ってから読み込む
+    if (WPS.loadNotes && !render.notesAsked) { render.notesAsked = 1; setTimeout(WPS.loadNotes, 1200); }
     var p = S.get().profile;
     if (!p.name && ['onboard', 'tutor', 'share', 'cloud', 'parent'].indexOf(route) < 0) { route = 'onboard'; }
     document.querySelectorAll('.nav a').forEach(function (a) {
@@ -1269,11 +1271,9 @@
       html += '<div class="fb-why"><small>あなたの答え「' + h(chosen) + '」が違う理由</small><p>' + h(why) + '</p></div>';
     }
     html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
-    // ことばの問題:使い方・例文・類義語・対義語
-    var wm = (q.text || '').match(/「([^」]{1,12})」/), wn = wm && WPS.WORDNOTE && WPS.WORDNOTE[wm[1]];
-    if (wn) html += '<div class="fb-word"><small>「' + h(wm[1]) + '」の使い方</small>' + (wn.use ? '<p>' + h(wn.use) + '</p>' : '') +
-      (wn.ex && wn.ex.length ? '<p class="fw-h">例文</p><ul>' + wn.ex.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : '') +
-      ((wn.syn && wn.syn.length) || (wn.ant && wn.ant.length) ? '<p class="fw-rel">' + (wn.syn && wn.syn.length ? '<span><b>類義語</b>' + wn.syn.map(h).join('・') + '</span>' : '') + (wn.ant && wn.ant.length ? '<span><b>対義語</b>' + wn.ant.map(h).join('・') + '</span>' : '') + '</p>' : '') + '</div>';
+    // 問題ごとのくわしい解説と、ことばの問題のノート(ほかの意味・使い方・例文・類義語・対義語)
+    html += WPS.deepHTML(q.id);
+    html += WPS.wordNoteHTML(WPS.noteTerm(q.text), !!(WPS.QDEEP[q.id] && WPS.QDEEP[q.id].alt));
     html += WPS.Fig.draw(q.fig);
     if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';
     var pt = pointFor(q, u);

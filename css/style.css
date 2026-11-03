@@ -2175,3 +2175,12 @@ details[open].guide-mini > summary::before, .card details[open] > summary::befor
 @media (prefers-color-scheme: dark) { :root[data-palette="jade"]:not([data-theme="light"]) .topbar, :root[data-palette="jade"]:not([data-theme="light"]) .nav { background: rgba(12, 26, 21, .94); border-color: var(--line); } }
 :root[data-palette="jade"][data-theme="dark"] .topbar, :root[data-palette="jade"][data-theme="dark"] .nav { background: rgba(12, 26, 21, .94); border-color: var(--line); }
 :root[data-palette="jade"] .nav a.active::after { background: var(--primary); }
+/* もっとくわしく(問題ごとの深い解説) */
+.fb-deep { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--card); border-left: 4px solid var(--primary); }
+.fb-deep small { display: block; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+.fb-deep p { margin: 4px 0; line-height: 1.8; }
+.fb-deep .fw-h, .fb-word .fw-h { font-weight: 700; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.fb-deep ol, .fb-deep ul { margin: 2px 0 4px; padding-left: 1.3em; } .fb-deep li { line-height: 1.75; margin: 3px 0; }
+.fd-tip { background: color-mix(in srgb, var(--primary) 8%, transparent); border-radius: 8px; padding: 6px 8px; }
+.fd-tip b { display: block; font-size: 12px; color: var(--primary); }
+.lz-dl .fb-word { margin-top: 10px; }
