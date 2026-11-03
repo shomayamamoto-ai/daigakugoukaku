@@ -59,7 +59,11 @@
     sci_jh1: [{ name: '電流と磁界', units: ['s_mag'], topics: ['電流がつくる磁界・電磁誘導'] }],
     sci_jh2: [{ name: '自然と人間', units: ['s_env'], topics: ['生態系・環境・エネルギー資源'] }],
     soc_jgeo: [{ name: '日本の諸地域', units: ['c_jregion'], topics: ['九州〜北海道の地域の特色'] }],
-    soc_jciv: [{ name: '人権と憲法', units: ['c_jinken'], topics: ['日本国憲法と基本的人権'] }]
+    soc_jciv: [{ name: '人権と憲法', units: ['c_jinken'], topics: ['日本国憲法と基本的人権'] }],
+    soc_jh: [{ name: '時代別にくわしく', units: ['jh_genshi', 'jh_ritsuryo', 'jh_heian', 'jh_kamakura', 'jh_muromachi', 'jh_edo1', 'jh_edo2', 'jh_meiji', 'jh_taisho', 'jh_sengo'], topics: ['原始・古代', '律令国家', '平安時代', '鎌倉時代', '室町・戦国', '近世前期', '近世後期', '明治', '大正・昭和戦前', '戦後'] }],
+    soc_wh: [{ name: '地域と時代別にくわしく', units: ['wh_orient', 'wh_asia_old', 'wh_islam', 'wh_europe_mid', 'wh_china_mid', 'wh_early_modern', 'wh_asia_em', 'wh_revolution', 'wh_19c', 'wh_20c', 'wh_cold'], topics: ['古代オリエント・地中海', '古代インド・中国', 'イスラーム世界', '中世ヨーロッパ', '東アジア(隋〜元)', '近世ヨーロッパ', '明清・オスマン・ムガル', '市民革命・産業革命', '19世紀', '二つの世界大戦', '冷戦と現代'] }],
+    soc_kokyo: [{ name: 'テーマ別にくわしく', units: ['pk_kenpo', 'pk_seiji', 'pk_keizai', 'pk_zaisei', 'pk_rodo', 'pk_kokusai'], topics: ['憲法と人権', '政治のしくみ', '市場経済', '財政と金融', '労働と社会保障', '国際政治・国際経済'] }],
+    sci_geo: [{ name: '分野別にくわしく', units: ['gb_solid', 'gb_rock', 'gb_atmos', 'gb_space'], topics: ['地球の構造とプレート', '岩石・地層と地球の歴史', '大気と海洋', '宇宙と太陽系'] }]
   };
   (WPS.CURRICULUM || []).forEach(function (g) {
     (g.courses || []).forEach(function (c) {
