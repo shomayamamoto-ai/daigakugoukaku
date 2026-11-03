@@ -2373,6 +2373,7 @@
   // 旧データの中学英単語は、新しい中学英単語帳が入るまで中学生にだけ表示する
   function wordListOk(L, gr, stt) {
     if (L[5] === 'jhOnly' && !WPS.isJHStudent(gr)) return false;
+    if (!(WPS.BANK[L[2]] || []).length) return false; // まだ中身のない単語帳は出さない
     var u = WPS.UNIT_MAP[L[3]]; return !u || WPS.unitAllowed(u, gr, stt);
   }
   function wordItems(L) {
