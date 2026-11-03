@@ -12,7 +12,7 @@ WPS.VBOOKS = [
   { id: 'plus', name: '大学受験 中級', total: 1631 },
   { id: 'idiom', name: '英熟語', total: 1376 },
   { id: 'sokei', name: '早慶上理', note: '学部ごと', bank: 'en_sokei', named: 1,
-    parts: [[106, 0, '早稲田 政治経済'], [144, 0, '慶應 文']] }
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文']] }
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
@@ -2994,7 +2994,7 @@ counterfeit|偽造の、偽物
 exponential|指数関数的な、急激な
 humanitarian|人道的な、人道主義者
 `;
-// 2 = 慶應 文学部(240語中144語を入力。画像のつなぎ目で抜けている語は、受け取りしだい追加)
+// 2 = 慶應 文学部(240語)
 WPS.VBOOK_DATA.sokei[2] = `
 hike|引き上げ、値上げ、ハイキング
 albeit|～ではあるが、～とはいえ
@@ -3140,6 +3140,102 @@ takeover|買収、乗っ取り
 tandem|連携、二人乗り自転車(in tandemで協力して)
 temporal|時間の、世俗の
 theorist|理論家
+trauma|トラウマ、心の傷
+trek|長旅、(苦労して)旅をする
+ubiquity|どこにでもあること、遍在
+unpalatable|まずい、受け入れがたい
+veterinary|獣医の
+vibrant|活気のある、鮮やかな
+ascribe|(ascribe A to Bで)AをBのせいにする・Bに帰する
+inherent|固有の、本来備わっている
+designate|指定する、任命する
+elaborate|手の込んだ、詳しく述べる
+notorious|悪名高い
+vulnerable|傷つきやすい、弱い
+advocate|提唱者、擁護者、主張する
+manifest|明らかな、明らかに示す
+intrigue|興味をそそる、陰謀
+incorporate|取り入れる、組み込む
+presume|推定する、思い込む
+repress|抑える、抑圧する
+concise|簡潔な
+implant|植えつける、埋め込む
+comprise|～から成る、構成する
+prescribe|処方する、規定する
+consensus|合意、一致した意見
+undermine|弱める、むしばむ
+arbitrary|独断的な、恣意的な、任意の
+illuminate|照らす、解明する
+comprehend|理解する
+underlie|～の根底にある
+paradox|逆説、矛盾
+ingenious|独創的な、巧妙な
+withhold|与えずにおく、差し控える
+subsequent|その後の、続いて起こる
+compatible|両立できる、互換性がある
+indigenous|(その土地に)固有の、先住の
+render|～にする、(援助などを)提供する、翻訳する
+contemplate|熟考する、じっと見つめる
+fluctuate|変動する
+integrity|誠実さ、完全性
+prevalent|広く行き渡っている
+formulate|(計画などを)まとめる、明確に述べる
+premise|前提、(premisesで)建物と敷地、～を前提とする
+nonetheless|それにもかかわらず
+ubiquitous|至る所にある
+accommodate|収容する、適応させる、(要望に)応じる
+disrupt|混乱させる、かき乱す
+sanctuary|聖域、保護区
+entrepreneur|起業家
+innumerable|数えきれないほどの
+sentiment|感情、心情
+counterproductive|逆効果の
+interdisciplinary|学際的な
+reconcile|調和させる、和解させる
+tyranny|圧政、暴政
+converse|逆の、正反対のもの、会話する
+municipal|市の、地方自治体の
+spur|駆り立てる、拍車
+curb|抑制する、歩道の縁石
+proclaim|宣言する
+constraint|制約
+ideology|イデオロギー、思想
+autonomy|自治、自主性
+coherent|首尾一貫した
+integral|不可欠な
+entity|存在、実体
+deem|～だと考える、見なす
+onset|始まり、(病気の)発症
+intrinsic|固有の、本質的な
+preliminary|予備的な
+bureaucrat|官僚
+acoustic|音響の
+potent|強力な、効き目のある
+lest|～しないように
+conspire|陰謀を企てる、共謀する
+cynical|冷笑的な、皮肉な
+entail|(必然的に)伴う
+immerse|没頭させる、浸す
+encompass|含む、取り囲む
+transcend|超える、超越する
+sinister|邪悪な、不吉な
+alleviate|軽減する、和らげる
+fallacy|誤った考え、誤謬
+fabricate|でっち上げる、製造する
+confer|授与する、相談する
+connotation|言外の意味、含意
+propel|推進する
+redundant|余分な、不要な
+converge|集まる、一点に集中する
+adept|熟練した
+futile|無駄な
+devoid|(devoid ofで)～が欠けている
+mediate|調停する、仲介する
+nuance|微妙な違い、ニュアンス
+trajectory|軌道、軌跡
+rampant|はびこった、蔓延した
+suffice|十分である
+propensity|傾向、性向
 `;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
