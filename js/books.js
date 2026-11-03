@@ -163,13 +163,35 @@ WPS.makeBooks = function (ctx) {
     return html;
   }
 
+  // 本文データ(約2MB)は、テキストを開いたときに初めて読み込む(アプリの起動を軽くするため)
+  var LV = '20261104z', LFILES = ['lessons_1', 'lessons_2', 'lessons_3', 'lessons_4', 'lessons_5', 'lessons_6', 'lessons_7', 'lessons_8', 'lessons_9', 'lessons_10', 'lessons_zukai'];
+  var lState = 0; // 0:未読込 1:読込中 2:完了 3:失敗
+  function ensureLessons() {
+    if (lState === 2) return true;
+    if (lState === 1) return false;
+    lState = 1;
+    var i = 0;
+    (function nextFile() {
+      if (i >= LFILES.length) { lState = 2; if (/^#books/.test(location.hash)) ctx.render(); return; }
+      var sc = document.createElement('script'); sc.src = 'js/data/' + LFILES[i++] + '.js?v=' + LV;
+      sc.onload = nextFile;
+      sc.onerror = function () { lState = 3; if (/^#books/.test(location.hash)) ctx.render(); };
+      document.head.appendChild(sc);
+    })();
+    return false;
+  }
   function render(arg) {
+    if (!ensureLessons()) {
+      if (lState === 3) { lState = 0; return '<section class="card"><p>テキストの読み込みに失敗しました。通信の状態を確かめて、もう一度開いてください。</p><a class="btn" href="#books">もう一度読み込む</a></section>'; }
+      return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>';
+    }
     var p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) return page(b, p[1]);
     if (b) return toc(b);
     return shelf();
   }
   function after(arg) {
+    if (lState !== 2) return;
     var view = document.getElementById('view'), p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
