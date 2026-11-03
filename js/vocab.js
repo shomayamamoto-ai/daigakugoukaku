@@ -274,6 +274,18 @@ WPS.makeVocab = function (ctx) {
       '<p class="hint">学習時間は、問題を解いた時刻・単語トレーニング・集中タイマーから計算した目安です。' + (exam ? '旗のついた日が受験日です。' : '') + '</p></section>';
   }
 
+  // 早慶上理:大学・学部ごとの入力状況(入力済みは押すとその学部へ)
+  function sokeiPlan(L) {
+    if (!WPS.SOKEI_PLAN || L[0] !== 'eng') return '';
+    var bk = (WPS.VBOOKS || []).filter(function (b) { return b.id === 'sokei'; })[0], names = bk && bk.parts ? bk.parts.map(function (p) { return p[2]; }) : [];
+    var sid = lists().filter(function (o) { return o.L[2] === 'en_sokei'; })[0];
+    return '<section class="card"><h2>早慶上理(学部ごと)</h2>' + WPS.SOKEI_PLAN.map(function (u) {
+      return '<h3 class="sk-u">' + h(u.univ) + (u.all ? '<small>全学部 ' + u.all + '語(重複を除いた数)</small>' : '') + '</h3><div class="sk-grid">' + u.fac.map(function (f) {
+        var key = f[2] || u.univ + ' ' + f[0].replace(/学部$/, ''), idx = names.indexOf(key), ready = idx >= 0 && sid;
+        return '<button type="button" class="sk-f' + (ready ? '' : ' off') + '"' + (ready ? ' data-sk="' + idx + '" data-skl="' + sid.i + '"' : ' disabled') + '><b>' + h(f[0]) + '</b><small>' + f[1] + '語・' + (ready ? '入力済み' : '準備中') + '</small></button>';
+      }).join('') + '</div>';
+    }).join('') + '<p class="hint">準備中の学部は、単語の画像を送っていただければ追加します。</p></section>';
+  }
   // 英単語帳の本棚(入力済みのPartまで使える。ほかは準備中)
   function shelf(L) {
     if (!WPS.VBOOKS) return '';
@@ -307,6 +319,7 @@ WPS.makeVocab = function (ctx) {
       '<p class="vt-legend"><span class="ok">覚えた ' + pc('ok') + '%</span><span class="fade">忘れかけ ' + cnt.fade + '語</span><span class="weak">苦手 ' + cnt.weak + '語</span><span>未学習 ' + cnt.new + '語</span></p></div>' + diagLast(L) +
       '<button type="button" class="btn small vt-mysets" data-vmode="sets">my単語帳を作る・編集する</button></section>';
     html += shelf(L);
+    html += sokeiPlan(L);
     html += '<section class="card vt-quick"><button type="button" class="vt-auto" data-vmode="auto"><b>自動出題</b><small>忘れかけ→苦手→新しい語の順に、いま復習すると効果が高い語を選んで出題</small></button>' +
       '<div class="vt-quick2"><button type="button" class="vt-weakc" data-vweak="1"><b>苦手な単語</b><span>' + cnt.weak + '<small>語</small></span></button>' +
       (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
@@ -1158,7 +1171,8 @@ WPS.makeVocab = function (ctx) {
       var n = items(curList()).length, a = Math.max(1, Math.min(n, parseInt(view.querySelector('#vrA').value, 10) || 1)), b = Math.max(a, Math.min(n, parseInt(view.querySelector('#vrB').value, 10) || n));
       st.src = 'r' + a + '-' + b; re();
     });
-    view.querySelectorAll('[data-vsrc]').forEach(function (b) { b.addEventListener('click', function () { st.src = b.getAttribute('data-vsrc'); re(); }); });
+view.querySelectorAll('[data-sk]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-skl'); st.list = /^my:/.test(v) ? v : +v; st.src = 's' + b.getAttribute('data-sk'); re(); }); });
+        view.querySelectorAll('[data-vsrc]').forEach(function (b) { b.addEventListener('click', function () { st.src = b.getAttribute('data-vsrc'); re(); }); });
     view.querySelectorAll('[data-vcfg]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-vcfg'), v = b.getAttribute('data-v');

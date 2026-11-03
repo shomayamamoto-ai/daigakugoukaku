@@ -14,6 +14,11 @@ WPS.VBOOKS = [
   { id: 'sokei', name: '早慶上理', note: '学部ごと', bank: 'en_sokei', named: 1,
     parts: [[106, 0, '早稲田 政治経済']] }
 ];
+// 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
+WPS.SOKEI_PLAN = [
+  { univ: '早稲田', fac: [['政治経済学部', 106, '早稲田 政治経済']] },
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122]] }
+];
 WPS.VBOOK_DATA = { base: {}, sokei: {} };
 if (WPS.KOBUN_BOOK) { WPS.VBOOKS.push(WPS.KOBUN_BOOK); WPS.VBOOK_DATA.kobun = WPS.VBOOK_DATA_KOBUN; }
 WPS.VBOOK_DATA.base[1] = `

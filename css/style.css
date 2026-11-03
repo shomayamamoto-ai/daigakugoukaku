@@ -1786,3 +1786,9 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .t-ring b { font-size: 1.1rem; font-variant-numeric: tabular-nums; } .t-ring b small { display: inline; }
 .t-ring p { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
 @media (max-width: 380px) { .t-ring { grid-template-columns: 64px minmax(0, 1fr); } .t-ring .btn { grid-column: 1 / -1; } }
+.sk-u { margin: 10px 0 6px; font-size: 1rem; } .sk-u small { margin-left: 8px; font-size: .78rem; color: var(--muted); font-weight: 600; }
+.sk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sk-f { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); font: inherit; cursor: pointer; min-width: 0; }
+.sk-f b { overflow-wrap: anywhere; } .sk-f small { color: var(--muted); }
+.sk-f:not(.off) { border-color: var(--primary); } .sk-f:not(.off) small { color: var(--primary); font-weight: 700; }
+.sk-f.off { opacity: .6; cursor: default; }
