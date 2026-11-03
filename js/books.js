@@ -169,7 +169,7 @@ WPS.makeBooks = function (ctx) {
   }
 
   // 本文データ(約2MB)は、テキストを開いたときに初めて読み込む(アプリの起動を軽くするため)
-  var LV = '20261105c', LFILES = ['lessons_1', 'lessons_2', 'lessons_3', 'lessons_4', 'lessons_5', 'lessons_6', 'lessons_7', 'lessons_8', 'lessons_9', 'lessons_10', 'lessons_new_hsogo', 'lessons_new_geo', 'lessons_new_rinri', 'lessons_new_phys', 'lessons_new_chem', 'lessons_new_bio', 'lessons_new_earth', 'lessons_new_kyotsu', 'lessons_new_englis', 'lessons_new_life', 'lessons_new_jhlang', 'lessons_new_jhmss', 'lessons_zukai'];
+  var LV = '20261105h', LFILES = ['lessons_1', 'lessons_2', 'lessons_3', 'lessons_4', 'lessons_5', 'lessons_6', 'lessons_7', 'lessons_8', 'lessons_9', 'lessons_10', 'lessons_new_hsogo', 'lessons_new_geo', 'lessons_new_rinri', 'lessons_new_phys', 'lessons_new_chem', 'lessons_new_bio', 'lessons_new_earth', 'lessons_new_kyotsu', 'lessons_new_englis', 'lessons_new_life', 'lessons_new_jhlang', 'lessons_new_jhmss', 'lessons_new_jhist', 'lessons_new_whista', 'lessons_new_whistb', 'lessons_new_civics', 'lessons_new_geob', 'lessons_zukai'];
   var lState = 0; // 0:未読込 1:読込中 2:完了 3:失敗
   function ensureLessons() {
     if (lState === 2) return true;
