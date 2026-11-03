@@ -753,7 +753,7 @@ WPS.LESSONS = WPS.LESSONS || {};
   ] });
 
   // ----- 未来完了 -----
-  put('e_futperf', 2, 'fig', '<svg viewBox="0 0 240 160" class="lz-fig" role="img" aria-label="until と by のちがい。until は今から6時までずっと続く。by は6時までのどこかで1回終わればよい"><text x="8" y="14">until six(6時までずっと)</text><rect x="30" y="26" width="150" height="10" class="fl"/><line x1="10" y1="44" x2="230" y2="44" class="ax"/><path d="M223 39 L230 44 L223 49" class="ax"/><line x1="30" y1="38" x2="30" y2="50" class="ax"/><line x1="180" y1="22" x2="180" y2="52" class="cv2"/><text x="24" y="64">今</text><text x="168" y="64">6時</text><text x="70" y="64">ずっと待つ</text><text x="8" y="90">by six(6時までに)</text><line x1="10" y1="116" x2="230" y2="116" class="ax"/><path d="M223 111 L230 116 L223 121" class="ax"/><line x1="30" y1="110" x2="30" y2="122" class="ax"/><circle cx="112" cy="116" r="4" class="pt"/><line x1="180" y1="100" x2="180" y2="124" class="cv2"/><text x="84" y="106">終わる</text><text x="24" y="136">今</text><text x="168" y="136">6時</text><path d="M32 140 L178 140" class="dash"/><text x="36" y="157">この間に1回終わればよい</text></svg>');
+  put('e_futperf', 2, 'fig', '<svg viewBox="0 0 240 160" class="lz-fig" role="img" aria-label="until と by のちがい。until は今から6時までずっと続く。by は6時までのどこかで1回終わればよい"><text x="8" y="14">until six(6時までずっと)</text><rect x="30" y="26" width="150" height="10" class="fl"/><line x1="10" y1="44" x2="230" y2="44" class="ax"/><path d="M223 39 L230 44 L223 49" class="ax"/><line x1="30" y1="38" x2="30" y2="50" class="ax"/><line x1="180" y1="22" x2="180" y2="52" class="cv2"/><text x="24" y="64">今</text><text x="168" y="64">6時</text><text x="70" y="64">ずっと待つ</text><text x="8" y="90">by six(6時までに)</text><line x1="10" y1="116" x2="230" y2="116" class="ax"/><path d="M223 111 L230 116 L223 121" class="ax"/><line x1="30" y1="110" x2="30" y2="122" class="ax"/><circle cx="112" cy="116" r="4" class="pt"/><line x1="180" y1="100" x2="180" y2="124" class="cv2"/><text x="84" y="106">終わる</text><text x="24" y="134">今</text><text x="168" y="134">6時</text><path d="M32 142 L178 142" class="dash"/><text x="36" y="157">この間に1回終わればよい</text></svg>');
   put('e_futperf', 4, 'flow', { title: '3つの完了形:基準の位置だけがちがう', cols: 3, head: ['基準', '形', '例'], rows: [
     [['今', 'gr', 1, '現在完了'], ['have(has)+ 過去分詞', 'b'], ['I have finished it.', 'k']],
     [['過去', 'o', 1, '過去完了'], ['had + 過去分詞', 'b'], ['I had finished it when he came.', 'k']],
@@ -971,8 +971,7 @@ WPS.LESSONS = WPS.LESSONS || {};
     [['con(いっしょに)', 'b'], ['struct(建てる)', 'r'], ['construct', 'k', 1, '建設する']]
   ] });
   put('e_h5', 2, 'flow', { title: '接尾辞で品詞が分かる', cols: 4, head: ['名詞', '形容詞', '動詞', '副詞'], rows: [
-    [['-tion / -ment', 'r'], ['-able / -ful', 'b'], ['-ize', 'gr'], ['-ly', 'o']],
-    [['-ness / -ity', 'r'], ['-ous / -ive / -al', 'b'], ['-en / -fy', 'gr'], ['', 'e']],
+    [['-tion', 'r', 1, '-ment / -ness / -ity'], ['-able', 'b', 1, '-ful / -ous / -ive / -al'], ['-ize', 'gr', 1, '-en / -fy'], ['-ly', 'o']],
     [['decision・kindness', 'k'], ['careful・active', 'k'], ['realize・widen', 'k'], ['quickly', 'k', 1, 'friendly は形容詞']]
   ] });
   put('e_h5', 3, 'flow', { title: '品詞の変化をセットで', cols: 3, head: ['動詞', '名詞', '形容詞'], rows: [
