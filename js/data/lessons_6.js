@@ -714,3 +714,312 @@ WPS.LESSONS = WPS.LESSONS || {};
     next: '仕上げとして「入試レベル:英文法・語法の総合」や「難関レベル:英語」に取り組み、文法の知識と長文の読み方を組み合わせて使う練習をしましょう。'
   };
 })(WPS.LESSONS);
+
+/* ===== 図解の追加(各単元の既存の節に、表・手順の鎖・時間の線をつける) ===== */
+(function (L) {
+  function put(id, idx, key, val) { var s = L[id] && L[id].secs[idx]; if (!s || s.fig || s.flow || s.tmap || s.chain) return; s[key] = val; }
+
+  // ----- 文型 -----
+  put('e_h1', 0, 'flow', { title: '文の要素となれる品詞', cols: 5, rows: [
+    [['S', 'r', 1, '主語'], ['V', 'b', 1, '動詞'], ['O', 'g', 1, '目的語'], ['C', 'gr', 1, '補語'], ['M', 'k', 1, '修飾語']],
+    [['名詞・代名詞', 'r'], ['動詞', 'b'], ['名詞', 'g'], ['名詞・形容詞', 'gr'], ['副詞など', 'k', 1, '文型に数えない']],
+    [['I', 'r'], ['play', 'b'], ['tennis', 'g'], ['(なし)', 'e'], ['(in the park)', 'k', 1, '消しても文は完成']]
+  ] });
+  put('e_h1', 5, 'chain', { title: '長い文の骨組みをとる手順', items: [
+    ['手順1', 'M をかっこでくくる', '前置詞+名詞(in the park)、時・様子の副詞(yesterday・very)'],
+    ['手順2', '時制をもつ動詞 V を探す', 'V の前にある名詞のかたまりが S'],
+    ['手順3', 'V の後ろに残った語を数える', '0個 → SV/1個 → SVC か SVO(S=○○ なら SVC)/2個 → SVOO か SVOC(O is ○○ なら SVOC)'],
+    ['結果', '文型が決まる', 'S の中の M にも注意:The boy (in the car) is my brother.']
+  ] });
+  put('e_h1', 6, 'flow', { title: 'get の5文型(動詞の後ろの形で決まる)', cols: 3, head: ['文型', '例文', '後ろの形'], rows: [
+    [['SV', 'r', 1, '第1文型'], ['I got up.', 'b', 1, '起きた'], ['なし(up は M)', 'k']],
+    [['SVC', 'r', 1, '第2文型'], ['He got angry.', 'b', 1, '怒った'], ['C(S=C)', 'gr']],
+    [['SVO', 'r', 1, '第3文型'], ['I got a letter.', 'b', 1, '手紙を受け取った'], ['O(S≠O)', 'g']],
+    [['SVOO', 'r', 1, '第4文型'], ['She got me a ticket.', 'b', 1, '私にチケットを手に入れてくれた'], ['O + O(人+物)', 'g']],
+    [['SVOC', 'r', 1, '第5文型'], ['I got the work done.', 'b', 1, '仕事を終わらせた'], ['O + C(O is C)', 'gr']]
+  ] });
+
+  // ----- 過去完了 -----
+  put('e_pastperf', 1, 'flow', { title: '過去完了の4つの用法(基準は過去のある時点)', cols: 3, head: ['用法', '意味', '目印'], rows: [
+    [['完了・結果', 'r'], ['〜してしまっていた', 'b'], ['already・just', 'k']],
+    [['経験', 'r'], ['〜したことがあった', 'b'], ['never・before・once・twice', 'k']],
+    [['継続', 'r'], ['(ずっと)〜していた', 'b'], ['for・since', 'k']],
+    [['大過去', 'rr'], ['過去の出来事より前に起きた', 'b'], ['出来事の前後', 'k', 1, '時計をくれた → なくした']]
+  ] });
+  put('e_pastperf', 4, 'flow', { title: '3つの形は「基準の時点」がちがう', cols: 3, head: ['形', '基準の時点', '一緒に使う語'], rows: [
+    [['現在完了', 'b', 1, 'have + 過去分詞'], ['今', 'gr', 1, '今につながる'], ['since・for・already', 'k', 1, '× yesterday・〜 ago']],
+    [['過去形', 'o', 1, '動詞の過去形'], ['なし', 'k', 1, '今と切り離した過去'], ['yesterday・〜 ago', 'k', 1, 'はっきりした過去の時']],
+    [['過去完了', 'r', 1, 'had + 過去分詞'], ['過去のある時点', 'gr', 1, '例:said の時点'], ['by the time・when + 過去', 'k', 1, '過去の基準点がある文']]
+  ] });
+
+  // ----- 未来完了 -----
+  put('e_futperf', 2, 'fig', '<svg viewBox="0 0 240 160" class="lz-fig" role="img" aria-label="until と by のちがい。until は今から6時までずっと続く。by は6時までのどこかで1回終わればよい"><text x="8" y="14">until six(6時までずっと)</text><rect x="30" y="26" width="150" height="10" class="fl"/><line x1="10" y1="44" x2="230" y2="44" class="ax"/><path d="M223 39 L230 44 L223 49" class="ax"/><line x1="30" y1="38" x2="30" y2="50" class="ax"/><line x1="180" y1="22" x2="180" y2="52" class="cv2"/><text x="24" y="64">今</text><text x="168" y="64">6時</text><text x="70" y="64">ずっと待つ</text><text x="8" y="90">by six(6時までに)</text><line x1="10" y1="116" x2="230" y2="116" class="ax"/><path d="M223 111 L230 116 L223 121" class="ax"/><line x1="30" y1="110" x2="30" y2="122" class="ax"/><circle cx="112" cy="116" r="4" class="pt"/><line x1="180" y1="100" x2="180" y2="124" class="cv2"/><text x="84" y="106">終わる</text><text x="24" y="136">今</text><text x="168" y="136">6時</text><path d="M32 140 L178 140" class="dash"/><text x="36" y="157">この間に1回終わればよい</text></svg>');
+  put('e_futperf', 4, 'flow', { title: '3つの完了形:基準の位置だけがちがう', cols: 3, head: ['基準', '形', '例'], rows: [
+    [['今', 'gr', 1, '現在完了'], ['have(has)+ 過去分詞', 'b'], ['I have finished it.', 'k']],
+    [['過去', 'o', 1, '過去完了'], ['had + 過去分詞', 'b'], ['I had finished it when he came.', 'k']],
+    [['未来', 'r', 1, '未来完了'], ['will have + 過去分詞', 'b'], ['I will have finished it by six.', 'k']],
+    [['どれも「基準の時点までに〜した・〜している」', 'g', 3]]
+  ] });
+
+  // ----- 時・条件の副詞節 -----
+  put('e_tense', 0, 'flow', { title: '時・条件の副詞節を作る接続詞', cols: 2, head: ['時', '条件'], rows: [
+    [['when', 'b', 1, '〜するとき'], ['if', 'r', 1, 'もし〜なら']],
+    [['before / after', 'b', 1, '〜する前に/〜した後で'], ['unless', 'r', 1, '〜しない限り']],
+    [['until', 'b', 1, '〜するまで'], ['once', 'r', 1, 'いったん〜すれば']],
+    [['as soon as', 'b', 1, '〜するとすぐに'], ['in case', 'r', 1, '〜するといけないから']],
+    [['by the time', 'b', 1, '〜するころまでに'], ['', 'e']],
+    [['節の中は、未来のことでも現在形', 'g', 2, 'I will call you when I arrive at the station.']]
+  ] });
+  put('e_tense', 3, 'flow', { title: '節の種類と未来の表し方', cols: 3, head: ['節の種類', '見分け方', '未来のこと'], rows: [
+    [['副詞節', 'b', 1, '時・条件'], ['取り除いても文が完成', 'k'], ['現在形', 'gr', 1, 'if it rains tomorrow']],
+    [['名詞節', 'r', 1, '〜かどうか・いつ〜か'], ['know・ask・tell などの O', 'k'], ['will', 'rr', 1, 'if it will rain']],
+    [['形容詞節', 'o', 1, '前の名詞を説明'], ['the day などの後ろ', 'k'], ['will', 'rr', 1, 'the day when you will visit us']]
+  ] });
+  put('e_tense', 5, 'chain', { title: 'if・when の節を見分ける手順', items: [
+    ['手順1', '節を取り除いて、残りが文として完成するか', '完成する → 副詞節'],
+    ['手順2', '完成しないなら、動詞の目的語になっていないか', 'know・ask・wonder・tell の後ろ(〜かどうか・いつ〜か)→ 名詞節'],
+    ['手順3', '前に名詞があり、それを説明していないか', 'the day・the time など → 形容詞節'],
+    ['結果', '時制を決める', '副詞節は未来でも現在形/名詞節・形容詞節は will']
+  ] });
+
+  // ----- 助動詞 -----
+  put('e_aux', 1, 'flow', { title: '助動詞 + have + 過去分詞(過去への推量)', cols: 3, head: ['形', '意味', '確信'], rows: [
+    [['must have + 過去分詞', 'r'], ['〜したにちがいない', 'b'], ['高い', 'rr']],
+    [['may (might) have + 過去分詞', 'r'], ['〜したかもしれない', 'b'], ['半々', 'o']],
+    [['can\'t (couldn\'t) have + 過去分詞', 'r'], ['〜したはずがない', 'b'], ['高い(否定)', 'k']],
+    [['推量しているのは「今」、推量の内容が「過去」', 'g', 3]]
+  ] });
+  put('e_aux', 2, 'flow', { title: '後悔・非難の形(実際はその反対)', cols: 3, head: ['形', '意味', '実際は'], rows: [
+    [['should have + 過去分詞', 'r'], ['〜すべきだったのに', 'b'], ['しなかった', 'k']],
+    [['shouldn\'t have + 過去分詞', 'r'], ['〜すべきではなかったのに', 'b'], ['した', 'k']],
+    [['needn\'t have + 過去分詞', 'r'], ['〜する必要はなかったのに', 'b'], ['した', 'k']],
+    [['could have + 過去分詞', 'r'], ['〜できたのに', 'b'], ['しなかった', 'k']]
+  ] });
+
+  // ----- 不定詞・動名詞・分詞 -----
+  put('e_inf', 0, 'flow', { title: '不定詞の3用法', cols: 3, head: ['用法', '意味', 'はたらき・例'], rows: [
+    [['名詞的用法', 'r'], ['〜すること', 'b'], ['S・O・C になる', 'k', 1, 'I want to be a doctor.']],
+    [['形容詞的用法', 'o'], ['〜するための・〜すべき', 'b'], ['前の名詞を説明', 'k', 1, 'homework to do']],
+    [['副詞的用法', 'gr'], ['〜するために・〜して', 'b', 1, '目的・感情の原因'], ['動詞・形容詞を説明', 'k', 1, 'I\'m glad to see you.']]
+  ] });
+  put('e_inf', 1, 'flow', { title: '後ろに来る形は動詞で決まる', cols: 2, head: ['to 不定詞(これから)', '動名詞(すでに・実際に)'], rows: [
+    [['want・hope・wish', 'b'], ['enjoy・finish・avoid', 'r']],
+    [['decide・plan・promise', 'b'], ['mind・give up・practice', 'r']],
+    [['expect・refuse・manage', 'b'], ['consider・deny・suggest', 'r']],
+    [['I decided to study abroad.', 'k'], ['I enjoyed talking with her.', 'k']]
+  ] });
+  put('e_inf', 2, 'flow', { title: 'to と ing で意味が変わる動詞', cols: 3, head: ['動詞', 'to do(これから)', 'doing(すでに)'], rows: [
+    [['remember', 'g'], ['忘れずに〜する', 'b'], ['〜したことを覚えている', 'r']],
+    [['forget', 'g'], ['〜し忘れる', 'b'], ['〜したことを忘れる', 'r']],
+    [['try', 'g'], ['〜しようとする', 'b'], ['ためしに〜してみる', 'r']],
+    [['regret', 'g'], ['残念ながら〜する', 'b'], ['〜したことを後悔する', 'r']],
+    [['stop', 'g'], ['〜するために立ち止まる', 'b', 1, '目的の副詞的用法'], ['〜するのをやめる', 'r']]
+  ] });
+
+  // ----- 関係副詞・複合関係詞 -----
+  put('e_h4', 0, 'flow', { title: '関係副詞は先行詞の種類で選ぶ', cols: 3, head: ['関係副詞', '先行詞', '例'], rows: [
+    [['where', 'b'], ['場所', 'o', 1, 'the house など'], ['the house where I was born', 'k']],
+    [['when', 'b'], ['時', 'o', 1, 'the day など'], ['the day when we first met', 'k']],
+    [['why', 'b'], ['理由', 'o', 1, 'the reason'], ['the reason why I was late', 'k']],
+    [['how', 'b'], ['方法', 'o', 1, 'the way とはどちらか一方だけ'], ['This is how he solved the problem.', 'k']]
+  ] });
+  put('e_h4', 1, 'flow', { title: '決め手は先行詞ではなく「後ろの文」', cols: 2, head: ['後ろが完全な文', '後ろが不完全な文'], rows: [
+    [['関係副詞', 'b', 1, 'where・when・why・how'], ['関係代名詞', 'r', 1, 'who・which・that']],
+    [['副詞(M)の代わり', 'b', 1, '後ろの文は欠けない'], ['S や O の代わり', 'r', 1, 'その分だけ後ろが欠ける']],
+    [['the town where I lived ten years ago', 'k', 1, 'live は自動詞'], ['the town which I visited ten years ago', 'k', 1, 'visit の O が欠ける']],
+    [['関係副詞 = 前置詞 + which', 'g', 2, 'where I was born = in which I was born']]
+  ] });
+  put('e_h4', 4, 'flow', { title: '複合関係詞の2つの意味', cols: 2, head: ['名詞のはたらき', '譲歩(たとえ〜でも)'], rows: [
+    [['whoever', 'b', 1, '〜する人はだれでも'], ['whatever', 'r', 1, 'たとえ何が〜しても(= no matter what)']],
+    [['whatever', 'b', 1, '〜するものは何でも'], ['wherever', 'r', 1, 'どこへ〜しようとも']],
+    [['Whoever comes will be welcome.', 'k'], ['however + 形容詞・副詞 + S + V', 'r', 1, 'どんなに〜しても']]
+  ] });
+
+  // ----- 分詞構文 -----
+  put('e_h3', 0, 'chain', { title: '分詞構文の作り方', items: [
+    ['もとの文', 'When I was walking to the station, I met Ken.'],
+    ['手順1', '接続詞を消す', 'When を消す'],
+    ['手順2', '主語が主節と同じなら消す', 'I を消す(ちがうときは残す=独立分詞構文)'],
+    ['手順3', '動詞を 〜ing にする', 'was walking → Walking(be動詞は being になり、省かれる)'],
+    ['結果', 'Walking to the station, I met Ken.']
+  ] });
+  put('e_h3', 1, 'flow', { title: '分詞構文の5つの意味(文脈で決める)', cols: 3, head: ['意味', '訳し方', '例'], rows: [
+    [['時', 'r'], ['〜するとき・〜していると', 'b'], ['Opening the door, I found a cat.', 'k']],
+    [['理由', 'r'], ['〜なので', 'b'], ['Having no money, I couldn\'t buy it.', 'k']],
+    [['付帯状況', 'r'], ['〜しながら', 'b'], ['He watched TV, eating snacks.', 'k']],
+    [['条件', 'r'], ['〜すれば', 'b'], ['Turning left, you will find the post office.', 'k']],
+    [['譲歩', 'r'], ['〜だけれども', 'b'], ['Admitting what you say, I still disagree.', 'k']]
+  ] });
+  put('e_h3', 2, 'flow', { title: '受動・完了・否定の分詞構文', cols: 3, head: ['種類', '形', '例'], rows: [
+    [['受動', 'r', 1, '主語が「される」側'], ['(Being +)過去分詞', 'b', 1, 'Being はふつう省略'], ['Seen from the hill, …', 'k']],
+    [['完了', 'r', 1, '主節より前のこと'], ['Having + 過去分詞', 'b'], ['Having finished my homework, …', 'k']],
+    [['否定', 'r'], ['not・never + 分詞', 'b', 1, '分詞の直前に置く'], ['Not knowing what to say, …', 'k']]
+  ] });
+
+  // ----- 比較 -----
+  put('e_comp', 0, 'flow', { title: '倍数表現の形', cols: 3, head: ['倍率', '形', '例'], rows: [
+    [['2倍', 'b'], ['twice as 〜 as', 'r'], ['twice as many books as I do', 'k']],
+    [['半分', 'b'], ['half as 〜 as', 'r'], ['half as heavy as that one', 'k']],
+    [['X倍', 'b'], ['X times as 〜 as', 'r'], ['three times as large as that one', 'k']],
+    [['X倍(名詞で)', 'b'], ['X times the 名詞 of B', 'r'], ['three times the size of that one', 'k']]
+  ] });
+  put('e_comp', 2, 'flow', { title: '「日本でいちばん高い山」の4つの言い方', cols: 2, head: ['形', '例'], rows: [
+    [['最上級', 'r'], ['Mt. Fuji is the highest mountain in Japan.', 'k']],
+    [['比較級 + than any other + 単数名詞', 'b'], ['Mt. Fuji is higher than any other mountain in Japan.', 'k']],
+    [['No other + 単数名詞 + 比較級 than', 'b'], ['No other mountain in Japan is higher than Mt. Fuji.', 'k']],
+    [['No other + 単数名詞 + as 〜 as', 'b'], ['No other mountain in Japan is as high as Mt. Fuji.', 'k']]
+  ] });
+  put('e_comp', 3, 'flow', { title: 'no と not のちがい', cols: 2, head: ['no(気持ちをこめる)', 'not(範囲を示す)'], rows: [
+    [['no more than', 'r', 1, 'たった〜(= only)'], ['not more than', 'b', 1, '多くても〜(= at most)']],
+    [['no less than', 'r', 1, '〜も(= as much / many as)'], ['not less than', 'b', 1, '少なくとも〜(= at least)']],
+    [['no = 差がゼロ + 「少ない・多い」という気持ち', 'g', 2]]
+  ] });
+
+  // ----- 仮定法 -----
+  put('e_h2', 2, 'flow', { title: '仮定法の3つの型', cols: 3, head: ['型', 'if 節', '主節'], rows: [
+    [['仮定法過去', 'b', 1, '今の事実に反する'], ['If + S + 過去形', 'k'], ['would + 原形', 'k']],
+    [['仮定法過去完了', 'r', 1, '過去の事実に反する'], ['If + S + had + 過去分詞', 'k'], ['would + have + 過去分詞', 'k']],
+    [['混合型', 'o', 1, '過去の仮定 → 今の結果'], ['If + S + had + 過去分詞', 'k'], ['would + 原形', 'k', 1, 'now・today が目印']],
+    [['would の代わりに could・might も使える', 'g', 3]]
+  ] });
+  put('e_h2', 3, 'flow', { title: 'I wish・as if・It is time の時制', cols: 3, head: ['表現', '同じ時のこと', 'それより前のこと'], rows: [
+    [['I wish', 'b', 1, '〜ならいいのに'], ['過去形', 'k', 1, 'I wish I could speak French.'], ['過去完了', 'k', 1, 'I wish I had known the truth.']],
+    [['as if', 'b', 1, 'まるで〜かのように'], ['過去形', 'k', 1, 'as if he knew everything'], ['過去完了', 'k', 1, 'as if she had seen a ghost']],
+    [['It is time', 'b', 1, 'もう〜してよいころだ'], ['過去形', 'k', 1, 'It is time you went to bed.'], ['', 'e']]
+  ] });
+  put('e_h2', 5, 'flow', { title: 'if の省略と倒置', cols: 2, head: ['if を使う形', 'if を省いた倒置'], rows: [
+    [['If I were you, …', 'b'], ['Were I you, …', 'r']],
+    [['If I had known it, …', 'b'], ['Had I known it, …', 'r']],
+    [['If it should rain tomorrow, …', 'b'], ['Should it rain tomorrow, …', 'r']],
+    [['were・had・should が主語の前に出る(疑問文と同じ語順)', 'g', 2]]
+  ] });
+
+  // ----- 強調・倒置・話法 -----
+  put('e_emph', 0, 'flow', { title: '強調構文:何を強調するか', cols: 2, head: ['強調する語句', '強調構文'], rows: [
+    [['もとの文:Ken broke the window yesterday.', 'b', 2]],
+    [['Ken', 'r', 1, 'S'], ['It was Ken that broke the window yesterday.', 'k']],
+    [['the window', 'r', 1, 'O'], ['It was the window that Ken broke yesterday.', 'k']],
+    [['yesterday', 'r', 1, 'M'], ['It was yesterday that Ken broke the window.', 'k']],
+    [['見分け方:It was と that を消すと、完全な文に戻る', 'g', 2]]
+  ] });
+  put('e_emph', 1, 'flow', { title: '否定語を文頭に出すと疑問文の語順', cols: 2, head: ['ふつうの文', '倒置の文'], rows: [
+    [['I have never seen such a beautiful sunset.', 'b'], ['Never have I seen such a beautiful sunset.', 'r']],
+    [['I little dreamed that I would win.', 'b'], ['Little did I dream that I would win.', 'r', 1, '一般動詞は do・does・did を前に']],
+    [['否定語の後ろは「助動詞・be動詞 + S」', 'g', 2]]
+  ] });
+  put('e_emph', 4, 'flow', { title: '間接話法で変わる時・場所の語', cols: 2, head: ['直接話法', '間接話法'], rows: [
+    [['now', 'b'], ['then', 'r']],
+    [['today', 'b'], ['that day', 'r']],
+    [['tomorrow', 'b'], ['the next day', 'r']],
+    [['yesterday', 'b'], ['the day before', 'r']],
+    [['ago', 'b'], ['before', 'r']],
+    [['here / this', 'b'], ['there / that', 'r']],
+    [['時制も1つ過去へ:現在 → 過去/過去・現在完了 → 過去完了/will → would', 'g', 2]]
+  ] });
+
+  // ----- 入試レベル:英文法・語法の総合 -----
+  put('ex_eng', 0, 'chain', { title: '文法問題の解き方(4ステップ)', items: [
+    ['ステップ1', '文の骨格を見つける', '主節の S と V に印/接続詞・関係詞のかたまりはかっこでくくる'],
+    ['ステップ2', '空所の働きを決める', 'S・V・O・C・M のどれか、品詞は何か'],
+    ['ステップ3', '文法項目を特定する', '時制・仮定法・関係詞・準動詞・比較・語法のどれか'],
+    ['ステップ4', '根拠となる語を探す', '時を表す語・if・先行詞・主語との関係'],
+    ['確認', '全文を訳して意味が通るか確かめる']
+  ] });
+  put('ex_eng', 1, 'flow', { title: '時制の目印と答えの形', cols: 2, head: ['目印', '答えの形'], rows: [
+    [['by the time + 過去 / when + 過去(それより前)', 'b'], ['過去完了', 'r', 1, 'had + 過去分詞']],
+    [['by + 未来の時点 / by the time + 現在形', 'b'], ['未来完了', 'r', 1, 'will have + 過去分詞']],
+    [['since 〜 / for 〜(今まで)', 'b'], ['現在完了', 'r']],
+    [['yesterday・〜 ago', 'b'], ['過去形', 'r']],
+    [['時・条件の副詞節(if・when・as soon as)', 'b'], ['未来でも現在形', 'r']],
+    [['「〜かどうか」の if 節(名詞節)', 'b'], ['will', 'r']]
+  ] });
+  put('ex_eng', 3, 'flow', { title: '関係詞・準動詞の目印', cols: 2, rows: [
+    [['関係詞:後ろが不完全', 'r', 1, '→ 関係代名詞(who・which・that・what)'], ['関係詞:後ろが完全', 'b', 1, '→ 関係副詞(where・when・why)・接続詞 that']],
+    [['分詞:説明される名詞が「する」側', 'r', 1, '→ 〜ing'], ['分詞:「される」側', 'b', 1, '→ 過去分詞']],
+    [['使役 make・let・have', 'o', 1, 'O + 原形'], ['get', 'o', 1, 'O + to 不定詞']],
+    [['先行詞がない → what/コンマの後に that は使えない', 'g', 2]]
+  ] });
+
+  // ----- 難関レベル:英語 -----
+  put('hd_eng', 0, 'chain', { title: '並べかえ問題の手順', items: [
+    ['手順1', '動詞を決める', '主節の V になれる語(時制のある動詞)を探す'],
+    ['手順2', '主語を決める', 'その V の主語(S)'],
+    ['手順3', 'かたまりを作る', '前置詞 + 名詞・to 不定詞・関係詞節・熟語(prevent A from 〜)'],
+    ['手順4', '文型にあてはめる', 'V の語法(後ろに何をとるか)に合わせて並べる'],
+    ['確認', '日本語と照らし合わせる', '日本語の語順にひきずられない']
+  ] });
+  put('hd_eng', 2, 'flow', { title: '同格の that と関係代名詞の that', cols: 2, head: ['同格の that', '関係代名詞の that'], rows: [
+    [['後ろが完全な文', 'b'], ['後ろが不完全な文', 'r', 1, 'O などが欠ける']],
+    [['「〜という(名詞)」', 'b'], ['「〜する(名詞)」', 'r']],
+    [['The fact that he was absent surprised me.', 'k'], ['The fact that he told me was surprising.', 'k']],
+    [['同格をとる名詞:fact・news・idea・belief・possibility', 'g', 2]]
+  ] });
+  put('hd_eng', 5, 'chain', { title: '下線部和訳の手順', items: [
+    ['手順1', '時制をもつ動詞(V)をすべて探す', '接続詞・関係詞・疑問詞の数を数える(V はふつう1つ多い)'],
+    ['手順2', '主節の S と V を決める', '前置詞・関係詞節・分詞のかたまりをかっこでくくる'],
+    ['手順3', '骨組みを直訳する', 'かっこの中を説明として足していく'],
+    ['手順4', '自然な日本語に整える', '英文にない内容は足さない']
+  ] });
+
+  // ----- 語彙 -----
+  put('e_h5', 1, 'flow', { title: '接頭辞 + 語根 で意味を組み立てる', cols: 3, head: ['接頭辞', '語根', '単語'], rows: [
+    [['im(中へ)', 'b'], ['port(運ぶ)', 'r'], ['import', 'k', 1, '輸入する']],
+    [['ex(外へ)', 'b'], ['port(運ぶ)', 'r'], ['export', 'k', 1, '輸出する']],
+    [['trans(越えて)', 'b'], ['port(運ぶ)', 'r'], ['transport', 'k', 1, '輸送する']],
+    [['in(中を)', 'b'], ['spect(見る)', 'r'], ['inspect', 'k', 1, '調べる']],
+    [['pre(前もって)', 'b'], ['dict(言う)', 'r'], ['predict', 'k', 1, '予言する']],
+    [['con(いっしょに)', 'b'], ['struct(建てる)', 'r'], ['construct', 'k', 1, '建設する']]
+  ] });
+  put('e_h5', 2, 'flow', { title: '接尾辞で品詞が分かる', cols: 4, head: ['名詞', '形容詞', '動詞', '副詞'], rows: [
+    [['-tion / -ment', 'r'], ['-able / -ful', 'b'], ['-ize', 'gr'], ['-ly', 'o']],
+    [['-ness / -ity', 'r'], ['-ous / -ive / -al', 'b'], ['-en / -fy', 'gr'], ['', 'e']],
+    [['decision・kindness', 'k'], ['careful・active', 'k'], ['realize・widen', 'k'], ['quickly', 'k', 1, 'friendly は形容詞']]
+  ] });
+  put('e_h5', 3, 'flow', { title: '品詞の変化をセットで', cols: 3, head: ['動詞', '名詞', '形容詞'], rows: [
+    [['decide', 'b', 1, '決める'], ['decision', 'r', 1, '決定'], ['decisive', 'gr', 1, '決定的な']],
+    [['imagine', 'b', 1, '想像する'], ['imagination', 'r', 1, '想像力'], ['imaginary / imaginative', 'gr', 1, '想像上の/想像力豊かな']],
+    [['succeed', 'b', 1, '成功する'], ['success', 'r', 1, '成功'], ['successful', 'gr', 1, '成功した']],
+    [['succeed', 'b', 1, 'あとを継ぐ'], ['succession', 'r', 1, '連続・継承'], ['successive', 'gr', 1, '連続する']],
+    [['', 'e'], ['economy', 'r', 1, '経済'], ['economic / economical', 'gr', 1, '経済の/節約になる']]
+  ] });
+
+  // ----- 熟語 -----
+  put('e_idiom', 0, 'flow', { title: '熟語の4つの型', cols: 2, head: ['型', '例'], rows: [
+    [['動詞 + 前置詞', 'b'], ['look for・look after・depend on・deal with', 'k']],
+    [['動詞 + 副詞', 'r'], ['give up・put off・turn down・carry out', 'k']],
+    [['動詞 + 副詞 + 前置詞', 'o'], ['put up with・come up with・look down on', 'k']],
+    [['be + 形容詞 + 前置詞', 'gr'], ['be afraid of・be proud of・be familiar with', 'k']]
+  ] });
+  put('e_idiom', 3, 'flow', { title: '代名詞の目的語はどこに置くか', cols: 3, head: ['熟語の型', '名詞の目的語', '代名詞の目的語'], rows: [
+    [['動詞 + 副詞', 'r', 1, 'turn off'], ['Turn off the light. / Turn the light off.', 'k', 1, 'どちらも○'], ['Turn it off.', 'gr', 1, '× Turn off it']],
+    [['動詞 + 前置詞', 'b', 1, 'look for'], ['looking for my key', 'k'], ['looking for it', 'gr', 1, '× looking it for']]
+  ] });
+  put('e_idiom', 5, 'flow', { title: '句動詞の副詞のイメージ', cols: 3, head: ['副詞', 'イメージ', '例'], rows: [
+    [['up', 'r', 1, '上へ'], ['完全に・最後まで', 'b'], ['eat up・use up・give up', 'k']],
+    [['out', 'r', 1, '外へ'], ['現れる・最後まで・なくなる', 'b'], ['find out・carry out・run out of', 'k']],
+    [['off', 'r', 1, '離れて'], ['予定から離れる・とれる', 'b'], ['put off・call off・take off', 'k']],
+    [['down', 'r', 1, '下へ'], ['おさえる・減らす・書き留める', 'b'], ['turn down・calm down・write down', 'k']]
+  ] });
+
+  // ----- 長文読解 -----
+  put('e_h6', 0, 'flow', { title: '論理マーカーのはたらき', cols: 3, rows: [
+    [['逆接・対比', 'r', 1, '前と反対'], ['However・But・Yet・Nevertheless・On the other hand・In contrast', 'k', 2]],
+    [['追加', 'b', 1, '同じ方向に足す'], ['In addition・Moreover・Furthermore・Also・Besides', 'k', 2]],
+    [['例示', 'gr', 1, '具体例'], ['For example・For instance・such as', 'k', 2]],
+    [['因果・結論', 'o', 1, '結果・結論'], ['Therefore・Thus・As a result・Consequently・So', 'k', 2]],
+    [['言いかえ・まとめ', 'g'], ['In other words・That is・In short・In conclusion', 'k', 2]],
+    [['順序', 'k'], ['First・Second・Then・Finally', 'k', 2]]
+  ] });
+  put('e_h6', 2, 'chain', { title: '段落の3つの部分', items: [
+    ['主題', 'トピックセンテンス', '段落の主題を短く述べる(最初に来ることが多い)'],
+    ['支え', 'サポーティングセンテンス', '理由・具体例・説明(For example・In addition など)'],
+    ['結果', 'コンクルーディングセンテンス', '段落のまとめ(Therefore・Thus・In short など)']
+  ] });
+  put('e_h6', 3, 'chain', { title: '本番での読み方の手順', items: [
+    ['手順1', '設問を先に見る', '主旨・内容一致・理由など、何を問われるかを確認'],
+    ['手順2', '論理マーカーに印をつけながら読む', 'However・Therefore に丸、For example に下線など'],
+    ['手順3', 'マーカーの先を予想する', 'However → 反対のこと/For example → 具体例'],
+    ['手順4', '段落ごとに一言でまとめる', '余白に「〜の問題点」「〜の具体例」とメモ'],
+    ['手順5', '選択肢は本文の言いかえを探す', '本文と同じ単語が多いだけの選択肢に注意']
+  ] });
+})(WPS.LESSONS);

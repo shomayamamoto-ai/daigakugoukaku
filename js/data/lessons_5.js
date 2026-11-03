@@ -864,3 +864,284 @@ WPS.LESSONS = WPS.LESSONS || {};
     next: '中学英語の文法はここまでで一通りそろいました。高校の「不定詞・動名詞・分詞の基本」(e_inf)などへ進むと、ここで学んだ型がさらに広がります。'
   };
 })(WPS.LESSONS);
+
+/* ===== 図解(flow / chain / fig)を既存の節に書き足す ===== */
+(function (L) {
+  function put(id, idx, key, val) {
+    var s = L[id] && L[id].secs[idx];
+    if (s && !s.fig && !s.flow && !s.chain && !s.tmap) s[key] = val;
+  }
+  var SB = [['b', '主語'], ['r', '動詞・助動詞'], ['g', 'そのほか']];
+
+  // ---------- e_m1 be動詞 ----------
+  put('e_m1', 1, 'flow', { title: '主語と be動詞の組み合わせ(現在)', cols: 2, head: ['主語', 'be動詞'], rows: [
+    [['I', 'b', 1, '私'], ['am', 'r']],
+    [['you・複数', 'b', 1, 'we・they・Ken and I など'], ['are', 'r']],
+    [['he・she・it・単数', 'b', 1, 'Ken・this・my sister など'], ['is', 'r']]
+  ] });
+  put('e_m1', 4, 'flow', { title: 'be動詞の文の3つの形', cols: 4, rows: [
+    [['肯定文', 'k'], ['He', 'b'], ['is', 'r'], ['busy.', 'g']],
+    [['否定文', 'k'], ['He', 'b'], ['is not', 'r', 1, 'be動詞の後ろに not'], ['busy.', 'g']],
+    [['疑問文', 'k'], ['Is', 'r', 1, '主語の前へ'], ['he', 'b'], ['busy?', 'g']],
+    [['答え方', 'k'], ['Yes, he is. / No, he isn\'t.', 'gr', 3, '答えも be動詞を使う']]
+  ], legend: SB.concat([['gr', '答え']]) });
+
+  // ---------- e_pres 三単現 ----------
+  put('e_pres', 1, 'flow', { title: '3人称単数の s のつけ方', cols: 3, head: ['語の終わり', 'つけ方', '例'], rows: [
+    [['ふつう', 'k'], ['+ s', 'r'], ['plays・likes', 'b']],
+    [['s・x・sh・ch・o', 'k'], ['+ es', 'r'], ['watches・goes', 'b']],
+    [['子音字 + y', 'k'], ['y → i + es', 'r'], ['studies・tries', 'b']],
+    [['母音字 + y', 'k'], ['+ s', 'r'], ['enjoys', 'b']],
+    [['have', 'k'], ['特別な形', 'r'], ['has', 'b']]
+  ] });
+  put('e_pres', 3, 'flow', { title: '一般動詞(3人称単数)の文の3つの形', cols: 4, rows: [
+    [['肯定文', 'k'], ['She', 'b'], ['likes', 'r', 1, 's がつく'], ['dogs.', 'g']],
+    [['否定文', 'k'], ['She', 'b'], ['doesn\'t like', 'r', 1, '動詞は原形'], ['dogs.', 'g']],
+    [['疑問文', 'k'], ['Does', 'r', 1, '文の最初'], ['she', 'b'], ['like dogs?', 'g', 1, '動詞は原形']],
+    [['答え方', 'k'], ['Yes, she does. / No, she doesn\'t.', 'gr', 3]]
+  ], legend: SB.concat([['gr', '答え']]) });
+
+  // ---------- e_prog 現在進行形 ----------
+  put('e_prog', 0, 'flow', { title: '現在形と現在進行形', cols: 2, head: ['現在形', '現在進行形'], rows: [
+    [['I play tennis.', 'b'], ['I am playing tennis now.', 'r']],
+    [['ふだんの習慣', 'b', 1, '今はしていなくてもよい'], ['今まさに途中', 'r', 1, '始まっていて、まだ終わっていない']],
+    [['動詞(s がつくことも)', 'b'], ['be動詞 + ing形', 'r']],
+    [['every day・usually', 'k', 1, '合図'], ['now・Look!・Listen!', 'k', 1, '合図']]
+  ] });
+  put('e_prog', 1, 'flow', { title: 'ing形の作り方', cols: 3, head: ['語の終わり', '作り方', '例'], rows: [
+    [['ふつう', 'k'], ['+ ing', 'r'], ['playing・reading', 'b']],
+    [['発音しない e', 'k'], ['e をとって + ing', 'r'], ['making・writing', 'b']],
+    [['短い母音 + 子音字1つ', 'k'], ['最後の文字を重ねて + ing', 'r'], ['running・swimming', 'b']],
+    [['ie', 'k'], ['ie → y + ing', 'r'], ['lying', 'b']]
+  ] });
+
+  // ---------- e_can can・命令文 ----------
+  put('e_can', 1, 'flow', { title: 'can の文の3つの形', cols: 4, rows: [
+    [['肯定文', 'k'], ['She', 'b'], ['can play', 'r', 1, 'can + 原形'], ['the piano.', 'g']],
+    [['否定文', 'k'], ['She', 'b'], ['cannot play', 'r', 1, 'can\'t でもよい'], ['the piano.', 'g']],
+    [['疑問文', 'k'], ['Can', 'r', 1, '主語の前へ'], ['she', 'b'], ['play the piano?', 'g']],
+    [['答え方', 'k'], ['Yes, she can. / No, she can\'t.', 'gr', 3]]
+  ], legend: SB.concat([['gr', '答え']]) });
+  put('e_can', 4, 'flow', { title: '主語を言わない3つの文', cols: 3, head: ['命令', '禁止', 'さそい'], rows: [
+    [['動詞の原形 〜.', 'b'], ['Don\'t + 原形 〜.', 'r'], ['Let\'s + 原形 〜.', 'gr']],
+    [['Open the window.', 'b', 1, '窓を開けなさい'], ['Don\'t run.', 'r', 1, '走ってはいけない'], ['Let\'s play soccer.', 'gr', 1, 'サッカーをしよう']],
+    [['Be quiet.', 'b', 1, 'be動詞は Be'], ['Don\'t be late.', 'r', 1, '遅れないでね'], ['Yes, let\'s.', 'gr', 1, 'さそいへの答え']]
+  ] });
+
+  // ---------- e_wh 疑問詞 ----------
+  put('e_wh', 0, 'flow', { title: '疑問詞とたずねる内容', cols: 4, rows: [
+    [['What', 'b', 1, '何'], ['Who', 'b', 1, 'だれ'], ['Whose', 'b', 1, 'だれの'], ['Which', 'b', 1, 'どちら・どれ']],
+    [['Where', 'r', 1, 'どこ'], ['When', 'r', 1, 'いつ'], ['Why', 'r', 1, 'なぜ'], ['How', 'r', 1, 'どのように']]
+  ], legend: [['b', 'もの・人をたずねる'], ['r', '場所・時・理由・方法をたずねる']] });
+  put('e_wh', 3, 'flow', { title: '疑問詞 + ふつうの疑問文の語順', cols: 3, head: ['疑問詞', '疑問文の語順', ''], rows: [
+    [['What', 'r'], ['is this?', 'b', 2, 'be動詞の文']],
+    [['Where', 'r'], ['do you live?', 'b', 2, '一般動詞の文']],
+    [['What', 'r'], ['does he play?', 'b', 2, '3単現の文']],
+    [['What', 'r'], ['can you see?', 'b', 2, 'can の文']]
+  ] });
+  put('e_wh', 6, 'chain', { title: 'He lives in Kyoto. の場所をたずねる', items: [
+    ['手順1', 'Does he live in Kyoto?', 'まず Yes・No の疑問文にする'],
+    ['手順2', 'Does he live ____ ?', 'たずねたい in Kyoto を消す'],
+    ['結果', 'Where does he live?', '場所の疑問詞 Where を文頭に置く']] });
+
+  // ---------- e_m2 過去形 ----------
+  put('e_m2', 1, 'flow', { title: '規則動詞の ed のつけ方', cols: 3, head: ['語の終わり', 'つけ方', '例'], rows: [
+    [['ふつう', 'k'], ['+ ed', 'r'], ['played・watched', 'b']],
+    [['e', 'k'], ['+ d', 'r'], ['lived・used', 'b']],
+    [['子音字 + y', 'k'], ['y → i + ed', 'r'], ['studied・tried', 'b']],
+    [['短い母音 + 子音字1つ', 'k'], ['重ねて + ed', 'r'], ['stopped・planned', 'b']]
+  ] });
+  put('e_m2', 2, 'flow', { title: 'よく使う不規則動詞(原形 → 過去形)', cols: 4, rows: [
+    [['go → went', 'o'], ['come → came', 'o'], ['see → saw', 'o'], ['have → had', 'o']],
+    [['eat → ate', 'o'], ['get → got', 'o'], ['make → made', 'o'], ['buy → bought', 'o']],
+    [['read → read', 'g', 4, 'つづりは同じ・発音が「リード」→「レッド」']]
+  ] });
+  put('e_m2', 4, 'flow', { title: '一般動詞の過去の文の3つの形', cols: 4, rows: [
+    [['肯定文', 'k'], ['He', 'b'], ['watched', 'r', 1, '過去形'], ['TV.', 'g']],
+    [['否定文', 'k'], ['He', 'b'], ['didn\'t watch', 'r', 1, 'did + 原形'], ['TV.', 'g']],
+    [['疑問文', 'k'], ['Did', 'r', 1, '主語が何でも did'], ['he', 'b'], ['watch TV?', 'g', 1, '原形']],
+    [['答え方', 'k'], ['Yes, he did. / No, he didn\'t.', 'gr', 3]]
+  ], legend: SB.concat([['gr', '答え']]) });
+
+  // ---------- e_pprog 過去進行形 ----------
+  put('e_pprog', 3, 'flow', { title: '過去進行形の3つの形(did は使わない)', cols: 4, rows: [
+    [['肯定文', 'k'], ['She', 'b'], ['was cooking', 'r'], ['dinner.', 'g']],
+    [['否定文', 'k'], ['She', 'b'], ['wasn\'t cooking', 'r', 1, 'was の後ろに not'], ['dinner.', 'g']],
+    [['疑問文', 'k'], ['Was', 'r', 1, '主語の前へ'], ['she', 'b'], ['cooking dinner?', 'g']],
+    [['答え方', 'k'], ['Yes, she was. / No, she wasn\'t.', 'gr', 3]]
+  ], legend: SB.concat([['gr', '答え']]) });
+  put('e_pprog', 4, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="when の文の時間の線。おふろに入っていた長い動作の途中に、電話という短い出来事が割りこんでいる"><text x="14" y="28">was taking a bath(続く動作)</text><line x1="30" y1="48" x2="170" y2="48" class="cv"/><line x1="100" y1="48" x2="100" y2="95" class="dash"/><line x1="10" y1="95" x2="205" y2="95" class="ax"/><path d="M198 90 L206 95 L198 100" class="ax"/><circle cx="100" cy="48" r="4" class="pt"/><circle cx="100" cy="95" r="4" class="pt"/><circle cx="190" cy="95" r="4" class="pt"/><text x="60" y="115">called(過去形)</text><text x="185" y="115">今</text><text x="34" y="135">電話が割りこんだ「点」</text></svg>');
+
+  // ---------- e_fut 未来 ----------
+  put('e_fut', 2, 'flow', { title: 'will の文の3つの形', cols: 4, rows: [
+    [['肯定文', 'k'], ['He', 'b'], ['will come', 'r', 1, 'will + 原形'], ['tomorrow.', 'g']],
+    [['否定文', 'k'], ['He', 'b'], ['won\'t come', 'r', 1, 'will not の短縮'], ['tomorrow.', 'g']],
+    [['疑問文', 'k'], ['Will', 'r', 1, '主語の前へ'], ['he', 'b'], ['come tomorrow?', 'g']],
+    [['答え方', 'k'], ['Yes, he will. / No, he won\'t.', 'gr', 3]]
+  ], legend: SB.concat([['gr', '答え']]) });
+  put('e_fut', 5, 'flow', { title: 'will と be going to の使い分け', cols: 2, head: ['will', 'be going to'], rows: [
+    [['その場で決めたこと', 'r', 1, 'OK, I\'ll get it.'], ['前から決めていた予定', 'b', 1, 'I\'m going to visit Kyoto.']],
+    [['ただの予想', 'g', 2, 'It will rain tomorrow. / It is going to rain tomorrow.(どちらも使える)']],
+    [['will + 原形', 'r', 1, '主語で形は変わらない'], ['am・is・are going to + 原形', 'b', 1, 'be動詞は主語に合わせる']]
+  ] });
+
+  // ---------- e_m3 助動詞 ----------
+  put('e_m3', 0, 'flow', { title: '助動詞 + 動詞の原形', cols: 3, head: ['助動詞', 'おもな意味', '例'], rows: [
+    [['can', 'r'], ['〜できる', 'b'], ['I can swim.', 'g']],
+    [['will', 'r'], ['〜だろう・〜するつもりだ', 'b'], ['I will call you.', 'g']],
+    [['must', 'r'], ['〜しなければならない', 'b'], ['You must go.', 'g']],
+    [['may', 'r'], ['〜してもよい・〜かもしれない', 'b'], ['You may go.', 'g']],
+    [['should', 'r'], ['〜すべきだ・〜したほうがよい', 'b'], ['You should go.', 'g']]
+  ] });
+  put('e_m3', 2, 'flow', { title: '否定文で意味が分かれる', cols: 2, head: ['肯定文', '否定文'], rows: [
+    [['must 〜', 'b', 1, '〜しなければならない'], ['must not 〜', 'r', 1, '〜してはいけない(禁止)']],
+    [['have to 〜', 'b', 1, '〜しなければならない'], ['don\'t have to 〜', 'gr', 1, '〜しなくてもよい(不必要)']]
+  ], legend: [['b', 'ほぼ同じ意味'], ['r', '禁止'], ['gr', '不必要']] });
+
+  // ---------- e_m4 不定詞 ----------
+  put('e_m4', 2, 'flow', { title: '仮の主語 It の文', cols: 4, rows: [
+    [['It', 'k', 1, '仮の主語'], ['is important', 'b', 1, '…だ'], ['for us', 'g', 1, 'だれにとって(なくてもよい)'], ['to study.', 'r', 1, '本当の主語']]
+  ], legend: [['r', '本当の主語(to + 原形)'], ['k', '訳さない It']] });
+  put('e_m4', 5, 'flow', { title: '不定詞の3つの用法', cols: 3, head: ['名詞的用法', '形容詞的用法', '副詞的用法'], rows: [
+    [['〜すること', 'b'], ['〜するための・〜すべき', 'gr'], ['〜するために・〜して', 'o']],
+    [['I like to read books.', 'b'], ['something to drink', 'gr'], ['I went to the library to study.', 'o']],
+    [['取ると目的語・補語が欠ける', 'k'], ['直前の名詞を説明', 'k'], ['取っても文が成り立つ', 'k']]
+  ] });
+
+  // ---------- e_ger 動名詞 ----------
+  put('e_ger', 2, 'flow', { title: '目的語に ing をとるか to をとるか', cols: 3, head: ['ing だけ', 'to だけ', 'どちらも'], rows: [
+    [['enjoy・finish・stop', 'b'], ['want・hope・decide', 'r'], ['like・love', 'gr']],
+    [['practice・give up・mind', 'b'], ['plan・wish', 'r'], ['start・begin', 'gr']],
+    [['実際にしていること', 'b', 1, 'enjoy talking'], ['これからのこと', 'r', 1, 'decide to study'], ['意味はほぼ同じ', 'gr', 1, 'start raining = start to rain']]
+  ] });
+  put('e_ger', 4, 'flow', { title: 'stop の後ろで意味が変わる', cols: 2, head: ['stop + 〜ing', 'stop + to 〜'], rows: [
+    [['He stopped talking.', 'b'], ['He stopped to talk.', 'r']],
+    [['話すのをやめた', 'b', 1, 'talking は stop の目的語'], ['話すために立ち止まった', 'r', 1, 'to talk は目的(副詞的用法)']]
+  ] });
+
+  // ---------- e_m5 比較 ----------
+  put('e_m5', 0, 'flow', { title: '比べ方は3通り', cols: 3, head: ['比較級', '最上級', 'as 〜 as'], rows: [
+    [['2つを比べる', 'b'], ['3つ以上で一番', 'r'], ['同じくらい', 'gr']],
+    [['Tom is taller than Ken.', 'b'], ['Tom is the tallest in the class.', 'r'], ['Tom is as tall as Ken.', 'gr']],
+    [['〜er + than', 'b'], ['the + 〜est + in・of', 'r'], ['as + 原級 + as', 'gr']]
+  ] });
+  put('e_m5', 1, 'flow', { title: '原級 → 比較級 → 最上級', cols: 3, head: ['語の形', 'つけ方', '例'], rows: [
+    [['ふつう', 'k'], ['er・est', 'r'], ['tall → taller → tallest', 'b']],
+    [['e で終わる', 'k'], ['r・st', 'r'], ['large → larger → largest', 'b']],
+    [['子音字 + y', 'k'], ['ier・iest', 'r'], ['easy → easier → easiest', 'b']],
+    [['短い母音 + 子音字1つ', 'k'], ['重ねて er・est', 'r'], ['big → bigger → biggest', 'b']],
+    [['長い語', 'k'], ['more・most', 'r'], ['more interesting / most interesting', 'b']],
+    [['不規則', 'k'], ['形が変わる', 'r'], ['good・well → better → best', 'b']]
+  ] });
+
+  // ---------- e_m6 受動態 ----------
+  put('e_m6', 2, 'flow', { title: '原形 ― 過去形 ― 過去分詞', cols: 3, head: ['原形', '過去形', '過去分詞'], rows: [
+    [['clean', 'k'], ['cleaned', 'b'], ['cleaned', 'r']],
+    [['make', 'k'], ['made', 'b'], ['made', 'r']],
+    [['write', 'k'], ['wrote', 'b'], ['written', 'r']],
+    [['speak', 'k'], ['spoke', 'b'], ['spoken', 'r']],
+    [['see', 'k'], ['saw', 'b'], ['seen', 'r']],
+    [['give', 'k'], ['gave', 'b'], ['given', 'r']]
+  ] });
+  put('e_m6', 3, 'flow', { title: '能動態 → 受動態', cols: 4, rows: [
+    [['能動態', 'k'], ['Many people', 'b', 1, '主語'], ['love', 'r'], ['this song.', 'g', 1, '目的語']],
+    [['受動態', 'k'], ['This song', 'g', 1, '目的語が主語に'], ['is loved', 'r', 1, 'be動詞 + 過去分詞'], ['by many people.', 'b', 1, 'もとの主語は by の後ろ']]
+  ], legend: [['b', 'する側'], ['g', 'される側'], ['r', '動詞']] });
+
+  // ---------- e_conj 接続詞 ----------
+  put('e_conj', 0, 'flow', { title: '2つの内容の関係と接続詞', cols: 4, rows: [
+    [['and', 'b', 1, 'つけ足し'], ['but', 'b', 1, '反対'], ['or', 'b', 1, '選択'], ['so', 'b', 1, '結果']],
+    [['when', 'r', 1, '時'], ['because', 'r', 1, '理由'], ['if', 'r', 1, '条件'], ['that', 'r', 1, '〜ということ']]
+  ], legend: [['b', '対等につなぐ'], ['r', '一方を他方の一部にくみこむ']] });
+  put('e_conj', 3, 'flow', { title: 'because と so:同じ内容を2通りに', cols: 3, rows: [
+    [['I was tired,', 'k', 1, '原因'], ['so', 'r'], ['I went to bed early.', 'b', 1, '結果']],
+    [['I went to bed early', 'b', 1, '結果'], ['because', 'r'], ['I was tired.', 'k', 1, '原因']]
+  ], legend: [['k', '原因・理由'], ['b', '結果']] });
+  put('e_conj', 4, 'flow', { title: 'if・when の中は現在形', cols: 2, rows: [
+    [['If it rains tomorrow,', 'gr', 1, 'if の中:未来でも現在形'], ['I will stay home.', 'b', 1, '後半:will を使う']],
+    [['When he comes,', 'gr', 1, '× When he will come'], ['I will tell him.', 'b']]
+  ] });
+
+  // ---------- e_m7 現在完了 ----------
+  put('e_m7', 5, 'flow', { title: '現在完了の3つの意味と目じるし', cols: 3, head: ['継続', '経験', '完了'], rows: [
+    [['ずっと〜している', 'b'], ['〜したことがある', 'gr'], ['〜したところだ・もう〜した', 'r']],
+    [['for・since・How long', 'b'], ['ever・never・once・〜 times', 'gr'], ['just・already・yet', 'r']],
+    [['I have lived here for five years.', 'b'], ['I have visited Kyoto twice.', 'gr'], ['I have just finished my homework.', 'r']]
+  ] });
+
+  // ---------- e_pperfprog 現在完了進行形 ----------
+  put('e_pperfprog', 0, 'fig', '<svg viewBox="0 0 220 150" class="lz-fig" role="img" aria-label="現在完了進行形の時間の線。2時間前に始めた勉強が今もまだ続いている"><text x="10" y="28">have been studying for two hours</text><text x="48" y="52">ずっと勉強している途中</text><line x1="50" y1="65" x2="172" y2="65" class="cv"/><path d="M172 60 L180 65 L172 70" class="cv"/><line x1="50" y1="65" x2="50" y2="95" class="dash"/><line x1="180" y1="65" x2="180" y2="95" class="dash"/><line x1="10" y1="95" x2="205" y2="95" class="ax"/><path d="M198 90 L206 95 L198 100" class="ax"/><circle cx="50" cy="95" r="4" class="pt"/><circle cx="180" cy="95" r="4" class="pt"/><text x="28" y="115">2時間前</text><text x="175" y="115">今</text><text x="45" y="138">始めた動作が今も続く</text></svg>');
+  put('e_pperfprog', 2, 'flow', { title: '「ずっと〜している」の2つの形', cols: 2, head: ['状態の継続', '動作の継続'], rows: [
+    [['現在完了', 'b', 1, 'have・has + 過去分詞'], ['現在完了進行形', 'r', 1, 'have・has been + ing']],
+    [['be・know・like・want・have', 'b'], ['study・play・run・read・wait', 'r']],
+    [['I have known him for ten years.', 'b'], ['He has been playing the game for three hours.', 'r']],
+    [['live・work・stay・teach はどちらの形も使える', 'g', 2]]
+  ] });
+  put('e_pperfprog', 5, 'flow', { title: '進行形のなかま:どこで「途中」か', cols: 3, head: ['現在進行形', '過去進行形', '現在完了進行形'], rows: [
+    [['am・is・are + ing', 'b'], ['was・were + ing', 'o'], ['have・has been + ing', 'r']],
+    [['今この瞬間の途中', 'b'], ['過去のある時点の途中', 'o'], ['過去に始まり今も続く途中', 'r']],
+    [['now', 'k', 1, '目じるし'], ['at nine last night', 'k', 1, '目じるし'], ['for・since・How long', 'k', 1, '目じるし']]
+  ] });
+
+  // ---------- e_partm 分詞 ----------
+  put('e_partm', 1, 'flow', { title: '現在分詞か過去分詞か', cols: 2, head: ['名詞が「する側」', '名詞が「される側」'], rows: [
+    [['現在分詞(ing形)', 'r', 1, '〜している'], ['過去分詞', 'b', 1, '〜された・〜されている']],
+    [['a sleeping baby', 'r', 1, '眠っている赤ちゃん'], ['a broken window', 'b', 1, '割れた窓']],
+    [['The baby is sleeping.', 'k', 1, '進行形になる'], ['The window is broken.', 'k', 1, '受動態になる']]
+  ] });
+  put('e_partm', 2, 'flow', { title: '分詞を置く位置', cols: 2, rows: [
+    [['分詞1語 → 名詞の前', 'k', 2]],
+    [['a running dog', 'r', 1, '走っている犬'], ['used cars', 'r', 1, '中古車']],
+    [['分詞 + 語句(2語以上) → 名詞の後ろ', 'k', 2]],
+    [['the boy playing tennis', 'b', 1, 'テニスをしている男の子'], ['a car made in Japan', 'b', 1, '日本で作られた車']]
+  ] });
+
+  // ---------- e_m8 関係代名詞 ----------
+  put('e_m8', 1, 'chain', { title: '2つの文を関係代名詞でつなぐ', items: [
+    ['文1', 'I have a friend.', 'a friend が説明される名詞(先行詞)'],
+    ['文2', 'He lives in Canada.', 'He が who にかわる'],
+    ['結果', 'I have a friend who lives in Canada.', 'カナダに住んでいる友だち']] });
+  put('e_m8', 2, 'flow', { title: '先行詞と関係代名詞', cols: 3, head: ['先行詞', '主格', '目的格'], rows: [
+    [['人', 'k'], ['who・that', 'b'], ['that がふつう', 'r', 1, '省略できる']],
+    [['物・動物', 'k'], ['which・that', 'b'], ['which・that', 'r', 1, '省略できる']]
+  ], legend: [['b', '後ろがすぐ動詞'], ['r', '後ろが主語 + 動詞']] });
+  put('e_m8', 4, 'flow', { title: '主格と目的格の見分け方', cols: 2, head: ['主格', '目的格'], rows: [
+    [['後ろがすぐ動詞', 'b'], ['後ろが「主語 + 動詞」', 'r']],
+    [['a friend who lives in Canada', 'b'], ['the book which I bought', 'r']],
+    [['省略できない', 'k'], ['省略できる', 'k', 1, 'the woman I met yesterday']]
+  ] });
+
+  // ---------- e_indq 間接疑問 ----------
+  put('e_indq', 1, 'flow', { title: '疑問文 → 間接疑問(語順が変わる)', cols: 3, rows: [
+    [['Where does he live?', 'o', 3, 'ふつうの疑問文の語順']],
+    [['Do you know', 'k', 1, '外側の文'], ['where', 'r', 1, '疑問詞'], ['he lives?', 'b', 1, '主語 + 動詞(does は消え s がもどる)']]
+  ] });
+  put('e_indq', 4, 'flow', { title: '文全体の形は外側の文で決まる', cols: 3, rows: [
+    [['肯定文', 'k'], ['I know', 'g'], ['where he lives.', 'b']],
+    [['否定文', 'k'], ['I don\'t know', 'g'], ['where he lives.', 'b']],
+    [['疑問文', 'k'], ['Do you know', 'g'], ['where he lives?', 'b']]
+  ], legend: [['g', '外側の文(形が変わる)'], ['b', '中の部分(いつも同じ語順)']] });
+
+  // ---------- e_vocab_m 単語 ----------
+  put('e_vocab_m', 2, 'flow', { title: '品詞と例', cols: 3, rows: [
+    [['名詞', 'b', 1, 'book・teacher・music'], ['動詞', 'r', 1, 'run・eat・know'], ['形容詞', 'gr', 1, 'big・happy・beautiful']],
+    [['副詞', 'o', 1, 'fast・very・slowly'], ['前置詞', 'p', 1, 'in・on・at・for'], ['接続詞', 'k', 1, 'and・but・because']]
+  ] });
+  put('e_vocab_m', 3, 'flow', { title: '語尾で品詞を見分ける', cols: 3, head: ['名詞', '形容詞', '副詞'], rows: [
+    [['-tion・-ment・-ness', 'b'], ['-ful・-ous', 'gr'], ['-ly', 'o', 1, '(friendly は形容詞)']],
+    [['information・kindness', 'b'], ['useful・famous', 'gr'], ['quickly・slowly', 'o']],
+    [['happiness', 'b', 1, '幸せ'], ['happy', 'gr', 1, '幸せな'], ['happily', 'o', 1, '幸せに']]
+  ] });
+
+  // ---------- ex_jh3 並べかえ ----------
+  put('ex_jh3', 0, 'flow', { title: '英文の骨組み(主語 → 動詞 → 目的語 → 場所 → 時)', cols: 9, rows: [
+    [['I', 'b', 1, '私は'], ['read', 'r', 2, '読んだ'], ['a book', 'g', 2, '本を'], ['in the library', 'gr', 2, '図書館で'], ['yesterday', 'o', 2, 'きのう']],
+    [['私は → きのう → 図書館で → 本を → 読んだ', 'k', 9, '日本語では動詞が最後にくる']]
+  ], legend: [['b', '主語'], ['r', '動詞'], ['g', '目的語'], ['gr', '場所'], ['o', '時']] });
+  put('ex_jh3', 2, 'flow', { title: '名詞を後ろから説明する型', cols: 2, head: ['名詞', '後ろから説明'], rows: [
+    [['the book', 'b'], ['which I bought', 'r', 1, '関係代名詞']],
+    [['the woman', 'b'], ['I met yesterday', 'r', 1, '関係代名詞の省略']],
+    [['the boy', 'b'], ['sitting on the bench', 'r', 1, '分詞']],
+    [['something', 'b'], ['to drink', 'r', 1, '不定詞']]
+  ] });
+})(WPS.LESSONS);
