@@ -1628,3 +1628,40 @@ body { background: var(--bg); letter-spacing: .04em; }
 .crumbs a { color: var(--primary); text-decoration: none; font-weight: 700; }
 .crumbs b { color: var(--text); overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .fx { opacity: 1; transform: none; } .mk-hl { background-size: 100% 100%; animation: none; } .ripple { display: none; } }
+/* ===== テーマカラー(配色パレット)。ライト・ダーク両方 ===== */
+:root[data-palette="sage"] { --primary: #3f7a5e; --primary-weak: #e5efe8; --accent: #6f9e86; --grad: linear-gradient(115deg, #22362d, #2f4a3f 35%, #3f7a5e 70%, #8fb59a); --grad-btn: linear-gradient(135deg, #2f4a3f, #3f7a5e); }
+:root[data-palette="navy"] { --primary: #405d85; --primary-weak: #e6ebf3; --accent: #6f88ad; --grad: linear-gradient(115deg, #0f1a2e, #1c2d4a 35%, #405d85 70%, #8199bb); --grad-btn: linear-gradient(135deg, #1c2d4a, #405d85); }
+:root[data-palette="coral"] { --primary: #b94e43; --primary-weak: #f8e7e3; --accent: #d98575; --grad: linear-gradient(115deg, #3a2b2b, #4a3a3a 35%, #b94e43 70%, #e7a99a); --grad-btn: linear-gradient(135deg, #8f3b33, #b94e43); }
+:root[data-palette="grape"] { --primary: #5b4f9e; --primary-weak: #ebe9f6; --accent: #8a83c0; --grad: linear-gradient(115deg, #1e1b36, #2e2a4d 35%, #5b4f9e 70%, #b7b6d6); --grad-btn: linear-gradient(135deg, #2e2a4d, #5b4f9e); }
+:root[data-palette="amber"] { --primary: #8f5a20; --primary-weak: #f6ecdc; --accent: #b98b45; --grad: linear-gradient(115deg, #231f1b, #352f2a 35%, #8f5a20 70%, #d2ae6e); --grad-btn: linear-gradient(135deg, #5e3d17, #8f5a20); }
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="sage"]:not([data-theme="light"]) { --primary: #8fc4a7; --primary-weak: #1d3329; --accent: #8fb59a; }
+  :root[data-palette="navy"]:not([data-theme="light"]) { --primary: #9cb3d6; --primary-weak: #1d2a44; --accent: #8199bb; }
+  :root[data-palette="coral"]:not([data-theme="light"]) { --primary: #f0a596; --primary-weak: #3a2321; --accent: #e7a99a; }
+  :root[data-palette="grape"]:not([data-theme="light"]) { --primary: #b9b2ec; --primary-weak: #26224a; --accent: #b7b6d6; }
+  :root[data-palette="amber"]:not([data-theme="light"]) { --primary: #e0b679; --primary-weak: #33281a; --accent: #d2ae6e; }
+}
+.pal-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 640px) { .pal-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.pal { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.pal.on { border-color: var(--primary); }
+.pal-sw { display: flex; height: 28px; border-radius: 8px; overflow: hidden; }
+.pal-sw i { flex: 1; }
+.pal b { font-size: .85rem; }
+/* ===== 「AIっぽさをなくす」:改行・ジャンプ率・字間・英数字 ===== */
+/* 01 改行:単語の途中で折り返さず、意味の区切りで改行(対応ブラウザ) */
+h1, h2, h3, .bubble, .q-text, .wq-qt, .rj-q, .vt-prompt, .btn, .page-band .pb-ja, .hint, p { word-break: auto-phrase; }
+h1, h2, h3, .page-band .pb-ja { text-wrap: balance; }
+p, .bubble, .hint { text-wrap: pretty; }
+/* 04 英数字:数字の幅をそろえ、日本語と高さをそろえる */
+.big-num, .kpi-v, .vt-kpi b, .sc-num, .lc b, .vt-ring b, .st-top b, .wq-ph span, .q-bar span { font-variant-numeric: tabular-nums lining-nums; }
+/* 05 字間:見出しは詰めすぎず開けすぎない */
+h1, h2 { letter-spacing: .02em; }
+/* 89 スケール:押している間だけ少し縮む */
+.btn:active:not(:disabled), .choice:active:not(:disabled), .vt-ch:active:not(:disabled), .seg-btn:active, .vt-mode:active, .sp-choice:active { transform: scale(.97); }
+.btn, .choice, .vt-ch { transition: transform .12s ease-out, background-color .2s, border-color .2s, color .2s; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.sp-choice.rec { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 7%, var(--card)); }
+.sp-badge { background: var(--primary); }
+:root[data-palette]:not([data-palette="sky"]) .bubble { background: var(--primary-weak); }
+:root[data-palette]:not([data-palette="sky"]) .bubble::before { border-right-color: var(--primary-weak); }

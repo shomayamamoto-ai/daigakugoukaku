@@ -341,12 +341,15 @@
     return '<section class="card hero">' + owl3dSlot('owlOnboard', 'cheer') +
       '<h1>はじめまして！ ぼくは<span class="brand">ピンポ</span></h1>' +
       '<p>きみの「本当の苦手」をピンポイントで見つけて、志望校までの近道をいっしょに作る、見習いスナイパーのフクロウだよ。<br>まずは、きみのことを教えてね。</p></section>' +
-      '<section class="card">' + profileForm(S.get().profile, 'はじめる 🎯') + '</section>' +
+      '<section class="card">' + profileForm(S.get().profile, '登録して診断テストへ進む') + '</section>' +
       '<section class="card"><details><summary>別の端末で使っていたデータを引き継ぐ</summary>' +
       '<label>引き継ぎコード<input id="obTransfer" placeholder="前の端末の「設定 → 引き継ぎコード」"></label><button class="btn" id="obTransferBtn">引き継ぐ</button></details></section>';
   }
   renderOnboard.after = function () {
     mountOwl('owlOnboard', true);
+    // ニックネームを入れるまでボタンを押せないようにする(押した後に何が起きるかも文言で示す)
+    var nm = view.querySelector('#profileForm [name=name]'), sb = view.querySelector('#profileForm [type=submit]');
+    if (nm && sb) { var chk = function () { sb.disabled = !nm.value.trim(); }; nm.addEventListener('input', chk); chk(); }
     bindProfileForm(function () { toast('よろしくね！ まずは診断テストから始めよう'); go('#test'); });
     document.getElementById('obTransferBtn').addEventListener('click', function () {
       try {
@@ -1946,6 +1949,9 @@
     var perm = WPS.Notify.permission();
     var permLabel = { granted: '✅ 許可されています', denied: '⛔ ブロックされています(ブラウザの設定から許可してください)', default: '未設定', unsupported: 'このブラウザは通知に対応していません' }[perm];
     var html = '<section class="card"><h2>プロフィール・志望校</h2>' + profileForm(p, '保存する') + '</section>';
+    html += '<section class="card"><h2>テーマカラー</h2><p class="muted small">アプリ全体の色を選べます。文字の読みやすさ(コントラスト)は、どの色でも保つようにしています。</p><div class="pal-list">' + PALETTES.map(function (x) {
+      return '<button type="button" class="pal' + ((p.palette || 'sky') === x[0] ? ' on' : '') + '" data-pal="' + x[0] + '" aria-pressed="' + ((p.palette || 'sky') === x[0]) + '"><span class="pal-sw">' + x[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><b>' + x[1] + '</b></button>';
+    }).join('') + '</div></section>';
     var tg = R.target();
     html += '<section class="card"><h2>📊 配点を募集要項に合わせる</h2>' +
       '<p class="muted">志望校・学部の募集要項にある配点を見て、科目ごとの重要度を入れてください。一番配点が高い科目を100にして、ほかを割合で入れます。<br>例:英語200点・数学200点・国語100点 → 英語100、数学100、国語50(受験しない科目は0)</p>' +
@@ -2207,7 +2213,7 @@
     // スクロールでフェードイン(画面に入ったカードから)
     if (!REDUCE && 'IntersectionObserver' in window) {
       if (io) io.disconnect();
-      io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('fx-on'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+      io = new IntersectionObserver(function (es) { var k = 0; es.forEach(function (e) { if (e.isIntersecting) { e.target.style.transitionDelay = Math.min(k++, 4) * 70 + 'ms'; e.target.classList.add('fx-on'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
       [].slice.call(view.querySelectorAll('section.card, .page-toc')).forEach(function (el, i) {
         if (el.getBoundingClientRect().top < window.innerHeight) return; // 最初から見えているものは動かさない
         el.classList.add('fx'); io.observe(el);
@@ -2239,9 +2245,38 @@
     t.classList.add('rp-host'); t.appendChild(sp);
     setTimeout(function () { sp.remove(); }, 550);
   }, { passive: true });
+  /* ---------- テーマカラー(配色パレット) ---------- */
+  var PALETTES = [
+    ['sky', '晴天スカイ(標準)', ['#04143a', '#1146d6', '#0fa3b8']],
+    ['sage', '朝露セージ', ['#2f4a3f', '#3f7a5e', '#8fb59a']],
+    ['navy', '月光ネイビー', ['#1c2d4a', '#405d85', '#8199bb']],
+    ['coral', '珊瑚の砂浜', ['#4a3a3a', '#c4574b', '#e7a99a']],
+    ['grape', '霜のブルーベリー', ['#2e2a4d', '#5b4f9e', '#b7b6d6']],
+    ['amber', 'シネマアンバー', ['#352f2a', '#9a5f22', '#d2ae6e']]
+  ];
+  function applyPalette() { var p = S.get().profile.palette || 'sky'; document.documentElement.setAttribute('data-palette', p); }
+  WPS.applyPalette = applyPalette;
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-pal]'); if (!b) return;
+    S.get().profile.palette = b.getAttribute('data-pal'); S.save(); applyPalette();
+    view.querySelectorAll('[data-pal]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+    toast('テーマカラーを「' + b.querySelector('b').textContent + '」にしました');
+  });
+  // 数字を0から増やして見せる(カウントアップ。整数だけ・0.6秒)
+  function countUp() {
+    if (REDUCE) return;
+    view.querySelectorAll('.big-num, .kpi-v, .vt-kpi b, .sc-num, .lc b, .vt-ring b, .st-top b').forEach(function (el) {
+      var tn = [].slice.call(el.childNodes).filter(function (n) { return n.nodeType === 3 && /^\s*\d[\d,]*\s*$/.test(n.nodeValue); })[0];
+      if (!tn) return;
+      var end = +tn.nodeValue.replace(/[^\d]/g, ''), comma = tn.nodeValue.indexOf(',') >= 0; if (end < 2) return;
+      var t0 = performance.now(), dur = 600;
+      (function step(t) { var k = Math.min(1, (t - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - k, 3))); tn.nodeValue = comma ? v.toLocaleString() : String(v); if (k < 1) requestAnimationFrame(step); })(t0);
+    });
+  }
   /* ---------- 長いページの目次と「上へ」ボタン ---------- */
   function pageTools() {
     motion();
+    countUp();
     var old = document.getElementById('toTop'); if (old) old.remove();
     var hs = [].slice.call(view.querySelectorAll('section.card > h2:first-child, section.card > .row-between > h2, section.card > div > h2:first-child')).filter(function (x) { return x.offsetParent !== null && x.textContent.trim(); });
     if (document.documentElement.scrollHeight > window.innerHeight * 3) {
@@ -2767,6 +2802,7 @@
   /* ---------- 起動 ---------- */
   function boot() {
     view = document.getElementById('view');
+    applyPalette();
     if (WPS.univSchools) WPS.univSchools(); // 大学データの大学を志望校として使えるようにする
     S.load();
     WPS.Streak.maintain();
