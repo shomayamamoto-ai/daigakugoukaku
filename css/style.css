@@ -1925,3 +1925,9 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .nav a { font-size: 10px; letter-spacing: -.02em; }
 .nav a.nav-manual { letter-spacing: -.06em; }
 @media (min-width: 420px) { .nav a { font-size: 11px; letter-spacing: 0; } }
+
+/* ===== ホームのタブ(今日の学習/診断・練習) ===== */
+.hub-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.hub-tabs a { text-align: center; padding: 10px 6px; border-radius: 10px; font-weight: 700; font-size: 15px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.hub-tabs a.on { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(17, 70, 214, .25); }
+.hub-tabs a:not(.on):hover { background: var(--primary-weak); color: var(--primary); }
