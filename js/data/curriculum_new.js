@@ -46,6 +46,27 @@
       { name: '宇宙', units: ['g4_space'], topics: ['太陽・恒星・銀河・宇宙の進化'] }
     ]
   };
+  // 案内だけだった科目(共通テスト国語・リスニング・英語資格・科学と人間生活)
+  AREAS.jpn_kyotsu = [{ name: '大問別の解き方', units: ['kt_ron', 'kt_bun', 'kt_jitsu', 'kt_ko', 'kt_kan'], topics: ['評論', '文学的文章', '実用的文章・複数資料', '古文', '漢文'] }];
+  AREAS.eng_lis = [{ name: 'リスニング', units: ['el_sound', 'el_short', 'el_long', 'el_strategy'], topics: ['音の変化', '短い対話', '長い会話・講義', '共通テストの解き方'] }];
+  AREAS.eng_shikaku = [{ name: '英語資格・検定試験', units: ['ek_eiken', 'ek_writing', 'ek_speaking'], topics: ['英検の級と出題', '英作文(意見・要約)', '面接・スピーキング'] }];
+  AREAS.sci_life = [{ name: '科学と人間生活', units: ['sl_light', 'sl_matter', 'sl_life', 'sl_space'], topics: ['光や熱の科学', '物質の科学', '生命の科学', '宇宙や地球の科学'] }];
+  // 中学の科目に、あとから単元を足す(すでにある章のうしろに章を追加)
+  var ADD = {
+    eng_jh: [{ name: '会話・読む・書く', units: ['e_talk', 'e_prep', 'e_read', 'e_write'], topics: ['会話表現', '前置詞・代名詞', '長文読解', '英作文'] }],
+    jpn_jh: [{ name: '読解と作文', units: ['j_setsumei', 'j_shosetsu', 'j_classic', 'j_sakubun'], topics: ['説明的文章', '文学的文章(小説)', '古典作品の読解', '作文・条件作文'] }],
+    math_jh: [{ name: '証明と規則性', units: ['m_proof', 'm_pattern'], topics: ['証明の書き方', '規則性・数の並び'] }],
+    sci_jh1: [{ name: '電流と磁界', units: ['s_mag'], topics: ['電流がつくる磁界・電磁誘導'] }],
+    sci_jh2: [{ name: '自然と人間', units: ['s_env'], topics: ['生態系・環境・エネルギー資源'] }],
+    soc_jgeo: [{ name: '日本の諸地域', units: ['c_jregion'], topics: ['九州〜北海道の地域の特色'] }],
+    soc_jciv: [{ name: '人権と憲法', units: ['c_jinken'], topics: ['日本国憲法と基本的人権'] }]
+  };
+  (WPS.CURRICULUM || []).forEach(function (g) {
+    (g.courses || []).forEach(function (c) {
+      if (!ADD[c.id] || !c.areas) return;
+      ADD[c.id].forEach(function (a) { var us = a.units.filter(function (id) { return WPS.UNIT_MAP && WPS.UNIT_MAP[id]; }); if (us.length) c.areas.push({ name: a.name, topics: a.topics, units: us }); });
+    });
+  });
   (WPS.CURRICULUM || []).forEach(function (g) {
     (g.courses || []).forEach(function (c) {
       if (!AREAS[c.id]) return;
