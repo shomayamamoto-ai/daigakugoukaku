@@ -765,4 +765,257 @@
     ]
   });
 
+  /* ===== hd_eng 難関大の英語 ===== */
+  add('hd_eng', {
+    secs: [
+      {
+        h: 'さらに深く:名詞構文 ― 名詞を「文」に戻して訳す',
+        t: '難関大の英文には、動詞や形容詞を名詞に変えて、1つの名詞のかたまりに情報を詰めこんだ表現がよく出ます。これを【名詞構文】といいます。直訳すると不自然な日本語になるので、【名詞を動詞に、形容詞を副詞に戻して】、文の形にして訳すのがコツです。\n例1:His sudden arrival surprised us.\n直訳:彼の突然の到着が、私たちを驚かせた。\n文に戻す:He arrived suddenly.(彼が突然やって来た)\n自然な訳:彼が突然やって来たので、私たちは驚いた。\nここでは、his が arrive の主語、sudden(形容詞)が suddenly(副詞)にあたります。\n例2:The discovery of penicillin saved millions of lives.\n文に戻す:Someone discovered penicillin.(ペニシリンが発見された)\n自然な訳:ペニシリンが発見されたことで、何百万もの命が救われた。\n名詞 + of + 名詞 の of の後ろは、【もとの動詞の主語】のことも、【目的語】のこともあります。the arrival of the train(電車が到着すること)は主語の関係、the discovery of penicillin(ペニシリンを発見すること)は目的語の関係です。見分けるには、もとの動詞が自動詞(arrive)か他動詞(discover)かを考えます。\n名詞構文は、無生物主語の文とよくいっしょに出てきます。どちらも「何が起きたか」を動詞に戻し、「〜したので」「〜したことで」と、人や出来事を主語にして訳すと、自然な日本語になります。',
+        key: '名詞構文は、名詞を動詞に、形容詞を副詞に戻して「〜が…すること」と文の形にして訳す。of の後ろが主語か目的語かは、もとの動詞で決まる。',
+        ex: [{
+          q: '自然な日本語に訳そう。\nThe rapid spread of smartphones has changed the way young people communicate.',
+          hint: 'The rapid spread of smartphones を「〜が…すること」に戻そう。',
+          steps: [
+            '主語は The rapid spread of smartphones で、動詞 spread(広がる)が名詞になっています。',
+            '文に戻すと、Smartphones spread rapidly.(スマートフォンが急速に広まった)です。of の後ろの smartphones が主語の関係、rapid が副詞 rapidly にあたります。',
+            '述語は has changed、目的語は the way young people communicate(若者が意思を伝え合う方法)です。the way の後ろは「〜する方法」を表す節です。',
+            '無生物主語なので、「スマートフォンが急速に広まったことで、〜が変わった」と、出来事を理由のように訳すと自然です。'
+          ],
+          a: 'スマートフォンが急速に広まったことで、若者どうしの意思の伝え合い方が変わった。',
+          check: '直訳の「スマートフォンの急速な広がりは、若者が伝え合う方法を変えた」と比べて、意味が同じかを確かめましょう。採点では、構造が正しくとれていれば、自然な日本語に直したほうが評価されやすくなります。'
+        }]
+      },
+      {
+        h: '実戦演習:誤読しやすい否定の慣用表現',
+        t: '和訳問題では、否定語をふくむのに意味が肯定になる表現や、否定語がないのに意味が否定になる表現がねらわれます。形だけで判断すると、意味を正反対にとってしまう危険があります。\n代表的なものは、【anything but A】(決して A ではない)、【nothing but A】(A にすぎない・A だけ)、【far from A】(決して A ではない)、【cannot(never)… without 〜ing】(…すると必ず〜する)、【never fail to 〜】(必ず〜する)です。\n戦略は、①but・without・fail・from などの語を見たら、慣用表現ではないかを疑う、②but は「〜以外」、without は「〜なしで」と、部品の意味から直訳を作る、③直訳を自然な日本語に整える、の3段階です。直訳の段階で意味を確かめるので、丸暗記した訳をまちがえて当てはめることを防げます。',
+        key: 'but は「〜以外」、without は「〜なしで」と部品から直訳を作ると、anything but・nothing but・cannot … without の意味を取りちがえない。',
+        ex: [
+          {
+            q: '2つの文を和訳し、意味のちがいを説明しよう。\n(1) He is anything but a coward.\n(2) He is nothing but a child.',
+            hint: 'but は「〜以外」。anything と nothing のちがいは?',
+            steps: [
+              'どちらの but も、「〜以外」という意味の前置詞です。',
+              '(1) anything but a coward は、直訳すると「おくびょう者以外の何か」です。「何であっても、おくびょう者だけはちがう」ということになります。',
+              'そこで (1) は「彼は決しておくびょう者ではない」と訳します。',
+              '(2) nothing but a child は、「子ども以外の何ものでもない」です。つまり「ただの子どもにすぎない」と訳します。',
+              '同じ but でも、anything(何でも)とつくか、nothing(何もない)とつくかで、意味が正反対になります。'
+            ],
+            a: '(1) 彼は決しておくびょう者ではない。\n(2) 彼はほんの子どもにすぎない。\n(1) は否定(〜ではない)、(2) は限定(〜だけだ)の意味になる。',
+            check: '(1) は He is far from a coward. / He is not a coward at all. と、(2) は He is only a child. と言いかえられます。言いかえて意味が通るかで確かめましょう。'
+          },
+          {
+            q: '和訳しよう。\nI never look at this photo without remembering my school days.',
+            hint: 'never … without 〜 は、否定が2つ重なっている。',
+            steps: [
+              'never(決して〜ない)と without(〜なしで)の、2つの否定が重なっています。',
+              '直訳すると、「学生時代を思い出すことなしに、この写真を見ることは決してない」です。',
+              '否定が2つ重なると、強い肯定になります。「この写真を見れば、必ず学生時代を思い出す」ということです。',
+              '自然な日本語では、「この写真を見るたびに、学生時代を思い出す」と訳せます。'
+            ],
+            a: 'この写真を見るたびに、私は必ず学生時代を思い出す。',
+            check: 'Whenever I look at this photo, I remember my school days. と言いかえて、意味が同じになることを確かめましょう。「思い出さずに見ることはない」と直訳のままにすると、意味は正しくても日本語として不自然です。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '名詞構文に注意して、自然な日本語に訳そう。\nHer refusal to help us surprised everyone.', a: '彼女が私たちを手伝うのを断ったので、みんな驚いた。', exp: '主語の Her refusal to help us は、動詞 refuse(断る)が名詞 refusal になった名詞構文です。文に戻すと、She refused to help us.(彼女は私たちを手伝うのを断った)で、her が refuse の主語にあたります。refuse to 〜 の形が、名詞になっても refusal to 〜 と残っている点にも注目しましょう。直訳の「彼女の、私たちを手伝うことの拒否が、みんなを驚かせた」は不自然なので、出来事を理由にして「〜したので、みんな驚いた」と訳します。' },
+      { lv: 3, q: '和訳しよう。\nHis explanation was far from satisfactory.', a: '彼の説明は、決して満足のいくものではなかった。', exp: 'far from 〜 は、直訳すると「〜から遠く離れている」で、そこから「決して〜ではない・〜にはほど遠い」という強い否定の意味になります。not などの否定語がないのに否定の意味になるので、見落としやすい表現です。far from の後ろには、名詞・形容詞・動名詞が来ます。satisfactory は「満足のいく・十分な」という形容詞で、satisfied(満足した:人の気持ち)と使い分けます。far には「遠い」のほか、比較級を強める「ずっと」(far better)の使い方もあります。' },
+      { lv: 3, q: '名詞構文に注意して、自然な日本語に訳そう。\nThe failure of the plan was due to a lack of careful preparation.', a: 'その計画が失敗したのは、注意深い準備が足りなかったからだ。', exp: 'この文には、名詞構文が2つあります。1つ目の The failure of the plan は、The plan failed.(計画が失敗した)に戻せます。of の後ろの the plan は、自動詞 fail の主語の関係です。2つ目の a lack of careful preparation は、People did not prepare carefully enough.(十分注意深く準備しなかった)という内容で、lack は「不足・欠けていること」です。be due to 〜 は「〜が原因である」なので、「計画が失敗したのは、〜が足りなかったからだ」と原因を示す形で訳します。' }
+    ],
+    faq: [
+      ['名詞構文は、どんな名詞のときに出てきやすいの?', '動詞や形容詞から作られた名詞のときです。arrival(到着 ← arrive)、discovery(発見 ← discover)、decision(決定 ← decide)、refusal(拒否 ← refuse)、failure(失敗 ← fail)、development(発達 ← develop)、importance(重要性 ← important)などが代表的です。-al・-ery・-sion・-ure・-ment・-ance などの語尾がついた名詞を見たら、もとの動詞・形容詞に戻して「〜が…すること」と読めないかを試しましょう。'],
+      ['anything but と nothing but は、なぜ意味が逆になるの?', 'どちらの but も「〜以外」の意味で、ちがいは前の語にあります。anything but A は「A 以外なら何でも(あてはまる)」なので、A だけは当てはまらない、つまり「決して A ではない」になります。nothing but A は「A 以外は何もない」なので、「A だけ・A にすぎない」になります。all but A(A 以外はすべて → ほとんど A)という形もあり、He all but gave up.(彼はほとんどあきらめかけた)のように使います。部品から考えれば、丸暗記しなくても意味を導けます。']
+    ]
+  });
+
+  /* ===== e_h5 語彙の増やし方 ===== */
+  add('e_h5', {
+    secs: [
+      {
+        h: 'さらに深く:コロケーション ― 単語の「相性」を覚える',
+        t: '単語の意味を知っていても、英作文や語法問題でまちがえることがあります。その原因の多くは、【コロケーション】(よくいっしょに使われる語の組み合わせ)を知らないことです。\n日本語の言い方をそのまま英語にすると、不自然になる組み合わせがたくさんあります。\n・「値段が高い」→ ○ a high price/× an expensive price(expensive は物について使い、price には high を使う)\n・「強い雨」→ ○ heavy rain/× strong rain(雨や交通量は heavy、風は strong)\n・「薬を飲む」→ ○ take medicine/× drink medicine\n・「夢を見る」→ ○ have a dream/× see a dream\n・「まちがいをする」→ ○ make a mistake/× do a mistake\nなぜこうした相性があるのでしょうか。その一部は、動詞の中心のイメージで説明できます。make は「(新しく)作り出す」なので、make a decision(決定する)・make an effort(努力する)・make a mistake と、何かを生み出すものと結びつきます。take は「取りこむ」なので、take a break(休憩をとる)・take medicine・take a photo と結びつきます。do は「作業をこなす」なので、do homework・do the dishes(皿洗いをする)・do damage(損害を与える)と結びつきます。\nただし、すべてをイメージで説明できるわけではありません。単語帳で新しい語を覚えるときは、日本語訳だけでなく、【例文の中の組み合わせ】をかたまりで覚えましょう。英作文では、自信のない組み合わせを避け、確かに知っているコロケーションを使うことが、減点を防ぐいちばんの方法です。',
+        key: '単語には「相性のよい組み合わせ」(コロケーション)がある。日本語の直訳ではなく、make a mistake・heavy rain のように、かたまりで覚える。',
+        ex: [{
+          q: '正しいほうを選ぼう。\n(1) The price of this bag is very (expensive / high).\n(2) We had (strong / heavy) rain last night.\n(3) Don\'t forget to (drink / take) this medicine after meals.',
+          hint: '日本語の「高い」「強い」「飲む」につられないように。',
+          steps: [
+            '(1) 主語は the price(値段)です。値段が「高い・安い」は high・low で表し、expensive は「(物が)高価な」の意味で物について使います。答えは high です。',
+            '(2) 雨の量が多いことは heavy rain と言います。strong は wind(風)などに使います。答えは heavy です。',
+            '(3) 薬を「飲む」は、液体の薬であっても take medicine と言うのが基本です。take には「体に取りこむ」イメージがあります。答えは take です。',
+            'どれも、日本語の言い方をそのまま英語にすると誤りになる組み合わせです。'
+          ],
+          a: '(1) high(このかばんの値段はとても高い) (2) heavy(昨夜は大雨だった) (3) take(食後にこの薬を飲むのを忘れないで)',
+          check: '(1) は This bag is very expensive. と、主語を物にすれば expensive が使えます。主語が何かを確かめれば、high と expensive を正しく使い分けられます。'
+        }]
+      },
+      {
+        h: '実戦演習:長文の中の多義語の意味を決める',
+        t: '入試の長文では、figure・account・observe・meet のように、よく知っているつもりの単語が、ちがう意味で使われます。下線部の語の意味を問う問題や、内容一致の選択肢の言いかえで、その意味が問われます。\n戦略は、①その語の品詞を、文の中の位置から決める(名詞か動詞か)、②目的語や前置詞など、いっしょに使われている語(コロケーション)を見る、③知っている意味を1つずつ当てはめて、文脈に合うものを選ぶ、の3段階です。\n落とし穴は、最初に覚えた意味(figure=姿、account=口座)のまま読んで、意味の通らない文を「そういうものだ」と受け入れてしまうことです。訳がおかしいと感じたら、別の意味を疑いましょう。',
+        key: '多義語は、品詞 → いっしょに使われる語 → 文脈、の順で意味を決める。訳が不自然なら、別の意味を疑う。',
+        ex: [
+          {
+            q: '次の英文の (1) figures (2) account の意味を答えよう。\nThe government says the number of tourists rose sharply last year, and the (1) figures in its report support this. However, the report does not take the weak yen into (2) account.\n(和訳は解答で示す)',
+            hint: '(2) は take A into account という組み合わせになっている。',
+            steps: [
+              '(1) figures は、the number of tourists rose(旅行者の数が増えた)の話の中で、「報告書の中の〜がこれを裏づけている」と使われています。',
+              'figure には「姿・人物・図」などの意味もありますが、ここでは数の話なので、「数字・統計」の意味が文脈に合います。',
+              '(2) account は、take the weak yen into account という形で使われています。take A into account は「A を考慮に入れる」という決まった組み合わせです。',
+              'したがって、account は「考慮」の意味です。「口座」や「説明」では、文の意味が通りません。'
+            ],
+            a: '(1) 数字・統計(数値) (2) 考慮(take A into account:A を考慮に入れる)\n和訳:政府は昨年旅行者の数が急増したと言っており、報告書の数字もそれを裏づけている。しかし、その報告書は円安を考慮に入れていない。',
+            check: 'account には、「口座」(a bank account)、「説明・報告」(give an account of 〜)、account for(〜を説明する・〜の割合をしめる)などの意味があります。いっしょに使われる語で意味が決まることを確かめましょう。'
+          },
+          {
+            q: '次の2文の observe の意味を、それぞれ答えよう。\n(1) Scientists observed the behavior of the birds for three years.\n(2) All drivers must observe the traffic rules.',
+            hint: '目的語が何かに注目しよう。',
+            steps: [
+              'どちらの observe も、後ろに目的語をとる他動詞です。目的語のちがいに注目します。',
+              '(1) の目的語は the behavior of the birds(鳥の行動)で、主語は scientists(科学者)です。3年間にわたって注意深く見ていたので、「観察する」の意味です。',
+              '(2) の目的語は the traffic rules(交通規則)で、must(〜しなければならない)とともに使われています。規則は「見る」ものではなく、「守る」ものです。',
+              'したがって、(2) は「(規則などを)守る」の意味です。'
+            ],
+            a: '(1) 観察する(科学者たちは3年間、その鳥の行動を観察した) (2) 守る(すべての運転者は交通規則を守らなければならない)',
+            check: 'observe の名詞形も、意味によって分かれます。「観察」は observation、「(規則の)順守」は observance です。名詞形を思い浮かべると、意味のちがいを確かめられます。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に入る最も適切な動詞を選ぼう。\nYou need to ( ) a decision by tomorrow.\n① do ② make ③ take ④ get', a: '② make', exp: '「決定する・決心する」は make a decision と言います。make には「新しく作り出す」というイメージがあり、決定・努力(make an effort)・まちがい(make a mistake)・進歩(make progress)など、何かを生み出すものと結びつきます。do は do homework・do the dishes のように「作業をこなす」もの、take は take a break・take a photo のように「取りこむ」ものと結びつきます。decision は動詞 decide の名詞形で、形容詞形は decisive(決定的な・決断力のある)です。' },
+      { lv: 3, q: '下線の語に注意して和訳しよう。\nMy father is a heavy sleeper, so the alarm clock did not wake him up.', a: '父は眠りが深い人なので、目覚まし時計が鳴っても起きなかった。', exp: 'heavy sleeper は「眠りが深い人(なかなか起きない人)」という意味のコロケーションです。heavy は「重い」が中心の意味ですが、量や程度が大きいことも表し、heavy rain(大雨)、heavy traffic(交通渋滞)、a heavy smoker(たくさんたばこを吸う人)のように使います。反対に、眠りが浅い人は light sleeper です。直訳の「重い眠る人」では意味が通らないので、heavy が程度を表していると考えます。wake 人 up は「(人)を起こす」という意味です。' },
+      { lv: 3, q: '下線の語の意味を答えよう。\nThis new bus service will meet the needs of elderly people in the town.', a: '(必要・要求などを)満たす', exp: 'meet の中心の意味は「会う」ですが、目的語が needs(必要)・demands(要求)・expectations(期待)などのときは、「満たす・応える」という意味になります。「必要と出会う」→「必要にぴったり合う」と考えると分かりやすいでしょう。この文は「この新しいバスの運行は、町の高齢者の必要を満たすだろう」という意味です。meet には、meet a deadline(締め切りに間に合わせる)という使い方もあります。service は「(バスなどの)運行・便」の意味で、「奉仕」だけではない点にも注意しましょう。' }
+    ],
+    faq: [
+      ['コロケーションは、どうやって覚えればいいの?', '単語を1語ずつではなく、【例文や2〜3語のかたまり】で覚えるのがいちばんです。単語帳の例文を音読し、make a decision・heavy rain のように動詞 + 名詞、形容詞 + 名詞の組み合わせに印をつけておきましょう。また、長文を読んだ後に、気になった組み合わせをノートに書き出すのも効果的です。英作文では、自分で組み合わせを作るより、読んだことのあるかたまりを使うほうが安全です。'],
+      ['単語帳の日本語訳を1つ覚えるだけでは、だめなの?', '最初の段階としては十分ですが、それだけでは長文や英作文で困ることがあります。1つの日本語訳だけを覚えると、多義語のほかの意味に気づけなかったり、日本語に引きずられた不自然な組み合わせを作ったりしやすいからです。基本の意味を覚えたら、2回目以降の復習で、例文・ほかの意味・品詞の変化を少しずつ足していきましょう。覚える量を一度に増やさず、復習のたびに情報を足すのが長続きするコツです。']
+    ]
+  });
+
+  /* ===== e_idiom 英熟語 ===== */
+  add('e_idiom', {
+    secs: [
+      {
+        h: 'さらに深く:前置詞の中心イメージで熟語を読む',
+        t: '「動詞 + 前置詞」の熟語は、前置詞の【中心のイメージ】を知ると、意味がつながって見えてきます。\n【on】「接触」→ 何かにくっついて支えられる → 依存・根拠。depend on(〜にたよる)、rely on(〜をあてにする)、insist on(〜を主張する:ある考えにしがみつく)\n【of】「全体の一部・構成」→ 何から成っているか。consist of(〜から成る)、be made of(〜でできている)\n【from】「起点・出どころ」→ 原因・区別。suffer from(〜に苦しむ:苦しみの出どころ)、result from(〜から生じる)、differ from(〜と異なる:〜から離れている)\n【in】「中に」→ 中身・結果の状態。result in(結果として〜になる)、succeed in(〜に成功する)、believe in(〜の存在・価値を信じる)\n【with】「〜とともに・相手」→ 対処する相手。deal with(〜を処理する)、cope with(〜にうまく対処する)、agree with(〜〈人・意見〉に同意する)\n【for】「方向・求めるもの」→ 求める対象。look for(〜をさがす)、ask for(〜を求める)、wait for(〜を待つ)\nこの見方で、まぎらわしい熟語も区別できます。たとえば、agree with は「人や意見に同意する」、agree to は「提案・計画に応じる」です。to は「到達点」のイメージなので、「提案に行き着いて受け入れる」と考えられます。\nただし、前置詞のイメージは意味を推測する助けにすぎず、すべての熟語をイメージだけで決めることはできません。まず熟語として覚え、イメージは「忘れたときに思い出す手がかり」として使いましょう。',
+        key: 'on は接触・依存、of は構成、from は起点・原因、in は中身・結果、with は相手、for は求める対象。前置詞のイメージは、熟語を思い出す手がかりになる。',
+        ex: [{
+          q: '( ) に適切な前置詞を入れよう。\n(1) Japan depends ( ) other countries for most of its oil.\n(2) The team consists ( ) eleven players.\n(3) He is suffering ( ) a bad cold.',
+          hint: 'それぞれ、依存・構成・出どころのどれにあたる?',
+          steps: [
+            '(1) 「日本は、石油の大部分をほかの国々にたよっている」という依存の意味です。依存は「接触して支えられる」on のイメージなので、depend on です。',
+            '(2) 「チームは11人の選手から成る」という構成の意味です。構成は「全体の一部」の of のイメージなので、consist of です。',
+            '(3) 「彼はひどいかぜに苦しんでいる」で、苦しみの出どころ(原因)がかぜです。起点の from のイメージなので、suffer from です。',
+            'どれも、前置詞のイメージと熟語の意味が結びついています。'
+          ],
+          a: '(1) on (2) of (3) from',
+          check: '(1) の depend on A for B は「B を A にたよる」という形です。for が「求めるもの(石油)」を表していることも、前置詞のイメージで確かめられます。'
+        }]
+      },
+      {
+        h: '実戦演習:前置詞1つで意味が逆になる熟語',
+        t: '入試では、同じ動詞に別の前置詞がつくことで、意味が逆になったり大きく変わったりする熟語のペアがねらわれます。代表的なのは、【result in(〜という結果になる)と result from(〜から生じる)】、【be made of(材料:見て分かる)と be made from(原料:形が変わっている)】、【consist of(〜から成る)と consist in(〜にある)】です。\n戦略は、①空所の前の動詞を見て、ペアになる熟語があるかを思い出す、②文の中で「原因 → 結果」の向きや、「材料が見えるか」を確かめる、③前置詞のイメージ(from は出どころ、in は結果の中身)で答えを確かめる、の3段階です。\n落とし穴は、日本語訳が似ているので、向きを考えずに選んでしまうことです。とくに result in と result from は、主語が原因か結果かで決まります。',
+        key: 'result in は「原因 → 結果」、result from は「結果 ← 原因」。主語が原因か結果かを確かめてから前置詞を選ぶ。',
+        ex: [
+          {
+            q: '( ) に in か from を入れよう。\nLack of sleep can result ( ) poor performance at school. At the same time, poor performance often results ( ) stress and lack of sleep.',
+            hint: '主語は原因?結果?',
+            steps: [
+              '1文目の主語は Lack of sleep(睡眠不足)、後ろは poor performance(成績の不振)です。睡眠不足が原因で、成績不振が結果です。',
+              '主語が原因で、後ろに結果が来るので、result in(結果として〜になる)を使います。',
+              '2文目の主語は poor performance で、後ろは stress and lack of sleep です。今度は、成績不振が結果で、ストレスや睡眠不足が原因です。',
+              '主語が結果で、後ろに原因が来るので、result from(〜から生じる)を使います。'
+            ],
+            a: 'in / from(睡眠不足は、学校での成績不振につながることがある。同時に、成績不振は、ストレスや睡眠不足から生じることが多い)',
+            check: 'result in = lead to・cause、result from = be caused by と言いかえて、意味が通るかを確かめましょう。from は「出どころ」なので、後ろに原因が来ると考えれば覚えやすくなります。'
+          },
+          {
+            q: '( ) に of か from を入れよう。\n(1) Butter is made ( ) milk.\n(2) This chair is made ( ) wood.',
+            hint: 'できあがった物を見て、もとの物が分かる?',
+            steps: [
+              '(1) バターは牛乳からできていますが、バターを見ても、もとの牛乳の形は残っていません。形や性質が変わった【原料】です。',
+              '原料は「出どころ」を表す from を使い、be made from milk です。',
+              '(2) いすは木でできていて、見れば木だと分かります。形や性質が変わっていない【材料】です。',
+              '材料は「構成」を表す of を使い、be made of wood です。'
+            ],
+            a: '(1) from(バターは牛乳から作られる) (2) of(このいすは木でできている)',
+            check: '「見て分かるなら of、分からないなら from」と確かめましょう。また、be made into 〜(〜に加工される:Milk is made into butter.)は、向きが逆になる表現です。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '( ) に適切な前置詞を入れよう。\nThis bag belongs ( ) my sister.', a: 'to', exp: 'belong to 〜 は「〜のものである・〜に所属する」という意味です。to は「到達点・行き先」のイメージで、「そのかばんは姉のところに行き着く(持ち主は姉だ)」と考えると覚えやすくなります。belong は状態を表す動詞なので、ふつう進行形にはしません(× is belonging to)。また、belong to のすぐ後ろには所有代名詞の mine ではなく、me などの目的格が来ます(This bag belongs to me.)。I belong to the tennis club.(テニス部に所属している)のように、所属の意味でも使います。' },
+      { lv: 3, q: '( ) に適切な前置詞を入れ、和訳しよう。\nHappiness consists ( ) being satisfied with what you have.', a: 'in/幸せは、自分が持っているもので満足することにある。', exp: 'consist には、consist of 〜(〜から成る)と consist in 〜(〜にある・〜に存する)の2つの使い方があります。この文は「幸せが何から成り立っているか(部品)」ではなく、「幸せの本質がどこにあるか」を述べているので、consist in です。in の「中身」のイメージで、「幸せの中身は〜だ」と考えます。consist in はかたい書き言葉で使われる表現です。what you have は「あなたが持っているもの」で、what は関係代名詞です。どちらも進行形にはしない点も、belong と同じです。' },
+      { lv: 3, q: '( ) に適切な前置詞を入れ、和訳しよう。\nShe attributes her success ( ) the support of her family.', a: 'to/彼女は、自分の成功は家族の支えのおかげだと考えている。', exp: 'attribute A to B は「A を B のおかげ(せい)だと考える」という意味です。to は「行き先」のイメージで、「成功(A)の原因を、家族の支え(B)に結びつける」と考えます。よい結果なら「〜のおかげ」、悪い結果なら「〜のせい」と訳し分けます。受動態にすると、Her success is attributed to the support of her family.(彼女の成功は家族の支えのおかげだとされている)です。同じ形をとるものに、owe A to B(A は B のおかげである)があります。' }
+    ],
+    faq: [
+      ['前置詞のイメージだけで、熟語の意味を全部当てられるの?', '当てられない熟語もたくさんあります。make up(仲直りする・化粧する・作り上げる)のように、いくつもの意味をもつものや、歴史の中で意味が変わったものは、イメージだけでは説明できません。前置詞・副詞のイメージは、①覚えた熟語を整理する、②忘れたときに思い出す手がかりにする、③初めて見た熟語の意味を文脈と合わせて推測する、という3つの場面で使うのが効果的です。基本は、例文といっしょに熟語として覚えることです。'],
+      ['be anxious about と be anxious for は、どうちがうの?', 'be anxious about 〜 は「〜を心配している」です。例:She is anxious about her exam results.(彼女は試験の結果を心配している)。be anxious for 〜 は「〜を切に望んでいる」です。例:We are anxious for news of the climbers.(私たちは登山者たちの知らせを待ち望んでいる)。about は「〜のまわり・〜について」、for は「求める対象」のイメージです。be anxious to 〜(〜したいと切望している)という形もあります。']
+    ]
+  });
+
+  /* ===== e_h6 論理マーカー・パラグラフリーディング ===== */
+  add('e_h6', {
+    secs: [
+      {
+        h: 'さらに深く:文章全体の「型」を見抜く',
+        t: '段落の中の構造(トピックセンテンスと支える文)だけでなく、文章全体にも、よく使われる【型】があります。型が分かると、読んでいる途中で「次に何が来るか」を予測でき、設問の答えがどこにあるかも見当がつきます。\n①【問題 → 解決型】問題点を示し、その解決策を述べる。目印:problem・issue・challenge(課題)/solution・one way to 〜・should。設問は「筆者が提案する解決策は何か」がねらわれます。\n②【原因 → 結果型】ある現象の原因や、その影響を説明する。目印:because of・due to・lead to・result in・as a result。設問は「〜の理由は何か」が中心です。\n③【比較・対照型】2つのものの共通点やちがいを述べる。目印:while・whereas・on the other hand・in contrast・similarly。設問は「A と B のちがい」がねらわれます。\n④【主張 → 反論 → 再反論型】筆者の主張を述べ、予想される反対意見を認めたうえで、もう一度主張を強める。目印:Some may argue that 〜・Of course 〜, but …・Still・Nevertheless。設問は「筆者の主張」が中心で、答えは再反論の部分にあります。\n実際の文章では、型が組み合わさっていることもよくあります。たとえば、問題 → 解決の後に「この方法がどこでも通用するわけではない」という譲歩を入れ、最後に主張をまとめる、という流れです。\n最初の段落を読んだら、「この文章はどの型か」を予想し、余白に「問題→解決?」などとメモしておきましょう。予想が外れたら、読みながら直せばかまいません。',
+        key: '文章全体には、問題→解決・原因→結果・比較対照・主張→反論→再反論などの型がある。型を予想すると、答えの場所が予測できる。',
+        ex: [{
+          q: '次の英文は、どの型で書かれているか答えよう。\nIn many cities, traffic jams waste a lot of time and cause air pollution. One way to solve this problem is to make public transportation cheaper. If buses and trains cost less, more people will leave their cars at home.\n(和訳:多くの都市で、交通渋滞は多くの時間をむだにし、大気汚染を引き起こしている。この問題を解決する1つの方法は、公共交通機関を安くすることだ。バスや電車の料金が下がれば、より多くの人が車を家に置いていくだろう。)',
+          hint: '目印になる語 problem・solve に注目しよう。',
+          steps: [
+            '1文目は、交通渋滞が時間をむだにし、大気汚染を引き起こしているという【問題】を述べています。',
+            '2文目に One way to solve this problem(この問題を解決する1つの方法)とあり、【解決策】が示されています。',
+            '3文目は、その解決策がなぜ効果的かという説明です。',
+            'したがって、この英文は「問題 → 解決型」です。'
+          ],
+          a: '問題 → 解決型(問題:交通渋滞による時間のむだと大気汚染/解決策:公共交通機関を安くする)',
+          check: '1文目の cause air pollution は「原因 → 結果」の表現ですが、文章全体の役割は「問題の提示」です。部分の表現と全体の型を区別して考えましょう。'
+        }]
+      },
+      {
+        h: '実戦演習:型と論理マーカーで、筆者の主張と段落の役割をつかむ',
+        t: '入試の長文では、「筆者の主張として最も適切なもの」や「この段落の役割」を問う問題がよく出ます。どちらも、文章の型が分かっていれば、答えのある場所がしぼれます。\n戦略は、①最初の数文で型を予想する、②However・As a result・Of course・Still などのマーカーに印をつけ、型のどの部分にいるかを確かめる、③主張は「解決策」や「再反論」の部分、段落の役割は「その段落が型のどこにあたるか」で答える、の3段階です。\n落とし穴は、具体例(ある町の話・ある人の体験)を、筆者の主張そのものと取りちがえることです。具体例は主張を支える材料なので、「この例から筆者は何を言いたいのか」と一段抽象的に考えましょう。',
+        key: '筆者の主張は、型の「解決策」や「再反論」の部分にある。具体例は主張を支える材料なので、例から一段抽象的に言いかえる。',
+        ex: [
+          {
+            q: '次の英文を読んで、問いに答えよう。\nMany towns in Japan are losing young people. Shops close, and schools have fewer students every year. One town in the mountains tried a different approach. Instead of building large facilities, it offered empty houses to young families at a very low rent. It also opened a shared office so that people could work remotely. As a result, about thirty families moved there in five years. Of course, this method may not work everywhere; some towns are too far from hospitals, for example. Still, the case shows that small, practical changes can be more effective than expensive projects.\n(和訳:日本の多くの町で若者が減っている。店は閉まり、学校の生徒は毎年減っている。山間のある町は、ちがう方法を試した。大きな施設を建てる代わりに、空き家をとても安い家賃で若い家族に提供した。また、人々が遠隔で働けるように、共同のオフィスを開いた。その結果、5年間でおよそ30家族が移り住んだ。もちろん、この方法はどこでも通用するわけではない。たとえば、病院から遠すぎる町もある。それでも、この例は、小さく実際的な変化のほうが、費用のかかる計画より効果的な場合があることを示している。)\n問:筆者の主張として最も適切なものを選ぼう。\n① All towns should offer empty houses to young families.\n② Large facilities are necessary to attract young people.\n③ Small, practical measures can work better than costly projects.\n④ Towns far from hospitals will lose all their young people.',
+            hint: 'Of course 〜 の後の Still 以下は、型のどの部分?',
+            steps: [
+              '最初の2文は、若者が減っているという【問題】です。',
+              '3〜6文目は、ある町の【解決策の具体例】と、その結果(As a result)です。',
+              'Of course 〜 で「どこでも通用するわけではない」と譲歩し、Still(それでも)で筆者の考えをまとめています。主張 → 譲歩 → 再反論の流れです。',
+              '主張は Still 以下の「小さく実際的な変化は、費用のかかる計画より効果的な場合がある」なので、それを言いかえた ③ が正解です。'
+            ],
+            a: '③',
+            check: '① は具体例をすべての町に広げた「言いすぎ」、② は本文と逆、④ は譲歩の部分の例を大げさにしたものです。can(〜な場合がある)が、正解の選択肢でも can work と保たれていることも確かめましょう。'
+          },
+          {
+            q: '上の英文で、Of course, this method may not work everywhere; some towns are too far from hospitals, for example. の文は、文章の中でどんな役割をしているか、日本語で説明しよう。',
+            hint: 'Of course の前と後ろの内容を比べよう。',
+            steps: [
+              'この文の前では、ある町の成功例(30家族が移り住んだ)が述べられています。',
+              'この文は Of course(もちろん)で始まり、「この方法がどこでも通用するわけではない」と、成功例の限界を認めています。',
+              'その後の Still(それでも)で、筆者は自分の主張を述べています。',
+              'つまりこの文は、予想される反対意見を先に認めておき、その後の主張を説得力のあるものにする【譲歩】の役割をしています。'
+            ],
+            a: '成功例の方法には限界がある(すべての町で通用するわけではない)と認める譲歩の役割。予想される反論を先に認めることで、Still 以下の筆者の主張を説得力のあるものにしている。',
+            check: '「筆者は、この方法に反対している」と答えるのは誤りです。Of course 〜, but(Still)… の型では、前半は筆者の主張ではなく、後半の主張のための前置きです。'
+          }
+        ]
+      }
+    ],
+    drill: [
+      { lv: 2, q: '次の3つの文を、意味が通るように並べかえよう。\n(a) As a result, many of them feel tired during the day.\n(b) Many high school students use their phones late at night.\n(c) This shortens the time they spend sleeping.', a: '(b) → (c) → (a)', exp: 'まず、指示語や論理マーカーのない (b) が最初の文になります。(c) の This は、前の文の内容(夜遅くまでスマートフォンを使うこと)をまとめて受けているので、(b) の後に来ます。(a) の As a result(その結果)は、前の文の内容が原因で、後ろが結果であることを示すので、「睡眠時間が短くなる」の後に置きます。また、them は students を指しています。並べかえ問題では、指示語(this・they)と論理マーカーが、前の文とのつながりを示す手がかりになります。' },
+      { lv: 3, q: '次の英文の内容に合うものを1つ選ぼう。\nWhile cats were first kept to catch mice in farmers\' houses, dogs were used for many different jobs, such as hunting, guarding and herding sheep.\n① Both cats and dogs were first kept only to catch mice.\n② Dogs had a wider range of jobs than cats.\n③ Cats were used for hunting and guarding.\n④ Dogs were kept mainly in farmers\' houses.', a: '②', exp: 'While は、ここでは「〜する一方で」という対比を表す接続詞です。前半は「猫は、最初は農家でネズミをとるために飼われた」、後半は「犬は、狩り・番・羊の群れの世話など、さまざまな仕事に使われた」です。猫の仕事が1つなのに対して、犬の仕事は多いので、「犬は猫よりはば広い仕事をした」と言いかえた ② が正解です。① は犬について誤り、③ は猫と犬を入れかえたひっかけ、④ は本文にない内容です。while には「〜する間」の意味もあるので、文脈で見分けましょう。' },
+      { lv: 3, q: '次の英文の筆者の主張を、日本語1文でまとめよう。\nSome people argue that homework should be banned because it takes away children\'s free time. It is true that too much homework can cause stress. However, a small amount of homework helps students review what they learned and develop good study habits. Therefore, the problem is not homework itself, but how much of it is given.', a: '(例)宿題そのものが問題なのではなく、問題は出される量であり、適度な宿題は役に立つ。', exp: 'この英文は、主張 → 反論 → 再反論の型です。1文目は「宿題は禁止すべきだ」という他の人の意見、2文目の It is true that 〜 は「多すぎる宿題はストレスになる」という譲歩です。3文目の However で筆者の考え(少しの宿題は役に立つ)に転じ、4文目の Therefore で結論をまとめています。結論の not A but B(A ではなく B)の形が、主張の中心です。「宿題は禁止すべきだ」とまとめると、筆者の意見と逆になるので注意しましょう。' }
+    ],
+    faq: [
+      ['文章の型は、最初の段落だけで分かるの?', '見当をつけることはできますが、確定できないこともあります。とくに、最初に一般論を述べてから However で主張に転じる文章や、途中で問題 → 解決から比較・対照に移る文章もあります。最初の段落で型を予想し、However・As a result などのマーカーが出るたびに予想を確かめ、必要なら修正しながら読みましょう。型の予想は「読みの道しるべ」であって、決めつけではありません。'],
+      ['筆者の主張が、最後の段落にしかないこともあるの?', 'あります。英語の文章は、最初に主張を述べることが多いですが、問題を示してから考察を重ね、最後に結論を述べる文章もあります。In conclusion・To sum up・Therefore・In short などのマーカーがある最後の段落は、主張がまとめられていることが多いので、ていねいに読みましょう。最初と最後の段落の両方に主張が出てくる文章も多いので、2つを比べて、同じ内容が言いかえられていないかを確かめると、主張をより確実につかめます。']
+    ]
+  });
+
 })(WPS.LESSONS);

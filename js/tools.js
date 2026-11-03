@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261106a';
+  var VER = '20261106b';
   var KINDS = {
     ptable: { title: '元素の周期表', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     map: { title: '世界地図', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } }
@@ -131,11 +131,16 @@
     var M = WPS.WORLDMAP, NS = 'http://www.w3.org/2000/svg';
     body.innerHTML = '<div class="wm-bar"><input type="search" id="wmQ" placeholder="国名で探す(例:ブラジル)" aria-label="国名で探す" list="wmList"><datalist id="wmList">' +
       M.c.filter(function (c) { return c.n; }).map(function (c) { return '<option value="' + h(c.n) + '">'; }).join('') + '</datalist>' +
-      '<button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
-      '<p class="wm-info" id="wmInfo">国を押すと名前を表示します。指でつまむ・ホイールで拡大、ドラッグで移動。</p>' +
-      '<div class="wm-wrap"><svg class="wm" viewBox="0 0 ' + M.w + ' ' + M.h + '" role="img" aria-label="世界地図(日本中心)"><path class="wm-sea" d="' + M.sphere + '"/><path class="wm-grat" d="' + M.grat + '"/><g class="wm-land"></g><g class="wm-lab"></g></svg></div>';
+      '<button type="button" class="wm-b wm-cityb on" aria-pressed="true" aria-label="都市を表示">都市</button><button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
+      '<p class="wm-info" id="wmInfo">国を押すと名前を表示します。指でつまむ・ホイールで拡大、ドラッグで移動。<span class="wm-leg"><i class="cap"></i>首都 <i></i>主な都市(拡大すると増えます)</span></p>' +
+      '<div class="wm-wrap"><svg class="wm" viewBox="0 0 ' + M.w + ' ' + M.h + '" role="img" aria-label="世界地図(日本中心)"><path class="wm-sea" d="' + M.sphere + '"/><path class="wm-grat" d="' + M.grat + '"/><g class="wm-land"></g><g class="wm-lab"></g><g class="wm-city"></g></svg></div>';
     var wrap = body.querySelector('.wm-wrap'), svg = body.querySelector('svg'), land = svg.querySelector('.wm-land'), lab = svg.querySelector('.wm-lab'), info = body.querySelector('#wmInfo');
-    var paths = [], labels = [];
+    var paths = [], labels = [], cities = [], cg = svg.querySelector('.wm-city');
+    (M.city || []).forEach(function (c) {
+      var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'wc' + (c[4] ? ' cap' : ''));
+      var dot = document.createElementNS(NS, c[4] ? 'rect' : 'circle'), t = document.createElementNS(NS, 'text');
+      t.textContent = c[0]; g.appendChild(dot); g.appendChild(t); cg.appendChild(g); cities.push([g, dot, t, c]);
+    });
     M.c.forEach(function (c, i) {
       var p = document.createElementNS(NS, 'path'); p.setAttribute('d', c.d); p.setAttribute('data-i', i);
       if (c.n === '日本') p.classList.add('jp');
@@ -152,6 +157,17 @@
         L[0].style.display = showIt ? '' : 'none'; L[0].setAttribute('font-size', fs.toFixed(2));
       });
       svg.style.setProperty('--sw', (0.6 / k).toFixed(3));
+      // 都市:拡大するほど多く出す(段階1=いつも、2=約2倍、3=約3.5倍から)
+      var px = k * scr, r = 2.6 / px, cf = 10 / px;
+      cities.forEach(function (C) {
+        var c = C[3], show = cityOn && (c[3] === 1 || (c[3] === 2 && px >= 1.7) || (c[3] === 3 && px >= 3) || (c[3] === 4 && px >= 6));
+        C[0].style.display = show ? '' : 'none'; if (!show) return;
+        if (c[4]) { C[1].setAttribute('x', c[1] - r); C[1].setAttribute('y', c[2] - r); C[1].setAttribute('width', 2 * r); C[1].setAttribute('height', 2 * r); }
+        else { C[1].setAttribute('cx', c[1]); C[1].setAttribute('cy', c[2]); C[1].setAttribute('r', r * 0.85); }
+        // 名前の位置:ふつうは右。近くの都市と重なるものは上・下・左に出す
+        var ps = c[5], tx = ps === 'l' ? c[1] - r * 1.6 : ps === 'u' || ps === 'd' ? c[1] - r * 0.6 : c[1] + r * 1.6, ty = ps === 'u' ? c[2] - r * 2.6 : ps === 'd' ? c[2] + r * 2.8 : c[2];
+        C[2].setAttribute('x', tx); C[2].setAttribute('y', ty); C[2].setAttribute('text-anchor', ps === 'l' ? 'end' : 'start'); C[2].setAttribute('font-size', cf.toFixed(2));
+      });
     }
     // 表示わくの縦横比に合わせる(スマホの縦長の画面でも、地図がわくいっぱいに出るように)
     function ar() { var w = wrap.clientWidth, hh = wrap.clientHeight; return w && hh ? hh / w : M.h / M.w; }
@@ -165,7 +181,9 @@
     function zoomAt(f, cx, cy) { var nw = vb.w / f; vb.x = cx - (cx - vb.x) * nw / vb.w; vb.y = cy - (cy - vb.y) * nw / vb.w; vb.w = nw; clamp(); apply(); }
     function toSvg(ev) { var r = svg.getBoundingClientRect(); return [vb.x + (ev.clientX - r.left) / r.width * vb.w, vb.y + (ev.clientY - r.top) / r.height * vb.h]; }
     st.fit = function () { setTimeout(whole, 30); };
+    var cityOn = true;
     body.querySelector('.wm-bar').addEventListener('click', function (ev) {
+      var cb = ev.target.closest('.wm-cityb'); if (cb) { cityOn = !cityOn; cb.classList.toggle('on', cityOn); cb.setAttribute('aria-pressed', cityOn); apply(); return; }
       var b = ev.target.closest('[data-z]'); if (!b) return;
       var z = +b.getAttribute('data-z');
       if (z === 0) { whole(); return; }

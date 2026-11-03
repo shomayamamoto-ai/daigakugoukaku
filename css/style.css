@@ -2249,3 +2249,12 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .wm-land path.jp { fill: #f6c9b8; }
 .wm-land path.on { fill: #fbbf24; }
 .wm-lab text { letter-spacing: 0; fill: #2a3242; text-anchor: middle; dominant-baseline: middle; pointer-events: none; font-weight: 700; paint-order: stroke; stroke: rgba(255, 255, 255, .85); stroke-width: .25em; stroke-linejoin: round; }
+/* 世界地図の都市 */
+.wm-city text { letter-spacing: 0; fill: #7f1d1d; font-weight: 700; dominant-baseline: middle; pointer-events: none; paint-order: stroke; stroke: rgba(255, 255, 255, .9); stroke-width: .28em; stroke-linejoin: round; }
+.wm-city circle { fill: #b91c1c; stroke: #fff; stroke-width: calc(var(--sw, .6) * 1.2px); }
+.wm-city rect { fill: #fff; stroke: #b91c1c; stroke-width: calc(var(--sw, .6) * 2.4px); }
+.wm-city .cap text { fill: #991b1b; }
+.wm-cityb.on { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+.wm-leg { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.wm-leg i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #b91c1c; margin-left: 4px; }
+.wm-leg i.cap { border-radius: 1px; background: #fff; border: 2px solid #b91c1c; width: 7px; height: 7px; }
