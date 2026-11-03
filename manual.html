@@ -34,6 +34,16 @@ li { margin: 4px 0; }
 .cta { display: inline-block; margin-top: 6px; padding: 12px 20px; border-radius: 12px; background: var(--primary); color: #fff; font-weight: 800; text-decoration: none; }
 footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 16px 40px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* 下メニュー(アプリと同じ) */
+body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+.nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; display: flex; justify-content: space-around; background: var(--card); border-top: 1px solid var(--line); padding: 6px 2px calc(6px + env(safe-area-inset-bottom)); }
+.nav a { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 2px; text-decoration: none; color: var(--muted); font-size: 10px; letter-spacing: -.02em; white-space: nowrap; position: relative; }
+.nav a svg { display: block; }
+.nav a.nav-manual { letter-spacing: -.06em; }
+.nav a.active { color: var(--primary); font-weight: 700; }
+.nav a.active::after { content: ""; position: absolute; left: 30%; right: 30%; top: -6px; height: 3px; border-radius: 3px; background: var(--primary); }
+@media (min-width: 420px) { .nav a { font-size: 11px; letter-spacing: 0; } }
 </style>
 </head>
 <body>
@@ -107,5 +117,15 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10p
 </ul></section>
 </main>
 <footer>Aqualium</footer>
+  <nav class="nav" aria-label="メインメニュー">
+    <a href="index.html#home" data-r="home"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>ホーム</a>
+    <a href="index.html#test" data-r="test"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>診断</a>
+    <a href="index.html#roadmap" data-r="roadmap"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l5-12 5 8 3-4 3 8"/></svg>計画</a>
+    <a href="index.html#books" data-r="books"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>テキスト</a>
+    <a href="index.html#vocab" data-r="vocab"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg>単語帳</a>
+    <a href="index.html#timer" data-r="timer"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>タイマー</a>
+    <a href="index.html#tutor" data-r="tutor"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>先生用</a>
+    <a href="manual.html" data-r="manual" class="nav-manual active" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.5"/><path d="M12 17h.01"/></svg>マニュアル</a>
+  </nav>
 </body>
 </html>
