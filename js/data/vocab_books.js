@@ -3501,6 +3501,109 @@ physiology|生理学
 disperse|分散させる、散らばる
 attest|証明する、証言する
 `;
+// 英熟語:1 = 共通テスト①
+WPS.VBOOK_DATA.idiom[1] = `
+according to|～によれば、～に従って
+for example|例えば
+such as|～のような、例えば～
+likely to|～しそうである、～する可能性が高い
+because of|～のために、～が原因で
+used to do|(以前は)よく～したものだ、以前は～だった
+talk about|～について話す
+based on|～に基づいている
+at least|少なくとも
+in fact|実際は、実は
+come from|～の出身である、～に由来する
+get A to|Aに～させる、Aに～してもらう
+go on|続く、起こる、(go on -ingで)～し続ける
+on the other hand|他方では、一方で
+allow A to|Aが～するのを許す、Aが～できるようにする
+as well as|～だけでなく、～と同様に
+up to|～まで、～次第で
+refer to|～に言及する、～を指す、～を参照する
+not only A but also B|AだけでなくBも
+even though|～であるにもかかわらず
+so A that|とてもAなので…
+interested in|～に興味がある
+related to|～と関係がある
+make sure|確かめる、確実に～するようにする
+a variety of|さまざまな
+tend to|～する傾向がある
+depend on|～に頼る、～次第である
+listen to|～を聞く、～に耳を傾ける
+ask A to|Aに～するよう頼む
+for instance|例えば
+make up|～を構成する、でっち上げる、(make up forで)埋め合わせる
+result in|～という結果になる
+rely on|～に頼る
+different from|～と異なる
+in front of|～の前で
+tell A to|Aに～するよう言う
+participate in|～に参加する
+in order to do|～するために
+due to|～が原因で、～のために
+focus on|～に焦点を当てる、～に集中する
+encourage A to|Aに～するよう促す・励ます
+worry about|～を心配する
+contribute to|～に貢献する、～の一因となる
+in addition|その上、さらに
+give up|～をあきらめる、～をやめる
+come up|(話題に)のぼる、生じる、近づく
+at the same time|同時に、しかし一方で
+find it A to do|…するのはAだとわかる・思う
+lead A to|Aを～する気にさせる、Aを～に導く
+enable A to|Aが～できるようにする
+as long as|～する限り、～しさえすれば
+full of|～でいっぱいである
+whether or not|～かどうか、～であろうとなかろうと
+for the first time|初めて
+in contrast|対照的に、それに対して
+in time|間に合って、やがて
+deal with|～を扱う、～に対処する
+as a result|その結果
+too A to do|あまりにAで…できない
+help A to|Aが～するのを手伝う
+associated with|～と関連している
+cause A to|Aに～させる(原因となる)
+point out|～を指摘する
+involved in|～に関わっている、～に参加している
+hundreds of|何百もの
+at first|最初は
+thanks to|～のおかげで
+in other words|言い換えれば、つまり
+go out|外出する、(火・明かりが)消える
+so far|今のところ、これまでのところ
+pick up|～を拾う、車で迎えに行く、(自然に)身につける
+respond to|～に反応する、～に答える
+come in|入る、(流行などが)現れる
+at that|その上、しかも、それで
+agree with|～に同意する、(気候・食べ物が)～に合う
+supposed to|～することになっている、～するはずだ
+help A with|Aの…を手伝う
+as A as possible|できるだけA
+not always|いつも～とは限らない
+take care of|～の世話をする、～を処理する
+by oneself|一人で、独力で
+prepare for|～に備える、～の準備をする
+in the way|邪魔になって
+apply for|～に応募する、～を申し込む
+hand in|～を提出する
+famous for|～で有名である
+even if|たとえ～でも
+instead of|～の代わりに、～しないで
+want A to|Aに～してほしい
+look for|～を探す
+as if / as though|まるで～かのように
+known as|～として知られている
+turn out|～だと判明する、生産する、(会などに)出てくる
+work on|～に取り組む
+a number of|多くの、いくつかの
+for all|～にもかかわらず
+similar to|～と似ている
+aware of|～に気づいている
+willing to|進んで～する、～するのをいとわない
+the 比較級, the 比較級|～すればするほど…
+`;
 // 本のデータを単語の一覧(WPS.BANK)に組み立てる。入力済みのPartだけが入る
 (function () {
   WPS.VBOOKS.forEach(function (b) {
