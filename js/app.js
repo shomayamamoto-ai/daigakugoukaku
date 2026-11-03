@@ -596,6 +596,7 @@
 
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
     html += nextAction(tt);
+    html += timeRing(tt);
     html += '<section class="card owl-card">' + owl3dSlot('owlHome', studied ? 'happy' : 'normal') + '<div class="bubble owl-bubble"><b>' + h(p.name) + 'さん</b>、' + greet + '<small>ピンポはドラッグで回せるよ。タップすると分解するよ。</small></div></section>';
 
     // 診断がまだの場合
@@ -860,6 +861,14 @@
     inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
     inp.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { srchQ = inp.value; var y = window.scrollY; render(); window.scrollTo(0, y); }, 200); });
   };
+  // 今日の学習時間:目標(平日/休日の設定)と実績をリングで比べる
+  function timeRing(tt) {
+    if (!S.get().attempts.length) return '';
+    var goal = tt.minutesToday || 60, got = (VT.minutesByDay ? VT.minutesByDay() : {})[D.today()] || 0, p = Math.min(1, got / goal), C = 2 * Math.PI * 34;
+    var msg = p >= 1 ? '今日の目標を達成！ よくがんばったね。' : got === 0 ? 'まずは5分。始めると、続けやすくなるよ。' : 'あと' + WPS.Time.label(goal - got) + 'で今日の目標。';
+    return '<section class="card t-ring"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="bg"/><circle cx="40" cy="40" r="34" class="fg' + (p >= 1 ? ' done' : '') + '" style="stroke-dasharray:' + (C * p).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg>' +
+      '<div><small>今日の学習時間</small><b>' + got + '<small>分</small> / ' + WPS.Time.label(goal) + '</b><p>' + msg + '</p></div><a class="btn small" href="#timer">集中タイマー</a></section>';
+  }
   // 次の一手:いま一番効果が高い学習を1つだけ示す
   function nextAction(tt) {
     var s = S.get(), wl = wrongList(), sm = WPS.SRS.summary(), task = tt.tasks.filter(function (x) { return !x.done && x.action; })[0];
@@ -964,6 +973,7 @@
     var html = '<div class="quiz-head"><span>' + h(quiz.title) + '</span><span class="combo' + (quiz.combo >= 2 ? ' on' : '') + '" id="qCombo">' + (quiz.combo >= 2 ? 'コンボ x' + quiz.combo : '') + '</span><span>' + (quiz.i + 1) + ' / ' + quiz.items.length + '</span></div>' +
       '<div class="progress"><i style="width:' + Math.round(quiz.i / quiz.items.length * 100) + '%"></i></div>';
     if (it.dig) html += say(pick(LINES.dig), 'think', 44);
+    if (it.sim) html += '<p class="sim-tag">類題:さっきの解説を思い出して解こう</p>';
     html += modeSwitch();
     html += '<section class="card question"><div class="q-meta">' + subjChip(u.subj) + '<span>' + h(qLabel(u)) + '</span><span class="lv lv' + q.level + '">' + WPS.LEVELS[q.level] + '</span><span class="df df' + diffOf(q) + '">' + DIFF[diffOf(q)] + '</span></div>' +
       (diffOf(q) === 3 ? '<p class="hard-tag">難しい問題</p>' : '') +
@@ -1046,7 +1056,16 @@
       explainBox(q, ok, chosen) +
       (!ok && !unsure ? '<div class="why-box"><p>まちがえた理由は?(1つ選ぶと、苦手の分析に使います)</p><div class="why-btns">' + WHY.map(function (w) { return '<button type="button" class="btn small" data-why="' + w[0] + '">' + w[1] + '</button>'; }).join('') + '</div></div>' : '') +
       say(line + (dug ? '<br><small>次は、つまずきの原因かもしれない前の単元から1問出すね。</small>' : ''), mood, 44) +
+      (!ok && !it.sim && quiz.src !== 'test' ? '<button class="btn big sim-btn" id="simQ" type="button">解説を読んだら、類題をもう1問</button>' : '') +
       '<button class="btn primary big" id="nextQ">' + (last ? '結果を見る' : '次へ') + '</button>');
+    // 類題:同じ単元から別の問題を、次の1問として差し込む(すぐ使って定着させる)
+    var simB = document.getElementById('simQ');
+    if (simB) simB.addEventListener('click', function () {
+      var nq = pickQuestion(q.unit, q.level, quiz.asked);
+      if (!nq || nq === q.id) { toast('この単元には、ほかの問題がまだありません'); simB.disabled = true; return; }
+      quiz.items.splice(quiz.i + 1, 0, { q: nq, dig: false, sim: true }); quiz.asked[nq] = true;
+      quiz.i++; quiz.answered = false; quiz.order = null; render();
+    });
     document.getElementById('nextQ').addEventListener('click', function () {
       if (last) { finishQuiz(); return; }
       quiz.i++; quiz.answered = false; quiz.order = null;
