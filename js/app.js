@@ -127,16 +127,17 @@
     var p = S.get().profile;
     if (!p.name && ['onboard', 'tutor', 'share', 'cloud', 'parent'].indexOf(route) < 0) { route = 'onboard'; }
     document.querySelectorAll('.nav a').forEach(function (a) {
-      a.classList.toggle('active', a.getAttribute('data-r') === route || (route === 'cards' && a.getAttribute('data-r') === 'vocab'));
+      a.classList.toggle('active', a.getAttribute('data-r') === route || (route === 'study' && a.getAttribute('data-r') === 'books') || (route === 'cards' && a.getAttribute('data-r') === 'vocab'));
     });
     var fn = {
       home: renderHome, onboard: renderOnboard, test: renderTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, map: renderMap
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, map: renderMap, books: renderBooks
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) ? '' : pageBand(route);
-    view.innerHTML = noEmoji(band + fn(parts[1]));
-    if (fn.after) fn.after(parts[1]);
+    var arg = route === 'books' ? parts.slice(1).join('/') : parts[1];
+    view.innerHTML = noEmoji((route === 'books' && arg ? '' : band) + fn(arg));
+    if (fn.after) fn.after(arg);
     pageTools();
     maybeTour(route);
     window.scrollTo(0, 0);
@@ -147,7 +148,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], map: ['Unit Map', '単元マップ']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -783,6 +784,9 @@
   };
 
   // まだ正解できていない「間違えた問題」(新しい順)。同じ問題を後で正解していれば外す
+  var BK = WPS.makeBooks({ h: h, render: render, stats: function () { return A.allStats(); }, practice: function (id) { var u = WPS.UNIT_MAP[id]; var ids = shuffle(unitSet(u)).slice(0, 5); if (!ids.length) { toast('この単元の問題がまだありません'); return; } startQuiz(ids, 'study', u.name + 'の練習'); } });
+  function renderBooks(arg) { return BK.render(arg); }
+  renderBooks.after = function (arg) { BK.after(arg); };
   var MK = WPS.makeMock({ h: h, toast: toast, shuffle: shuffle, render: render, levelPick: levelPick, diffOf: diffOf, confirm: function (msg, fn, lab) { ask(msg, lab, fn); } });
   function renderMock() { return MK.render(); }
   renderMock.after = function () { MK.after(); };
@@ -2537,7 +2541,8 @@
     { t: 'ようこそ、Aqualiumへ', d: 'アプリの使い方を、30秒で案内します。画面の光っている場所を見ながら「次へ」を押してください。' },
     { sel: '.nav a[data-r="home"]', t: 'ホーム', d: '毎日ここから。「次の一手」に、いま一番効果の高い学習が出ます。今日のやる事・連続記録・クエストもここで確認します。' },
     { sel: '.nav a[data-r="test"]', t: '診断・練習', d: 'まずは診断テストで苦手を見つけます。レベル別演習、模試モード、日本史・世界史の一問一答と論述もここから。' },
-    { sel: '.nav a[data-r="roadmap"]', t: 'ロードマップ', d: '志望校と受験日から逆算した計画です。タイムライン・カレンダー・単元マップ・週の振り返りがあります。' },
+    { sel: '.nav a[data-r="roadmap"]', t: 'ロードマップ(計画)', d: '志望校と受験日から逆算した計画です。タイムライン・カレンダー・単元マップ・週の振り返りがあります。' },
+    { sel: '.nav a[data-r="books"]', t: 'テキスト', d: '科目ごとの教科書・参考書。要点・例題(板書)・説明チェックを読んで、そのまま問題を解けます。' },
     { sel: '.nav a[data-r="vocab"]', t: '単語帳', d: '英単語・古文単語・英熟語・早慶上理の単語帳。4択・赤シート・スワイプ・聞き流しなどで覚えます。' },
     { sel: '.nav a[data-r="timer"]', t: 'タイマー', d: '25分集中＋5分休けいのポモドーロタイマー。集中した時間は学習時間に入ります。' },
     { sel: '.nav a[data-r="tutor"]', t: '先生用', d: '先生・保護者向けのレポート。苦手の原因、ミスの傾向、週のまとめが見られます。' },
