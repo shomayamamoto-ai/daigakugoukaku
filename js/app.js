@@ -1101,7 +1101,9 @@
     var stats = A.allStats();
     var st = stats[id];
     var roots = A.rootCauses(id, stats);
-    var html = '<a class="link" href="javascript:history.back()">← もどる</a>' +
+    var crs = WPS.courseOfUnit ? WPS.courseOfUnit(u.id) : null;
+    var html = '<nav class="crumbs" aria-label="現在の位置"><a href="#test">診断・練習</a><span aria-hidden="true">›</span><span>' + WPS.SUBJECTS[u.subj].name + '</span>' + (crs ? '<span aria-hidden="true">›</span><span>' + h(crs.short) + '</span>' : '') + '<span aria-hidden="true">›</span><b>' + h(u.name) + '</b></nav>' +
+      '<a class="link" href="javascript:history.back()">← もどる</a>' +
       '<section class="card"><div class="q-meta">' + subjChip(u.subj) + '<span>' + u.stage + '</span>' + statusChip(st.status) + '</div>' +
       '<h1>' + h(u.name) + '</h1>' +
       '<div class="stat-row"><div><b>' + pct(st.acc) + '</b><small>最近の正答率</small></div><div><b>' + st.total + '</b><small>解いた数</small></div><div><b>' + st.unsure + '</b><small>わからない</small></div></div></section>';
@@ -2195,8 +2197,51 @@
   };
 
 
+
+  /* ---------- 画面の演出(動きは0.3秒前後・控えめ。「動きを減らす」設定では出さない) ---------- */
+  var REDUCE = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var io = null;
+  function motion() {
+    // ページ切り替え:ふわっと表示
+    view.classList.remove('pg-in'); void view.offsetWidth; if (!REDUCE) view.classList.add('pg-in');
+    // スクロールでフェードイン(画面に入ったカードから)
+    if (!REDUCE && 'IntersectionObserver' in window) {
+      if (io) io.disconnect();
+      io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('fx-on'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+      [].slice.call(view.querySelectorAll('section.card, .page-toc')).forEach(function (el, i) {
+        if (el.getBoundingClientRect().top < window.innerHeight) return; // 最初から見えているものは動かさない
+        el.classList.add('fx'); io.observe(el);
+      });
+    }
+    // 吹き出し・解説の太字に蛍光ペン
+    [].slice.call(view.querySelectorAll('.bubble b, .exp b, .say b')).forEach(function (b) { b.classList.add('mk-hl'); });
+    // スクロールの進み具合(長いページだけ)
+    var bar = document.getElementById('scrollBar');
+    if (!bar) { bar = document.createElement('div'); bar.id = 'scrollBar'; bar.className = 'scroll-bar'; bar.setAttribute('aria-hidden', 'true'); document.body.appendChild(bar); window.addEventListener('scroll', motion.bar, { passive: true }); }
+    motion.bar();
+  }
+  motion.bar = function () {
+    // 目次などで一気に移動したとき、通り過ぎたカードも必ず表示する
+    [].slice.call(document.querySelectorAll('#view .fx:not(.fx-on)')).forEach(function (el) { if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('fx-on'); });
+    var bar = document.getElementById('scrollBar'); if (!bar) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = 'scaleX(' + (h > window.innerHeight * 1.5 ? Math.min(1, window.scrollY / h) : 0) + ')';
+  };
+  // 押した場所から波紋(リップル)
+  document.addEventListener('pointerdown', function (e) {
+    if (REDUCE) return;
+    var t = e.target.closest && e.target.closest('.btn, .choice, .vt-ch, .seg-btn, .wq-chip, .vt-mode, .vb-book, .vk-item, .sp-choice');
+    if (!t || t.disabled) return;
+    var r = t.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, sp = document.createElement('span');
+    sp.className = 'ripple'; sp.style.width = sp.style.height = d + 'px';
+    sp.style.left = (e.clientX - r.left - d / 2) + 'px'; sp.style.top = (e.clientY - r.top - d / 2) + 'px';
+    if (getComputedStyle(t).position === 'static') t.style.position = 'relative';
+    t.classList.add('rp-host'); t.appendChild(sp);
+    setTimeout(function () { sp.remove(); }, 550);
+  }, { passive: true });
   /* ---------- 長いページの目次と「上へ」ボタン ---------- */
   function pageTools() {
+    motion();
     var old = document.getElementById('toTop'); if (old) old.remove();
     var hs = [].slice.call(view.querySelectorAll('section.card > h2:first-child, section.card > .row-between > h2, section.card > div > h2:first-child')).filter(function (x) { return x.offsetParent !== null && x.textContent.trim(); });
     if (document.documentElement.scrollHeight > window.innerHeight * 3) {

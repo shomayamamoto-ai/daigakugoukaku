@@ -1599,3 +1599,32 @@ body { background: var(--bg); letter-spacing: .04em; }
 #view .check { min-width: 36px; min-height: 36px; }
 #view a.mini { min-height: 36px; display: inline-flex; align-items: center; }
 #view .link { padding: 6px 0; }
+/* ===== 演出(LP・Webの演出チートシートより、学習アプリに合う8つ) ===== */
+/* 20 ページ遷移:0.25秒で弱めにフェード+少し上へ */
+@keyframes pgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+#view.pg-in { animation: pgIn .25s ease-out; }
+/* 02 スクロールでフェードイン:0.4秒・8px */
+.fx { opacity: 0; transform: translateY(8px); transition: opacity .4s ease-out, transform .4s ease-out; }
+.fx.fx-on { opacity: 1; transform: none; }
+/* 07 スクロールプログレスバー:上端に細い線 */
+.scroll-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 30; background: linear-gradient(90deg, var(--primary), var(--accent, #0fa3b8)); transform-origin: left; transform: scaleX(0); pointer-events: none; }
+/* 13 リップル:押した場所から0.5秒 */
+.rp-host { overflow: hidden; }
+.ripple { position: absolute; border-radius: 50%; background: currentColor; opacity: .18; transform: scale(0); animation: ripple .5s ease-out forwards; pointer-events: none; }
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+/* 08 マーカー:吹き出し・解説の太字に、下から蛍光ペン */
+.mk-hl { background: linear-gradient(transparent 62%, rgba(255, 214, 79, .55) 62%); background-size: 0% 100%; background-repeat: no-repeat; animation: mkHl .6s .15s ease-out forwards; }
+@keyframes mkHl { to { background-size: 100% 100%; } }
+/* 09 ホバーで浮き上がる(マウスのある端末だけ) */
+@media (hover: hover) and (pointer: fine) {
+  .vt-mode, .vb-book, .vk-item, .sp-choice, .hist-links a, .vt-entry-a, .quick a, .unit-row { transition: transform .2s, box-shadow .2s; }
+  .vt-mode:hover, .vb-book:not(.off):hover, .vk-item:hover, .sp-choice:hover, .hist-links a:hover, .vt-entry-a:hover, .quick a:hover, .unit-row:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(4, 20, 58, .12); }
+  /* 14 下線アニメーション */
+  .link, .vt-links a { background: linear-gradient(currentColor, currentColor) left bottom / 0 1.5px no-repeat; transition: background-size .25s; text-decoration: none; }
+  .link:hover, .vt-links a:hover { background-size: 100% 1.5px; }
+}
+/* 65 パンくずリスト */
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 2px 2px 6px; font-size: .78rem; color: var(--muted); }
+.crumbs a { color: var(--primary); text-decoration: none; font-weight: 700; }
+.crumbs b { color: var(--text); overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) { .fx { opacity: 1; transform: none; } .mk-hl { background-size: 100% 100%; animation: none; } .ripple { display: none; } }
