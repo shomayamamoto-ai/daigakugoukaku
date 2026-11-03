@@ -49,7 +49,7 @@ window.WPS = window.WPS || {};
     logout: function () { set(KEY, null); okCache = false; },
     screen: function () {
       return '<section class="login-wrap"><div class="login-card">' +
-        '<p class="login-en">Aqualium</p><h1>ログイン</h1><p class="muted small">IDとパスワードを入力してください。大文字・小文字は区別しません。</p>' +
+        '<p class="brand brand-lg"><b class="brand-word">Aqualium</b><small class="brand-sub">個別最適化オンライン家庭教師</small></p><h1>ログイン</h1><p class="muted small">IDとパスワードを入力してください。大文字・小文字は区別しません。</p>' +
         '<form id="loginForm" autocomplete="on" novalidate>' +
         '<label>ID<input name="id" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>' +
         '<label>パスワード<span class="pw-row"><input name="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required><button type="button" class="pw-eye" aria-label="パスワードを表示" aria-pressed="false">表示</button></span></label>' +
