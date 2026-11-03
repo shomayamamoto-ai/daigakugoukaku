@@ -520,6 +520,39 @@
     var pts = vals.map(function (v, i) { return (i * w / (vals.length - 1)).toFixed(1) + ',' + (hh - 2 - v / max * (hh - 6)).toFixed(1); });
     return '<svg class="spark" viewBox="0 0 ' + w + ' ' + hh + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts.join(' ') + '"/></svg>';
   }
+  // 教科のレーダーチャート:直近30日の正答率(あなた)と、それより前の正答率(1か月前まで)を重ねる
+  function subjectRadar(s) {
+    var t = R.target(), subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return t.weights[k] > 0; });
+    if (subs.length < 3) return '';
+    var since = Date.now() - 30 * 864e5, cur = {}, prev = {};
+    subs.forEach(function (k) { cur[k] = [0, 0]; prev[k] = [0, 0]; });
+    s.attempts.forEach(function (a) { if (!cur[a.s] || a.src === 'school') return; var o = a.t >= since ? cur : prev; o[a.s][1]++; if (a.ok) o[a.s][0]++; });
+    var pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
+    var hasPrev = subs.some(function (k) { return prev[k][1]; });
+    if (!subs.some(function (k) { return cur[k][1]; })) return '';
+    var W = 320, H = 300, cx = W / 2, cy = 150, R0 = 95, n = subs.length;
+    var pt = function (i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n, r = R0 * v / 100; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+    var poly = function (vals) { return vals.map(function (v, i) { var p = pt(i, v || 0); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); };
+    var g = '';
+    [20, 40, 60, 80, 100].forEach(function (lv) { g += '<polygon class="rd-grid' + (lv === 80 ? ' goal' : '') + '" points="' + poly(subs.map(function () { return lv; })) + '"/>'; });
+    subs.forEach(function (k, i) { var p = pt(i, 100); g += '<line class="rd-ax" x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; });
+    [0, 40, 80].forEach(function (lv) { var p = pt(0, lv); g += '<text class="rd-tick" x="' + (p[0] + 4) + '" y="' + (p[1] + 4) + '">' + lv + '</text>'; });
+    var cv = subs.map(function (k) { return pc(cur, k); }), pv = subs.map(function (k) { return pc(prev, k); });
+    if (hasPrev) g += '<polygon class="rd-prev" points="' + poly(pv) + '"/>';
+    g += '<polygon class="rd-cur" points="' + poly(cv) + '"/>';
+    cv.forEach(function (v, i) { if (v === null) return; var p = pt(i, v); g += '<circle class="rd-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5"><title>' + WPS.SUBJECTS[subs[i]].name + ' ' + v + '%</title></circle>'; });
+    subs.forEach(function (k, i) {
+      var p = pt(i, 122), anc = Math.abs(p[0] - cx) < 8 ? 'middle' : p[0] > cx ? 'start' : 'end', v = cv[i];
+      g += '<text class="rd-lab" x="' + p[0].toFixed(1) + '" y="' + (p[1] + 4).toFixed(1) + '" text-anchor="' + anc + '">' + WPS.SUBJECTS[k].name + '<tspan class="rd-v" dx="4">' + (v === null ? '—' : v + '%') + '</tspan></text>';
+    });
+    var best = subs.slice().filter(function (k) { return pc(cur, k) !== null; }).sort(function (a, b) { return pc(cur, b) - pc(cur, a); });
+    var top = best[0], low = best[best.length - 1];
+    var up = hasPrev ? subs.filter(function (k) { return pc(cur, k) !== null && pc(prev, k) !== null; }).map(function (k) { return [k, pc(cur, k) - pc(prev, k)]; }).sort(function (a, b) { return b[1] - a[1]; })[0] : null;
+    return '<div class="rd-box"><h3>教科バランス(正答率)</h3><svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="教科ごとの正答率のレーダーチャート">' + g + '</svg>' +
+      '<p class="rd-leg"><span class="cur">あなた(直近30日)</span>' + (hasPrev ? '<span class="prev">1か月前まで</span>' : '') + '<span class="goal">得意の目安 80%</span></p>' +
+      '<div class="rd-note"><b>読み方</b>形が大きく、まるいほど、どの教科もバランスよく解けています。' + (top && low && top !== low ? '<br>いちばん強いのは<b>' + WPS.SUBJECTS[top].name + '(' + pc(cur, top) + '%)</b>、のびしろが大きいのは<b>' + WPS.SUBJECTS[low].name + '(' + pc(cur, low) + '%)</b>です。' : '') +
+      (up && up[1] > 0 ? '<br>1か月前より<b>' + WPS.SUBJECTS[up[0]].name + 'が' + up[1] + 'pt</b>上がりました。' : '') + '<br><small>アプリで解いた問題の正答率です。問題の難しさは教科ごとにちがうため、模試の偏差値とは一致しません。</small></div></div>';
+  }
   function dashboard(s, stats, opt) {
     opt = opt || {};
     var d = dashData(s, stats);
@@ -532,6 +565,7 @@
       kpiTile('解いた問題(直近7日)', d.cur.n, '問', d.prev.n ? d.cur.n - d.prev.n : null, '問', sparkline(d.days.slice(7).map(function (x) { return d.by[x].n; }))) +
       kpiTile('得意になった単元', d.st.good, '単元', undefined, '', '') +
       kpiTile('苦手の単元', d.st.weak, '単元', undefined, '', '') + '</div>';
+    html += subjectRadar(s);
     // 日別の解答数(棒)
     var maxN = Math.max.apply(null, d.days.map(function (x) { return d.by[x].n; }).concat([5]));
     var W = 320, H = 120, bw = W / 14;

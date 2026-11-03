@@ -1860,3 +1860,19 @@ input.invalid { border-color: var(--ng) !important; box-shadow: 0 0 0 3px color-
 .bk-pn a { color: #8ab4ff; text-decoration: none; font-weight: 700; font-size: .88rem; padding: 6px; text-align: center; } .bk-pn a.off { opacity: .3; pointer-events: none; }
 .nav a { font-size: max(10.5px, .64rem); }
 .bk-bh em { white-space: nowrap; flex: none; } .bk-bh b { min-width: 0; }
+/* 教科のレーダーチャート */
+.rd-box { margin: 14px 0 6px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.rd-box h3 { margin: 0 0 4px; font-size: .95rem; }
+.radar { width: 100%; max-width: 360px; display: block; margin: 0 auto; overflow: visible; }
+.rd-grid { fill: none; stroke: var(--line); stroke-width: 1; } .rd-grid.goal { stroke: #e6b422; stroke-dasharray: 4 3; stroke-width: 1.3; }
+.rd-ax { stroke: var(--line); }
+.rd-tick { font-size: 9px; fill: var(--muted); }
+.rd-prev { fill: rgba(126, 186, 98, .25); stroke: #6aa84f; stroke-width: 2; }
+.rd-cur { fill: rgba(79, 178, 214, .3); stroke: #3aa7d0; stroke-width: 2.4; stroke-linejoin: round; }
+.rd-dot { fill: #3aa7d0; }
+.rd-lab { font-size: 11.5px; font-weight: 700; fill: var(--text); } .rd-v { font-weight: 800; fill: #2b8db3; }
+.rd-leg { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: .78rem; color: var(--muted); margin: 4px 0 8px; }
+.rd-leg span::before { content: ""; display: inline-block; width: 18px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+.rd-leg .cur::before { background: rgba(79, 178, 214, .35); border: 2px solid #3aa7d0; } .rd-leg .prev::before { background: rgba(126, 186, 98, .3); border: 2px solid #6aa84f; } .rd-leg .goal::before { border-top: 2px dashed #e6b422; height: 0; border-radius: 0; }
+.rd-note { background: var(--primary-weak); border-radius: 12px; padding: 10px 12px; font-size: .88rem; line-height: 1.75; }
+.rd-note small { color: var(--muted); }
