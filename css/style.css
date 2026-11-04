@@ -2452,3 +2452,4 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .lk-cross em { font-style: normal; font-size: 11.5px; font-weight: 800; background: var(--primary); color: #fff; border-radius: 6px; padding: 1px 7px; margin-right: 8px; }
 .lk-read { margin-top: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); } .lk-read summary { cursor: pointer; font-weight: 800; }
 .tl-mg { margin: 8px 12px 2px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--muted); } .tl-mg:first-child { margin-top: 2px; } .tl-menu button { padding: 9px 12px; }
+@media (max-width: 640px) { .tl-menu { left: 8px !important; right: 8px !important; min-width: 0; grid-template-columns: 1fr 1fr; column-gap: 4px; } .tl-menu .tl-mg { grid-column: 1 / -1; } .tl-menu button { font-size: 13.5px; padding: 9px 8px; white-space: normal; } }
