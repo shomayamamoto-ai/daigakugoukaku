@@ -6,11 +6,17 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261106b';
+  var VER = '20261107a';
   var KINDS = {
-    ptable: { title: '元素の周期表', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
-    map: { title: '世界地図', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } }
+    ptable: { title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
+    map: { title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
+    chrono: { title: '日本史・世界史の年表', icon: '📜', ready: function () { return !!(WPS.BANK && WPS.BANK.jhistory); } },
+    math: { title: '数学の公式集', icon: '📐', file: 'refs', ready: function () { return !!WPS.REFS; } },
+    verbs: { title: '英語の不規則動詞', icon: '🔤', file: 'refs', ready: function () { return !!WPS.REFS; } },
+    kobun: { title: '古文の助動詞', icon: '📖', file: 'refs', ready: function () { return !!WPS.REFS; } },
+    units: { title: '単位と定数', icon: '🔬', file: 'refs', ready: function () { return !!WPS.REFS; } }
   };
+
   var open = {}; // kind -> { el, min }
   function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function save() { try { var o = {}; Object.keys(open).forEach(function (k) { o[k] = open[k].min ? 1 : 0; }); sessionStorage.setItem('wpsTools', JSON.stringify(o)); } catch (e) { } }
@@ -26,7 +32,7 @@
     var d = document.getElementById('tlDock');
     if (!d) { d = document.createElement('div'); d.id = 'tlDock'; d.className = 'tl-dock'; document.body.appendChild(d); }
     d.innerHTML = Object.keys(open).filter(function (k) { return open[k].min; }).map(function (k) {
-      return '<button type="button" class="tl-pill" data-tlrestore="' + k + '" aria-label="' + KINDS[k].title + 'を開く">' + (k === 'map' ? '🌏' : '⚗️') + ' ' + KINDS[k].title + '<span data-tlclose="' + k + '" role="button" aria-label="閉じる">×</span></button>';
+      return '<button type="button" class="tl-pill" data-tlrestore="' + k + '" aria-label="' + KINDS[k].title + 'を開く">' + KINDS[k].icon + ' ' + KINDS[k].title + '<span data-tlclose="' + k + '" role="button" aria-label="閉じる">×</span></button>';
     }).join('');
     document.body.classList.toggle('tl-hasdock', !!d.children.length);
     document.body.classList.toggle('tl-open', Object.keys(open).some(function (k) { return !open[k].min; }));
@@ -44,7 +50,7 @@
     if (open[kind]) { if (startMin) return; return restore(kind); }
     var el = document.createElement('section');
     el.className = 'tl-panel tl-' + kind; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', KINDS[kind].title);
-    el.innerHTML = '<header class="tl-hd"><b>' + (kind === 'map' ? '🌏 ' : '⚗️ ') + KINDS[kind].title + '</b>' +
+    el.innerHTML = '<header class="tl-hd"><b>' + KINDS[kind].icon + ' ' + KINDS[kind].title + '</b>' +
       '<button type="button" class="tl-big" aria-label="大きさを切りかえる" title="大きさを切りかえる">⤢</button>' +
       '<button type="button" class="tl-min" aria-label="最小化" title="最小化(下に小さくしまう)">—</button>' +
       '<button type="button" class="tl-x" aria-label="閉じる" title="閉じる">×</button></header><div class="tl-body"><p class="muted center" style="padding:24px">読み込み中…</p></div>';
@@ -58,8 +64,42 @@
     load(kind, function (err) {
       var body = el.querySelector('.tl-body');
       if (err) { body.innerHTML = '<p class="muted center" style="padding:24px">読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'; return; }
-      if (kind === 'ptable') ptable(body); else map(body, open[kind]);
+      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, WPS.REFS[kind]);
     });
+  }
+
+  /* ---------- 表の資料(公式集・不規則動詞・助動詞・単位) ---------- */
+  function refTable(body, R, extra) {
+    if (!R) { body.innerHTML = '<p class="muted">資料を読み込めませんでした。</p>'; return; }
+    var cur = -1; // -1 = すべて
+    body.innerHTML = (R.note ? '<p class="rf-note">' + h(R.note) + '</p>' : '') +
+      '<input type="search" class="rf-q" placeholder="ことばで探す" aria-label="資料の中を探す">' +
+      '<div class="rf-tabs" role="tablist">' + ['すべて'].concat(R.sections.map(function (x) { return x.h; })).map(function (t, i) { return '<button type="button" role="tab" data-rft="' + (i - 1) + '"' + (i === 0 ? ' class="on" aria-selected="true"' : ' aria-selected="false"') + '>' + h(t) + '</button>'; }).join('') + '</div><div class="rf-body"></div>';
+    var out = body.querySelector('.rf-body'), q = body.querySelector('.rf-q');
+    function draw() {
+      var w = q.value.trim().toLowerCase(), n = 0;
+      out.innerHTML = R.sections.map(function (sec, si) {
+        if (cur >= 0 && si !== cur) return '';
+        var rows = sec.rows.filter(function (r) { return !w || r.join(' ').toLowerCase().indexOf(w) >= 0; });
+        n += rows.length; if (!rows.length) return '';
+        return '<h4 class="rf-h">' + h(sec.h) + '</h4><div class="rf-scroll"><table class="rf-t"><thead><tr>' + sec.head.map(function (c) { return '<th>' + h(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+          rows.map(function (r) { return '<tr>' + r.map(function (c, ci) { return ci === 0 ? '<th scope="row">' + h(c) + '</th>' : '<td>' + h(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+      }).join('') || '<p class="muted small">見つかりませんでした。</p>';
+    }
+    body.querySelector('.rf-tabs').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-rft]'); if (!b) return; cur = +b.getAttribute('data-rft');
+      body.querySelectorAll('.rf-tabs button').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); }); draw();
+    });
+    q.addEventListener('input', draw); draw();
+  }
+  // 年表:アプリの年号データ(日本史・世界史)から作る。紀元前は「前○○年」
+  function chrono(body) {
+    function yr(t) { t = +t; return t < 0 ? '前' + (-t) + '年' : t + '年'; }
+    function rows(bank, tag) { return (WPS.BANK[bank] || []).slice().sort(function (a, b) { return a.t - b.t; }).map(function (x) { return [yr(x.t), x.m, (tag ? tag + '・' : '') + (x.h || '')]; }); }
+    var J = rows('jhistory', ''), W = rows('whistory', '');
+    var both = (WPS.BANK.jhistory || []).map(function (x) { return [+x.t, x.m, '日本史']; }).concat((WPS.BANK.whistory || []).map(function (x) { return [+x.t, x.m, '世界史']; })).sort(function (a, b) { return a[0] - b[0]; }).map(function (x) { return [yr(x[0]), x[1], x[2]]; });
+    refTable(body, { note: '日本史 ' + J.length + '件・世界史 ' + W.length + '件。「日本と世界」は同じ年代のできごとを並べて比べられます。', sections: [
+      { h: '日本史', head: ['年', 'できごと', '時代'], rows: J }, { h: '世界史', head: ['年', 'できごと', '時代'], rows: W }, { h: '日本と世界', head: ['年', 'できごと', ''], rows: both }] });
   }
 
   /* ---------- 周期表 ---------- */
@@ -241,7 +281,7 @@
     var m = document.getElementById('tlMenu');
     if (m) { m.remove(); return; }
     m = document.createElement('div'); m.id = 'tlMenu'; m.className = 'tl-menu'; m.setAttribute('role', 'menu');
-    m.innerHTML = '<button type="button" role="menuitem" data-tlopen="ptable">⚗️ 元素の周期表</button><button type="button" role="menuitem" data-tlopen="map">🌏 世界地図</button>';
+    m.innerHTML = Object.keys(KINDS).map(function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; }).join('');
     document.body.appendChild(m);
     var r = btn.getBoundingClientRect();
     m.style.top = (r.bottom + 6) + 'px'; m.style.right = Math.max(8, innerWidth - r.right) + 'px';

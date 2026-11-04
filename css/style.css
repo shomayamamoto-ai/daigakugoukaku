@@ -2362,3 +2362,29 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .pomo-chip.short i, .pomo-chip.long i { background: #9fe0c5; }
 .topbar .pomo-chip { margin-left: 0; }
 @media (max-width: 640px) { .pomo-chip { position: fixed; top: calc(66px + env(safe-area-inset-top, 0px)); right: 10px; z-index: 60; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); } }
+/* 資料パネル:表の資料 */
+.rf-note { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.7; flex: none; }
+.rf-q { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg, var(--card)); color: var(--text); font: inherit; font-size: 14px; flex: none; }
+.rf-tabs { display: flex; gap: 6px; overflow-x: auto; flex: none; padding-bottom: 2px; scrollbar-width: none; }
+.rf-tabs::-webkit-scrollbar { display: none; }
+.rf-tabs button { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.rf-tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rf-h { margin: 8px 0 4px; font-size: 14px; color: var(--primary); }
+.rf-scroll { overflow-x: auto; }
+.rf-t { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.6; }
+.rf-t th, .rf-t td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.rf-t thead th { font-size: 11.5px; color: var(--muted); font-weight: 700; background: var(--primary-weak); position: sticky; top: 0; }
+.rf-t tbody th { font-weight: 700; white-space: nowrap; }
+.tl-math .rf-t tbody th, .tl-kobun .rf-t tbody th { white-space: normal; min-width: 9em; }
+.tl-chrono .rf-t tbody th { color: var(--primary); font-feature-settings: "tnum"; }
+.tl-menu { max-height: calc(100vh - 140px); overflow: auto; }
+.tl-menu { min-width: 240px; } .tl-menu button { white-space: nowrap; }
+/* 最小化したボタンが多いときは、1列のまま横にスクロール */
+.tl-dock { left: 10px; right: 10px; max-width: none; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; padding: 2px 0 6px; }
+.tl-dock::-webkit-scrollbar { display: none; }
+.tl-dock:not(:empty) { pointer-events: auto; }
+.tl-dock .tl-pill:first-child { margin-left: auto; }
+.tl-pill { flex: none; white-space: nowrap; }
+@media (min-width: 900px) { .tl-dock { right: auto; max-width: calc(100vw - 820px); } .tl-dock .tl-pill:first-child { margin-left: 0; } }
+.rf-t td:last-child { white-space: nowrap; }
+.tl-math .rf-t td:last-child, .tl-kobun .rf-t td:last-child, .tl-verbs .rf-t td:last-child, .tl-units .rf-t td:last-child { white-space: normal; }
