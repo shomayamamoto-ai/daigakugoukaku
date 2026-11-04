@@ -2451,3 +2451,4 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .lk-cross { list-style: none; padding: 0; margin: 0; } .lk-cross li { padding: 6px 0; border-bottom: 1px dashed var(--line); line-height: 1.75; }
 .lk-cross em { font-style: normal; font-size: 11.5px; font-weight: 800; background: var(--primary); color: #fff; border-radius: 6px; padding: 1px 7px; margin-right: 8px; }
 .lk-read { margin-top: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); } .lk-read summary { cursor: pointer; font-weight: 800; }
+.tl-mg { margin: 8px 12px 2px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--muted); } .tl-mg:first-child { margin-top: 2px; } .tl-menu button { padding: 9px 12px; }

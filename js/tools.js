@@ -6,16 +6,24 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261107a';
+  var VER = '20261107b';
   var KINDS = {
-    ptable: { title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
-    map: { title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
-    chrono: { title: '日本史・世界史の年表', icon: '📜', ready: function () { return !!(WPS.BANK && WPS.BANK.jhistory); } },
-    math: { title: '数学の公式集', icon: '📐', file: 'refs', ready: function () { return !!WPS.REFS; } },
-    verbs: { title: '英語の不規則動詞', icon: '🔤', file: 'refs', ready: function () { return !!WPS.REFS; } },
-    kobun: { title: '古文の助動詞', icon: '📖', file: 'refs', ready: function () { return !!WPS.REFS; } },
-    units: { title: '単位と定数', icon: '🔬', file: 'refs', ready: function () { return !!WPS.REFS; } }
+    ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
+    chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    phys: { g: '理科', title: '物理の公式集', icon: '🧲', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    units: { g: '理科', title: '単位と定数', icon: '🔬', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    math: { g: '数学', title: '数学の公式集', icon: '📐', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    verbs: { g: '英語', title: '英語の不規則動詞', icon: '🔤', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    kobun: { g: '国語', title: '古文の助動詞', icon: '📖', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    keigo: { g: '国語', title: '古文の敬語', icon: '🎎', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    kanbun: { g: '国語', title: '漢文の句形', icon: '📜', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    map: { g: '社会', title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
+    pref: { g: '社会', title: '都道府県と所在地', icon: '🗾', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    chrono: { g: '社会', title: '日本史・世界史の年表', icon: '🗓️', ready: function () { return !!(WPS.BANK && WPS.BANK.jhistory); } },
+    era: { g: '社会', title: '日本の時代と中国の王朝', icon: '🏯', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    kenpo: { g: '社会', title: '日本国憲法の主な条文', icon: '⚖️', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } }
   };
+
 
   var open = {}; // kind -> { el, min }
   function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -64,7 +72,7 @@
     load(kind, function (err) {
       var body = el.querySelector('.tl-body');
       if (err) { body.innerHTML = '<p class="muted center" style="padding:24px">読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'; return; }
-      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, WPS.REFS[kind]);
+      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, (WPS.REFS || {})[kind]);
     });
   }
 
@@ -142,6 +150,14 @@
       var c = grid.querySelector('[data-z="' + z + '"]'); if (c) c.classList.add('on');
       info.innerHTML = '<div class="pt-big c-' + e[4] + '"><i>' + e[0] + '</i><b>' + e[1] + '</b></div><div><p class="pt-name">' + h(e[2]) + '</p>' +
         '<p class="small">原子量 <b>' + e[3] + '</b>' + (R[e[1]] ? '(計算では ' + R[e[1]] + ')' : '') + '</p>' +
+        (function () {
+          // 電子配置(原子番号20まで)と価電子の数(典型元素)
+          var z = e[0], out = '';
+          if (z <= 20) { var cap = [2, 8, 8, 2], sh = [], r = z; for (var i = 0; i < 4 && r > 0; i++) { var c = Math.min(cap[i], r); sh.push('KLMN'[i] + c); r -= c; } out += '電子配置 ' + sh.join(' ') + '　'; }
+          var g = p[0], val = g === 1 || g === 2 ? g : g >= 13 && g <= 17 ? g - 10 : g === 18 ? 0 : null;
+          if (val !== null && p[3] === undefined && e[4] !== 'uk') out += '価電子 ' + val + '個';
+          return out ? '<p class="small">' + out + '</p>' : '';
+        })() +
         '<p class="small">' + p[0] + '族・第' + p[1] + '周期' + (p[3] !== undefined ? '(' + (p[1] === 6 ? 'ランタノイド' : 'アクチノイド') + ')' : '') + '/' + CAT[e[4]] + '/常温で' + (ST[e[1]] || '固体') + '</p>' +
         (NT[e[1]] ? '<p class="small pt-note">' + h(NT[e[1]]) + '</p>' : '') + '</div>';
     }
@@ -281,7 +297,8 @@
     var m = document.getElementById('tlMenu');
     if (m) { m.remove(); return; }
     m = document.createElement('div'); m.id = 'tlMenu'; m.className = 'tl-menu'; m.setAttribute('role', 'menu');
-    m.innerHTML = Object.keys(KINDS).map(function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; }).join('');
+    var gs = []; Object.keys(KINDS).forEach(function (k) { if (gs.indexOf(KINDS[k].g) < 0) gs.push(KINDS[k].g); });
+    m.innerHTML = gs.map(function (g) { return '<p class="tl-mg">' + g + '</p>' + Object.keys(KINDS).filter(function (k) { return KINDS[k].g === g; }).map(function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; }).join(''); }).join('');
     document.body.appendChild(m);
     var r = btn.getBoundingClientRect();
     m.style.top = (r.bottom + 6) + 'px'; m.style.right = Math.max(8, innerWidth - r.right) + 'px';
