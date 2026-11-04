@@ -142,9 +142,32 @@ WPS.makeBooks = function (ctx) {
             (e.hint ? '<p class="lz-hint">ヒント:' + rt(e.hint) + '</p>' : '') + '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p>' + (e.check ? '<p class="lz-check">確かめ:' + rt(e.check) + '</p>' : '') + '</div></div>';
         }).join('') + '</section>';
       });
+      // つまずきの処方箋:よくあるまちがい → なぜ → 直し方 → 確認問題
+      if (L.rx && L.rx.length) html += sec('つまずきの処方箋', 'lz-rx') + '<p class="muted small">よくあるまちがい方と、その直し方です。自分に当てはまるものがないか確かめましょう。</p>' + L.rx.map(function (r, k) {
+        return '<div class="rx-card"><p class="rx-err"><b>つまずき ' + (k + 1) + '</b>' + rt(r.err) + '</p><p class="rx-why"><b>なぜ起きる?</b>' + rt(r.why) + '</p><p class="rx-fix"><b>処方箋(直し方)</b>' + rt(r.fix) + '</p>' +
+          (r.q ? '<details class="rx-q"><summary><b>確認問題</b>' + rt(r.q) + '</summary><p class="lz-da">答え:<b>' + rt(r.a) + '</b></p>' + (r.exp ? paras(r.exp) : '') + '</details>' : '') + '</div>';
+      }).join('') + '</section>';
+      // 難関レベルの記述・論述:模範解答と採点基準
+      if (L.essay && L.essay.length) html += sec(/^中/.test(u.stage) ? '難関高校レベルの記述問題' : '難関大レベルの記述・論述', 'lz-essay') + L.essay.map(function (e) {
+        var tot = (e.points || []).reduce(function (a, p) { return a + (+p[1] || 0); }, 0);
+        return '<div class="bk-board lz-ex"><div class="bk-bh"><b>記述問題</b><em>' + (e.limit ? h(e.limit) : '難関') + '</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' + (e.hint ? '<p class="lz-hint">考え方:' + rt(e.hint) + '</p>' : '') +
+          '<details><summary>模範解答と採点基準</summary><p class="bk-ans">模範解答</p>' + paras(e.model) + (e.points && e.points.length ? '<table class="es-pt"><thead><tr><th>採点の要素</th><th>点</th></tr></thead><tbody>' + e.points.map(function (p) { return '<tr><td>' + rt(p[0]) + '</td><td>' + h(p[1]) + '</td></tr>'; }).join('') + '</tbody><tfoot><tr><td>合計</td><td>' + tot + '</td></tr></tfoot></table>' : '') + (e.ng ? '<p class="lz-check">減点されやすい答え:' + rt(e.ng) + '</p>' : '') + '</details></div></div>';
+      }).join('') + '</section>';
       if (L.drill && L.drill.length) html += sec('練習問題', 'lz-drill') + '<p class="muted small">まず自分で解いてから、「答えと解き方」を押して確かめましょう。</p><ol class="lz-dl">' + L.drill.map(function (d) {
         return '<li><p class="lz-dq"><em class="lv' + (d.lv || 1) + '">' + ['', '基本', '標準', '発展'][d.lv || 1] + '</em>' + rt(d.q) + '</p><details><summary>答えと解き方</summary><p class="lz-da">答え:<b>' + rt(d.a) + '</b></p>' + paras(d.exp) + (WPS.wordNoteHTML ? WPS.wordNoteHTML(WPS.noteTerm(d.q)) : '') + '</details></li>';
       }).join('') + '</ol></section>';
+      // 単元まとめテスト(10問)
+      if (L.test && L.test.length) html += sec('単元まとめテスト', 'lz-test') + '<p class="muted small">全' + L.test.length + '問。紙に答えを書いてから、1問ずつ「答え」を開いて丸つけしましょう。8問以上で合格です。</p><ol class="lz-dl lz-tl">' + L.test.map(function (t) {
+        return '<li><p class="lz-dq">' + rt(t.q) + '</p>' + (t.choices && t.choices.length ? '<ol class="tl-ch" type="A">' + t.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') + '<details><summary>答え</summary><p class="lz-da">答え:<b>' + rt(t.a) + '</b></p>' + (t.exp ? paras(t.exp) : '') + '</details></li>';
+      }).join('') + '</ol></section>';
+      // つながる知識
+      if (L.link) {
+        var lk = L.link;
+        html += sec('つながる知識', 'lz-link') + '<div class="lk-grid">' + (lk.prev ? '<div class="lk-c"><b>前に学んだこと</b>' + paras(lk.prev) + '</div>' : '') + (lk.next ? '<div class="lk-c"><b>この先で学ぶこと</b>' + paras(lk.next) + '</div>' : '') + '</div>' +
+          (lk.cross && lk.cross.length ? '<p class="lk-h">ほかの教科とのつながり</p><ul class="lk-cross">' + lk.cross.map(function (c) { return '<li><em>' + h(c[0]) + '</em>' + rt(c[1]) + '</li>'; }).join('') + '</ul>' : '') +
+          (lk.univ ? '<p class="lk-h">大学・社会では</p>' + paras(lk.univ) : '') +
+          (lk.read ? '<details class="lk-read"><summary>発展の読み物' + (lk.readT ? ':' + h(lk.readT) : '') + '</summary>' + paras(lk.read) + '</details>' : '') + '</section>';
+      }
       if (L.faq && L.faq.length) html += sec('よくある疑問', 'lz-faq') + L.faq.map(function (f) { return '<details><summary>' + rt(f[0]) + '</summary>' + paras(f[1]) + '</details>'; }).join('') + '</section>';
       if (L.terms && L.terms.length) html += sec('ことばの整理') + '<dl class="lz-terms">' + L.terms.map(function (t) { return '<div><dt>' + h(t[0]) + '</dt><dd>' + rt(t[1]) + '</dd></div>'; }).join('') + '</dl></section>';
       if (L.miss && L.miss.length) html += sec('よくあるまちがい', 'lz-miss') + '<ul>' + L.miss.map(function (t) { return '<li>' + rt(t) + '</li>'; }).join('') + '</ul></section>';

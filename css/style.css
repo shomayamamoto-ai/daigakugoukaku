@@ -2431,3 +2431,23 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .et-pts ul, .et-miss ul { margin: 0; padding-left: 1.2em; } .et-pts li, .et-miss li { line-height: 1.75; font-size: 13.5px; }
 .et-check label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--line); cursor: pointer; line-height: 1.6; font-size: 14px; }
 .et-check label:last-child { border-bottom: 0; } .et-check input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--primary); }
+/* テキスト:つまずきの処方箋・記述・まとめテスト・つながる知識 */
+.rx-card { margin: 10px 0; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.rx-card p { margin: 6px 0; line-height: 1.8; }
+.rx-card p b { display: block; font-size: 12px; letter-spacing: .04em; }
+.rx-err { color: #b91c1c; } .rx-err b { color: #b91c1c; }
+.rx-why b { color: var(--muted); }
+.rx-fix { padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 9%, var(--card)); } .rx-fix b { color: var(--primary); }
+.rx-q { margin-top: 6px; } .rx-q summary { cursor: pointer; line-height: 1.7; } .rx-q summary b { display: inline-block; margin-right: 6px; font-size: 12px; color: var(--primary); }
+.es-pt { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13.5px; }
+.es-pt th, .es-pt td { padding: 6px 8px; border-bottom: 1px solid rgba(255, 255, 255, .2); text-align: left; vertical-align: top; }
+.es-pt td:last-child, .es-pt th:last-child { text-align: right; white-space: nowrap; width: 3em; }
+.es-pt tfoot td { font-weight: 800; }
+.lz-tl > li { margin-bottom: 12px; }
+.tl-ch { margin: 4px 0 6px; padding-left: 1.6em; } .tl-ch li { line-height: 1.7; }
+.lk-grid { display: grid; gap: 10px; grid-template-columns: 1fr; } @media (min-width: 640px) { .lk-grid { grid-template-columns: 1fr 1fr; } }
+.lk-c { padding: 10px 12px; border-radius: 12px; background: var(--primary-weak); } .lk-c b { display: block; font-size: 12.5px; color: var(--primary); } .lk-c p { margin: 4px 0; line-height: 1.75; }
+.lk-h { font-weight: 800; font-size: 14px; margin: 14px 0 4px; color: var(--primary); }
+.lk-cross { list-style: none; padding: 0; margin: 0; } .lk-cross li { padding: 6px 0; border-bottom: 1px dashed var(--line); line-height: 1.75; }
+.lk-cross em { font-style: normal; font-size: 11.5px; font-weight: 800; background: var(--primary); color: #fff; border-radius: 6px; padding: 1px 7px; margin-right: 8px; }
+.lk-read { margin-top: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); } .lk-read summary { cursor: pointer; font-weight: 800; }
