@@ -2454,3 +2454,18 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .tl-mg { margin: 8px 12px 2px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--muted); } .tl-mg:first-child { margin-top: 2px; } .tl-menu button { padding: 9px 12px; }
 @media (max-width: 640px) { .tl-menu { left: 8px !important; right: 8px !important; min-width: 0; grid-template-columns: 1fr 1fr; column-gap: 4px; } .tl-menu .tl-mg { grid-column: 1 / -1; } .tl-menu button { font-size: 13.5px; padding: 9px 8px; white-space: normal; } }
 .tl-panel[hidden] { display: none !important; }
+/* 資料パネルの改良:暗記モード・全体検索・ドラッグ */
+.rf-bar { display: flex; gap: 6px; flex: none; } .rf-bar .rf-q { flex: 1; min-width: 0; }
+.rf-memo { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 12.5px; font-weight: 800; padding: 0 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+.rf-memo.on { background: #b48c40; border-color: #b48c40; color: #fff; }
+.rf-memohint { margin: 0; font-size: 12px; color: #a16207; flex: none; }
+.rf-h small { margin-left: 6px; font-size: 11px; color: var(--muted); font-weight: 400; }
+.rf-body.memo td, .rf-body.memo.memo-first tbody th { cursor: pointer; }
+.rf-body.memo:not(.memo-first) td:not(.shown):not(.e), .rf-body.memo.memo-first tbody th:not(.shown) { color: transparent; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--card)) 0 6px, color-mix(in srgb, var(--primary) 9%, var(--card)) 6px 12px); border-radius: 6px; user-select: none; }
+.rf-body.memo.memo-first td { cursor: default; }
+.tl-ms { width: 100%; padding: 9px 12px; margin: 2px 0 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg, var(--card)); color: var(--text); font: inherit; font-size: 14px; grid-column: 1 / -1; }
+.tl-mres { grid-column: 1 / -1; display: grid; max-height: 46vh; overflow: auto; }
+.tl-mres:empty { display: none; }
+.tl-menu .tl-hit { display: grid; gap: 1px; text-align: left; border-bottom: 1px dashed var(--line); border-radius: 0; }
+.tl-hit em { font-style: normal; font-size: 11px; color: var(--muted); font-weight: 700; } .tl-hit b { font-size: 14px; } .tl-hit span { font-size: 12px; color: var(--muted); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 900px) { .tl-panel .tl-hd { cursor: move; } .tl-panel.dragging { opacity: .92; transition: none; user-select: none; } .tl-panel.moved { right: auto; bottom: auto; } }

@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261107c';
+  var VER = '20261107d';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -28,6 +28,11 @@
   var open = {}; // kind -> { el, min }
   function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function save() { try { var o = {}; Object.keys(open).forEach(function (k) { o[k] = open[k].min ? 1 : 0; }); sessionStorage.setItem('wpsTools', JSON.stringify(o)); } catch (e) { } }
+  // 資料ごとの設定(最後に開いたタブ・検索語・暗記モード・位置)と、最近使った資料を覚えておく
+  var PREF = (function () { try { return JSON.parse(localStorage.getItem('wpsToolPref') || '{}'); } catch (e) { return {}; } })();
+  function pref(kind) { PREF[kind] = PREF[kind] || {}; return PREF[kind]; }
+  function savePref() { try { localStorage.setItem('wpsToolPref', JSON.stringify(PREF)); } catch (e) { } }
+  function touchRecent(kind) { var r = (PREF._recent || []).filter(function (k) { return k !== kind; }); r.unshift(kind); PREF._recent = r.slice(0, 4); savePref(); }
   function load(kind, cb) {
     var K = KINDS[kind];
     if (K.ready()) return cb();
@@ -64,6 +69,17 @@
       '<button type="button" class="tl-x" aria-label="閉じる" title="閉じる">×</button></header><div class="tl-body"><p class="muted center" style="padding:24px">読み込み中…</p></div>';
     document.body.appendChild(el);
     open[kind] = { el: el, min: false };
+    touchRecent(kind);
+    // パソコンでは、見出しをドラッグしてパネルを好きな場所へ動かせる(位置は覚えておく)
+    var pp = pref(kind).pos; if (pp && innerWidth >= 900) { el.style.left = Math.min(pp[0], innerWidth - 200) + 'px'; el.style.top = Math.min(pp[1], innerHeight - 120) + 'px'; el.style.right = 'auto'; el.style.bottom = 'auto'; el.classList.add('moved'); }
+    el.querySelector('.tl-hd').addEventListener('pointerdown', function (ev) {
+      if (innerWidth < 900 || ev.target.closest('button')) return;
+      var r = el.getBoundingClientRect(), dx = ev.clientX - r.left, dy = ev.clientY - r.top;
+      el.classList.add('moved', 'dragging'); el.style.right = 'auto'; el.style.bottom = 'auto';
+      function mv(e) { var x = Math.max(0, Math.min(innerWidth - 120, e.clientX - dx)), y = Math.max(56, Math.min(innerHeight - 60, e.clientY - dy)); el.style.left = x + 'px'; el.style.top = y + 'px'; }
+      function up() { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); el.classList.remove('dragging'); pref(kind).pos = [parseInt(el.style.left, 10), parseInt(el.style.top, 10)]; savePref(); }
+      document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); ev.preventDefault();
+    });
     el.querySelector('.tl-min').onclick = function () { minimize(kind); };
     el.querySelector('.tl-x').onclick = function () { close(kind); };
     el.querySelector('.tl-big').onclick = function () { el.classList.toggle('tall'); if (open[kind].fit) open[kind].fit(); };
@@ -72,33 +88,40 @@
     load(kind, function (err) {
       var body = el.querySelector('.tl-body');
       if (err) { body.innerHTML = '<p class="muted center" style="padding:24px">読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'; return; }
-      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, (WPS.REFS || {})[kind]);
+      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, (WPS.REFS || {})[kind], kind);
     });
   }
 
   /* ---------- 表の資料(公式集・不規則動詞・助動詞・単位) ---------- */
-  function refTable(body, R, extra) {
+  function refTable(body, R, kind) {
     if (!R) { body.innerHTML = '<p class="muted">資料を読み込めませんでした。</p>'; return; }
-    var cur = -1; // -1 = すべて
+    var P = pref(kind || 'x'), cur = typeof P.tab === 'number' && P.tab < R.sections.length ? P.tab : -1; // -1 = すべて
     body.innerHTML = (R.note ? '<p class="rf-note">' + h(R.note) + '</p>' : '') +
-      '<input type="search" class="rf-q" placeholder="ことばで探す" aria-label="資料の中を探す">' +
-      '<div class="rf-tabs" role="tablist">' + ['すべて'].concat(R.sections.map(function (x) { return x.h; })).map(function (t, i) { return '<button type="button" role="tab" data-rft="' + (i - 1) + '"' + (i === 0 ? ' class="on" aria-selected="true"' : ' aria-selected="false"') + '>' + h(t) + '</button>'; }).join('') + '</div><div class="rf-body"></div>';
+      '<div class="rf-bar"><input type="search" class="rf-q" placeholder="ことばで探す" aria-label="資料の中を探す" value="' + h(P.q || '') + '"><button type="button" class="rf-memo' + (P.memo ? ' on' : '') + '" aria-pressed="' + !!P.memo + '" title="答えの列をかくして、自分で思い出す練習ができます">' + (P.memo ? '👀 暗記中' : '🙈 暗記モード') + '</button></div>' +
+      '<div class="rf-tabs" role="tablist">' + ['すべて'].concat(R.sections.map(function (x) { return x.h; })).map(function (t, i) { var on = i - 1 === cur; return '<button type="button" role="tab" data-rft="' + (i - 1) + '"' + (on ? ' class="on"' : '') + ' aria-selected="' + on + '">' + h(t) + '</button>'; }).join('') + '</div>' +
+      '<p class="rf-memohint"' + (P.memo ? '' : ' hidden') + '>かくれたところを押すと答えが見えます。</p><div class="rf-body' + (P.memo ? ' memo' : '') + (R.memoFirst ? ' memo-first' : '') + '"></div>';
     var out = body.querySelector('.rf-body'), q = body.querySelector('.rf-q');
     function draw() {
       var w = q.value.trim().toLowerCase(), n = 0;
       out.innerHTML = R.sections.map(function (sec, si) {
         if (cur >= 0 && si !== cur) return '';
-        var rows = sec.rows.filter(function (r) { return !w || r.join(' ').toLowerCase().indexOf(w) >= 0; });
+        var secHit = w && sec.h.toLowerCase().indexOf(w) >= 0, rows = sec.rows.filter(function (r) { return !w || secHit || r.join(' ').toLowerCase().indexOf(w) >= 0; });
         n += rows.length; if (!rows.length) return '';
-        return '<h4 class="rf-h">' + h(sec.h) + '</h4><div class="rf-scroll"><table class="rf-t"><thead><tr>' + sec.head.map(function (c) { return '<th>' + h(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
-          rows.map(function (r) { return '<tr>' + r.map(function (c, ci) { return ci === 0 ? '<th scope="row">' + h(c) + '</th>' : '<td>' + h(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+        return '<h4 class="rf-h">' + h(sec.h) + '<small>' + rows.length + '</small></h4><div class="rf-scroll"><table class="rf-t"><thead><tr>' + sec.head.map(function (c) { return '<th>' + h(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+          rows.map(function (r) { return '<tr>' + r.map(function (c, ci) { return ci === 0 ? '<th scope="row">' + h(c) + '</th>' : '<td' + (c === '' ? ' class="e"' : '') + '>' + h(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
       }).join('') || '<p class="muted small">見つかりませんでした。</p>';
     }
     body.querySelector('.rf-tabs').addEventListener('click', function (ev) {
-      var b = ev.target.closest('[data-rft]'); if (!b) return; cur = +b.getAttribute('data-rft');
+      var b = ev.target.closest('[data-rft]'); if (!b) return; cur = +b.getAttribute('data-rft'); P.tab = cur; savePref();
       body.querySelectorAll('.rf-tabs button').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); }); draw();
     });
-    q.addEventListener('input', draw); draw();
+    // 暗記モード:答えの列をぼかす。押した所だけ見える
+    body.querySelector('.rf-memo').addEventListener('click', function () {
+      P.memo = !P.memo; savePref(); this.classList.toggle('on', P.memo); this.setAttribute('aria-pressed', P.memo); this.textContent = P.memo ? '👀 暗記中' : '🙈 暗記モード';
+      out.classList.toggle('memo', P.memo); body.querySelector('.rf-memohint').hidden = !P.memo; out.querySelectorAll('.shown').forEach(function (x) { x.classList.remove('shown'); });
+    });
+    out.addEventListener('click', function (ev) { var c = ev.target.closest('td, tbody th'); if (c && out.classList.contains('memo')) c.classList.toggle('shown'); });
+    q.addEventListener('input', function () { P.q = q.value; savePref(); draw(); }); draw();
   }
   // 年表:アプリの年号データ(日本史・世界史)から作る。紀元前は「前○○年」
   function chrono(body) {
@@ -106,8 +129,8 @@
     function rows(bank, tag) { return (WPS.BANK[bank] || []).slice().sort(function (a, b) { return a.t - b.t; }).map(function (x) { return [yr(x.t), x.m, (tag ? tag + '・' : '') + (x.h || '')]; }); }
     var J = rows('jhistory', ''), W = rows('whistory', '');
     var both = (WPS.BANK.jhistory || []).map(function (x) { return [+x.t, x.m, '日本史']; }).concat((WPS.BANK.whistory || []).map(function (x) { return [+x.t, x.m, '世界史']; })).sort(function (a, b) { return a[0] - b[0]; }).map(function (x) { return [yr(x[0]), x[1], x[2]]; });
-    refTable(body, { note: '日本史 ' + J.length + '件・世界史 ' + W.length + '件。「日本と世界」は同じ年代のできごとを並べて比べられます。', sections: [
-      { h: '日本史', head: ['年', 'できごと', '時代'], rows: J }, { h: '世界史', head: ['年', 'できごと', '時代'], rows: W }, { h: '日本と世界', head: ['年', 'できごと', ''], rows: both }] });
+    refTable(body, { memoFirst: 1, note: '日本史 ' + J.length + '件・世界史 ' + W.length + '件。「日本と世界」は同じ年代のできごとを並べて比べられます。', sections: [
+      { h: '日本史', head: ['年', 'できごと', '時代'], rows: J }, { h: '世界史', head: ['年', 'できごと', '時代'], rows: W }, { h: '日本と世界', head: ['年', 'できごと', ''], rows: both }] }, 'chrono');
   }
 
   /* ---------- 周期表 ---------- */
@@ -298,17 +321,42 @@
     if (m) { m.remove(); return; }
     m = document.createElement('div'); m.id = 'tlMenu'; m.className = 'tl-menu'; m.setAttribute('role', 'menu');
     var gs = []; Object.keys(KINDS).forEach(function (k) { if (gs.indexOf(KINDS[k].g) < 0) gs.push(KINDS[k].g); });
-    m.innerHTML = gs.map(function (g) { return '<p class="tl-mg">' + g + '</p>' + Object.keys(KINDS).filter(function (k) { return KINDS[k].g === g; }).map(function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; }).join(''); }).join('');
+    var rec = (PREF._recent || []).filter(function (k) { return KINDS[k]; }).slice(0, 4);
+    var item = function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; };
+    m.innerHTML = '<input type="search" class="tl-ms" placeholder="すべての資料から探す(例:加法定理・炎色)" aria-label="すべての資料から探す"><div class="tl-mres"></div>' +
+      (rec.length ? '<p class="tl-mg">最近使った資料</p>' + rec.map(item).join('') : '') + gs.map(function (g) { return '<p class="tl-mg">' + g + '</p>' + Object.keys(KINDS).filter(function (k) { return KINDS[k].g === g; }).map(function (k) { return '<button type="button" role="menuitem" data-tlopen="' + k + '">' + KINDS[k].icon + ' ' + KINDS[k].title + '</button>'; }).join(''); }).join('');
     document.body.appendChild(m);
+    // すべての資料をまとめて検索(表の資料は、はじめて検索したときに読み込む)
+    var ms = m.querySelector('.tl-ms'), res = m.querySelector('.tl-mres');
+    ms.addEventListener('input', function () {
+      var w = ms.value.trim().toLowerCase();
+      if (!w) { res.innerHTML = ''; return; }
+      if (!(WPS.REFS && WPS.REFS.math && WPS.REFS.phys)) { load('math', function () { load('phys', function () { ms.dispatchEvent(new Event('input')); }); }); res.innerHTML = '<p class="tl-mg">読み込み中…</p>'; return; }
+      var hits = [];
+      Object.keys(WPS.REFS).forEach(function (k) { if (!KINDS[k]) return; WPS.REFS[k].sections.forEach(function (sec) { sec.rows.forEach(function (r) { if (hits.length < 40 && (sec.h + ' ' + r.join(' ')).toLowerCase().indexOf(w) >= 0) hits.push([k, r, sec.h]); }); }); });
+      ['jhistory', 'whistory'].forEach(function (b) { ((WPS.BANK || {})[b] || []).forEach(function (x) { if (hits.length < 40 && (x.m + ' ' + x.t).toLowerCase().indexOf(w) >= 0) hits.push(['chrono', [(+x.t < 0 ? '前' + (-x.t) : x.t) + '年', x.m]]); }); });
+      (WPS.ELEMENTS || []).forEach(function (e) { if (hits.length < 40 && (e[1].toLowerCase() === w || e[2].indexOf(w) >= 0)) hits.push(['ptable', [e[1], e[2] + '(原子番号' + e[0] + ')']]); });
+      res.innerHTML = hits.length ? hits.map(function (x) { return '<button type="button" class="tl-hit" data-tlopen="' + x[0] + '" data-tlq="' + h(ms.value.trim()) + '"><em>' + KINDS[x[0]].icon + ' ' + h(KINDS[x[0]].title) + '</em><b>' + h(x[1][0]) + '</b><span>' + h(x[1].slice(1).filter(Boolean).join(' / ')) + '</span></button>'; }).join('') : '<p class="tl-mg">見つかりませんでした</p>';
+    });
+    setTimeout(function () { if (innerWidth >= 900) ms.focus(); }, 0);
     var r = btn.getBoundingClientRect();
     m.style.top = (r.bottom + 6) + 'px'; m.style.right = Math.max(8, innerWidth - r.right) + 'px';
     setTimeout(function () { document.addEventListener('click', function off(ev) { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener('click', off); } }); }, 0);
   }
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Escape') return;
+    var m = document.getElementById('tlMenu'); if (m) { m.remove(); return; }
+    var k = Object.keys(open).filter(function (x) { return !open[x].min; })[0]; if (k) minimize(k);
+  });
   document.addEventListener('click', function (ev) {
     var t = ev.target;
     var c = t.closest && t.closest('[data-tlclose]'); if (c) { ev.stopPropagation(); close(c.getAttribute('data-tlclose')); return; }
     var r = t.closest && t.closest('[data-tlrestore]'); if (r) { restore(r.getAttribute('data-tlrestore')); return; }
-    var o = t.closest && t.closest('[data-tlopen]'); if (o) { var m = document.getElementById('tlMenu'); if (m) m.remove(); openTool(o.getAttribute('data-tlopen')); return; }
+    var o = t.closest && t.closest('[data-tlopen]'); if (o) {
+      var m = document.getElementById('tlMenu'); if (m) m.remove(); var k = o.getAttribute('data-tlopen'), q = o.getAttribute('data-tlq');
+      if (q !== null && k !== 'ptable') { pref(k).q = q; pref(k).tab = -1; savePref(); if (open[k]) close(k); }
+      openTool(k); if (q !== null && k === 'ptable') setTimeout(function () { var i = document.getElementById('ptQ'); if (i) { i.value = q; i.dispatchEvent(new Event('input')); } }, 400); return;
+    }
     var b = t.closest && t.closest('.tb-tools'); if (b) { ev.preventDefault(); menu(b); }
   });
   // 前に開いていたパネルを、ページを読み直したあとも戻す
