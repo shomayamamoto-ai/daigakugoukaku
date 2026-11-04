@@ -4,7 +4,7 @@
  * 記録:S.get().eng = { L: { 問題ID: { ok, n, t } }, W: { 問題ID: { sc, t, x } } }
  */
 WPS.makeEtrain = function (ctx) {
-  var S = WPS.Store, h = ctx.h, VER = '20261107a';
+  var S = WPS.Store, h = ctx.h, VER = '20261107b';
   var LV = { 1: '中学・高校入試', 2: '共通テスト', 3: '難関大' };
   var TY = { short: '短い対話', dialog: '会話', talk: '説明・講義', announce: 'アナウンス', trans: '和文英訳', free: '自由英作文', email: 'メール', graph: '図表の説明', summary: '要約' };
   var st = { tab: 'listen', lv: 0, run: null, wid: null, rate: 1, showJa: false };
@@ -37,7 +37,7 @@ WPS.makeEtrain = function (ctx) {
       // 話し手ごとに声(または声の高さ)を変える
       var k = who[sp];
       if (vs.length > 1) u.voice = vs[k % vs.length]; else if (vs[0]) u.voice = vs[0];
-      u.pitch = vs.length > 1 ? 1 : (k % 2 ? 1.35 : 0.85);
+      var PIT = { M: 0.8, W: 1.35, A: 0.9, B: 1.3, N: 1 }; u.pitch = sp in PIT ? PIT[sp] : (k % 2 ? 1.3 : 0.9); // 男性は低め・女性は高め
       if (i === script.length - 1) u.onend = u.onerror = function () { playing = false; if (onDone) onDone(); };
       speechSynthesis.speak(u);
     });
@@ -121,7 +121,7 @@ WPS.makeEtrain = function (ctx) {
       '<textarea id="etText" rows="' + (q.type === 'trans' ? 3 : 8) + '" placeholder="ここに英語で書きましょう" spellcheck="false" autocapitalize="sentences">' + h(st.wText != null ? st.wText : (R.x || '')) + '</textarea><p class="et-count" id="etCount">' + words(st.wText != null ? st.wText : (R.x || '')) + ' 語</p>';
     if (!shown) html += '<button type="button" class="btn primary big" id="etShow">模範解答を見る</button>';
     else {
-      html += '<div class="et-model"><small>模範解答</small><p class="et-en">' + h(q.model) + '</p>' + (q.alt && q.alt.length ? '<p class="et-alt"><b>ほかの正解例</b>' + q.alt.map(h).join('<br>') + '</p>' : '') + (q.ja ? '<p class="et-ja">' + h(q.ja) + '</p>' : '') + '</div>' +
+      html += '<div class="et-model"><small>模範解答</small><p class="et-en">' + h(q.model) + '</p>' + (q.alt && q.alt.length ? '<p class="et-alt"><b>ほかの正解例</b>' + q.alt.map(h).join('<br>') + '</p>' : '') + (q.ja && q.type !== 'trans' ? '<p class="et-ja">' + h(q.ja) + '</p>' : '') + '</div>' +
         (q.points && q.points.length ? '<div class="et-pts"><small>使える表現・考え方</small><ul>' + q.points.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' : '') +
         (q.miss && q.miss.length ? '<div class="et-miss"><small>よくあるミス</small><ul>' + q.miss.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></div>' : '') +
         '<div class="et-check"><small>自己チェック(できたものに✓)</small>' + q.check.map(function (c, i) { return '<label><input type="checkbox" data-etck="' + i + '"' + ((st.wChk || [])[i] ? ' checked' : '') + '><span>' + h(c) + '</span></label>'; }).join('') + '</div>' +
