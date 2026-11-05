@@ -677,7 +677,7 @@
       { lv: 2, q: 'A: I like soccer. に「私もです」と答えよう(2通り)。', a: 'Me, too. / So do I.', exp: '肯定の文に「私も」と言うときは Me, too. や So do I. を使います。So do I. の do は like のくり返しをさけた語です。' },
       { lv: 2, q: 'A: I don\'t like coffee. に「私も好きではありません」と答えよう(2通り)。', a: 'Me, neither. / Neither do I.', exp: '否定の文に「私も〜ない」と言うときは too ではなく neither を使います。× Me, too. はここでは使いません。' },
       { lv: 2, q: 'Why don\'t we have lunch together? の意味を書こう。', a: 'いっしょにお昼を食べませんか。', exp: 'Why don\'t we 〜? は「なぜ〜しないのか」ではなく、「(いっしょに)〜しませんか」という誘いの決まった言い方です。' },
-      { lv: 3, q: '( )に Yes か No を入れよう。— Aren\'t you hungry? — ( ), I am. I\'m very hungry.', a: 'Yes', exp: '答えの内容は「おなかがすいている」という肯定なので Yes を使います。日本語では「いいえ、すいています」となる点に注意しましょう。' },
+      { lv: 3, q: '( )に Yes か No を入れよう。— Aren\'t you tired? — ( ), I am. I walked for three hours.', a: 'Yes', exp: '答えの内容は「疲れている」という肯定なので Yes を使います。日本語では「いいえ、疲れています」となる点に注意しましょう。' },
       { lv: 3, q: '( )に Yes か No を入れよう。— Didn\'t you go to school yesterday? — ( ), I didn\'t. I was sick.', a: 'No', exp: '答えの内容は「行かなかった」という否定なので No を使います。後ろの I didn\'t. と Yes・No を一致させます。' },
       { lv: 3, q: '( )に入るものを選ぼう。A: Let\'s meet at the station at 3:15. B: ( ) A: At 3:15. B: OK.', choices: ['Sorry? What time?', 'Sure, at three.', 'How about you?', 'That\'s right.'], a: 'A(Sorry? What time?)', exp: 'A が At 3:15. と時刻をくり返していることから、B は時刻を聞き返したとわかります。Sorry? や Pardon? は聞き返しの表現です。' },
       { lv: 3, q: '( )に入るものを選ぼう。A: Can I speak to Ken? B: Sorry, he isn\'t home now. ( ) A: Yes, please. Please tell him to call me.', choices: ['Shall I take a message?', 'Can I leave a message?', 'Who\'s calling?', 'Hold on, please.'], a: 'A(Shall I take a message?)', exp: 'A が「彼に電話するよう伝えて」と伝言を頼んでいるので、B は「伝言をうかがいましょうか」とたずねたとわかります。leave a message はかけた側が言う表現です。' },
