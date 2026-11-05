@@ -201,7 +201,7 @@
       c.bezierCurveTo(-0.30 * s, -0.20 * s, -0.36 * s, -0.42 * s, -0.33 * s, -0.58 * s);
       c.bezierCurveTo(-0.30 * s, -0.72 * s, -0.16 * s, -0.78 * s, -0.10 * s, -0.83 * s);
       c.lineTo(-0.09 * s, -0.95 * s); c.quadraticCurveTo(-0.15 * s, -0.97 * s, -0.16 * s, -1.0 * s);
-      c.lineTo(0.16 * s, -1.0 * s); c.quadraticCurveTo(0.15 * s, -0.97 * s, 0.09 * s, -0.95 * s);
+      c.lineTo(0.12 * s, -1.0 * s); c.quadraticCurveTo(0.2 * s, -1.0 * s, 0.24 * s, -1.03 * s); c.quadraticCurveTo(0.17 * s, -0.95 * s, 0.09 * s, -0.95 * s);
       c.lineTo(0.10 * s, -0.83 * s);
       c.bezierCurveTo(0.16 * s, -0.78 * s, 0.30 * s, -0.72 * s, 0.33 * s, -0.58 * s);
       c.bezierCurveTo(0.36 * s, -0.42 * s, 0.30 * s, -0.20 * s, 0.13 * s, -0.06 * s);
@@ -211,13 +211,12 @@
     function drawUrn(x, y, s, ang, a) {
       if (a <= 0) return;
       var c = ox; c.save(); c.translate(x, y); c.rotate(ang); c.globalAlpha = a;
-      // 取っ手(本体の後ろ)
+      // 取っ手は1つだけ、注ぎ口の反対側(左)。注ぐ側(右)には取っ手を付けない
       c.lineCap = 'round';
-      c.lineWidth = 0.026 * s; c.strokeStyle = '#0b0a08';
-      c.beginPath(); c.moveTo(0.095 * s, -0.90 * s); c.bezierCurveTo(0.30 * s, -0.94 * s, 0.36 * s, -0.74 * s, 0.27 * s, -0.66 * s); c.stroke();
-      c.beginPath(); c.moveTo(-0.095 * s, -0.90 * s); c.bezierCurveTo(-0.30 * s, -0.94 * s, -0.36 * s, -0.74 * s, -0.27 * s, -0.66 * s); c.stroke();
-      c.lineWidth = Math.max(1, 0.006 * s); c.strokeStyle = 'rgba(240, 210, 150, .75)';
-      c.beginPath(); c.moveTo(0.105 * s, -0.912 * s); c.bezierCurveTo(0.312 * s, -0.952 * s, 0.375 * s, -0.74 * s, 0.284 * s, -0.655 * s); c.stroke();
+      c.lineWidth = 0.03 * s; c.strokeStyle = '#100e0b';
+      c.beginPath(); c.moveTo(-0.095 * s, -0.90 * s); c.bezierCurveTo(-0.34 * s, -0.95 * s, -0.42 * s, -0.70 * s, -0.30 * s, -0.60 * s); c.stroke();
+      c.lineWidth = Math.max(1, 0.006 * s); c.strokeStyle = 'rgba(170, 200, 235, .65)';
+      c.beginPath(); c.moveTo(-0.10 * s, -0.918 * s); c.bezierCurveTo(-0.355 * s, -0.97 * s, -0.44 * s, -0.70 * s, -0.315 * s, -0.592 * s); c.stroke();
       urnPath(c, s);
       var body = c.createRadialGradient(0.16 * s, -0.6 * s, 0.02 * s, 0, -0.5 * s, 0.52 * s);
       body.addColorStop(0, '#4a3c26'); body.addColorStop(0.45, '#17130d'); body.addColorStop(1, '#040404');
@@ -272,7 +271,7 @@
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, oc);
       // 水の柱:口から水面まで
       var c = Math.cos(tilt), sn = Math.sin(tilt);
-      var mx = ux + 0.16 * S * c + 1.0 * S * sn, my = baseY + 0.16 * S * sn - 1.0 * S * c;
+      var mx = ux + 0.24 * S * c + 1.03 * S * sn, my = baseY + 0.24 * S * sn - 1.03 * S * c;
       var sx = mx / oc.width, sTop = 1 - my / oc.height;
       var on = seg(t, 3.5, 3.8) * (1 - seg(t, 5.7, 6.1));
       var sHead = sTop - (sTop - (YH - 0.015)) * seg(t, 3.5, 4.1, sq);
