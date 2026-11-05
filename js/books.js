@@ -176,7 +176,7 @@ WPS.makeBooks = function (ctx) {
       // 思考問題・探究(資料・会話・実験を読んで考える)
       if (L.think && L.think.length) html += sec('思考問題・探究', 'lz-think') + '<p class="muted small">資料や会話を読んで考える、共通テストの思考力問題に近い形式です。</p>' + L.think.map(function (t, k) {
         return '<div class="bk-board lz-ex"><div class="bk-bh"><b>思考問題' + (k + 1) + '</b><em>' + h(t.kind || '探究') + '</em></div><div class="bk-bb">' + (t.ctx ? '<div class="th-ctx">' + paras(t.ctx) + '</div>' : '') + '<p class="bk-q">' + rt(t.q) + '</p>' +
-          (t.choices && t.choices.length ? '<ol class="tl-ch th-ch" type="1">' + t.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') +
+          (t.choices && t.choices.length ? '<ol class="tl-ch th-ch" type="1">' + t.choices.map(function (c) { return '<li>' + rt(String(c).replace(/^\s*[①-⑥]\s*/, '')) + '</li>'; }).join('') + '</ol>' : '') +
           '<details><summary>答えと考え方</summary><p class="bk-ans">答え:<b>' + rt(t.a) + '</b></p>' + paras(t.exp || '') + '</details></div></div>';
       }).join('') + '</section>';
       // 暗記カード(押すと裏返る。覚えたものは印をつけて、次から後ろへ)
