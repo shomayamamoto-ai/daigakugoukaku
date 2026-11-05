@@ -9,14 +9,14 @@
 (function () {
   'use strict';
   window.WPS = window.WPS || {};
-  var KEY = 'wpsIntroSeen';
+  var KEY = 'wpsIntroSeen:v3';
 
   function shouldPlay(force) {
     if (force) return true;
     var q = location.search;
     if (/[?&](nointro|notour)\b/.test(q)) return false;
     if (/[?&]intro=1\b/.test(q)) return true;
-    try { if (sessionStorage.getItem(KEY)) return false; } catch (e) { return false; }
+    try { if (localStorage.getItem(KEY)) return false; } catch (e) { return false; }
     return true;
   }
 
@@ -126,7 +126,7 @@
   function play(opt) {
     opt = opt || {};
     if (!shouldPlay(opt.force)) { if (opt.done) opt.done(); return; }
-    try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* 無視 */ }
+    try { localStorage.setItem(KEY, '1'); } catch (e) { /* 無視 */ }
     addAssets();
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -157,7 +157,7 @@
     document.addEventListener('keydown', onKey);
 
     var gl = null;
-    if (!reduce) { try { gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: false }) || cv.getContext('experimental-webgl'); } catch (e) { gl = null; } }
+    try { gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: false }) || cv.getContext('experimental-webgl'); } catch (e) { gl = null; }
     var prog = gl && build(gl);
     if (!prog) {
       cv.style.background = '#05070c';
@@ -262,6 +262,7 @@
     }
 
     var tagOn = false, FIX = +((location.search.match(/[?&]introT=([\d.]+)/) || [])[1] || -1); // 確認用:その秒で止める
+    if (reduce && FIX < 0) { FIX = 8.8; DUR = 3.4; } // 動きを減らす設定:最後の場面を、動かさずに見せる
     function frame(now) {
       if (!T0) T0 = now;
       var t = FIX >= 0 ? FIX : (now - T0) / 1000;
@@ -286,7 +287,8 @@
       gl.uniform2f(U.R, cv.width, cv.height);
       gl.uniform1f(U.T, t);
       gl.uniform1f(U.YH, YH);
-      gl.uniform1f(U.FADE, seg(t, 0, 1.8) * (1 - seg(t, DUR - 0.6, DUR)));
+      var rt = (now - T0) / 1000;
+      gl.uniform1f(U.FADE, reduce ? seg(rt, 0, 0.8) : seg(t, 0, 1.8) * (1 - seg(t, DUR - 0.6, DUR)));
       gl.uniform1f(U.GL, -0.3 + 1.6 * seg(t, 7.6, 9.0));
       gl.uniform1f(U.RIP, rip);
       gl.uniform1f(U.SON, on);
@@ -295,6 +297,7 @@
       gl.uniform2f(U.IMP, (sx - 0.5) * ar * tt, tt);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       if (t > 7.0 && !tagOn) { tagOn = true; tag.classList.add('on'); }
+      if (reduce && rt > DUR) { end(); return; }
       if (t > DUR && FIX < 0) { end(); return; }
       raf = requestAnimationFrame(frame);
     }

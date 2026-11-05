@@ -2416,7 +2416,7 @@
     var perm = WPS.Notify.permission();
     var permLabel = { granted: '✅ 許可されています', denied: '⛔ ブロックされています(ブラウザの設定から許可してください)', default: '未設定', unsupported: 'このブラウザは通知に対応していません' }[perm];
     var html = '<section class="card"><h2>プロフィール・志望校</h2>' + profileForm(p, '保存する') + '</section>';
-    html += '<section class="card"><h2>使い方</h2><div class="btns"><button type="button" class="btn" id="replayTour">はじめての案内をもう一度見る</button><button type="button" class="btn" id="logoutBtn">ログアウト</button><a class="btn" href="manual.html" target="_blank" rel="noopener">使い方マニュアル(動画つき)</a></div></section>';
+    html += '<section class="card"><h2>使い方</h2><div class="btns"><button type="button" class="btn" id="replayTour">はじめての案内をもう一度見る</button><button type="button" class="btn" id="replayIntro">オープニングムービーを見る</button><button type="button" class="btn" id="logoutBtn">ログアウト</button><a class="btn" href="manual.html" target="_blank" rel="noopener">使い方マニュアル(動画つき)</a></div></section>';
     html += '<section class="card"><h2>テーマカラー</h2><p class="muted small">アプリ全体の色を選べます。文字の読みやすさ(コントラスト)は、どの色でも保つようにしています。</p><div class="pal-list">' + PALETTES.map(function (x) {
       return '<button type="button" class="pal' + ((p.palette || 'jade') === x[0] ? ' on' : '') + '" data-pal="' + x[0] + '" aria-pressed="' + ((p.palette || 'jade') === x[0]) + '"><span class="pal-sw">' + x[2].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><b>' + x[1] + '</b></button>';
     }).join('') + '</div></section>';
@@ -2446,6 +2446,7 @@
   }
   renderSettings.after = function () {
     var lo = document.getElementById('logoutBtn'); if (lo) lo.addEventListener('click', function () { ask('ログアウトしますか?(学習の記録は、この端末に残ります)', 'ログアウト', function () { WPS.Auth.logout(); go('#home'); }); });
+    var ri = document.getElementById('replayIntro'); if (ri) ri.addEventListener('click', function () { if (WPS.Intro) WPS.Intro.play({ force: true }); });
     var rt = document.getElementById('replayTour'); if (rt) rt.addEventListener('click', function () { go('#home'); setTimeout(function () { window.scrollTo(0, 0); WPS.startTour(); }, 400); });
     var s = S.get();
     bindProfileForm(function () { toast('保存したよ！ ロードマップも更新したよ'); render(); });
