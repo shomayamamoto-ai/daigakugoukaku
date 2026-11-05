@@ -1,49 +1,84 @@
-/* オープニングムービー:水瓶座の水瓶から、知性の水があふれ出す(約7秒)
- * ・同じタブでは1回だけ流す(sessionStorage)。?intro=1 で強制再生、?nointro で再生しない
- * ・どこかをタップ/「スキップ」/Esc で飛ばせる。動きを減らす設定の端末では、ロゴだけを短く出す
+/* オープニングムービー(約8秒)
+ * 「水瓶座の水瓶から、知性の水があふれ出す」を、高級ブランドの映像の作法で表現する。
+ *  ・色は3つだけ:墨に近い紺(背景)/シャンパンゴールド(線)/淡い水色の光(水)
+ *  ・要素を引き算し、画面のまん中に1つだけ焦点を置く。余白を大きくとる
+ *  ・線は1pxの細い線で「描かれていく」。動きはゆっくり減速し、はねない
+ *  ・文字は細いセリフ体の大文字を広い字間で。1文字ずつ現れ、字間がゆっくり締まる
+ *  ・水面は静かな1本の線。しずくが落ちた点から、波紋と金の粒(知性)が広がる
+ * 同じタブでは1回だけ。?intro=1 で強制再生、?nointro・?notour で再生しない。
+ * どこかをタップ/SKIP/Esc で飛ばせる。動きを減らす設定の端末では、静止したロゴを短く出す。
  */
 (function () {
   'use strict';
   window.WPS = window.WPS || {};
   var KEY = 'wpsIntroSeen';
-  var GLYPHS = ['A', 'π', 'Σ', 'あ', '文', '√', 'x²', '∞', 'e', 'Δ', '漢', 'α', 'H₂O', '∫', '史', 'λ', 'ε', 'Ω', '詩', '?'];
-  // 水瓶座の星(画面に合わせてならべた模式図)
-  var STARS = [[0.70, 0.16], [0.76, 0.12], [0.82, 0.15], [0.86, 0.22], [0.79, 0.27], [0.74, 0.33], [0.80, 0.39], [0.88, 0.36], [0.68, 0.24]];
-  var LINES = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [0, 8], [8, 4]];
+  var GOLD = '201, 169, 110', GOLD_HI = '236, 214, 160', AQUA = '200, 232, 242';
 
   function shouldPlay(force) {
     if (force) return true;
     var q = location.search;
-    if (/[?&]nointro\b/.test(q) || /[?&]notour\b/.test(q)) return false;
+    if (/[?&](nointro|notour)\b/.test(q)) return false;
     if (/[?&]intro=1\b/.test(q)) return true;
-    try { if (sessionStorage.getItem(KEY)) return false; } catch (e) { /* 使えない環境では毎回流さない */ return false; }
+    try { if (sessionStorage.getItem(KEY)) return false; } catch (e) { return false; }
     return true;
   }
 
-  var CSS = 'html.aq-intro-on, html.aq-intro-on body { overflow: hidden; } .aq-intro { position: fixed; inset: 0; z-index: 9999; background: #020b1f; cursor: pointer; transition: opacity .6s ease; } .aq-intro.out { opacity: 0; pointer-events: none; } .aq-intro canvas { position: absolute; inset: 0; display: block; } .aq-intro-logo { position: absolute; left: 50%; top: 84%; transform: translate(-50%, -50%) scale(.96); text-align: center; color: #fff; opacity: 0; transition: opacity 1.1s ease, transform 1.4s cubic-bezier(.2, .8, .2, 1); pointer-events: none; width: min(92vw, 640px); } .aq-intro-logo.on { opacity: 1; transform: translate(-50%, -50%) scale(1); } .aq-intro-logo b { display: block; font-family: \'Allura\', cursive; font-weight: 400; font-size: clamp(3.6rem, 17vw, 7.5rem); line-height: 1.05; letter-spacing: .01em;   background: linear-gradient(100deg, #ffffff 0%, #bfe9ff 35%, #ffffff 50%, #8fd6ff 70%, #ffffff 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;   filter: drop-shadow(0 0 18px rgba(120, 210, 255, .55)); animation: aqShine 2.6s ease-in-out .4s infinite; } .aq-intro-logo small { display: block; margin-top: 6px; font-size: clamp(.85rem, 3.6vw, 1.05rem); letter-spacing: .32em; color: #cfe6ff; font-weight: 500; } @keyframes aqShine { 0% { background-position: 100% 0; } 100% { background-position: -120% 0; } } .aq-intro-skip { position: absolute; right: max(14px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); padding: 8px 18px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: rgba(2, 11, 31, .45); color: #e6f0ff; font: inherit; font-size: .85rem; letter-spacing: .1em; cursor: pointer; } @media (prefers-reduced-motion: reduce) { .aq-intro-logo b { animation: none; } }';
-  function addCSS() { if (document.getElementById('aqIntroCSS')) return; var st = document.createElement('style'); st.id = 'aqIntroCSS'; st.textContent = CSS; document.head.appendChild(st); }
+  var CSS = [
+    'html.aq-intro-on, html.aq-intro-on body { overflow: hidden; }',
+    '.aq-intro { position: fixed; inset: 0; z-index: 9999; background: #04070e; cursor: pointer; transition: opacity 1s cubic-bezier(.4, 0, .2, 1); -webkit-tap-highlight-color: transparent; }',
+    '.aq-intro.out { opacity: 0; pointer-events: none; }',
+    '.aq-intro canvas { position: absolute; inset: 0; display: block; }',
+    '.aq-l { position: absolute; left: 0; right: 0; top: var(--aq-sy, 62%); pointer-events: none; text-align: center; }',
+    '.aq-word { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); white-space: nowrap; font-family: "Cormorant Garamond", "Shippori Mincho", serif; font-weight: 300; font-size: clamp(1.9rem, 9.5vw, 4.4rem); line-height: 1; color: rgb(' + GOLD_HI + '); letter-spacing: .62em; margin-right: -.62em; transition: letter-spacing 3.2s cubic-bezier(.16, 1, .3, 1), margin 3.2s cubic-bezier(.16, 1, .3, 1); }',
+    '.aq-l.on .aq-word { letter-spacing: .34em; margin-right: -.34em; }',
+    '.aq-word span { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(6px); transition: opacity 1.6s cubic-bezier(.16, 1, .3, 1), filter 1.6s cubic-bezier(.16, 1, .3, 1), transform 1.6s cubic-bezier(.16, 1, .3, 1); }',
+    '.aq-l.on .aq-word span { opacity: 1; filter: blur(0); transform: none; }',
+    '.aq-word.rf { bottom: auto; top: 18px; transform: translateX(-50%) scaleY(-1); opacity: .16; -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 70%); mask-image: linear-gradient(to top, #000 0%, transparent 70%); }',
+    '.aq-tag { position: absolute; left: 0; right: 0; top: clamp(58px, 11vw, 96px); margin: 0; font-family: "Shippori Mincho", "Noto Serif JP", serif; font-weight: 400; font-size: clamp(.78rem, 3.3vw, .98rem); letter-spacing: .5em; text-indent: .5em; color: rgba(' + AQUA + ', .78); opacity: 0; transition: opacity 2s ease 1.4s; }',
+    '.aq-sub { display: block; margin-top: 14px; font-family: "Cormorant Garamond", serif; font-size: clamp(.6rem, 2.4vw, .72rem); letter-spacing: .6em; text-indent: .6em; color: rgba(' + GOLD + ', .7); }',
+    '.aq-l.on .aq-tag { opacity: 1; }',
+    '.aq-skip { position: absolute; right: max(18px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); padding: 8px 4px; border: 0; border-bottom: 1px solid rgba(' + GOLD + ', .45); background: none; color: rgba(' + GOLD_HI + ', .8); font-family: "Cormorant Garamond", serif; font-size: .78rem; letter-spacing: .42em; text-indent: .42em; cursor: pointer; opacity: 0; transition: opacity 1.2s ease .6s; }',
+    '.aq-intro.ready .aq-skip { opacity: 1; }',
+    '@media (prefers-reduced-motion: reduce) { .aq-word, .aq-word span, .aq-tag { transition: opacity .8s ease !important; filter: none !important; transform: translateX(-50%) !important; } .aq-word span { transform: none !important; } .aq-word.rf { transform: translateX(-50%) scaleY(-1) !important; } }'
+  ].join('\n');
+  function addAssets() {
+    if (!document.getElementById('aqIntroCSS')) { var st = document.createElement('style'); st.id = 'aqIntroCSS'; st.textContent = CSS; document.head.appendChild(st); }
+    if (!document.getElementById('aqIntroFont')) {
+      var ln = document.createElement('link'); ln.id = 'aqIntroFont'; ln.rel = 'stylesheet';
+      ln.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Shippori+Mincho:wght@400&display=swap';
+      document.head.appendChild(ln);
+    }
+  }
+
   function play(opt) {
     opt = opt || {};
     if (!shouldPlay(opt.force)) { if (opt.done) opt.done(); return; }
     try { sessionStorage.setItem(KEY, '1'); } catch (e) { /* 無視 */ }
-    addCSS();
+    addAssets();
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var word = 'AQUALIUM'.split('').map(function (c, i) { return '<span style="transition-delay:' + (i * 0.11).toFixed(2) + 's">' + c + '</span>'; }).join('');
 
     var ov = document.createElement('div');
     ov.className = 'aq-intro';
     ov.setAttribute('role', 'dialog');
-    ov.setAttribute('aria-label', 'オープニング');
+    ov.setAttribute('aria-label', 'オープニング:Aqualium');
     ov.innerHTML = '<canvas aria-hidden="true"></canvas>' +
-      '<div class="aq-intro-logo"><b>Aqualium</b><small>知性が、あふれ出す。</small></div>' +
-      '<button type="button" class="aq-intro-skip">スキップ</button>';
+      '<div class="aq-l" aria-hidden="true"><div class="aq-word">' + word + '</div><div class="aq-word rf">' + word + '</div>' +
+      '<p class="aq-tag">知性が、あふれ出す。<span class="aq-sub">PERSONALIZED LEARNING</span></p></div>' +
+      '<button type="button" class="aq-skip">SKIP</button>';
     document.body.appendChild(ov);
     document.documentElement.classList.add('aq-intro-on');
-    var cv = ov.querySelector('canvas'), cx = cv.getContext('2d'), logo = ov.querySelector('.aq-intro-logo');
-    var W = 0, H = 0, D = Math.min(2, window.devicePixelRatio || 1);
-    function size() { W = innerWidth; H = innerHeight; cv.width = W * D; cv.height = H * D; cv.style.width = W + 'px'; cv.style.height = H + 'px'; cx.setTransform(D, 0, 0, D, 0, 0); }
+    var cv = ov.querySelector('canvas'), cx = cv.getContext('2d'), L = ov.querySelector('.aq-l');
+    var W, H, D = Math.min(2, window.devicePixelRatio || 1), SY;
+    function size() {
+      W = innerWidth; H = innerHeight; SY = H * (W > H ? 0.64 : 0.6);
+      cv.width = W * D; cv.height = H * D; cv.style.width = W + 'px'; cv.style.height = H + 'px'; cx.setTransform(D, 0, 0, D, 0, 0);
+      L.style.setProperty('--aq-sy', SY + 'px');
+    }
     size(); addEventListener('resize', size);
+    setTimeout(function () { ov.classList.add('ready'); }, 50);
 
-    var ended = false, raf = 0, T0 = performance.now(), DUR = reduce ? 1.8 : 7.2;
+    var ended = false, raf = 0, T0 = 0, last = 0, DUR = reduce ? 2.6 : 8.8;
     function end() {
       if (ended) return; ended = true;
       ov.classList.add('out');
@@ -51,144 +86,168 @@
         cancelAnimationFrame(raf); removeEventListener('resize', size); document.removeEventListener('keydown', onKey);
         ov.remove(); document.documentElement.classList.remove('aq-intro-on');
         if (opt.done) opt.done();
-      }, 600);
+      }, 1000);
     }
     function onKey(e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') end(); }
-    ov.querySelector('.aq-intro-skip').addEventListener('click', function (e) { e.stopPropagation(); end(); });
-    ov.addEventListener('click', function () { if ((performance.now() - T0) > 800) end(); });
+    ov.querySelector('.aq-skip').addEventListener('click', function (e) { e.stopPropagation(); end(); });
+    ov.addEventListener('click', function () { if (T0 && (performance.now() - T0) > 900) end(); });
     document.addEventListener('keydown', onKey);
 
-    if (reduce) {
-      cx.fillStyle = '#04143a'; cx.fillRect(0, 0, W, H);
-      logo.classList.add('on');
-      setTimeout(end, DUR * 1000);
-      return;
+    // ---------- 描画の道具 ----------
+    function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+    function eio(t) { t = clamp(t); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; } // ゆっくり出てゆっくり止まる
+    function eout(t) { t = clamp(t); return 1 - Math.pow(1 - t, 4); }
+    function seg(t, a, b, f) { return (f || eio)((t - a) / (b - a)); }
+    // フィルムの粒子(ほんのわずか)
+    var grain = document.createElement('canvas'); grain.width = grain.height = 160;
+    (function () { var g = grain.getContext('2d'), im = g.createImageData(160, 160); for (var i = 0; i < im.data.length; i += 4) { var v = Math.random() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } g.putImageData(im, 0, 0); })();
+    var stars = []; for (var i = 0; i < 70; i++) stars.push({ x: Math.random(), y: Math.random() * 0.55, r: Math.random() * 0.9 + 0.2, p: Math.random() * 6.28 });
+
+    // 水瓶(アンフォラ)の輪郭。原点=底の中心、高さ s
+    function urn(s) {
+      var p = new Path2D();
+      p.moveTo(0, 0);
+      p.bezierCurveTo(-0.07 * s, 0, -0.12 * s, -0.02 * s, -0.13 * s, -0.06 * s);
+      p.bezierCurveTo(-0.30 * s, -0.20 * s, -0.36 * s, -0.42 * s, -0.33 * s, -0.58 * s);
+      p.bezierCurveTo(-0.30 * s, -0.72 * s, -0.16 * s, -0.78 * s, -0.10 * s, -0.83 * s);
+      p.lineTo(-0.09 * s, -0.95 * s);
+      p.quadraticCurveTo(-0.15 * s, -0.97 * s, -0.16 * s, -1.0 * s);
+      p.lineTo(0.16 * s, -1.0 * s);
+      p.quadraticCurveTo(0.15 * s, -0.97 * s, 0.09 * s, -0.95 * s);
+      p.lineTo(0.10 * s, -0.83 * s);
+      p.bezierCurveTo(0.16 * s, -0.78 * s, 0.30 * s, -0.72 * s, 0.33 * s, -0.58 * s);
+      p.bezierCurveTo(0.36 * s, -0.42 * s, 0.30 * s, -0.20 * s, 0.13 * s, -0.06 * s);
+      p.bezierCurveTo(0.12 * s, -0.02 * s, 0.07 * s, 0, 0, 0);
+      return p;
+    }
+    function handles(s) {
+      var p = new Path2D();
+      p.moveTo(-0.095 * s, -0.90 * s); p.bezierCurveTo(-0.30 * s, -0.94 * s, -0.36 * s, -0.74 * s, -0.27 * s, -0.68 * s);
+      p.moveTo(0.095 * s, -0.90 * s); p.bezierCurveTo(0.30 * s, -0.94 * s, 0.36 * s, -0.74 * s, 0.27 * s, -0.68 * s);
+      p.moveTo(-0.30 * s, -0.50 * s); p.quadraticCurveTo(0, -0.46 * s, 0.30 * s, -0.50 * s);
+      return p;
+    }
+    // 線を「描いていく」(破線のずらしで、線の長さ p の割合だけ見せる)
+    function drawLine(path, p, len, w, a) {
+      if (p <= 0) return;
+      cx.setLineDash([len * p, len]); cx.lineDashOffset = 0;
+      cx.lineWidth = w; cx.strokeStyle = 'rgba(' + GOLD_HI + ',' + a + ')'; cx.stroke(path);
+      cx.setLineDash([]);
     }
 
-    // 背景の星
-    var bg = []; for (var i = 0; i < 140; i++) bg.push({ x: Math.random(), y: Math.random() * 0.8, r: Math.random() * 1.3 + 0.2, p: Math.random() * 6.28 });
-    var drops = [], glyphs = [], last = T0;
-    function ease(t) { return t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t); }
-    function seg(t, a, b) { return ease((t - a) / (b - a)); }
-
-    // 水瓶(アンフォラ)の形。原点=底の中心、高さ1
-    function urnPath(s) {
-      cx.beginPath();
-      cx.moveTo(-0.16 * s, 0);
-      cx.bezierCurveTo(-0.20 * s, -0.08 * s, -0.42 * s, -0.30 * s, -0.40 * s, -0.55 * s);
-      cx.bezierCurveTo(-0.38 * s, -0.75 * s, -0.20 * s, -0.80 * s, -0.13 * s, -0.84 * s);
-      cx.lineTo(-0.12 * s, -0.95 * s); cx.lineTo(-0.20 * s, -1.0 * s); cx.lineTo(0.20 * s, -1.0 * s); cx.lineTo(0.12 * s, -0.95 * s);
-      cx.lineTo(0.13 * s, -0.84 * s);
-      cx.bezierCurveTo(0.20 * s, -0.80 * s, 0.38 * s, -0.75 * s, 0.40 * s, -0.55 * s);
-      cx.bezierCurveTo(0.42 * s, -0.30 * s, 0.20 * s, -0.08 * s, 0.16 * s, 0);
-      cx.closePath();
-    }
-    function drawUrn(x, y, s, ang, alpha) {
-      cx.save(); cx.translate(x, y); cx.rotate(ang); cx.globalAlpha = alpha;
-      var g = cx.createLinearGradient(-0.4 * s, 0, 0.4 * s, 0);
-      g.addColorStop(0, '#7a5a1e'); g.addColorStop(0.45, '#e7c46a'); g.addColorStop(0.6, '#fff1c2'); g.addColorStop(1, '#8a6624');
-      urnPath(s); cx.fillStyle = g; cx.shadowColor = 'rgba(255, 210, 120, .55)'; cx.shadowBlur = 24; cx.fill(); cx.shadowBlur = 0;
-      // 取っ手
-      cx.strokeStyle = '#d8b25a'; cx.lineWidth = 0.035 * s;
-      cx.beginPath(); cx.moveTo(-0.14 * s, -0.88 * s); cx.bezierCurveTo(-0.38 * s, -0.95 * s, -0.46 * s, -0.70 * s, -0.36 * s, -0.66 * s); cx.stroke();
-      cx.beginPath(); cx.moveTo(0.14 * s, -0.88 * s); cx.bezierCurveTo(0.38 * s, -0.95 * s, 0.46 * s, -0.70 * s, 0.36 * s, -0.66 * s); cx.stroke();
-      // 模様(細い金の帯と、口のふちの光)
-      cx.strokeStyle = 'rgba(120, 84, 24, .55)'; cx.lineWidth = 0.012 * s;
-      [-0.62, -0.47, -0.24].forEach(function (yy, k) { var w = [0.385, 0.405, 0.33][k]; cx.beginPath(); cx.moveTo(-w * s, yy * s); cx.quadraticCurveTo(0, (yy + 0.03) * s, w * s, yy * s); cx.stroke(); });
-      cx.strokeStyle = 'rgba(255, 246, 214, .85)'; cx.lineWidth = 0.018 * s;
-      cx.beginPath(); cx.moveTo(-0.2 * s, -1.0 * s); cx.lineTo(0.2 * s, -1.0 * s); cx.stroke();
-      cx.restore();
-    }
-    // 回転したときの、口の位置と向き
-    function mouth(x, y, s, ang) {
-      var mx = 0.20 * s, my = -1.0 * s, c = Math.cos(ang), sn = Math.sin(ang);
-      return { x: x + mx * c - my * sn, y: y + mx * sn + my * c, dx: c, dy: sn };
-    }
-
+    var drops = [], ripples = [], dust = [], lastRip = 0;
     function frame(now) {
+      if (!T0) { T0 = last = now; }
       var t = (now - T0) / 1000, dt = Math.min(0.05, (now - last) / 1000); last = now;
-      // 夜空
-      var sky = cx.createLinearGradient(0, 0, 0, H);
-      sky.addColorStop(0, '#020b1f'); sky.addColorStop(0.55, '#04143a'); sky.addColorStop(1, '#0a2a6a');
-      cx.fillStyle = sky; cx.fillRect(0, 0, W, H);
-      bg.forEach(function (b) { cx.globalAlpha = 0.35 + 0.35 * Math.sin(t * 2 + b.p); cx.fillStyle = '#cfe3ff'; cx.beginPath(); cx.arc(b.x * W, b.y * H, b.r, 0, 6.28); cx.fill(); });
+      // 背景:墨色に近い紺。中央をわずかに明るく、四すみを落とす
+      cx.fillStyle = '#04070e'; cx.fillRect(0, 0, W, H);
+      var bgA = seg(t, 0, 1.6);
+      var rg = cx.createRadialGradient(W / 2, SY * 0.8, 0, W / 2, SY * 0.8, Math.max(W, H) * 0.75);
+      rg.addColorStop(0, 'rgba(22, 40, 74,' + (0.85 * bgA) + ')'); rg.addColorStop(0.55, 'rgba(9, 16, 32,' + (0.9 * bgA) + ')'); rg.addColorStop(1, 'rgba(4, 7, 14, 1)');
+      cx.fillStyle = rg; cx.fillRect(0, 0, W, H);
+      // 星(ごくかすかに)
+      stars.forEach(function (s) { cx.globalAlpha = bgA * (0.18 + 0.22 * Math.sin(t * 0.8 + s.p)); cx.fillStyle = '#e8eefc'; cx.fillRect(s.x * W, s.y * H, s.r, s.r); });
       cx.globalAlpha = 1;
-      // 水瓶座の線と星
-      var cs = seg(t, 0.2, 1.6);
-      cx.strokeStyle = 'rgba(140, 190, 255, ' + (0.45 * cs) + ')'; cx.lineWidth = 1;
-      LINES.forEach(function (l, j) {
-        var p = Math.min(1, Math.max(0, cs * LINES.length - j));
-        if (p <= 0) return;
-        var a = STARS[l[0]], b = STARS[l[1]];
-        cx.beginPath(); cx.moveTo(a[0] * W, a[1] * H); cx.lineTo((a[0] + (b[0] - a[0]) * p) * W, (a[1] + (b[1] - a[1]) * p) * H); cx.stroke();
-      });
-      STARS.forEach(function (s0) { cx.globalAlpha = cs; cx.fillStyle = '#fff'; cx.shadowColor = '#8fd0ff'; cx.shadowBlur = 10; cx.beginPath(); cx.arc(s0[0] * W, s0[1] * H, 2.2, 0, 6.28); cx.fill(); });
-      cx.shadowBlur = 0; cx.globalAlpha = 1;
 
-      // 水面(だんだん上がる)
-      var level = H * (0.97 - 0.27 * seg(t, 2.4, 5.6));
-      // 水瓶
-      var S = Math.min(W, H) * 0.34, ux = W * (W > H ? 0.36 : 0.30), uy = H * 0.50;
-      var ang = 0.95 * seg(t, 1.0, 2.2);
-      drawUrn(ux, uy + (1 - seg(t, 0.6, 1.6)) * 30, S, ang, seg(t, 0.6, 1.6) * (1 - 0.35 * seg(t, 4.6, 5.8)));
-      // 水の流れを出す
-      if (t > 1.9 && t < 5.4) {
-        var m = mouth(ux, uy, S, ang), n = Math.round(110 * dt * 60 / 60 * (t < 2.3 ? (t - 1.9) / 0.4 : 1));
-        for (var q = 0; q < n; q++) {
-          var sp = 140 + Math.random() * 90;
-          drops.push({ x: m.x + (Math.random() - 0.5) * 8, y: m.y + (Math.random() - 0.5) * 6, vx: m.dx * sp * 0.55 + (Math.random() - 0.5) * 25, vy: m.dy * sp * 0.3 + Math.random() * 20, r: Math.random() * 2.4 + 1, life: 1 });
-        }
-        if (Math.random() < dt * 9) glyphs.push({ ch: GLYPHS[Math.floor(Math.random() * GLYPHS.length)], x: m.x, y: m.y, vx: 60 + Math.random() * 50, vy: -10 + Math.random() * 20, a: 0, s: 12 + Math.random() * 12, state: 0 });
+      // 水面:まん中から左右へ、細い金の線が伸びる
+      var ln = seg(t, 1.4, 3.6, eout), half = W * 0.42 * ln;
+      if (ln > 0) {
+        var lg = cx.createLinearGradient(W / 2 - half, 0, W / 2 + half, 0);
+        lg.addColorStop(0, 'rgba(' + GOLD + ',0)'); lg.addColorStop(0.5, 'rgba(' + GOLD_HI + ',.85)'); lg.addColorStop(1, 'rgba(' + GOLD + ',0)');
+        cx.fillStyle = lg; cx.fillRect(W / 2 - half, SY, half * 2, 1);
       }
-      // しずく
+
+      // 水瓶:線で描かれ、ゆっくり傾く。ロゴが出るころに静かに消える
+      var S = Math.min(W * 0.34, H * 0.30), tilt = 0.62 * seg(t, 2.6, 4.0);
+      var uy = SY - S * 0.62 - S * 0.25, VX = 40, VY = 8, G = 330, SP = 0.8;
+      // 注いだ水が、ちょうど画面のまん中に落ちるように水瓶の位置を決める(最後の傾きで計算)
+      var cF = Math.cos(0.62), sF = Math.sin(0.62), moyF = uy + 0.15 * S * sF - 1.0 * S * cF;
+      var tauF = (-VY + Math.sqrt(VY * VY + 2 * G * Math.max(1, SY - moyF))) / G;
+      var ux = W / 2 - (0.15 * S * cF + 1.0 * S * sF) - VX * tauF;
+      // せまい画面では、水瓶が左にはみ出さないようにする(水の落ちる点が少し右へずれてもよい)
+      var minX = 0.42 * S + Math.max(16, W * 0.06); if (ux < minX) ux = minX;
+      var drawP = seg(t, 0.5, 2.8), urnA = (1 - seg(t, 5.2, 6.6));
+      cx.save(); cx.translate(ux, uy); cx.rotate(tilt); cx.globalAlpha = urnA;
+      cx.shadowColor = 'rgba(' + GOLD + ', .5)'; cx.shadowBlur = 8;
+      var up = urn(S), hp = handles(S);
+      drawLine(up, drawP, S * 3.4, 1.1, 0.95);
+      drawLine(hp, seg(t, 1.6, 3.2), S * 2.2, 0.9, 0.7);
+      // 内側のごく淡い光
+      if (drawP > 0.9) { var ig = cx.createLinearGradient(-0.35 * S, 0, 0.35 * S, 0); ig.addColorStop(0, 'rgba(' + GOLD + ',0)'); ig.addColorStop(0.55, 'rgba(' + GOLD + ',' + (0.07 * (drawP - 0.9) * 10) + ')'); ig.addColorStop(1, 'rgba(' + GOLD + ',0)'); cx.fillStyle = ig; cx.fill(up); }
+      cx.restore(); cx.shadowBlur = 0; cx.globalAlpha = 1;
+
+      // 口の位置(回転後)
+      var c = Math.cos(tilt), sn = Math.sin(tilt), mx = 0.15 * S, my = -1.0 * S;
+      var mox = ux + mx * c - my * sn, moy = uy + mx * sn + my * c;
+      // 水:口から水面まで、1本の光の糸(放物線)として注ぐ。先端が下り、最後は上から細くなって消える
+      var tauHit = (-VY + Math.sqrt(VY * VY + 2 * G * Math.max(1, SY - moy))) / G;
+      var head = Math.min(tauHit, Math.max(0, (t - 3.5) * SP)), tail = Math.max(0, (t - 5.0) * SP);
+      if (head > tail) {
+        cx.save(); cx.globalCompositeOperation = 'lighter';
+        [[5, 0.06], [2.2, 0.16], [0.9, 0.75]].forEach(function (L2) {
+          cx.beginPath();
+          for (var k = 0; k <= 40; k++) { var tau = tail + (head - tail) * k / 40, px = mox + VX * tau, py = moy + VY * tau + 0.5 * G * tau * tau; if (!k) cx.moveTo(px, py); else cx.lineTo(px, py); }
+          cx.lineWidth = L2[0]; cx.lineCap = 'round'; cx.strokeStyle = 'rgba(' + AQUA + ',' + L2[1] + ')'; cx.stroke();
+        });
+        cx.restore();
+        // 糸の上を流れる小さな光
+        if (Math.random() < 0.6) drops.push({ tau: tail, r: 0.6 + Math.random() * 0.8 });
+      }
+      var hitX = mox + VX * tauHit;
+      if (head >= tauHit && head > tail && now - lastRip > 520) { ripples.push({ x: hitX, r: 2, a: 0.75 }); lastRip = now; }
+      if (head >= tauHit && head > tail && Math.random() < 0.5) dust.push({ x: hitX + (Math.random() - 0.5) * 16, y: SY - 2, vx: (Math.random() - 0.5) * 12, vy: -10 - Math.random() * 20, a: 0.9, r: 0.4 + Math.random() * 0.9 });
       cx.globalCompositeOperation = 'lighter';
       for (var d = drops.length - 1; d >= 0; d--) {
-        var p0 = drops[d];
-        p0.vy += 520 * dt; p0.x += p0.vx * dt; p0.y += p0.vy * dt;
-        if (p0.y > level) {
-          if (!p0.sp && Math.random() < 0.25) { for (var z = 0; z < 2; z++) drops.push({ x: p0.x, y: level, vx: (Math.random() - 0.5) * 120, vy: -120 - Math.random() * 120, r: 1 + Math.random(), life: 0.6, sp: 1 }); }
-          drops.splice(d, 1); continue;
-        }
-        if (p0.sp) { p0.life -= dt; if (p0.life <= 0) { drops.splice(d, 1); continue; } }
-        cx.fillStyle = 'rgba(90, 200, 255, ' + (p0.sp ? p0.life : 0.55) + ')';
-        cx.beginPath(); cx.arc(p0.x, p0.y, p0.r, 0, 6.28); cx.fill();
+        var p = drops[d]; p.tau += dt * SP;
+        if (p.tau >= Math.min(head, tauHit)) { drops.splice(d, 1); continue; }
+        var px2 = mox + VX * p.tau, py2 = moy + VY * p.tau + 0.5 * G * p.tau * p.tau;
+        cx.fillStyle = 'rgba(255, 255, 255, .8)'; cx.beginPath(); cx.arc(px2, py2, p.r, 0, 6.283); cx.fill();
+      }
+      // 波紋(水面の上下に、うすい楕円)
+      for (var r = ripples.length - 1; r >= 0; r--) {
+        var q = ripples[r]; q.r += 70 * dt; q.a -= 0.22 * dt;
+        if (q.a <= 0) { ripples.splice(r, 1); continue; }
+        cx.strokeStyle = 'rgba(' + GOLD_HI + ',' + q.a * 0.55 + ')'; cx.lineWidth = 0.8;
+        cx.beginPath(); cx.ellipse(q.x, SY, q.r, q.r * 0.09, 0, 0, 6.283); cx.stroke();
+      }
+      // 金の粒(知性):水面から立ちのぼって消える
+      for (var u = dust.length - 1; u >= 0; u--) {
+        var g = dust[u]; g.x += g.vx * dt; g.y += g.vy * dt; g.vy *= 0.995; g.a -= 0.22 * dt;
+        if (g.a <= 0) { dust.splice(u, 1); continue; }
+        cx.fillStyle = 'rgba(' + GOLD_HI + ',' + g.a * 0.8 + ')'; cx.beginPath(); cx.arc(g.x, g.y, g.r, 0, 6.283); cx.fill();
       }
       cx.globalCompositeOperation = 'source-over';
-      // 水面と波
-      var wg = cx.createLinearGradient(0, level - 20, 0, H);
-      wg.addColorStop(0, 'rgba(56, 189, 248, .85)'); wg.addColorStop(0.4, 'rgba(17, 70, 214, .9)'); wg.addColorStop(1, 'rgba(4, 20, 58, 1)');
-      cx.fillStyle = wg; cx.beginPath(); cx.moveTo(0, H);
-      for (var x = 0; x <= W; x += 8) cx.lineTo(x, level + Math.sin(x * 0.018 + t * 2.4) * 6 + Math.sin(x * 0.041 - t * 3.1) * 3);
-      cx.lineTo(W, H); cx.closePath(); cx.fill();
-      cx.strokeStyle = 'rgba(200, 240, 255, .6)'; cx.lineWidth = 1.5; cx.beginPath();
-      for (var x2 = 0; x2 <= W; x2 += 8) { var yy = level + Math.sin(x2 * 0.018 + t * 2.4) * 6 + Math.sin(x2 * 0.041 - t * 3.1) * 3; if (!x2) cx.moveTo(x2, yy); else cx.lineTo(x2, yy); }
-      cx.stroke();
-      // 知性の文字:水といっしょに落ち、水面から光ってうかび上がる
-      cx.textAlign = 'center'; cx.textBaseline = 'middle';
-      for (var gI = glyphs.length - 1; gI >= 0; gI--) {
-        var g = glyphs[gI];
-        if (g.state === 0) { g.vy += 480 * dt; g.x += g.vx * dt; g.y += g.vy * dt; g.a = Math.min(1, g.a + dt * 3); if (g.y > level) { g.state = 1; g.vy = -30 - Math.random() * 30; g.vx = (Math.random() - 0.5) * 30; } }
-        else { g.y += g.vy * dt; g.x += g.vx * dt; g.vy -= 6 * dt; g.a -= dt * 0.35; if (g.a <= 0) { glyphs.splice(gI, 1); continue; } }
-        cx.globalAlpha = Math.max(0, g.a); cx.fillStyle = '#e9f7ff'; cx.shadowColor = '#7fdcff'; cx.shadowBlur = 14;
-        cx.font = '700 ' + g.s + 'px "Zen Kaku Gothic New", sans-serif'; cx.fillText(g.ch, g.x, g.y);
-      }
-      cx.shadowBlur = 0; cx.globalAlpha = 1;
-      // ロゴの前に、まわりを少し暗くして光を当てる
-      var lo = seg(t, 4.3, 5.4);
-      if (lo > 0) {
-        var rg = cx.createRadialGradient(W / 2, H * 0.84, 0, W / 2, H * 0.84, Math.max(W, H) * 0.6);
-        rg.addColorStop(0, 'rgba(120, 200, 255, ' + (0.18 * lo) + ')'); rg.addColorStop(1, 'rgba(2, 11, 31, ' + (0.45 * lo) + ')');
-        cx.fillStyle = rg; cx.fillRect(0, 0, W, H);
-      }
-      if (t > 4.3 && !logo.classList.contains('on')) logo.classList.add('on');
+
+      // 文字:水瓶が消えはじめるころ、水面の上に現れる(下には映りこみ)
+      if (t > 5.9 && !L.classList.contains('on')) L.classList.add('on');
+      // 四すみを落とす+フィルムの粒子
+      var vg = cx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)');
+      cx.fillStyle = vg; cx.fillRect(0, 0, W, H);
+      cx.globalAlpha = 0.035; cx.globalCompositeOperation = 'overlay';
+      var ox = Math.random() * 160, oy = Math.random() * 160;
+      for (var gx = -ox; gx < W; gx += 160) for (var gy = -oy; gy < H; gy += 160) cx.drawImage(grain, gx, gy);
+      cx.globalAlpha = 1; cx.globalCompositeOperation = 'source-over';
+
       if (t > DUR) { end(); return; }
       raf = requestAnimationFrame(frame);
     }
-    var go = function () { T0 = last = performance.now(); raf = requestAnimationFrame(frame); };
-    if (document.fonts && document.fonts.load) Promise.race([document.fonts.load('64px Allura'), new Promise(function (r) { setTimeout(r, 400); })]).then(go, go); else go();
+
+    function start() {
+      if (reduce) {
+        cx.fillStyle = '#04070e'; cx.fillRect(0, 0, W, H);
+        cx.fillStyle = 'rgba(' + GOLD_HI + ',.8)'; cx.fillRect(W * 0.2, SY, W * 0.6, 1);
+        L.classList.add('on'); T0 = performance.now();
+        setTimeout(end, DUR * 1000);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    // 書体の読みこみを少しだけ待つ(最大0.8秒)
+    var fontsReady = document.fonts && document.fonts.load ? Promise.all([document.fonts.load('300 40px "Cormorant Garamond"'), document.fonts.load('16px "Shippori Mincho"')]) : Promise.resolve();
+    Promise.race([fontsReady, new Promise(function (r) { setTimeout(r, 800); })]).then(start, start);
   }
 
   WPS.Intro = { play: play };
-  function boot() { play(); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { play(); }); else play();
 })();
