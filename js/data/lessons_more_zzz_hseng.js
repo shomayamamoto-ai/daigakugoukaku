@@ -94,7 +94,7 @@
       { lv: 3, q: '和訳し、will have の意味を説明しよう。\nThey will have reached the summit by now.', a: '彼らは今ごろはもう山頂に着いているだろう。will have は「今ごろ〜しただろう」という現在の完了への推量。', exp: 'by now(今ごろまでに)があるので、未来ではなく「今の時点ですでに〜しただろう」という推量です。will の推量の用法が完了形と結びついています。' },
       { lv: 3, q: '誤りを2か所直そう。\nWhen you will read this letter, I have left this town.', a: 'will read → read、have left → will have left', exp: 'When の節は時の副詞節なので現在形にします。主節は「読む時点(未来)までに出発してしまっている」という完了なので未来完了にします。' },
       { lv: 3, q: '誤りを直し、理由を説明しよう。\nBy the end of last year, they will have built the new tower.', a: 'will have built → had built', exp: 'by the end of last year は過去の時点です。過去の基準までの完了は過去完了で表します。未来完了は未来の基準のときだけ使います。' },
-      { lv: 3, q: '( ) に入る最も適切なものを選ぼう。\nI hope the rain ( ) by the time the festival starts.', choices: ['stops', 'will stop', 'will have stopped', 'has stopped'], a: 'C(will have stopped)', exp: '祭りが始まる時点までに雨がやみ終わっていてほしい、という未来の完了です。hope の後ろの that 節は名詞節なので will が使えます。' }
+      { lv: 3, q: '( ) に入る最も適切なものを選ぼう。\nI hope the rain ( ) by the time the festival starts.', choices: ['stopped', 'was stopping', 'will have stopped', 'had stopped'], a: 'C(will have stopped)', exp: '祭りが始まる時点までに雨がやみ終わっていてほしい、という未来の完了です。hope の後ろの that 節は名詞節なので will が使えます。' }
     ]
   });
 
