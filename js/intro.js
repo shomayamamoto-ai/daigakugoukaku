@@ -44,7 +44,7 @@
   var VS = 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }';
   var FS = [
     'precision highp float;',
-    'uniform vec2 R; uniform float T, YH, FADE, GL, RIP, SON, CA; uniform sampler2D O;',
+    'uniform vec2 R; uniform float T, YH, FADE, GL, RIP, SON, CA, UA; uniform vec4 UB; uniform sampler2D O;',
     'uniform vec4 ST;',  // 水の柱:x, 上端y, 先端y, 太さ
     'uniform vec2 IMP;', // 波紋の中心(水面の座標 x, z)
     'float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }',
@@ -56,12 +56,72 @@
     '  float d = length(p - IMP);',
     '  h += RIP * .024 * sin(d * 11. - T * 5.5) * exp(-d * .7);',
     '  return h; }',
+    '// ---- 水瓶:ろくろで回した形(回転体)を、計算で立体として描く ----',
+    'float smax(float a, float b, float k){ return log(exp(k * a) + exp(k * b)) / k; }',
+    'float prof(float y){',
+    '  if (y < 0. || y > 1.) return 0.;',
+    '  float yb = y - .43, e = yb < 0. ? yb / .45 : yb / .41;',
+    '  float body = .335 * sqrt(max(0., 1. - e * e));',
+    '  float neck = y > .62 ? .086 + .046 * smoothstep(.93, 1., y) : 0.;',
+    '  float foot = y < .07 ? .13 - .02 * smoothstep(.04, .07, y) : 0.;',
+    '  return smax(smax(body, neck, 60.), foot, 60.);',
+    '}',
+    'vec3 shadeU(vec3 N, float gold, float cs, float sn){',
+    '  vec3 Rf = reflect(vec3(0., 0., 1.), N);',
+    '  vec3 R3 = vec3(cs * Rf.x + sn * Rf.y, -sn * Rf.x + cs * Rf.y, Rf.z);',
+    '  vec3 Nw = vec3(cs * N.x + sn * N.y, -sn * N.x + cs * N.y, N.z);',
+    '  float b1 = smoothstep(.32, .62, R3.x) * smoothstep(.8, .15, abs(R3.y - .15));',
+    '  float b2 = smoothstep(-.38, -.66, R3.x) * smoothstep(.75, .2, abs(R3.y - .05));',
+    '  float b3 = smoothstep(.55, .9, R3.y) * smoothstep(.65, .1, abs(R3.x));',
+    '  float b4 = smoothstep(-.6, -.95, R3.z) * .25;',
+    '  vec3 env = vec3(1., .85, .6) * b1 * 16. + vec3(.55, .7, .95) * b2 * 8. + vec3(.95, .92, .86) * b3 * 6. + vec3(.9, .85, .8) * b4 * 3. + vec3(.03);',
+    '  float cv = max(0., -N.z), F = .045 + .955 * pow(1. - cv, 5.);',
+    '  float dif = max(dot(Nw, normalize(vec3(.7, .45, -.55))), 0.);',
+    '  vec3 glaze = vec3(.02, .016, .012) * (.3 + 1.4 * dif) + env * F + vec3(1., .8, .55) * pow(1. - cv, 4.) * .18;',
+    '  vec3 gc = vec3(1., .77, .4) * (env * .22 + .05 + dif * .45);',
+    '  float hs = pow(max(dot(R3, normalize(vec3(.55, .5, -.65))), 0.), 160.); vec3 o = mix(glaze, gc, gold) + vec3(1., .95, .88) * hs * mix(2.2, 1.2, gold); return o / (1. + o * .85);',
+    '}',
+    'vec4 urn(vec2 uv){',
+    '  if (UA <= 0.) return vec4(0.);',
+    '  float ar = R.x / R.y, cs = cos(UB.w), sn = sin(UB.w);',
+    '  vec2 d = uv - UB.xy; d.x *= ar;',
+    '  vec2 p = vec2(cs * d.x - sn * d.y, sn * d.x + cs * d.y) / UB.z;',
+    '  if (p.y < -.03 || p.y > 1.06 || abs(p.x) > .6) return vec4(0.);',
+    '  float px = 1.4 / (R.y * UB.z);',
+    '  vec4 col = vec4(0.);',
+    '  // 取っ手(注ぎ口の反対側=左に1つ)',
+    '  vec2 P0 = vec2(-.08, .9), P1 = vec2(-.37, .97), P2 = vec2(-.47, .70), P3 = vec2(-.30, .58);',
+    '  float hd = 9., hr = .03; vec2 hc = vec2(0.), pb = P0;',
+    '  for (int i = 0; i <= 24; i++) { float t = float(i) / 24., u = 1. - t;',
+    '    vec2 b = u * u * u * P0 + 3. * u * u * t * P1 + 3. * u * t * t * P2 + t * t * t * P3;',
+    '    if (i > 0) { vec2 ab = b - pb; float h = clamp(dot(p - pb, ab) / dot(ab, ab), 0., 1.); vec2 q = pb + ab * h; float dd = length(p - q); if (dd < hd) { hd = dd; hc = q; } } pb = b; }',
+    '  if (hd < hr + px) {',
+    '    float k = min(hd / hr, 1.); vec2 nx = (p - hc) / max(hd, 1e-4);',
+    '    vec3 N = normalize(vec3(nx * k, -sqrt(max(0., 1. - k * k))));',
+    '    col = vec4(shadeU(N, 0., cs, sn), clamp((hr - hd) / px + .5, 0., 1.));',
+    '  }',
+    '  // 本体(右に注ぎ口)',
+    '  float r = prof(p.y);',
+    '  float lip = .07 * smoothstep(.955, 1., p.y) * smoothstep(0., .06, p.x);',
+    '  float rr = r + lip;',
+    '  if (rr > 0. && abs(p.x) < rr + px) {',
+    '    float e = .004, dr = (prof(p.y + e) - prof(p.y - e)) / (2. * e);',
+    '    float x = clamp(p.x / rr, -1., 1.), z = -sqrt(max(0., 1. - x * x)) * rr;',
+    '    vec3 N = normalize(vec3(p.x, -rr * dr, z));',
+    '    float gold = smoothstep(.007, 0., abs(p.y - .63) - .009) + smoothstep(.006, 0., abs(p.y - .27) - .004) * .9 + smoothstep(.975, .992, p.y);',
+    '    vec3 cc = shadeU(N, clamp(gold, 0., 1.), cs, sn);',
+    '    float a = clamp((rr - abs(p.x)) / px + .5, 0., 1.) * clamp(p.y / px + .5, 0., 1.) * clamp((1. - p.y) / px + .5, 0., 1.);',
+    '    col = vec4(mix(col.rgb, cc, a), max(col.a, a));',
+    '  }',
+    '  return col;',
+    '}',
     'vec3 sky(vec2 uv){',
     '  float ar = R.x / R.y;',
     '  vec3 c = vec3(.006, .008, .014);',
     '  vec2 q = (uv - vec2(.5, YH + .16)) * vec2(ar * .9, 2.2);',
     '  c += vec3(.085, .07, .052) * exp(-dot(q, q) * 1.6);',
     '  c += vec3(.02, .035, .06) * exp(-pow((uv.y - YH) * 9., 2.));',
+    '  vec4 uu = urn(uv); c = mix(c, uu.rgb, uu.a * UA);',
     '  vec4 o = texture2D(O, vec2(uv.x, 1. - uv.y));',
     '  float gl = smoothstep(.05, 0., abs(uv.x - GL - (uv.y - YH) * .35)) * o.a;',
     '  c = mix(c, o.rgb + gl * vec3(1., .93, .78) * .9, o.a);',
@@ -178,7 +238,7 @@
     };
     size(); addEventListener('resize', size);
 
-    var U = {}; ['R', 'T', 'YH', 'FADE', 'GL', 'RIP', 'SON', 'CA', 'O', 'ST', 'IMP'].forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
+    var U = {}; ['R', 'T', 'YH', 'FADE', 'GL', 'RIP', 'SON', 'CA', 'UA', 'UB', 'O', 'ST', 'IMP'].forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
     var tex = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -266,12 +326,12 @@
       var baseY = oc.height * (1 - YH) - Math.min(H * 0.19, 170) * OD;
       var ux = oc.width * (W > H ? 0.42 : 0.38);
       var urnA = seg(t, 0.9, 2.6) * (1 - seg(t, 5.3, 6.6));
-      drawUrn(ux, baseY + (1 - seg(t, 0.9, 2.6)) * 18 * OD, S, tilt, urnA);
+      var bY = baseY + (1 - seg(t, 0.9, 2.6)) * 18 * OD; // 水瓶はシェーダーで立体として描く
       drawWord(t);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, oc);
       // 水の柱:口から水面まで
       var c = Math.cos(tilt), sn = Math.sin(tilt);
-      var mx = ux + 0.24 * S * c + 1.03 * S * sn, my = baseY + 0.24 * S * sn - 1.03 * S * c;
+      var mx = ux + 0.2 * S * c + 1.0 * S * sn, my = baseY + 0.2 * S * sn - 1.0 * S * c;
       var sx = mx / oc.width, sTop = 1 - my / oc.height;
       var on = seg(t, 3.5, 3.8) * (1 - seg(t, 5.7, 6.1));
       var sHead = sTop - (sTop - (YH - 0.015)) * seg(t, 3.5, 4.1, sq);
@@ -287,6 +347,8 @@
       gl.uniform1f(U.GL, -0.3 + 1.6 * seg(t, 7.6, 9.0));
       gl.uniform1f(U.RIP, rip);
       gl.uniform1f(U.SON, on);
+      gl.uniform1f(U.UA, urnA);
+      gl.uniform4f(U.UB, ux / oc.width, 1 - bY / oc.height, S / oc.height, tilt);
       gl.uniform1f(U.CA, 1 - 0.55 * seg(t, 5.8, 7.6)); // 文字が出るころ水面を静める(映りこみを読みやすく)
       gl.uniform4f(U.ST, sx, sTail, sHead, Math.max(0.0035, 3.2 / W));
       gl.uniform2f(U.IMP, (sx - 0.5) * ar * tt, tt);
