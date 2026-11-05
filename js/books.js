@@ -220,7 +220,7 @@ WPS.makeBooks = function (ctx) {
   }
 
   // 本文データ(約2MB)は、テキストを開いたときに初めて読み込む(アプリの起動を軽くするため)
-  var LV = '20261108b';
+  var LV = '20261108c';
   // テキスト本文は、開いた単元のファイル(js/lessons/<単元ID>.js)だけを読み込む
   var lFail = {}, lLoading = {};
   function lessonReady(id) { return !!(WPS.LESSONS && WPS.LESSONS[id]) || lFail[id] === 1; }
