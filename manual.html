@@ -8,11 +8,11 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icons/icon.svg">
 <style>
-:root { --bg: #f4f7fb; --card: #fff; --text: #1b2440; --muted: #5d6a85; --line: #dfe6f2; --primary: #1146d6; --primary-weak: #e8eefc; }
-@media (prefers-color-scheme: dark) { :root { --bg: #07122b; --card: #0e1d3f; --text: #e8eef9; --muted: #a3b0c8; --line: #24375f; --primary: #7aa2ff; --primary-weak: #16295a; } }
+:root { --bg: #f2f7f4; --card: #fff; --text: #17322a; --muted: #5a7068; --line: #d5e5dc; --primary: #1d8466; --primary-weak: #e2f2ea; --accent: #b8913f; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0c1a15; --card: #13251f; --text: #e3f0ea; --muted: #9ab7ab; --line: #24413a; --primary: #6fcfa6; --primary-weak: #173a2f; --accent: #d8b968; } }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif; line-height: 1.75; word-break: auto-phrase; }
-header { background: linear-gradient(115deg, #020b1f, #04143a 30%, #1146d6 62%, #0fa3b8); color: #fff; padding: 36px 16px 30px; }
+header { background: linear-gradient(115deg, #0f4536, #16694f 40%, #2a9d7c 72%, #9fd8bd); color: #fff; padding: 36px 16px 30px; }
 header .in, main { max-width: 860px; margin: 0 auto; }
 header p.en { margin: 0; font-family: "Brush Script MT", cursive; font-size: 1.6rem; opacity: .85; }
 header h1 { margin: 2px 0 8px; font-size: 1.7rem; letter-spacing: .02em; text-wrap: balance; }
@@ -44,48 +44,79 @@ body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 .nav a.active { color: var(--primary); font-weight: 700; }
 .nav a.active::after { content: ""; position: absolute; left: 30%; right: 30%; top: -6px; height: 3px; border-radius: 3px; background: var(--primary); }
 @media (min-width: 420px) { .nav a { font-size: 11px; letter-spacing: 0; } }
+
+/* スマホ版・パソコン版の切りかえ、検索、目次 */
+.dev { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(0, 0, 0, .22); margin: 10px 8px 0 0; vertical-align: middle; }
+.dev button { border: 0; background: transparent; color: #fff; font: inherit; font-size: .88rem; font-weight: 800; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.dev button.on { background: #fff; color: #0f4536; }
+.tools { display: flex; gap: 8px; align-items: center; margin: 0 0 12px; flex-wrap: wrap; }
+.tools input { flex: 1; min-width: 200px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; }
+.tools select { padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; }
+.nohit { display: none; padding: 16px; text-align: center; color: var(--muted); }
+section.hide { display: none; }
+mark { background: #fde68a; color: inherit; border-radius: 3px; padding: 0 1px; }
+.pc-only { display: none; } body.pc .pc-only { display: revert; } body.pc .sp-only { display: none; }
+li.pc-only { display: none; } body.pc li.pc-only { display: list-item; }
+body.pc video { max-width: 100%; aspect-ratio: 1024 / 640; border-radius: 12px; border-width: 4px; }
+@media (min-width: 720px) { body.pc .sec { grid-template-columns: minmax(0, 1fr); } }
+.kbd { display: inline-block; min-width: 1.8em; padding: 0 6px; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; background: var(--card); font: 700 .82rem/1.6 ui-monospace, monospace; text-align: center; }
+table.keys { width: 100%; border-collapse: collapse; margin: 8px 0; } table.keys td { padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table.keys td:first-child { white-space: nowrap; width: 1%; }
+.badge { display: inline-block; font-size: .7rem; font-weight: 800; color: #fff; background: var(--accent); border-radius: 6px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+/* パソコンの広い画面では、目次を左に固定 */
+@media (min-width: 1100px) {
+  header .in, main { max-width: 1180px; }
+  main { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; align-items: start; }
+  main > .tools, main > .nohit { grid-column: 2; }
+  nav.toc { grid-column: 1; grid-row: 1 / span 40; flex-direction: column; position: sticky; top: 12px; overflow: visible; padding: 0; background: none; }
+  nav.toc a { border-radius: 10px; }
+  nav.toc a.cur { background: var(--primary); border-color: var(--primary); color: #fff; }
+  main > section { grid-column: 2; }
+}
+.totop { position: fixed; right: 14px; bottom: calc(84px + env(safe-area-inset-bottom)); width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--primary); color: #fff; font-size: 18px; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 15; }
+.totop.show { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
 <header><div class="in">
   <p class="en">Manual</p>
   <h1>Aqualium 使い方マニュアル</h1>
-  <p>10の場面を、操作動画つきで説明します。順番は、アプリ下のメニュー(ホーム → 計画 → テキスト → 単語帳 → タイマー → 先生用)と同じです。動画は音声なしです。字幕と、黄色い丸(タップした場所)を見ながら進めてください。</p>
-  <a class="cta" href="index.html">アプリを開く</a>
+  <p>12の場面を、操作動画つきで説明します。順番は、アプリ下のメニュー(ホーム → 計画 → テキスト → 単語帳 → タイマー → 先生用)と同じです。動画は音声なしです。字幕と、黄色い丸(<span class="sp-only">タップ</span><span class="pc-only">クリック</span>した場所)を見ながら進めてください。</p>
+  <div class="dev" role="group" aria-label="表示する画面"><button type="button" data-dev="sp">📱 スマホ版</button><button type="button" data-dev="pc">💻 パソコン版</button></div><a class="cta" href="index.html">アプリを開く</a>
 </div></header>
 <main>
 <nav class="toc" aria-label="目次">
-  <a href="#start">ログイン・登録</a><a href="#home">ホーム</a><a href="#test">診断・練習</a><a href="#history">日本史・世界史</a><a href="#eng">英語 リスニング・ライティング</a><a href="#mock">模試モード</a><a href="#plan">計画</a><a href="#text">テキスト</a><a href="#vocab">単語帳</a><a href="#timer">タイマー・検索</a><a href="#tools">資料</a><a href="#tutor">先生用・設定</a><a href="#faq">よくある質問</a>
+  <a href="#start">ログイン・登録</a><a href="#home">ホーム</a><a href="#test">診断・練習</a><a href="#history">日本史・世界史</a><a href="#eng">英語 リスニング・ライティング</a><a href="#mock">模試モード</a><a href="#plan">計画</a><a href="#text">テキスト</a><a href="#vocab">単語帳</a><a href="#timer">タイマー・検索</a><a href="#tools">資料</a><a href="#tutor">先生用・設定</a><a href="#pc">パソコンで使うとき</a><a href="#faq">よくある質問</a>
 </nav>
+<div class="tools"><input type="search" id="mq" placeholder="マニュアルの中を探す(例:暗記モード、ログアウト)" aria-label="マニュアルの中を探す"><select id="mrate" aria-label="動画の速さ"><option value="1">動画 1倍</option><option value="1.5">1.5倍</option><option value="2">2倍</option></select></div><p class="nohit" id="mnohit">見つかりませんでした。ほかのことばで探してみてください。</p>
 
 <section id="start"><div class="sec">
-  <video src="manual/s1_start.mp4?v=20261106" poster="manual/s1_start.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s1_start" src="manual/s1_start.mp4?v=20261108" poster="manual/s1_start.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 1</small>ログインと、はじめての登録</h2>
   <ol><li>配られた<b>IDとパスワード</b>を入力して「ログイン」を押します。大文字・小文字は区別しません。ログインは、その端末で30日間保たれます。</li><li>ニックネーム・いまの学年を入力します。</li><li>志望校は「国公立/私立」の欄で大学名を入れて選びます。本命は自動で決まります。</li><li>「登録して診断テストへ進む」を押します。ニックネームを入れるまでは押せません。</li><li>初回だけ、画面の使い方を案内するポップアップが出ます。「次へ」で進み、「スキップ」でいつでも閉じられます。案内に合わせて、説明する画面へ自動で移動します。</li></ol>
   <p class="tip"><b>案内をもう一度見たいとき</b>設定 →「使い方」→「はじめての案内をもう一度見る」</p></div>
 </div></section>
 
 <section id="home"><div class="sec">
-  <video src="manual/s3_home.mp4?v=20261106" poster="manual/s3_home.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s3_home" src="manual/s3_home.mp4?v=20261108" poster="manual/s3_home.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 2</small>ホームの見方</h2>
   <ul><li><b>上のタブ</b>:「今日の学習」と「診断・練習」を切りかえます。下のメニューは、どちらのタブでも「ホーム」が光ります。</li><li><b>次の一手</b>:いま一番効果の高い学習を1つだけ示します。迷ったらここを押します。</li><li><b>今日の学習時間・デイリークエスト</b>:目標と実績をリングで表示します。クエストを押すと、その画面(タイマー・単語帳など)へ移動します。</li><li><b>今日のやる事</b>:単語のノルマなどは、終わると自動でチェックが付きます。</li><li><b>科目バランス(レーダーチャート)</b>:科目ごとの正答率です。右のチェックリストで、グラフに入れる科目を選べます。</li><li><b>間違い直し・ミスの原因・今週のまとめ</b>:伸びない理由と、先週からの変化がわかります。</li></ul></div>
 </div></section>
 
 <section id="test"><div class="sec">
-  <video src="manual/s2_test.mp4?v=20261106" poster="manual/s2_test.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s2_test" src="manual/s2_test.mp4?v=20261108" poster="manual/s2_test.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 3</small>診断・練習(診断テスト)</h2>
   <ol><li>下のメニュー「ホーム」→ 上のタブ「診断・練習」→「診断をはじめる」。約15問・10分です。</li><li>4択から選びます。わからないときは「わからない(先生に聞きたい)」を押すと、先生への質問メモに入ります。</li><li>まちがえたら、理由(ケアレスミス/覚えていなかった など)を選ぶと、ミスの分析に使われます。</li><li>答えのあとには<b>「くわしい解説」</b>に加えて、<b>「もっとくわしく」</b>(なぜそうなるか・考え方の手順・覚え方)と、語句の問題なら<b>「〇〇をもっと知る」</b>(ほかの意味・使い方・例文・類義語/対義語)が出ます。</li><li>高校の問題でつまずくと、中学の単元までさかのぼって原因を調べます。復習をすすめる単元には、「なぜその単元が必要か」の理由がつきます。</li></ol>
   <p class="tip"><b>単元を選んで練習</b>同じタブで、教科 → 科目 → 単元の順に選べます。高校生は、中学の科目もふり返り用に選べます(高校の科目のあとに並びます)。</p></div>
 </div></section>
 
 <section id="history"><div class="sec">
-  <video src="manual/s6_history.mp4?v=20261106" poster="manual/s6_history.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s6_history" src="manual/s6_history.mp4?v=20261108" poster="manual/s6_history.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 4</small>日本史・世界史(一問一答・論述)</h2>
   <ul><li>「ホーム」→ タブ「診断・練習」→「暗記・論述」から開きます。</li><li>出題軸:ヨコ(時代)/タテ(分野・国)/年号。範囲・モード(暗記・ニガテ・未学習)・レベルを選んで始めます。</li><li>「見て答える」にすると、答えを見て自分で○✕をつけられます。</li><li>論述は、答えを考えてから模範解答の赤いキーワードをタップして採点します。70%以上で「定着」。</li></ul></div>
 </div></section>
 
 <section id="eng"><div class="sec">
-  <video src="manual/s12_eng.mp4?v=20261107" poster="manual/s12_eng.jpg?v=20261107" controls playsinline muted preload="none"></video>
+  <video data-n="s12_eng" src="manual/s12_eng.mp4?v=20261108" poster="manual/s12_eng.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 5</small>英語 リスニング・ライティング</h2>
   <ul><li>「ホーム」→ タブ「診断・練習」→「英語 リスニング・ライティング」から開きます。上のタブでリスニングとライティングを切りかえ、レベル(中学・高校入試/共通テスト/難関大)を選びます。</li>
   <li><b>リスニング</b>:▶を押して音声を聞き、4つの選択肢から答えます。速さは「ゆっくり/ふつう/速め」。答えたあとに、英文(スクリプト)・和訳・解説・聞き取りのコツが出ます。「まだ解いていない問題から10問」「まちがえた問題をやり直す」で練習できます。</li>
@@ -94,53 +125,68 @@ body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 </div></section>
 
 <section id="mock"><div class="sec">
-  <video src="manual/s7_mock.mp4?v=20261106" poster="manual/s7_mock.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s7_mock" src="manual/s7_mock.mp4?v=20261108" poster="manual/s7_mock.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 6</small>模試モード</h2>
   <ul><li>「ホーム」→ タブ「診断・練習」→「模試モード」から開きます。</li><li>10問15分〜30問45分を選びます。問題は志望校の配点に合わせて配分されます。</li><li>途中で答えは出ません。迷った問題は「あとで見直す」、問題の一覧から移動できます。</li><li>「提出する」で採点。教科別・レベル別の得点率と、時間のかかった問題がわかります。</li></ul></div>
 </div></section>
 
 <section id="plan"><div class="sec">
-  <video src="manual/s4_roadmap.mp4?v=20261106" poster="manual/s4_roadmap.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s4_roadmap" src="manual/s4_roadmap.mp4?v=20261108" poster="manual/s4_roadmap.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 7</small>計画(ロードマップ)・単元マップ</h2>
   <ul><li>下のメニュー「計画」。志望校と受験日から逆算して、マイルストーン・週ごとの計画・カレンダーを自動で作ります。</li><li>上の目次ボタンで、見たい場所へ移動できます。</li><li>タイムラインは横にスクロールします。英単語・古文単語・一問一答の進め方の行もあります。</li><li>「単元マップ」で、全単元の定着度(得意/もう少し/忘れかけ/苦手/未挑戦)を色で確認できます。</li><li>週に1回、「今週の振り返り(KPT)」を書きます。</li></ul></div>
 </div></section>
 
 <section id="text"><div class="sec">
-  <video src="manual/s9_books.mp4?v=20261106" poster="manual/s9_books.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s9_books" src="manual/s9_books.mp4?v=20261108" poster="manual/s9_books.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 8</small>テキスト(教科書・参考書)</h2>
   <ol><li>下のメニュー「テキスト」。いちばん上の<b>「中学/高校」</b>で本棚を切りかえ、科目の本を選びます。高校生も中学の本でふり返りができます。</li><li>目次から単元を選びます。全286単元に、知識ゼロから読める本文があります。開いた単元だけを読み込むので、すぐに表示されます。</li><li>本文は「できるようになること → この単元の流れ → 説明と図 → 例題(黒板) → さらに深く → 実戦演習 → つまずきの処方箋 → 難関レベルの記述(模範解答と採点基準つき) → 練習問題 → 単元まとめテスト(10問) → つながる知識(ほかの教科・大学とのつながりと読み物) → よくある疑問 → まとめ」の順です。どの単元にも図が2〜4個あります。</li><li><b>練習問題</b>は、自分で解いてから「答えと解き方」を開きます。語句の問題では、ほかの意味や使い方も表示されます。</li><li>最後の「確認問題」と「この単元の問題を解く」で、すぐに練習できます。</li></ol>
   <p class="tip"><b>しおり・続きから</b>右上のしおりで印をつけられます。本棚の「続きから読む」で、前に読んだページへ戻れます。</p></div>
 </div></section>
 
 <section id="vocab"><div class="sec">
-  <video src="manual/s5_vocab.mp4?v=20261106" poster="manual/s5_vocab.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s5_vocab" src="manual/s5_vocab.mp4?v=20261108" poster="manual/s5_vocab.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 9</small>単語帳(単語トレーニング)</h2>
   <ol><li>下のメニュー「単語帳」。いちばん上で教科と単語帳を選びます(英単語・英熟語・早慶上理・古典単語 など)。早慶上理の学部の一覧は、「早慶上理」を選んだときだけ出ます。</li><li>「出題範囲」でPart・分類・苦手だけ などを選びます。</li><li>学び方を選びます:4択テスト/赤シート/苦手選別/スワイプ/聞き流し/単語リスト/語彙力診断。</li></ol>
   <p class="tip"><b>迷ったら「自動出題」</b>忘れかけ→苦手→新しい語の順に、今やると効果が高い語を出します。</p></div>
 </div></section>
 
 <section id="timer"><div class="sec">
-  <video src="manual/s10_timer.mp4?v=20261106" poster="manual/s10_timer.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s10_timer" src="manual/s10_timer.mp4?v=20261108" poster="manual/s10_timer.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 10</small>タイマー・検索</h2>
   <ul><li>下のメニュー「タイマー」:集中と休けいをくり返すポモドーロタイマーです。<b>「今からやること」と科目</b>を決めて「スタート」を押すと、金色の輪が残り時間に合わせて減っていきます。4セットごとに長い休けいになります。</li><li><b>時間の設定</b>:おすすめの組み合わせ(標準 25・5・15分/みじかめ/じっくり/本番形式)をワンタップで選ぶか、「－」「＋」で調整します。</li><li><b>オプション</b>:「自動で次を始める」「終わりの音を鳴らす」「画面を消さない(対応する端末のみ)」を切りかえられます。</li><li><b>集中の記録</b>:直近7日の棒グラフ、今日の科目別の時間、最近の記録(やったこと)が見られます。</li><li>ほかの画面に移ってもタイマーは進みます。そのあいだは、画面の上とブラウザのタブに残り時間が出ます。押すとタイマーに戻ります。</li><li>集中タイムを1回終えると、その日は「勉強した日」として連続記録に数えます。</li><li>上の🔍(検索):単元名・単語・人物・できごとを、まとめて探せます。</li></ul></div>
 </div></section>
 
 <section id="tools"><div class="sec">
-  <video src="manual/s11_tools.mp4?v=20261106" poster="manual/s11_tools.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s11_tools" src="manual/s11_tools.mp4?v=20261108" poster="manual/s11_tools.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 11</small>資料(元素表・地図・年表・公式集など)</h2>
   <ul><li>画面の上の<b>「資料」</b>ボタン(4つの四角のアイコン)から開きます。<b>どのページの上でも開けて</b>、ページを移動しても閉じません。「—」で最小化すると画面の下に小さなボタンが残り、押すと元に戻ります。「⤢」で大きく、「×」で閉じます。</li>
+  <li class="pc-only">パソコンでは、パネルの見出しをドラッグして好きな場所へ動かせます(位置は覚えておきます)。<span class="kbd">Esc</span> キーで最小化できます。</li>
+  <li><b>暗記モード</b>(🙈):答えの列をかくして、押した所だけ見えるようにします。自分で思い出す練習に使えます。メニュー上の検索欄では、すべての資料をまとめて探せます。</li>
   <li><b>元素の周期表</b>:元素を押すと、原子量(計算で使う概数も)・族と周期・分類・常温での状態が出ます。</li>
-  <li><b>世界地図</b>:日本中心の地図に国名と主な都市(□は首都)。指でつまむ・ホイールで拡大、国名で探すとその国へ移動します。</li>
+  <li><b>世界地図</b>:日本中心の地図に国名と主な都市(□は首都)。<span class="sp-only">指でつまむと拡大</span><span class="pc-only">マウスのホイールで拡大・ドラッグで移動</span>、国名で探すとその国へ移動します。</li>
   <li><b>日本史・世界史の年表</b>:「日本と世界」タブで、同じ年代のできごとを並べて比べられます。</li>
   <li><b>数学の公式集</b>(中学〜数学Ⅲ)・<b>英語の不規則動詞</b>(型別)・<b>古文の助動詞</b>(接続・意味・活用の型、見分け方)・<b>単位と定数</b>(物理・化学の定数、接頭語、原子量)。</li>
   <li>どの資料も、上の検索欄でことばを探したり、タブで絞りこんだりできます。</li></ul></div>
 </div></section>
 
 <section id="tutor"><div class="sec">
-  <video src="manual/s8_tutor.mp4?v=20261106" poster="manual/s8_tutor.jpg?v=20261106" controls playsinline muted preload="none"></video>
+  <video data-n="s8_tutor" src="manual/s8_tutor.mp4?v=20261108" poster="manual/s8_tutor.jpg?v=20261108" controls playsinline muted preload="none"></video>
   <div><h2><small>STEP 12</small>先生用レポートと設定</h2>
   <ul><li>下のメニュー「先生用」:苦手の原因・口頭試問・ミスの傾向・週のまとめ・振り返り・模試の記録。授業や保護者との面談に使います。</li><li>右上の「設定」:志望校・勉強時間・受験科目・テーマカラー(標準は翡翠グリーン)の変更、別の端末への引き継ぎ、案内のやり直し、ログアウト。</li><li>下のメニュー「マニュアル」:このページです。</li></ul></div>
 </div></section>
+
+<section id="pc"><h2><small>FOR PC</small>パソコンで使うときのコツ<span class="badge">パソコン</span></h2>
+<p>パソコンのブラウザ(Chrome・Edge・Safari など)でも、スマホと同じ機能がすべて使えます。画面が広いので、資料パネルとテキストを並べて使うのがおすすめです。</p>
+<table class="keys"><tbody>
+<tr><td><span class="kbd">Esc</span></td><td>開いている資料パネルを最小化/資料メニューを閉じる/ストーリー表示(サービス紹介)を閉じる</td></tr>
+<tr><td>見出しをドラッグ</td><td>資料パネル(元素表・地図・公式集など)を好きな場所へ移動。位置は次に開いたときも残ります</td></tr>
+<tr><td>マウスのホイール</td><td>世界地図の拡大・縮小</td></tr>
+<tr><td><span class="kbd">Ctrl</span> + <span class="kbd">＋</span>/<span class="kbd">－</span>(Mac は <span class="kbd">⌘</span>)</td><td>画面全体の文字の大きさを変える(ブラウザの機能)</td></tr>
+<tr><td>ブラウザのタブ</td><td>タイマーが動いている間は、タブの名前に残り時間が出ます。ほかのタブを見ていても分かります</td></tr>
+</tbody></table>
+<div class="tip"><b>アプリのように使う</b>Chrome・Edge では、アドレスバーの右にある「インストール」のアイコンから、デスクトップにアプリとして追加できます(表示されない環境もあります)。</div>
+<div class="tip"><b>動画の見方</b>上の「📱 スマホ版/💻 パソコン版」で、マニュアルの動画を切りかえられます。パソコンで開くと、はじめはパソコン版が出ます。</div>
+</section>
 
 <section id="faq"><h2>よくある質問</h2>
 <ul>
@@ -162,5 +208,50 @@ body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
     <a href="index.html#tutor" data-r="tutor"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>先生用</a>
     <a href="manual.html" data-r="manual" class="nav-manual active" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.5"/><path d="M12 17h.01"/></svg>マニュアル</a>
   </nav>
+<button type="button" class="totop" id="totop" aria-label="いちばん上へ">▲</button>
+<script>
+(function () {
+  // スマホ版・パソコン版の切りかえ(動画と、パソコンだけの説明)
+  var dev; try { dev = localStorage.getItem('manualDev'); } catch (e) { }
+  if (!dev) dev = window.innerWidth >= 900 ? 'pc' : 'sp';
+  var vids = [].slice.call(document.querySelectorAll('video[data-n]')), rate = 1;
+  function apply() {
+    document.body.classList.toggle('pc', dev === 'pc');
+    [].forEach.call(document.querySelectorAll('[data-dev]'), function (b) { var on = b.getAttribute('data-dev') === dev; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    vids.forEach(function (v) { v.onplay = function () { v.playbackRate = rate; }; var n = v.getAttribute('data-n'), d = dev === 'pc' ? 'manual/pc/' : 'manual/'; var src = d + n + '.mp4?v=20261108'; if (v.getAttribute('src') !== src) { v.pause(); v.setAttribute('poster', d + n + '.jpg?v=20261108'); v.setAttribute('src', src); v.load(); } });
+  }
+  [].forEach.call(document.querySelectorAll('[data-dev]'), function (b) { b.addEventListener('click', function () { dev = b.getAttribute('data-dev'); try { localStorage.setItem('manualDev', dev); } catch (e) { } apply(); }); });
+  apply();
+  // 動画の速さ
+  var sel = document.getElementById('mrate');
+  sel.addEventListener('change', function () { rate = +sel.value; vids.forEach(function (v) { v.playbackRate = rate; }); });
+  vids.forEach(function (v) { v.addEventListener('play', function () { v.playbackRate = rate; }); });
+  // マニュアル内の検索:当てはまる章だけ表示して、ことばに色をつける
+  var q = document.getElementById('mq'), secs = [].slice.call(document.querySelectorAll('main > section')), orig = secs.map(function (x) { return x.innerHTML; });
+  function esc(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  q.addEventListener('input', function () {
+    var w = q.value.trim(), hit = 0;
+    secs.forEach(function (sec, i) {
+      sec.innerHTML = orig[i];
+      if (!w) { sec.classList.remove('hide'); return; }
+      var ok = sec.textContent.toLowerCase().indexOf(w.toLowerCase()) >= 0; sec.classList.toggle('hide', !ok); if (!ok) return; hit++;
+      var re = new RegExp(esc(w), 'gi'), tw = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT), ns = [], n;
+      while ((n = tw.nextNode())) if (re.test(n.nodeValue)) ns.push(n);
+      ns.forEach(function (t) { var sp = document.createElement('span'); sp.innerHTML = t.nodeValue.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }).replace(new RegExp(esc(w), 'gi'), function (m) { return '<mark>' + m + '</mark>'; }); t.parentNode.replaceChild(sp, t); });
+    });
+    document.getElementById('mnohit').style.display = w && !hit ? 'block' : 'none';
+    vids = [].slice.call(document.querySelectorAll('video[data-n]')); apply();
+  });
+  // 目次:いま読んでいる章を光らせる/いちばん上へ
+  var links = [].slice.call(document.querySelectorAll('nav.toc a')), top = document.getElementById('totop');
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY + 120, cur = null;
+    secs.forEach(function (s) { if (!s.classList.contains('hide') && s.offsetTop <= y) cur = s.id; });
+    links.forEach(function (a) { a.classList.toggle('cur', a.getAttribute('href') === '#' + cur); });
+    top.classList.toggle('show', window.scrollY > 600);
+  }, { passive: true });
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();
+</script>
 </body>
 </html>
