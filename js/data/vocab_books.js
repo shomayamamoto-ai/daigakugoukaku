@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜9・14 と Part 13 の一部を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -2758,7 +2758,7 @@ bleed|出血する
 crash|衝突する、墜落する、衝突
 specialize|(specialize inで)専門にする
 `;
-// Part 13:画面写真から 138語(見出し110・派生28)を入力。全257語(見出し211・派生46)のうち、残りは写真を受け取りしだい追加
+// Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
 congressman|国会議員|派
 script|台本
@@ -2898,6 +2898,125 @@ liberal|自由主義の、(liberal artsで)一般教養の、寛大な
 compliment|褒め言葉
 perfume|香水
 feast|宴会
+highlight|強調する
+monument|記念碑
+bankrupt|倒産した
+suppress|抑える
+overtake|追い抜く
+disguise|変装する、隠す、変装
+altitude|標高
+courtesy|礼儀正しさ
+medieval|中世の
+retrieve|回収する
+distract|気を散らす
+distraction|気をそらすもの|派
+disclose|公表する
+disclosure|暴露|派
+restrain|抑制する
+restraint|抑制|派
+friction|摩擦
+epidemic|流行
+diabetes|糖尿病
+monopoly|独占
+tremble|震える
+jealous|嫉妬した
+apparent|明白な、一見〜らしい
+apparently|どうやら〜らしい|派
+compound|化合物、複合的な、(問題を)悪化させる
+merchant|商人
+yell|叫ぶ
+motor|モーター
+cattle|ウシ
+loyal|忠実な
+negotiate|交渉する
+negotiation|交渉|派
+good|良い、善、利益、商品(通常 goods)
+league|連盟
+maximum|最大限
+storage|貯蔵
+partial|部分的な、不公平な、(be partial toで)〜が好きな
+partially|部分的に|派
+intrude|立ち入る
+anatomy|解剖学／身体の構造
+naughty|いたずらな
+console|慰める
+consolation|慰め|派
+flatter|〜にお世辞を言う
+inflict|(苦痛や損害)を与える
+discern|見分ける
+eminent|著名な
+spatial|空間の
+degrade|質を低下させる、劣化する／分解する
+corrupt|堕落させる、買収する、堕落した／破損した
+corruption|腐敗|派
+antique|骨董の
+antiquity|古代|派
+dispose|(dispose ofで)処分する
+equator|赤道
+notable|注目に値する
+gradual|緩やかな
+gradually|徐々に|派
+allergy|アレルギー
+profound|深い
+likewise|同様に
+farewell|別れ
+liquid|液体
+sue|訴える
+vending machine|自動販売機
+platform|プラットフォーム
+sector|部門
+channel|チャンネル
+illusion|錯覚
+refugee|難民
+circumstances|状況
+mechanism|仕組み
+reside|住む
+resident|住人|派
+residence|住宅|派
+residential|住宅の|派
+marvel|驚く
+marvelous|素晴らしい|派
+malice|悪意
+detest|ひどく嫌う
+shiver|震える
+appall|ぞっとさせる
+appalling|ぞっとするような|派
+obsess|取り憑く
+obsessed|取りつかれて|派
+obsession|取りつかれること|派
+scroll|スクロールする
+upload|アップロードする
+censor|検閲する
+censorship|検閲|派
+facial|顔の
+resumé|履歴書
+merger|合併
+saliva|唾液
+autism|自閉症
+skinny|やせこけた
+mumble|ぶつぶつ言う
+mutter|つぶやく
+neural|神経の
+gluten|グルテン
+pelvis|骨盤
+myriad|無数
+widely|広く
+paragraph|段落
+highly|非常に
+consumer|消費者
+lifetime|生涯
+apology|謝罪
+hint|ヒント
+calculation|計算
+gesture|身ぶり
+believer|信者
+arena|競技場
+imitation|模倣
+marketplace|市場
+vulnerability|脆弱性
+loop|輪
+laborer|労働者
+radar|レーダー
 `;
 WPS.VBOOK_DATA.base[14] = `
 adjective|形容詞
