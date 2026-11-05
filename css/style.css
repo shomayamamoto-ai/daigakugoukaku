@@ -2656,3 +2656,24 @@ body.lsp-open { overflow: hidden; }
 .mx-count { font-size: 1.05rem; } .mx-count b { font-size: 1.6rem; color: var(--primary); }
 .mx-list li { margin: 4px 0; }
 .mr-type { padding: 8px 12px; border-radius: 10px; background: #f3f0ff; font-size: .9rem; }
+.talk-cta { display: flex; flex-direction: column; gap: 2px; margin: 0 0 14px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, var(--primary), #0fa3b8); color: #fff; text-decoration: none; }
+.talk-cta small { opacity: .9; }
+.tk-log { display: grid; gap: 8px; margin-top: 10px; }
+.tk-q { justify-self: start; max-width: 88%; padding: 10px 14px; border-radius: 4px 14px 14px 14px; background: #eef4fb; font-size: .92rem; line-height: 1.7; }
+.tk-a { justify-self: end; max-width: 80%; padding: 8px 14px; border-radius: 14px 4px 14px 14px; background: var(--primary); color: #fff; font-size: .9rem; }
+.tk-opts, .tk-tools { display: grid; gap: 8px; }
+.tk-opt, .tk-tool { display: block; text-align: left; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); font: inherit; color: var(--text); text-decoration: none; cursor: pointer; }
+.tk-opt:hover, .tk-tool:hover { border-color: var(--primary); background: var(--primary-weak); }
+.tk-tool { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+.gr-steps { list-style: none; padding: 0; display: grid; gap: 8px; }
+.gr-step { width: 100%; display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); font: inherit; color: var(--text); cursor: pointer; }
+.gr-step b { font-size: 1.6rem; color: var(--primary); width: 1.4em; text-align: center; }
+.gr-step span { display: grid; } .gr-step small { color: var(--muted); font-size: .76rem; }
+.gr-step.on { background: #eef7f1; border-color: #4fae84; }
+.gr-step.on b { color: #4fae84; }
+.gr-done { font-weight: 700; color: #2d7a57; }
+.sl-row { display: flex; gap: 12px; flex-wrap: wrap; } .sl-row label { display: grid; gap: 4px; font-weight: 700; }
+.sl-row input { font: inherit; padding: 8px; border: 1.5px solid var(--line); border-radius: 10px; }
+.mind-kind textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; }
+.mq-face, .mf-scale label, .mf-tags .chip { position: relative; }
+.mq-face input, .mf-scale input, .mf-tags input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }

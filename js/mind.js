@@ -131,6 +131,18 @@ WPS.Mind = (function () {
       reasons.push('勉強量がふだんの' + (Math.round(wk[0] / base * 10) / 10) + '倍に増え、睡眠不足やストレスも出ています(がんばりすぎのサイン)');
       acts.push('休む日を決める・睡眠を優先するよう伝える(燃えつきの予防)');
     }
+    // 本人のふだんの気分と比べる(直近3日の平均が、その前の平均より1.2以上低い)
+    var allL = recentLogs(60).filter(function (x) { return x.m; });
+    if (allL.length >= 8 && !types.mood) {
+      var rec = allL.slice(-3), old = allL.slice(0, -3);
+      var mr = rec.reduce(function (a, x) { return a + x.m; }, 0) / rec.length, mo = old.reduce(function (a, x) { return a + x.m; }, 0) / old.length;
+      if (mo - mr >= 1.2) { score += 2; types.mood = 1; reasons.push('ここ数日の気分(平均' + mr.toFixed(1) + ')が、この生徒のふだん(平均' + mo.toFixed(1) + ')よりはっきり低いです'); acts.push('「最近いつもと様子がちがうね」と、責めずに声をかける'); }
+    }
+    // こころのチェックが急に途切れた(前はよくしていたのに、4日以上していない)
+    var ks = Object.keys(data().logs).sort(), lastLog = ks[ks.length - 1];
+    if (ks.length >= 7 && lastLog && D.diff(lastLog, today) >= 4 && ks.filter(function (d) { return d >= D.add(today, -21); }).length >= 7) {
+      score += 1; types.dropout = 1; reasons.push('毎日のようにしていたこころのチェックが、' + D.diff(lastLog, today) + '日止まっています'); acts.push('アプリの外で、様子を聞いてみる');
+    }
     var level = score >= 6 ? 3 : score >= 4 ? 2 : score >= 2 ? 1 : 0;
     return { level: level, score: score, reasons: reasons, acts: acts, away: away, last: last, n7: wk[0], base: base, types: types, enough: enough, gapAvg: gapAvg };
   }
@@ -199,6 +211,8 @@ WPS.Mind = (function () {
     var anx = log.st >= 4 || tags.indexOf('本番が不安') >= 0 || tags.indexOf('成績が不安') >= 0 || th['不安'];
     if (anx) add('write', 60, '不安を、10分だけ書き出してみよう', '試験の前に、心配なことを10分間書き出した生徒は、本番で点が下がりにくかったという研究があります(Ramirez & Beilock, 2011)。頭の中の心配を外に出すと、考えるための力が戻りやすいと考えられています。', 'write');
     if (anx && ed !== null && ed >= 0 && ed <= 45) add('exam', 65, '本番まであと' + ed + '日。ドキドキは「準備ができた」サイン', '試験前の心臓のドキドキを「体が本番に向けて準備している」と考えるよう伝えられた学生は、数学の点が高かったという研究があります(Jamieson ほか, 2010)。緊張を消そうとせず、味方にしましょう。', 'exam');
+    if (log.st >= 5 || /(パニック|息が苦し|頭が真っ白|涙が止まら)/.test(log.note || '')) add('ground', 70, 'まずは「いま・ここ」にもどろう', '不安でいっぱいのときは、見えるもの・聞こえる音を順番に見つけていくと、頭が少し落ち着きます(5・4・3・2・1 グラウンディング)。', 'ground');
+    if (th['自己否定'] || log.m === 1) add('kind', 56, '自分を責めすぎないでね', '大切な友だちにかけるような、やさしい言葉を自分にかけてみましょう。自分に思いやりを向ける練習は、落ちこみから立ち直る助けになると考えられています。', 'kind');
     if (log.st >= 3 || tags.indexOf('本番が不安') >= 0) add('breath', 40, '1分だけ、ゆっくり呼吸しよう', '4秒で吸って、6秒でゆっくり吐きます。吐く息を長くすると、体が落ち着きやすくなります。', 'breath');
     if (th['自己否定'] || th['比較'] || tags.indexOf('自信がない') >= 0) add('think', 58, '頭に浮かんだ考えを、もう一度ながめてみよう', '「どうせ無理」「みんなはできるのに」と考えたときは、その考えを書き出して「友だちが同じことを言ったら、なんて声をかける?」と考えてみましょう。考えの見方を変える練習は、気持ちを立て直す助けになるとされています。', 'think');
     if (log.e <= 2 || tags.indexOf('やる気が出ない') >= 0 || th['先延ばし']) add('plan', 55, '「5分だけ」と「もし〜なら」で始めよう', 'やる気は、始めてから出てくることが多いです。まずは5分だけ。さらに「もし夕食を食べ終わったら、単語を5個やる」のように、いつ・何をやるかを決めておくと実行しやすくなることが、多くの研究で分かっています(Gollwitzer & Sheeran, 2006)。', 'plan');
@@ -223,12 +237,14 @@ WPS.Mind = (function () {
     if (k === 'write') return '<a class="btn small" href="#mind/write">10分 書き出す</a>';
     if (k === 'breath') return '<a class="btn small" href="#mind/breath">1分 呼吸する</a>';
     if (k === 'plan') return '<a class="btn small" href="#mind/plan">「もし〜なら」を決める</a><a class="btn small" href="#cards">5分だけやる</a>';
-    if (k === 'lite') return lite() ? '<span class="muted small">いまは軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)</span>' : '<button type="button" class="btn small" data-mlite="7">今週は軽めにする</button>';
+    if (k === 'lite') return (data().sleep ? '' : '<a class="btn small" href="#mind/sleep">睡眠の目標を決める</a>') + (lite() ? '<span class="muted small">いまは軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)</span>' : '<button type="button" class="btn small" data-mlite="7">今週は軽めにする</button>');
     if (k === 'wins') return '<a class="btn small" href="#mind/wins">できたことを見る</a>';
     if (k === 'sos') return '<a class="btn small" href="#mind/sos">相談できるところ</a>';
     if (k === 'think') return '<a class="btn small" href="#mind/think">考えを整理する</a>';
     if (k === 'exam') return '<a class="btn small" href="#mind/exam">本番の心の準備</a>';
     if (k === 'values') return '<a class="btn small" href="#mind/values">大切なことを書く</a>';
+    if (k === 'ground') return '<a class="btn small" href="#mind/ground">5・4・3・2・1 をやる</a>';
+    if (k === 'kind') return '<a class="btn small" href="#mind/kind">自分にやさしく</a>';
     if (k === 'books') return '<a class="btn small" href="#books">テキストで基礎にもどる</a>';
     return '<a class="btn small primary" href="#home">今日の学習へ</a>';
   }
@@ -266,6 +282,8 @@ WPS.Mind = (function () {
     if ((wd === 0 || wd === 6) && !wkv) html += '<section class="info">週末だね。<a href="#mind/week">今週のふり返り</a>(5分)で、できたことを確かめよう。</section>';
     var lastWk = (function () { var ks = Object.keys(m.weeks || {}).sort(); return ks.length ? m.weeks[ks[ks.length - 1]] : null; })();
     if (lastWk && lastWk.goal) html += '<section class="info mind-plan">今週の目標:<b>' + h(lastWk.goal) + '</b></section>';
+    var sg = m.sleep;
+    if (sg && sg.on && sg.bed) { var bm = toMin(sg.bed), nm = new Date().getHours() * 60 + new Date().getMinutes(), dd = (bm - nm + 1440) % 1440; if (dd <= 60) html += '<section class="info">そろそろ寝る準備の時間だよ(目標 ' + h(sg.bed) + ')。今日の分は、ここまでで十分。おやすみ前に、覚えた単語を1回だけ見直そう。</section>'; }
     var ed = examDays();
     if (ed !== null && ed >= 0 && ed <= 7) html += '<section class="info">本番まであと' + ed + '日。<a href="#mind/exam">本番の心の準備</a>を見ておこう。</section>';
     if (lite()) html += '<section class="info">今週は軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)。今日のやることを少なめにしています。<button type="button" class="link" data-mlite="0">ふつうに戻す</button></section>';
@@ -351,6 +369,24 @@ WPS.Mind = (function () {
       '<div class="mp-ex">' + ['学校から帰ってカバンを置いたら|計算問題を3問', '夕ごはんを食べ終わったら|単語を5個', 'スマホを見たくなったら|まず1問だけ解く', 'お風呂から出たら|今日の単語を見直す'].map(function (x) { var p = x.split('|'); return '<button type="button" class="chip" data-mpex="' + h(x) + '">' + h(p[0]) + '→' + h(p[1]) + '</button>'; }).join('') + '</div>' +
       '<div class="btns"><button type="button" class="btn primary" id="mpSave">この約束にする</button><a class="btn" href="#mind">もどる</a></div>' +
       ((m.plans || []).length ? '<h3>いまの約束</h3><ul class="mind-plans">' + m.plans.map(function (p, i) { return '<li>もし<b>' + h(p.when) + '</b>なら、<b>' + h(p.what) + '</b><button type="button" class="link" data-mpdel="' + i + '">消す</button></li>'; }).join('') + '</ul>' : '') + '</section>';
+    if (arg === 'talk') return talkPage();
+    if (arg === 'ground') return '<section class="card mind-ground"><h1>5・4・3・2・1 グラウンディング</h1><p class="muted">不安で頭がいっぱいのときや、パニックになりそうなときに、意識を「いま・ここ」にもどす方法です。ゆっくり、声に出さなくてよいので順番に見つけてください。</p>' +
+      '<ol class="gr-steps">' + [['5', '見えるものを5つ', '例:机、ペン、窓、時計、自分の手'], ['4', 'さわれるものを4つ', '例:服の生地、いすの背もたれ、髪、ノートの紙'], ['3', '聞こえる音を3つ', '例:エアコンの音、車の音、自分の呼吸'], ['2', 'においを2つ', '例:部屋のにおい、手のにおい(なければ好きなにおいを思い出す)'], ['1', '味を1つ', '例:口の中の味、飲み物をひと口']].map(function (x, i) {
+        return '<li><button type="button" class="gr-step" data-gr="' + i + '"><b>' + x[0] + '</b><span>' + x[1] + '<small>' + x[2] + '</small></span></button></li>'; }).join('') + '</ol>' +
+      '<p class="gr-done" id="grDone" hidden>おつかれさま。少し落ち着いたら、ゆっくり呼吸をしてから続けよう。</p><div class="btns"><a class="btn" href="#mind/breath">1分 呼吸する</a><a class="btn" href="#mind">もどる</a></div></section>';
+    if (arg === 'kind') return '<section class="card mind-kind"><h1>自分にやさしくする3ステップ</h1><p class="muted">失敗したとき、つい自分を責めてしまう人のための方法です。自分に思いやりを向ける練習は、落ちこみから立ち直る助けになると考えられています(セルフ・コンパッション)。</p>' +
+      '<ol class="mx-list"><li><b>いま、つらいと認める</b> ― 「いま、苦しい気持ちなんだな」と心の中で言う。</li><li><b>みんな同じだと思い出す</b> ― 「受験生ならだれでも、うまくいかない日はある」。</li><li><b>自分にやさしい言葉をかける</b> ― 大切な友だちに言うように、「ここまでよくがんばってきたね」と言う。</li></ol>' +
+      '<label class="mf-note">自分にかけたい言葉を書いてみよう<textarea id="kText" rows="3" maxlength="200" placeholder="例:今日はうまくいかなかったけど、毎日続けてきたことは本当だよ">' + h(m.kind || '') + '</textarea></label>' +
+      '<div class="btns"><button type="button" class="btn primary" id="kSave">保存</button><a class="btn" href="#mind">もどる</a></div></section>';
+    if (arg === 'sleep') {
+      var sg = m.sleep || { bed: '23:30', wake: '06:30' };
+      var sl = recentLogs(7).filter(function (x) { return x.sl; }), avg = sl.length ? sl.reduce(function (a, x) { return a + x.sl; }, 0) / sl.length : null;
+      return '<section class="card mind-sleep"><h1>睡眠の目標</h1><p class="muted">中高生には8〜10時間の睡眠がすすめられています(米国睡眠医学会など)。寝る時間を決めて、その1時間前にはスマホと勉強を終える準備をしましょう。</p>' +
+        (avg !== null ? '<p class="mx-count">この1週間の平均睡眠:<b>' + avg.toFixed(1) + '</b>時間(記録 ' + sl.length + '日分)</p>' : '') +
+        '<div class="sl-row"><label>寝る時間<input type="time" id="slBed" value="' + h(sg.bed) + '"></label><label>起きる時間<input type="time" id="slWake" value="' + h(sg.wake) + '"></label></div>' +
+        '<p id="slHours" class="hint"></p><label class="switch"><input type="checkbox" id="slOn"' + (sg.on ? ' checked' : '') + '> 寝る1時間前に、ホームで「そろそろ寝る準備」を出す</label>' +
+        '<div class="btns"><button type="button" class="btn primary" id="slSave">保存</button><a class="btn" href="#mind">もどる</a></div></section>';
+    }
     if (arg === 'think') {
       var ts = (m.thinks || []).slice(0, 5);
       return '<section class="card mind-think"><h1>考えの整理(5ステップ)</h1><p class="muted">いやな気持ちになったときの「頭に浮かんだ考え」を書き出して、別の見方をさがします。認知行動療法で使われる方法を、やさしくしたものです。</p><form id="thForm">' +
@@ -392,6 +428,7 @@ WPS.Mind = (function () {
     if (arg === 'wins') return '<section class="card"><h1>これまでにできたこと</h1>' + wins() + '<p class="hint">他の人とではなく、少し前の自分と比べましょう。続けてきたこと自体が、いちばんの力です。</p><a class="btn" href="#mind">もどる</a></section>';
     if (arg === 'sos') return sosHTML() + '<a class="btn" href="#mind">もどる</a>';
     var html = (C ? C.say('ここは、こころを整える場所だよ。勉強のことも、それ以外のことも、気軽に記録してね。', 'normal', 56) : '');
+    html += '<a class="talk-cta" href="#mind/talk"><b>ピンポと話す</b><small>いまの気持ちを、質問に答えながら整理しよう(3分)</small></a>';
     html += '<section class="card mind-form"><h2>今日のこころのチェック</h2><form id="mindForm">' +
       '<div class="mf-row"><span>気分</span><div class="mq-faces" role="radiogroup" aria-label="気分">' + [1, 2, 3, 4, 5].map(function (n) { return '<label class="mq-face' + (lg.m === n ? ' on' : '') + '"><input type="radio" name="m" value="' + n + '"' + (lg.m === n ? ' checked' : '') + '>' + face(n, 34) + '<small>' + FACE[n] + '</small></label>'; }).join('') + '</div></div>' +
       '<div class="mf-row"><span>やる気</span>' + scale('e', lg.e, ['ない', '', 'ふつう', '', 'ある']) + '</div>' +
@@ -408,10 +445,55 @@ WPS.Mind = (function () {
       '<a href="#mind/breath"><b>1分の呼吸</b><small>緊張したとき、寝る前に</small></a><a href="#mind/write"><b>不安の書き出し</b><small>試験前、モヤモヤするとき</small></a>' +
       '<a href="#mind/plan"><b>もし〜なら計画</b><small>やる気が出ないとき</small></a><a href="#mind/wins"><b>できたこと</b><small>自信がなくなったとき</small></a>' +
       '<a href="#mind/think"><b>考えの整理</b><small>「どうせ無理」と思ったとき</small></a><a href="#mind/values"><b>大切にしていること</b><small>勉強の理由を見失ったとき</small></a>' +
-      '<a href="#mind/exam"><b>本番の心の準備</b><small>試験が近いとき</small></a><a href="#mind/week"><b>今週のふり返り</b><small>週末に5分</small></a></div></section>';
+      '<a href="#mind/exam"><b>本番の心の準備</b><small>試験が近いとき</small></a><a href="#mind/week"><b>今週のふり返り</b><small>週末に5分</small></a>' +
+      '<a href="#mind/ground"><b>5・4・3・2・1</b><small>パニックになりそうなとき</small></a><a href="#mind/kind"><b>自分にやさしく</b><small>自分を責めてしまうとき</small></a>' +
+      '<a href="#mind/sleep"><b>睡眠の目標</b><small>寝る時間を決める</small></a></div></section>';
     html += sosHTML();
     html += '<p class="hint">このコーチは、勉強を続けるための声かけをするもので、医療や専門のカウンセリングの代わりではありません。</p>';
     return html;
+  }
+  function toMin(t) { var p = String(t || '0:0').split(':'); return (+p[0]) * 60 + (+p[1] || 0); }
+  /* ---------- ピンポと話す(質問に答えていく会話) ---------- */
+  var TALK = {
+    start: { q: 'いま、いちばん近い気持ちはどれ?', a: [['不安・あせり', 'anx'], ['やる気が出ない', 'mot'], ['つかれている', 'tired'], ['自信がない・落ちこむ', 'low'], ['人間関係・家のことがつらい', 'rel'], ['特にないけど話したい', 'ok']] },
+    anx: { q: '何についての不安が大きい?', a: [['本番・入試のこと', 'anx_exam'], ['成績・模試の結果', 'anx_score'], ['勉強が間に合うか', 'anx_time'], ['よく分からないけど不安', 'anx_vague']] },
+    anx_exam: { end: ['exam', 'write', 'breath'], say: '本番のことを考えると、こわくなるよね。その気持ちは、本気でがんばっている証拠だよ。' },
+    anx_score: { end: ['think', 'wins', 'write'], say: '結果が思うように出ないと、自分がだめに思えてくるよね。でも点数は「いまの位置」で、「きみの価値」じゃないよ。' },
+    anx_time: { end: ['lite', 'plan', 'write'], say: '「間に合わないかも」と思うと、何から手をつけていいか分からなくなるよね。全部はやらなくていい。大事なところからにしよう。' },
+    anx_vague: { end: ['ground', 'write', 'breath'], say: '理由がはっきりしない不安も、ちゃんとした気持ちだよ。まずは体と頭を「いま・ここ」にもどしてみよう。' },
+    mot: { q: 'やる気が出ないのは、どんな感じ?', a: [['何から始めればいいか分からない', 'mot_start'], ['スマホや動画がやめられない', 'mot_phone'], ['なんのために勉強してるか分からない', 'mot_why'], ['ずっと続いていて、何をしても楽しくない', 'mot_long']] },
+    mot_start: { end: ['plan', 'go'], say: '始める前がいちばん重いんだよね。5分だけやって、やめてもいいことにしよう。' },
+    mot_phone: { end: ['plan', 'go'], say: 'スマホは、やめようと思うほど気になるもの。「スマホを見たくなったら、まず1問だけ解く」と決めておくのがおすすめだよ。' },
+    mot_why: { end: ['values', 'plan'], say: '目的が見えないと、がんばるのはむずかしいよね。自分が大切にしていることを、少し書いてみよう。' },
+    mot_long: { end: ['sos', 'kind', 'lite'], say: '何をしても楽しくない状態が2週間以上続いているなら、こころがつかれているサインかもしれない。勉強の前に、信頼できる大人に話してみてほしいな。' },
+    tired: { q: 'いちばん近いのは?', a: [['寝不足', 'tired_sleep'], ['勉強しすぎて限界', 'tired_burn'], ['体調がよくない', 'tired_body']] },
+    tired_sleep: { end: ['sleep', 'lite'], say: '寝不足だと、覚えたことが残りにくくなるよ。今夜は早めに寝るのも立派な勉強だよ。' },
+    tired_burn: { end: ['lite', 'kind', 'sleep'], say: 'ここまで本当によくがんばってきたね。休むことは、さぼることじゃなくて、走り続けるための準備だよ。' },
+    tired_body: { end: ['lite', 'go'], say: '体調が悪い日は、休むことを優先しよう。続くようなら、保護者や病院に相談してね。' },
+    low: { q: 'どんなときに、そう感じる?', a: [['人と比べたとき', 'low_cmp'], ['まちがえたとき・失敗したとき', 'low_fail'], ['ずっと自分を責めてしまう', 'low_self']] },
+    low_cmp: { end: ['think', 'wins'], say: '人と比べると、自分の足りないところばかり見えてくるよね。比べる相手を「少し前の自分」に変えてみよう。' },
+    low_fail: { end: ['kind', 'wins', 'think'], say: 'まちがいは、「どこを直せばいいか」を教えてくれる情報だよ。失敗した自分を責めすぎないでね。' },
+    low_self: { end: ['kind', 'think', 'sos'], say: '自分を責める気持ちが続くのは、とてもつらいよね。ひとりで抱えずに、話せる人がいたら話してみてほしいな。' },
+    rel: { q: '話せる範囲で、近いものを選んでね', a: [['友だち・クラス・部活のこと', 'rel_friend'], ['家族のこと', 'rel_family'], ['いやなことをされている', 'rel_bully']] },
+    rel_friend: { end: ['talkto', 'write'], say: '人間関係のことで心が重いと、勉強どころじゃなくなるのは自然なことだよ。' },
+    rel_family: { end: ['talkto', 'write'], say: '家のことは、だれにも言いにくいよね。話してくれてありがとう。' },
+    rel_bully: { end: ['sos'], say: 'つらいことを話してくれてありがとう。いやなことをされているなら、きみは悪くないよ。ひとりで抱えずに、信頼できる大人か相談窓口に、今日話してほしい。' },
+    ok: { end: ['go', 'week'], say: '話しに来てくれてうれしいよ。今日の調子を、いっしょに確かめていこう。' }
+  };
+  var TALK_TOOL = { exam: ['本番の心の準備', '#mind/exam'], write: ['10分 書き出す', '#mind/write'], breath: ['1分 呼吸する', '#mind/breath'], think: ['考えを整理する', '#mind/think'], wins: ['できたことを見る', '#mind/wins'],
+    lite: ['今週は軽めにする', 'lite'], plan: ['「もし〜なら」を決める', '#mind/plan'], ground: ['5・4・3・2・1', '#mind/ground'], go: ['今日の学習へ', '#home'], values: ['大切なことを書く', '#mind/values'],
+    sos: ['相談できるところ', '#mind/sos'], kind: ['自分にやさしく', '#mind/kind'], sleep: ['睡眠の目標', '#mind/sleep'], talkto: ['相談できるところ', '#mind/sos'], week: ['今週のふり返り', '#mind/week'] };
+  function talkPage() {
+    var m = data(), path = (m.talkPath || ['start']), node = TALK[path[path.length - 1]] || TALK.start;
+    var hist = path.slice(0, -1).map(function (k, i) { var n = TALK[k], next = path[i + 1], a = (n.a || []).filter(function (x) { return x[1] === next; })[0]; return '<div class="tk-q">' + h(n.q) + '</div>' + (a ? '<div class="tk-a">' + h(a[0]) + '</div>' : ''); }).join('');
+    var body;
+    if (node.end) {
+      var fb = m.fb || {}, ends = node.end.slice().sort(function (x, y) { var fx = fb[x] || { u: 0, d: 0 }, fy = fb[y] || { u: 0, d: 0 }; return (fy.u - fy.d) - (fx.u - fx.d); });
+      body = '<div class="tk-q">' + h(node.say) + '</div><div class="tk-q">こんなことを試してみない?</div><div class="tk-tools">' + ends.map(function (k) { var t = TALK_TOOL[k]; return t[1] === 'lite' ? '<button type="button" class="tk-tool" data-mlite="7">' + t[0] + '</button>' : '<a class="tk-tool" href="' + t[1] + '">' + t[0] + '</a>'; }).join('') + '</div>' +
+        '<div class="btns"><button type="button" class="btn" id="tkReset">はじめから話す</button><a class="btn" href="#mind">こころの部屋へ</a></div>';
+    } else body = '<div class="tk-q">' + h(node.q) + '</div><div class="tk-opts">' + node.a.map(function (a) { return '<button type="button" class="tk-opt" data-tk="' + a[1] + '">' + h(a[0]) + '</button>'; }).join('') + '</div>' + (path.length > 1 ? '<button type="button" class="link" id="tkBack">ひとつもどる</button>' : '');
+    return '<section class="card mind-talk"><h1>ピンポと話す</h1>' + (C ? C.say('話せる範囲で、近いものを選んでね。正解はないよ。', 'normal', 48) : '') + '<div class="tk-log">' + hist + body + '</div></section>' +
+      '<p class="hint">ここで選んだ内容は、この端末だけに保存されます。</p>';
   }
   function weekKey() { var d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return D.ymd ? D.ymd(d) : d.toISOString().slice(0, 10); }
   function scale(name, v, labels) {
@@ -462,6 +544,22 @@ WPS.Mind = (function () {
       });
       view.querySelector('#mwSave').addEventListener('click', function () { m.write = ta.value; save(); if (C) C.toast('保存したよ(この端末だけ)'); });
       view.querySelector('#mwDel').addEventListener('click', function () { m.write = ''; ta.value = ''; save(); if (C) C.toast('消したよ'); });
+    }
+    // ピンポと話す
+    view.querySelectorAll('[data-tk]').forEach(function (b) { b.addEventListener('click', function () { m.talkPath = (m.talkPath || ['start']).concat(b.getAttribute('data-tk')); var end = TALK[b.getAttribute('data-tk')]; if (end && end.end) { m.talks = [{ d: D.today(), path: m.talkPath.slice(1) }].concat(m.talks || []).slice(0, 30); } save(); if (rerender) rerender(); }); });
+    var tb = view.querySelector('#tkBack'); if (tb) tb.addEventListener('click', function () { m.talkPath = (m.talkPath || ['start']).slice(0, -1); if (!m.talkPath.length) m.talkPath = ['start']; save(); if (rerender) rerender(); });
+    var tr = view.querySelector('#tkReset'); if (tr) tr.addEventListener('click', function () { m.talkPath = ['start']; save(); if (rerender) rerender(); });
+    // 5・4・3・2・1
+    view.querySelectorAll('[data-gr]').forEach(function (b) { b.addEventListener('click', function () { b.classList.toggle('on'); var all = view.querySelectorAll('[data-gr]'), on = view.querySelectorAll('[data-gr].on'); var d = view.querySelector('#grDone'); if (d) d.hidden = on.length < all.length; }); });
+    // 自分にやさしく
+    var ks2 = view.querySelector('#kSave'); if (ks2) ks2.addEventListener('click', function () { m.kind = view.querySelector('#kText').value.slice(0, 200); save(); if (C) C.toast('保存したよ。落ちこんだときに読み返してね'); });
+    // 睡眠の目標
+    var slS = view.querySelector('#slSave');
+    if (slS) {
+      var bed = view.querySelector('#slBed'), wake = view.querySelector('#slWake'), hrs = view.querySelector('#slHours');
+      var calc = function () { var d = (toMin(wake.value) - toMin(bed.value) + 1440) % 1440; hrs.textContent = '睡眠時間:約' + (Math.round(d / 6) / 10) + '時間' + (d < 420 ? '(7時間より短いので、寝る時間を早めるのがおすすめ)' : ''); };
+      bed.addEventListener('input', calc); wake.addEventListener('input', calc); calc();
+      slS.addEventListener('click', function () { m.sleep = { bed: bed.value, wake: wake.value, on: view.querySelector('#slOn').checked }; save(); if (C) C.toast('睡眠の目標を保存したよ'); });
     }
     // 考えの整理
     var th = view.querySelector('#thForm');
