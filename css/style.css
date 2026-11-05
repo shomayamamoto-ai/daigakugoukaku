@@ -2637,3 +2637,22 @@ body.lsp-open { overflow: hidden; }
 .mind-risk .mr-level { font-size: 1rem; padding: 8px 12px; border-radius: 10px; background: #eef7f1; }
 .mind-risk .mr-level.warn { background: #fff7e6; }
 .mind-risk .mr-level.alert { background: #fff0ef; }
+.mc-fb { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: .74rem; color: var(--muted); flex-wrap: wrap; }
+.mc-fb button { font: inherit; font-size: .74rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+.mc-fb button.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.mc-more summary { cursor: pointer; color: var(--primary); font-weight: 700; font-size: .86rem; margin: 4px 0; }
+.mc-more .mc-item { margin-top: 8px; }
+.mc-think, .mc-values { border-left-color: #b07d2a; }
+.mc-exam { border-left-color: #2f5bd3; }
+.mc-easy { border-left-color: #4fae84; }
+.mind-think label, .mind-values label { display: grid; gap: 4px; margin: 10px 0; font-weight: 700; font-size: .9rem; }
+.mind-think textarea, .mind-values textarea, .mind-week textarea, .mind-week input { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; }
+.mind-think input[type=range] { width: 100%; }
+.th-hints { background: #fbf6ec; border-radius: 10px; padding: 8px 12px; font-size: .84rem; }
+.th-hints ul { margin: 4px 0 0; padding-left: 1.2em; }
+.th-list li { margin: 8px 0; font-size: .86rem; }
+.th-list small { display: block; color: var(--muted); }
+.th-list em { display: inline-block; margin-left: 6px; font-style: normal; color: var(--primary); font-weight: 700; }
+.mx-count { font-size: 1.05rem; } .mx-count b { font-size: 1.6rem; color: var(--primary); }
+.mx-list li { margin: 4px 0; }
+.mr-type { padding: 8px 12px; border-radius: 10px; background: #f3f0ff; font-size: .9rem; }

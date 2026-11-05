@@ -47,65 +47,176 @@ WPS.Mind = (function () {
     return ks.map(function (k) { var o = m.logs[k]; o.d = k; return o; });
   }
 
-  /* ---------- 離脱のサイン(リスク) ---------- */
+  /* ---------- 離脱のサイン(リスク) ----------
+   * 決まった基準ではなく「その生徒のふだん」と比べる(個人のベースライン)。
+   *  ・休み:ふだんの「勉強日と勉強日の間かく」の2.5倍(最低2日)をこえたら
+   *  ・勉強量:この7日の解答数を、その前の3週間の「1週間あたりの中央値」と比べる
+   *  ・正答率:最近30問とその前60問の差が、たまたまの差(統計の誤差)より大きいときだけ
+   *  ・夜ふかし:この7日の解答のうち、0〜4時が3割以上
+   *  ・がんばりすぎ:勉強量がふだんの1.6倍以上 かつ 睡眠不足・ストレス高
+   *  ・気分:直近の気分が下がり続けている(傾き)/つらいが続く
+   * 記録が少ないうちは「判定のための記録が少ない」と表示する。 */
+  function dayCounts(days) {
+    var a = S().attempts, from = D.add(D.today(), -(days - 1)), c = {}, late = 0, tot7 = 0, w7 = D.add(D.today(), -6);
+    for (var i = a.length - 1; i >= 0; i--) {
+      var x = a[i]; if (!x.d) continue; if (x.d < from) break;
+      c[x.d] = (c[x.d] || 0) + 1;
+      if (x.d >= w7 && x.t) { tot7++; var hr = new Date(x.t).getHours(); if (hr < 4) late++; }
+    }
+    return { c: c, late: late, tot7: tot7 };
+  }
+  function median(v) { if (!v.length) return 0; v = v.slice().sort(function (a, b) { return a - b; }); var m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
   function risk() {
     var today = D.today(), last = lastStudy(), away = last ? D.diff(last, today) : null;
-    var score = 0, reasons = [], acts = [];
+    var score = 0, reasons = [], acts = [], types = {};
     var started = S().attempts.length > 0;
-    if (started && away !== null && away >= 2) {
-      score += away >= 7 ? 4 : away >= 4 ? 3 : 2;
-      reasons.push(away + '日間、勉強の記録がありません');
+    var dc = dayCounts(35), sd = studyDays();
+    // ふだんの勉強の間かく(直近35日の勉強日から)
+    var sdays = [];
+    for (var k = 34; k >= 0; k--) { var d = D.add(today, -k); if ((dc.c[d] || 0) > 0 || sd[d] === 'study') sdays.push(d); }
+    var gaps = []; for (var g = 1; g < sdays.length; g++) gaps.push(D.diff(sdays[g - 1], sdays[g]));
+    var gapAvg = gaps.length ? gaps.reduce(function (s, x) { return s + x; }, 0) / gaps.length : 1;
+    var awayTh = Math.max(2, Math.ceil(gapAvg * 2.5));
+    var enough = sdays.length >= 6;
+    if (started && away !== null && away >= awayTh) {
+      score += away >= awayTh * 2.5 ? 4 : away >= awayTh * 1.6 ? 3 : 2; types.dropout = 1;
+      reasons.push(away + '日間、勉強の記録がありません(この生徒のふだんの間かくは約' + Math.max(1, Math.round(gapAvg * 10) / 10) + '日)');
       acts.push('「5分だけ」「単語5個だけ」など、とても小さな再開を提案する');
     }
-    var n7 = countIn(0, 6), nPrev = countIn(7, 20) / 2;
-    if (nPrev >= 20 && n7 < nPrev * 0.5) {
-      score += 2; reasons.push('この1週間の解答数が、その前の2週間の平均の半分以下に減っています(' + n7 + '問 ← 約' + Math.round(nPrev) + '問)');
+    // 勉強量(1週間ごと)
+    var wk = [0, 0, 0, 0];
+    Object.keys(dc.c).forEach(function (d) { var i = Math.floor(D.diff(d, today) / 7); if (i >= 0 && i < 4) wk[i] += dc.c[d]; });
+    var base = median(wk.slice(1));
+    if (base >= 20 && wk[0] < base * 0.5) {
+      score += wk[0] < base * 0.25 ? 3 : 2; types.dropout = 1;
+      reasons.push('この1週間の解答数(' + wk[0] + '問)が、ふだんの1週間(約' + Math.round(base) + '問)の半分以下です');
       acts.push('負担が大きすぎないか確認し、今週は量を減らした計画にする');
     }
+    // 正答率(たまたまの差では反応しない)
     var at = S().attempts.filter(function (x) { return x.q && x.src !== 'card'; });
-    var a1 = accOf(at.slice(-30)), a0 = accOf(at.slice(-90, -30));
-    if (a1 !== null && a0 !== null && at.length >= 60 && a0 - a1 >= 0.15) {
-      score += 1; reasons.push('最近の正答率が下がっています(' + Math.round(a0 * 100) + '% → ' + Math.round(a1 * 100) + '%)');
-      acts.push('難しすぎる単元が続いていないか確認し、得意な単元を混ぜて成功体験をつくる');
+    var r1 = at.slice(-30), r0 = at.slice(-90, -30);
+    if (r1.length >= 25 && r0.length >= 40) {
+      var p1 = accOf(r1), p0 = accOf(r0), pp = (p1 * r1.length + p0 * r0.length) / (r1.length + r0.length);
+      var se = Math.sqrt(pp * (1 - pp) * (1 / r1.length + 1 / r0.length)), z = se > 0 ? (p0 - p1) / se : 0;
+      if (z > 1.96 && p0 - p1 >= 0.1) {
+        score += p0 - p1 >= 0.3 ? 2 : 1; types.struggle = 1;
+        reasons.push('最近の正答率がはっきり下がっています(' + Math.round(p0 * 100) + '% → ' + Math.round(p1 * 100) + '%)');
+        acts.push('難しすぎる単元が続いていないか確認し、得意な単元を混ぜて「できた」を増やす');
+      }
     }
-    var lg = recentLogs(3);
-    if (lg.length >= 2) {
-      var mAvg = lg.reduce(function (s, x) { return s + (x.m || 3); }, 0) / lg.length;
-      if (mAvg <= 2) { score += 2; reasons.push('気持ちのチェックで「つらい」が続いています'); acts.push('勉強の話の前に、最近どうか話を聞く'); }
-      if (lg.filter(function (x) { return x.st >= 4; }).length >= 2) { score += 1; reasons.push('ストレスが高い日が続いています'); acts.push('不安の原因(成績・本番・人間関係など)を一緒に整理する'); }
-      if (lg.filter(function (x) { return x.sl && x.sl < 6; }).length >= 2) { score += 1; reasons.push('睡眠が6時間未満の日が続いています'); acts.push('睡眠時間を確保するよう、夜の勉強量を調整する'); }
+    // 夜ふかし
+    if (dc.tot7 >= 20 && dc.late / dc.tot7 >= 0.3) {
+      score += 1; types.burnout = 1;
+      reasons.push('この1週間、解答の' + Math.round(dc.late / dc.tot7 * 100) + '%が深夜0〜4時です');
+      acts.push('夜型の勉強が続いていないか確認し、寝る時間を決める');
+    }
+    // 気分・睡眠・ストレス
+    var lg = recentLogs(7), l3 = lg.slice(-3);
+    var lowSleep = l3.filter(function (x) { return x.sl && x.sl < 6; }).length >= 2, hiStress = l3.filter(function (x) { return x.st >= 4; }).length >= 2;
+    if (l3.length >= 2) {
+      var mAvg = l3.reduce(function (s, x) { return s + (x.m || 3); }, 0) / l3.length;
+      if (mAvg <= 2) { score += 2; types.mood = 1; reasons.push('こころのチェックで「つらい」が続いています'); acts.push('勉強の話の前に、最近どうか話を聞く'); }
+      if (hiStress) { score += 1; types.mood = 1; reasons.push('ストレスが高い日が続いています'); acts.push('不安の原因(成績・本番・人間関係など)を一緒に整理する'); }
+      if (lowSleep) { score += 1; types.burnout = 1; reasons.push('睡眠が6時間未満の日が続いています'); acts.push('睡眠時間を確保するよう、夜の勉強量を調整する'); }
+    }
+    if (lg.length >= 4) {
+      var n = lg.length, xs = 0, ys = 0, xy = 0, xx = 0;
+      lg.forEach(function (x, i) { xs += i; ys += x.m || 3; xy += i * (x.m || 3); xx += i * i; });
+      var slope = (n * xy - xs * ys) / Math.max(1e-6, n * xx - xs * xs);
+      if (slope <= -0.3 && (lg[n - 1].m || 3) <= 2 && !types.mood) { score += 1; types.mood = 1; reasons.push('気分が、ここ数日で下がり続けています'); acts.push('何か変わったこと(テストの結果・人間関係など)がなかったか聞く'); }
+    }
+    // がんばりすぎ(やめる前の燃えつき)
+    if (base >= 20 && wk[0] >= base * 1.6 && (lowSleep || hiStress)) {
+      score += 2; types.burnout = 1;
+      reasons.push('勉強量がふだんの' + (Math.round(wk[0] / base * 10) / 10) + '倍に増え、睡眠不足やストレスも出ています(がんばりすぎのサイン)');
+      acts.push('休む日を決める・睡眠を優先するよう伝える(燃えつきの予防)');
     }
     var level = score >= 6 ? 3 : score >= 4 ? 2 : score >= 2 ? 1 : 0;
-    return { level: level, score: score, reasons: reasons, acts: acts, away: away, last: last, n7: n7 };
+    return { level: level, score: score, reasons: reasons, acts: acts, away: away, last: last, n7: wk[0], base: base, types: types, enough: enough, gapAvg: gapAvg };
   }
-  var LEVEL = ['安定', '注意', '要フォロー', '早めの声かけを'];
-
   /* ---------- 軽めモード ---------- */
   function lite() { var l = data().lite; return l && l.until >= D.today() ? l : null; }
   function setLite(days) { data().lite = { until: D.add(D.today(), days - 1), ratio: 0.5 }; save(); }
   function liteTasks(tasks) { var l = lite(); if (!l || !tasks || tasks.length <= 1) return tasks; return tasks.slice(0, Math.max(1, Math.ceil(tasks.length * l.ratio))); }
 
-  /* ---------- コーチの声かけ ---------- */
-  var CRISIS = /(死にたい|消えたい|自殺|しにたい|きえたい|いなくなりたい|生きてる意味|生きている意味)/;
+  var LEVEL = ['安定', '注意', '要フォロー', '早めの声かけを'];
+
+  /* ---------- メモの文章から、気持ちのテーマを読みとる(キーワード) ---------- */
+  var LEX = [
+    ['不安', /(不安|心配|こわい|怖い|緊張|プレッシャー|焦|あせ|やばい|間に合わ)/],
+    ['疲れ', /(疲れ|つかれ|だるい|眠い|ねむい|寝不足|しんどい|限界|休みたい)/],
+    ['比較', /(あの子|友達は|友だちは|みんな|周り|まわり|比べ|くらべ|自分だけ)/],
+    ['自己否定', /(自分なんか|どうせ|向いてない|むいてない|だめだ|ダメだ|バカ|ばか|才能がない|無理だ|むりだ)/],
+    ['家族', /(親|母|父|お母さん|お父さん|家族|兄|姉|弟|妹|家で)/],
+    ['友人', /(友達|友だち|クラス|部活|先輩|後輩|ライン|LINE)/],
+    ['いじめ', /(いじめ|無視され|悪口|仲間はずれ|なぐられ|殴られ|嫌がらせ)/],
+    ['体調', /(頭痛|頭が痛|お腹|おなか|熱|体調|気持ち悪|吐き)/],
+    ['先延ばし', /(スマホ|ゲーム|動画|ユーチューブ|YouTube|やる気|集中できない|サボ)/]
+  ];
+  var CRISIS = /(死にたい|しにたい|消えたい|きえたい|自殺|いなくなりたい|生きてる意味|生きている意味|リスカ|自分を傷つけ)/;
+  function themes(note) { var t = {}; LEX.forEach(function (x) { if (x[1].test(note || '')) t[x[0]] = 1; }); return t; }
+
+  /* ---------- 生徒のデータから、根拠になる事実を拾う ---------- */
+  function unitTrend() {
+    var a = S().attempts.filter(function (x) { return x.u && x.src !== 'card'; }), wk = D.add(D.today(), -6), by = {};
+    a.forEach(function (x) { var o = by[x.u] || (by[x.u] = { n0: 0, k0: 0, n1: 0, k1: 0 }); if (x.d >= wk) { o.n1++; if (x.ok) o.k1++; } else { o.n0++; if (x.ok) o.k0++; } });
+    var up = [], weak = [];
+    Object.keys(by).forEach(function (u) {
+      var o = by[u], nm = WPS.UNIT_MAP[u] ? WPS.UNIT_MAP[u].name : u;
+      if (o.n1 >= 5 && o.n0 >= 5) { var d = o.k1 / o.n1 - o.k0 / o.n0; if (d >= 0.15) up.push([nm, Math.round(d * 100)]); }
+      if (o.n1 >= 6 && o.k1 / o.n1 < 0.4) weak.push([nm, Math.round(o.k1 / o.n1 * 100)]);
+    });
+    up.sort(function (x, y) { return y[1] - x[1]; }); weak.sort(function (x, y) { return x[1] - y[1]; });
+    return { up: up.slice(0, 2), weak: weak.slice(0, 2) };
+  }
+  function examDays() { try { var t = WPS.Roadmap.target(); return t && t.exam ? D.diff(D.today(), t.exam) : null; } catch (e) { return null; } }
+  // 生徒ごとの「気分・睡眠」と「正答率」の関係(記録が十分あるときだけ)
+  function insights() {
+    var m = data(), a = S().attempts, byDay = {};
+    a.forEach(function (x) { if (x.d && x.q && x.src !== 'card') { var o = byDay[x.d] || (byDay[x.d] = { n: 0, k: 0 }); o.n++; if (x.ok) o.k++; } });
+    var g = { sGood: [0, 0], sBad: [0, 0], mGood: [0, 0], mBad: [0, 0] }, nd = 0;
+    Object.keys(m.logs).forEach(function (d) {
+      var l = m.logs[d], o = byDay[d]; if (!o || o.n < 5) return; nd++;
+      if (l.sl) { var k = l.sl >= 7 ? 'sGood' : l.sl <= 5 ? 'sBad' : null; if (k) { g[k][0] += o.k; g[k][1] += o.n; } }
+      if (l.m) { var j = l.m >= 4 ? 'mGood' : l.m <= 2 ? 'mBad' : null; if (j) { g[j][0] += o.k; g[j][1] += o.n; } }
+    });
+    var out = [];
+    function pc(x) { return Math.round(x[0] / x[1] * 100); }
+    if (g.sGood[1] >= 30 && g.sBad[1] >= 30 && Math.abs(pc(g.sGood) - pc(g.sBad)) >= 5) out.push('よく眠れた日(7時間以上)の正答率は <b>' + pc(g.sGood) + '%</b>、寝不足の日(5時間以下)は <b>' + pc(g.sBad) + '%</b> でした。');
+    if (g.mGood[1] >= 30 && g.mBad[1] >= 30 && Math.abs(pc(g.mGood) - pc(g.mBad)) >= 5) out.push('気分がいい日の正答率は <b>' + pc(g.mGood) + '%</b>、つらい日は <b>' + pc(g.mBad) + '%</b> でした。');
+    return { list: out, days: nd };
+  }
+
+  /* ---------- コーチの声かけ ----------
+   * 1) チェックの内容(気分・やる気・睡眠・ストレス・気になること)
+   * 2) メモの文章のテーマ  3) 学習データ(離脱・燃えつき・つまずき)  4) 本番までの日数
+   * から候補を集め、5) その生徒に「役に立った」と言われた方法を上に出す(役に立った回数を学習)。 */
   function coach(log) {
-    var out = [], tags = log.tags || [];
-    var crisis = CRISIS.test(log.note || '') || (log.m === 1 && recentLogs(3).filter(function (x) { return x.m === 1; }).length >= 2);
-    if (crisis) out.push({ k: 'sos', t: 'とてもつらい気持ちを、話してくれてありがとう', b: 'ひとりで抱えなくて大丈夫です。今の気持ちを、信頼できる大人や相談窓口に話してみてください。勉強は、そのあとでいくらでも取りもどせます。', tool: 'sos' });
-    if (log.st >= 4 || tags.indexOf('本番が不安') >= 0 || tags.indexOf('成績が不安') >= 0)
-      out.push({ k: 'write', t: '不安を、10分だけ紙に書き出してみよう', b: '試験の前に、心配なことを10分間書き出した生徒は、本番で点が下がりにくかったという研究があります(Ramirez & Beilock, 2011)。頭の中の心配を外に出すと、考えるための力が戻りやすいと考えられています。', tool: 'write' });
-    if (log.st >= 3 || tags.indexOf('本番が不安') >= 0)
-      out.push({ k: 'breath', t: '1分だけ、ゆっくり呼吸しよう', b: '4秒で吸って、6秒でゆっくり吐きます。吐く息を長くすると、体が落ち着きやすくなります。', tool: 'breath' });
-    if (log.e <= 2 || tags.indexOf('やる気が出ない') >= 0)
-      out.push({ k: 'plan', t: '「5分だけ」と「もし〜なら」で始めよう', b: 'やる気は、始めてから出てくることが多いです。まずは5分だけ。さらに「もし夕食を食べ終わったら、単語を5個やる」のように、いつ・何をやるかを決めておくと、実行しやすくなることが多くの研究で分かっています(Gollwitzer & Sheeran, 2006)。', tool: 'plan' });
-    if (log.sl && log.sl < 6)
-      out.push({ k: 'sleep', t: '今日は早めに寝るのも、立派な勉強です', b: '眠っている間に、覚えたことが整理されると考えられています。睡眠を削って勉強時間を増やすより、今夜はしっかり寝るほうが、明日の伸びにつながります。', tool: 'lite' });
-    if (log.m <= 2 || tags.indexOf('成績が不安') >= 0 || tags.indexOf('自信がない') >= 0)
-      out.push({ k: 'wins', t: 'これまでに積み上げたものを見てみよう', b: 'まちがいは「どこを直せばいいか」を教えてくれる情報です。他の人ではなく、少し前の自分と比べてみましょう。', tool: 'wins' });
-    if (tags.indexOf('時間が足りない') >= 0)
-      out.push({ k: 'time', t: '全部をやろうとしなくて大丈夫', b: '今週は計画を軽くして、いちばん大事なところだけに集中しましょう。続けることが、いちばんの近道です。', tool: 'lite' });
-    if (tags.indexOf('人間関係') >= 0 || tags.indexOf('家のこと') >= 0)
-      out.push({ k: 'talk', t: '勉強以外の悩みも、話していいことです', b: '友だちや家のことで心が重いと、勉強に集中できないのは自然なことです。先生や保護者、相談窓口に話すと、気持ちが軽くなることがあります。', tool: 'sos' });
-    if (!out.length) out.push({ k: 'good', t: (log.m >= 4 ? 'いい調子！ この流れを大事にしよう' : '今日も来てくれてありがとう'), b: (log.m >= 4 ? '調子がいい日は、少しだけ難しい問題に挑戦するチャンスです。' : 'ふつうの日をコツコツ積み重ねることが、いちばん力になります。今日の分を、いつも通り進めましょう。'), tool: 'go' });
+    var out = [], tags = log.tags || [], th = themes(log.note), r = risk(), ut = unitTrend(), ed = examDays();
+    function add(k, pri, t, b, tool) { if (!out.some(function (x) { return x.k === k; })) out.push({ k: k, pri: pri, t: t, b: b, tool: tool }); }
+    var crisis = CRISIS.test(log.note || '') || th['いじめ'] || (log.m === 1 && recentLogs(3).filter(function (x) { return x.m === 1; }).length >= 2);
+    if (crisis) add('sos', 100, 'つらい気持ちを、話してくれてありがとう', 'ひとりで抱えなくて大丈夫です。今の気持ちを、信頼できる大人(家族・学校や塾の先生・保健室の先生)か、相談窓口に話してください。勉強は、そのあとでいくらでも取りもどせます。', 'sos');
+    var anx = log.st >= 4 || tags.indexOf('本番が不安') >= 0 || tags.indexOf('成績が不安') >= 0 || th['不安'];
+    if (anx) add('write', 60, '不安を、10分だけ書き出してみよう', '試験の前に、心配なことを10分間書き出した生徒は、本番で点が下がりにくかったという研究があります(Ramirez & Beilock, 2011)。頭の中の心配を外に出すと、考えるための力が戻りやすいと考えられています。', 'write');
+    if (anx && ed !== null && ed >= 0 && ed <= 45) add('exam', 65, '本番まであと' + ed + '日。ドキドキは「準備ができた」サイン', '試験前の心臓のドキドキを「体が本番に向けて準備している」と考えるよう伝えられた学生は、数学の点が高かったという研究があります(Jamieson ほか, 2010)。緊張を消そうとせず、味方にしましょう。', 'exam');
+    if (log.st >= 3 || tags.indexOf('本番が不安') >= 0) add('breath', 40, '1分だけ、ゆっくり呼吸しよう', '4秒で吸って、6秒でゆっくり吐きます。吐く息を長くすると、体が落ち着きやすくなります。', 'breath');
+    if (th['自己否定'] || th['比較'] || tags.indexOf('自信がない') >= 0) add('think', 58, '頭に浮かんだ考えを、もう一度ながめてみよう', '「どうせ無理」「みんなはできるのに」と考えたときは、その考えを書き出して「友だちが同じことを言ったら、なんて声をかける?」と考えてみましょう。考えの見方を変える練習は、気持ちを立て直す助けになるとされています。', 'think');
+    if (log.e <= 2 || tags.indexOf('やる気が出ない') >= 0 || th['先延ばし']) add('plan', 55, '「5分だけ」と「もし〜なら」で始めよう', 'やる気は、始めてから出てくることが多いです。まずは5分だけ。さらに「もし夕食を食べ終わったら、単語を5個やる」のように、いつ・何をやるかを決めておくと実行しやすくなることが、多くの研究で分かっています(Gollwitzer & Sheeran, 2006)。', 'plan');
+    if ((log.sl && log.sl < 6) || th['疲れ'] || r.types.burnout) add('sleep', r.types.burnout ? 62 : 50, r.types.burnout ? 'がんばりすぎのサインが出ています' : '今日は早めに寝るのも、立派な勉強です', (r.types.burnout ? '最近は勉強量が多く、睡眠やストレスにも影響が出ています。' : '') + '眠っている間に、覚えたことが整理されると考えられています。睡眠を削るより、今夜はしっかり寝るほうが明日の伸びにつながります。', 'lite');
+    if (log.m <= 2 || tags.indexOf('成績が不安') >= 0 || tags.indexOf('自信がない') >= 0 || r.types.struggle) {
+      var fact = ut.up.length ? 'この1週間で「' + ut.up[0][0] + '」の正答率が +' + ut.up[0][1] + '% 上がっています。' : '';
+      add('wins', 45, 'これまでに積み上げたものを見てみよう', fact + 'まちがいは「どこを直せばいいか」を教えてくれる情報です。他の人ではなく、少し前の自分と比べてみましょう。', 'wins');
+    }
+    if (r.types.struggle && ut.weak.length) add('easy', 52, '「' + ut.weak[0][0] + '」は、1つ前にもどって大丈夫', '最近この単元の正答率が ' + ut.weak[0][1] + '% です。むずかしい問題が続くと、自信もやる気も下がりやすくなります。基礎の問題や、前の単元から解き直して「できた」を増やしましょう。', 'books');
+    if (tags.indexOf('時間が足りない') >= 0) add('time', 48, '全部をやろうとしなくて大丈夫', '今週は計画を軽くして、いちばん大事なところだけに集中しましょう。続けることが、いちばんの近道です。', 'lite');
+    if (log.m <= 2 && !crisis) add('values', 35, 'なぜ勉強しているのか、思い出してみよう', '自分が大切にしていること(夢・家族・好きなこと)を数分書くと、気持ちが落ち着くことがあります。効果は研究によって分かれますが、試す価値のある方法です(Cohen ほか, 2006)。', 'values');
+    if (tags.indexOf('人間関係') >= 0 || tags.indexOf('家のこと') >= 0 || th['家族'] || th['友人']) add('talk', 47, '勉強以外の悩みも、話していいことです', '友だちや家のことで心が重いと、勉強に集中できないのは自然なことです。先生や保護者、相談窓口に話すと、気持ちが軽くなることがあります。', 'sos');
+    if (tags.indexOf('体調') >= 0 || th['体調']) add('body', 49, '体調がよくないときは、休むことを優先しよう', '体調が悪い日に無理をすると、回復がおそくなります。今日は軽めにして、続くようなら保護者や病院に相談しましょう。', 'lite');
+    if (!out.length) add('good', 10, (log.m >= 4 ? 'いい調子！ この流れを大事にしよう' : '今日も来てくれてありがとう'), (log.m >= 4 ? '調子がいい日は、少しだけ難しい問題に挑戦するチャンスです。' : 'ふつうの日をコツコツ積み重ねることが、いちばん力になります。今日の分を、いつも通り進めましょう。'), 'go');
+    // その生徒に合った方法を上に(役に立った+、いまいち−)
+    var fb = data().fb || {};
+    out.forEach(function (x) { var f = fb[x.k] || { u: 0, d: 0 }; x.score = x.pri + (x.k === 'sos' ? 0 : (f.u * 8 - f.d * 10)); });
+    out.sort(function (x, y) { return y.score - x.score; });
     return out;
   }
   function tool(k) {
@@ -115,12 +226,20 @@ WPS.Mind = (function () {
     if (k === 'lite') return lite() ? '<span class="muted small">いまは軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)</span>' : '<button type="button" class="btn small" data-mlite="7">今週は軽めにする</button>';
     if (k === 'wins') return '<a class="btn small" href="#mind/wins">できたことを見る</a>';
     if (k === 'sos') return '<a class="btn small" href="#mind/sos">相談できるところ</a>';
+    if (k === 'think') return '<a class="btn small" href="#mind/think">考えを整理する</a>';
+    if (k === 'exam') return '<a class="btn small" href="#mind/exam">本番の心の準備</a>';
+    if (k === 'values') return '<a class="btn small" href="#mind/values">大切なことを書く</a>';
+    if (k === 'books') return '<a class="btn small" href="#books">テキストで基礎にもどる</a>';
     return '<a class="btn small primary" href="#home">今日の学習へ</a>';
   }
-  function coachHTML(log) {
-    return '<div class="mc-list">' + coach(log).map(function (c) {
-      return '<div class="mc-item mc-' + c.k + '"><b>' + h(c.t) + '</b><p>' + h(c.b) + '</p><div class="btns">' + tool(c.tool) + '</div></div>';
-    }).join('') + '</div>';
+  function coachHTML(log, max) {
+    var list = coach(log), fb = data().fb || {}, shown = list.slice(0, max || 3), rest = list.slice(max || 3);
+    function one(c) {
+      var f = fb[c.k];
+      return '<div class="mc-item mc-' + c.k + '"><b>' + h(c.t) + '</b><p>' + h(c.b) + '</p><div class="btns">' + tool(c.tool) + '</div>' +
+        (c.k === 'sos' || c.k === 'good' ? '' : '<div class="mc-fb"><span>この提案は?</span><button type="button" class="' + (f && f.last === 'u' ? 'on' : '') + '" data-mfb="' + c.k + '" data-v="u">役に立った</button><button type="button" class="' + (f && f.last === 'd' ? 'on' : '') + '" data-mfb="' + c.k + '" data-v="d">いまいち</button></div>') + '</div>';
+    }
+    return '<div class="mc-list">' + shown.map(one).join('') + (rest.length ? '<details class="mc-more"><summary>ほかの提案(' + rest.length + ')</summary>' + rest.map(one).join('') + '</details>' : '') + '</div>';
   }
 
   /* ---------- ホームに出すカード ---------- */
@@ -141,8 +260,14 @@ WPS.Mind = (function () {
           return '<button type="button" class="mq-face" data-mface="' + n + '" aria-label="' + FACE[n] + '">' + face(n, 38) + '<small>' + FACE[n] + '</small></button>';
         }).join('') + '</div><p class="hint">記録はこの端末だけに保存されます。気分に合わせて、ピンポが声をかけるよ。</p></section>';
     } else if (lg.m <= 2 || (r.level >= 2 && !(r.away >= 3))) {
-      html += '<section class="card mind-q"><h2>こころのコーチから</h2>' + coachHTML(lg) + '</section>';
+      html += '<section class="card mind-q"><h2>こころのコーチから</h2>' + coachHTML(lg, 2) + '</section>';
     }
+    var wd = new Date().getDay(), wkv = (m.weeks || {})[weekKey()];
+    if ((wd === 0 || wd === 6) && !wkv) html += '<section class="info">週末だね。<a href="#mind/week">今週のふり返り</a>(5分)で、できたことを確かめよう。</section>';
+    var lastWk = (function () { var ks = Object.keys(m.weeks || {}).sort(); return ks.length ? m.weeks[ks[ks.length - 1]] : null; })();
+    if (lastWk && lastWk.goal) html += '<section class="info mind-plan">今週の目標:<b>' + h(lastWk.goal) + '</b></section>';
+    var ed = examDays();
+    if (ed !== null && ed >= 0 && ed <= 7) html += '<section class="info">本番まであと' + ed + '日。<a href="#mind/exam">本番の心の準備</a>を見ておこう。</section>';
     if (lite()) html += '<section class="info">今週は軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)。今日のやることを少なめにしています。<button type="button" class="link" data-mlite="0">ふつうに戻す</button></section>';
     // もし〜なら計画(今日の分)
     var pl = (m.plans || []).filter(function (p) { return p.on; })[0];
@@ -165,6 +290,16 @@ WPS.Mind = (function () {
       });
     });
     view.querySelectorAll('a[data-mback]').forEach(function (a) { a.addEventListener('click', function () { data().back = D.today(); save(); }); });
+    view.querySelectorAll('[data-mfb]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var m = data(), k = b.getAttribute('data-mfb'), v = b.getAttribute('data-v'); m.fb = m.fb || {};
+        var f = m.fb[k] || (m.fb[k] = { u: 0, d: 0 });
+        if (f.last === v) return; if (f.last) f[f.last] = Math.max(0, f[f.last] - 1);
+        f[v]++; f.last = v; save();
+        b.parentNode.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        if (C) C.toast(v === 'u' ? 'ありがとう！ これからはこの方法を先に出すね' : 'ありがとう。次からは別の方法を先に出すね');
+      });
+    });
   }
 
   /* ---------- こころの部屋(#mind) ---------- */
@@ -216,6 +351,44 @@ WPS.Mind = (function () {
       '<div class="mp-ex">' + ['学校から帰ってカバンを置いたら|計算問題を3問', '夕ごはんを食べ終わったら|単語を5個', 'スマホを見たくなったら|まず1問だけ解く', 'お風呂から出たら|今日の単語を見直す'].map(function (x) { var p = x.split('|'); return '<button type="button" class="chip" data-mpex="' + h(x) + '">' + h(p[0]) + '→' + h(p[1]) + '</button>'; }).join('') + '</div>' +
       '<div class="btns"><button type="button" class="btn primary" id="mpSave">この約束にする</button><a class="btn" href="#mind">もどる</a></div>' +
       ((m.plans || []).length ? '<h3>いまの約束</h3><ul class="mind-plans">' + m.plans.map(function (p, i) { return '<li>もし<b>' + h(p.when) + '</b>なら、<b>' + h(p.what) + '</b><button type="button" class="link" data-mpdel="' + i + '">消す</button></li>'; }).join('') + '</ul>' : '') + '</section>';
+    if (arg === 'think') {
+      var ts = (m.thinks || []).slice(0, 5);
+      return '<section class="card mind-think"><h1>考えの整理(5ステップ)</h1><p class="muted">いやな気持ちになったときの「頭に浮かんだ考え」を書き出して、別の見方をさがします。認知行動療法で使われる方法を、やさしくしたものです。</p><form id="thForm">' +
+        '<label>1. どんなことがあった?<textarea name="ev" rows="2" maxlength="200" placeholder="例:模試の数学が45点だった"></textarea></label>' +
+        '<label>2. そのとき頭に浮かんだ考えは?<textarea name="th" rows="2" maxlength="200" placeholder="例:自分は数学に向いてない。どうせ合格できない"></textarea></label>' +
+        '<label>3. その考えをどのくらい信じている?<input type="range" name="b1" min="0" max="100" step="10" value="80"><output>80%</output></label>' +
+        '<div class="th-hints"><b>4. 別の見方をさがすヒント</b><ul><li>その考えが正しいといえる証拠と、ちがうといえる証拠は?</li><li>友だちが同じことを言ったら、なんて声をかける?</li><li>1か月後の自分から見たら、どう見える?</li><li>「いつも」「ぜったい」「どうせ」が入っていない?</li></ul></div>' +
+        '<label>4. 別の見方<textarea name="alt" rows="3" maxlength="300" placeholder="例:45点でも大問1は全部できていた。まちがえた所が分かったのは収穫。まだ本番まで時間はある"></textarea></label>' +
+        '<label>5. いま、最初の考えをどのくらい信じている?<input type="range" name="b2" min="0" max="100" step="10" value="50"><output>50%</output></label>' +
+        '<button class="btn primary" type="submit">記録する</button></form>' +
+        (ts.length ? '<h3>これまでの記録(この端末だけ)</h3><ul class="th-list">' + ts.map(function (x) { return '<li><small>' + h(x.d) + '</small><b>' + h(x.th) + '</b>→ ' + h(x.alt) + '<em>' + x.b1 + '% → ' + x.b2 + '%</em></li>'; }).join('') + '</ul>' : '') +
+        '<a class="btn" href="#mind">もどる</a></section>';
+    }
+    if (arg === 'values') {
+      var VS = ['家族', '友だち', '将来の夢', '好きなこと・趣味', 'だれかの役に立つこと', '自分の成長', '知る楽しさ', '自由', '健康', '地元・ふるさと'];
+      var vv = m.values || { pick: [], text: '' };
+      return '<section class="card mind-values"><h1>大切にしていること</h1><p class="muted">自分にとって大切なことを1〜2つ選んで、なぜ大切なのかを数分書きます。気持ちが落ち着き、勉強の理由を思い出す助けになることがあります(効果は研究によって分かれます)。</p>' +
+        '<div class="mf-tags">' + VS.map(function (x) { var on = vv.pick.indexOf(x) >= 0; return '<label class="chip' + (on ? ' on' : '') + '"><input type="checkbox" name="vpick" value="' + x + '"' + (on ? ' checked' : '') + '>' + x + '</label>'; }).join('') + '</div>' +
+        '<label class="mf-note">なぜ大切? それは勉強とどうつながっている?<textarea id="vText" rows="5" maxlength="600" placeholder="例:看護師だった祖母のように、だれかを助けられる人になりたい。そのために看護学部に行きたい">' + h(vv.text) + '</textarea></label>' +
+        '<div class="btns"><button type="button" class="btn primary" id="vSave">保存</button><a class="btn" href="#mind">もどる</a></div></section>';
+    }
+    if (arg === 'exam') {
+      var ed = examDays();
+      return '<section class="card mind-exam"><h1>本番の心の準備</h1>' + (ed !== null && ed >= 0 ? '<p class="mx-count">本番まで あと <b>' + ed + '</b> 日</p>' : '') +
+        '<div class="mc-item mc-exam"><b>ドキドキは「準備ができた」サイン</b><p>試験前の心臓のドキドキや手の汗は、体が本番に向けて力を出す準備をしている合図です。緊張を「悪いもの」と考えず、「体がやる気を出している」と考えた学生のほうが、数学の点が高かったという研究があります(Jamieson ほか, 2010)。</p></div>' +
+        '<h3>前日</h3><ul class="mx-list"><li>新しい問題より、まちがえた問題の見直し</li><li>持ち物(受験票・筆記用具・時計・昼食)をそろえる</li><li>いつもの時間に寝る(睡眠は記憶の整理に大切です)</li></ul>' +
+        '<h3>当日の朝・試験の直前</h3><ul class="mx-list"><li>心配なことがあれば、10分だけ紙に書き出す</li><li>1分の呼吸で、吐く息を長く</li><li>「ドキドキ=準備OK」と心の中で言う</li><li>最初の1問は、解ける問題から</li></ul>' +
+        '<h3>試験の間に頭が真っ白になったら</h3><ul class="mx-list"><li>ペンを置いて、ゆっくり3回呼吸</li><li>その問題はとばして、次の解ける問題へ</li><li>「1問のミスで合否は決まらない」と思い出す</li></ul>' +
+        '<div class="btns"><a class="btn" href="#mind/write">10分 書き出す</a><a class="btn" href="#mind/breath">1分 呼吸する</a><a class="btn" href="#mind">もどる</a></div></section>';
+    }
+    if (arg === 'week') {
+      var wv = (m.weeks || {})[weekKey()] || {};
+      return '<section class="card mind-week"><h1>今週のふり返り</h1><p class="muted">よかったことを思い出すと、次の週のやる気につながります。</p>' + wins() +
+        '<form id="wkForm"><label class="mf-note">今週よかったこと・できたこと(3つまで)<textarea name="good" rows="3" maxlength="300" placeholder="例:毎日単語をやれた/二次関数がわかってきた">' + h(wv.good || '') + '</textarea></label>' +
+        '<label class="mf-note">うまくいかなかったこと(あれば)<textarea name="bad" rows="2" maxlength="200">' + h(wv.bad || '') + '</textarea></label>' +
+        '<label class="mf-note">来週の小さな目標(1つ)<input name="goal" maxlength="60" value="' + h(wv.goal || '') + '" placeholder="例:平日は毎日15分、数学の計算をやる"></label>' +
+        '<div class="btns"><button class="btn primary" type="submit">保存</button><a class="btn" href="#mind">もどる</a></div></form></section>';
+    }
     if (arg === 'wins') return '<section class="card"><h1>これまでにできたこと</h1>' + wins() + '<p class="hint">他の人とではなく、少し前の自分と比べましょう。続けてきたこと自体が、いちばんの力です。</p><a class="btn" href="#mind">もどる</a></section>';
     if (arg === 'sos') return sosHTML() + '<a class="btn" href="#mind">もどる</a>';
     var html = (C ? C.say('ここは、こころを整える場所だよ。勉強のことも、それ以外のことも、気軽に記録してね。', 'normal', 56) : '');
@@ -229,13 +402,18 @@ WPS.Mind = (function () {
       '<button class="btn primary" type="submit">記録して、コーチに聞く</button></form></section>';
     if (lg.m) html += '<section class="card"><h2>コーチからのアドバイス</h2>' + coachHTML(lg) + '</section>';
     html += '<section class="card"><h2>気分の流れ(14日)</h2>' + graph() + '</section>';
+    var ins = insights();
+    html += '<section class="card"><h2>あなたのデータから分かること</h2>' + (ins.list.length ? '<ul class="mind-wins">' + ins.list.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul><p class="hint">こころのチェックをした日のうち、5問以上解いた日(' + ins.days + '日)で比べています。</p>' : '<p class="muted">こころのチェックと勉強の記録がたまると、「よく眠れた日は正答率が高い」など、あなただけの傾向がここに出ます(目安:2週間ほど)。</p>') + '</section>';
     html += '<section class="card"><h2>こころを整える道具</h2><div class="mind-tools">' +
       '<a href="#mind/breath"><b>1分の呼吸</b><small>緊張したとき、寝る前に</small></a><a href="#mind/write"><b>不安の書き出し</b><small>試験前、モヤモヤするとき</small></a>' +
-      '<a href="#mind/plan"><b>もし〜なら計画</b><small>やる気が出ないとき</small></a><a href="#mind/wins"><b>できたこと</b><small>自信がなくなったとき</small></a></div></section>';
+      '<a href="#mind/plan"><b>もし〜なら計画</b><small>やる気が出ないとき</small></a><a href="#mind/wins"><b>できたこと</b><small>自信がなくなったとき</small></a>' +
+      '<a href="#mind/think"><b>考えの整理</b><small>「どうせ無理」と思ったとき</small></a><a href="#mind/values"><b>大切にしていること</b><small>勉強の理由を見失ったとき</small></a>' +
+      '<a href="#mind/exam"><b>本番の心の準備</b><small>試験が近いとき</small></a><a href="#mind/week"><b>今週のふり返り</b><small>週末に5分</small></a></div></section>';
     html += sosHTML();
     html += '<p class="hint">このコーチは、勉強を続けるための声かけをするもので、医療や専門のカウンセリングの代わりではありません。</p>';
     return html;
   }
+  function weekKey() { var d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return D.ymd ? D.ymd(d) : d.toISOString().slice(0, 10); }
   function scale(name, v, labels) {
     return '<div class="mf-scale" role="radiogroup">' + [1, 2, 3, 4, 5].map(function (n) { return '<label class="' + (v === n ? 'on' : '') + '"><input type="radio" name="' + name + '" value="' + n + '"' + (v === n ? ' checked' : '') + '><i>' + n + '</i>' + (labels[n - 1] ? '<small>' + labels[n - 1] + '</small>' : '') + '</label>'; }).join('') + '</div>';
   }
@@ -285,6 +463,33 @@ WPS.Mind = (function () {
       view.querySelector('#mwSave').addEventListener('click', function () { m.write = ta.value; save(); if (C) C.toast('保存したよ(この端末だけ)'); });
       view.querySelector('#mwDel').addEventListener('click', function () { m.write = ''; ta.value = ''; save(); if (C) C.toast('消したよ'); });
     }
+    // 考えの整理
+    var th = view.querySelector('#thForm');
+    if (th) {
+      th.querySelectorAll('input[type=range]').forEach(function (r) { r.addEventListener('input', function () { r.nextElementSibling.textContent = r.value + '%'; }); });
+      th.addEventListener('submit', function (e) {
+        e.preventDefault(); var fd = new FormData(th);
+        if (!String(fd.get('th') || '').trim() || !String(fd.get('alt') || '').trim()) { if (C) C.toast('2と4を書いてね'); return; }
+        m.thinks = [{ d: D.today(), ev: String(fd.get('ev') || ''), th: String(fd.get('th')), alt: String(fd.get('alt')), b1: +fd.get('b1'), b2: +fd.get('b2') }].concat(m.thinks || []).slice(0, 30); save();
+        var dd = +fd.get('b1') - +fd.get('b2');
+        if (C) C.toast(dd > 0 ? '信じる気持ちが ' + dd + '% 下がったね。見方を変えられた証拠だよ' : '記録したよ。書き出せただけでも一歩前進！');
+        if (rerender) rerender();
+      });
+    }
+    // 大切にしていること
+    var vs = view.querySelector('#vSave');
+    if (vs) vs.addEventListener('click', function () {
+      m.values = { pick: Array.prototype.map.call(view.querySelectorAll('input[name=vpick]:checked'), function (x) { return x.value; }), text: view.querySelector('#vText').value.slice(0, 600), d: D.today() }; save();
+      if (C) C.toast('保存したよ。つらいときに読み返してね');
+    });
+    // 今週のふり返り
+    var wf = view.querySelector('#wkForm');
+    if (wf) wf.addEventListener('submit', function (e) {
+      e.preventDefault(); var fd = new FormData(wf); m.weeks = m.weeks || {};
+      m.weeks[weekKey()] = { good: String(fd.get('good') || ''), bad: String(fd.get('bad') || ''), goal: String(fd.get('goal') || '') };
+      var ks = Object.keys(m.weeks).sort(); while (ks.length > 20) delete m.weeks[ks.shift()];
+      save(); if (C) C.toast('ふり返りを保存したよ。来週の目標はホームにも出すね'); if (rerender) rerender();
+    });
     // もし〜なら
     view.querySelectorAll('[data-mpex]').forEach(function (b) { b.addEventListener('click', function () { var p = b.getAttribute('data-mpex').split('|'); view.querySelector('#mpWhen').value = p[0]; view.querySelector('#mpWhat').value = p[1]; }); });
     var mp = view.querySelector('#mpSave');
@@ -304,7 +509,9 @@ WPS.Mind = (function () {
     return '<section class="card mind-risk"><h2>継続のサイン(離脱を防ぐために)</h2>' +
       '<p class="mr-level ' + cls + '">いまの状態:<b>' + LEVEL[r.level] + '</b>' + (r.last ? '(最後に勉強した日:' + r.last + ')' : '') + '</p>' +
       (r.reasons.length ? '<h3>気になるサイン</h3><ul class="bullets">' + r.reasons.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul><h3>おすすめの声かけ・対応</h3><ul class="bullets">' + r.acts.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : '<p class="muted">いまのところ、気になるサインはありません。</p>') +
-      '<p class="hint">こころのチェックは ' + lg.length + '日分(直近7日)。生徒のメモや書き出しの内容は、プライバシーのため表示しません。</p></section>';
+      (r.types.burnout ? '<p class="mr-type">タイプ:<b>がんばりすぎ・燃えつき</b>のサインがあります。量を増やすより、休息と睡眠を優先してください。</p>' : r.types.dropout ? '<p class="mr-type">タイプ:<b>学習から離れつつある</b>サインがあります。責めずに、小さな再開を一緒に決めてください。</p>' : '') +
+      (r.enough ? '' : '<p class="hint">勉強の記録がまだ少ないため、判定の確かさは低めです。</p>') +
+      '<p class="hint">判定は、この生徒のふだんの勉強ペース(勉強日の間かく 約' + (Math.round(r.gapAvg * 10) / 10) + '日、1週間の解答 約' + Math.round(r.base) + '問)と比べています。こころのチェックは直近7日で ' + lg.length + '日分。生徒のメモや書き出しの内容は、プライバシーのため表示しません。</p></section>';
   }
   /* ---------- 通知の文面 ---------- */
   function notifyLine() {
