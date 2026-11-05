@@ -226,7 +226,7 @@
           '<p>' + h(f.learn) + '</p>' +
           '<p class="fg-sub"><b>こんな人に</b></p><ul>' + f.fit.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
           '<p class="fg-sub"><b>入試で大事な科目(目安)</b> ' + h(f.subj) + '</p>' +
-          '<p class="fg-voice"><b>受験生向け動画で語られていた見方</b>' + h(f.voice) + '</p></section>';
+          '<p class="fg-voice"><b>この学部の魅力・生かし方</b>' + h(f.voice) + '</p></section>';
       }).join('') + '</div>' +
       '<p class="fg-end">' + h(G.end) + '</p><p class="hint">' + h(G.note) + ' チェックした学部は、保存すると「大学データ」の画面からすぐ探せます。ほかの学部の一覧は「入試情報」の「学部・学科の選び方」にあります。</p></details></div>';
   }

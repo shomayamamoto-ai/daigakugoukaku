@@ -193,7 +193,8 @@ WPS.makeVocab = function (ctx) {
       var c = vt().cfg, u = new SpeechSynthesisUtterance(text);
       u.lang = lang === 'ja' ? 'ja-JP' : 'en-US';
       u.rate = { fast: 1.25, normal: 0.95, slow: 0.7 }[c.rate] * (st.listenRate || 1);
-      var v = pickVoice(lang, c.voice); if (v) u.voice = v;
+      var pref = c['voice_' + lang]; if (!pref || pref === 'auto') pref = c.voice;
+      var v = pickVoice(lang, pref); if (v) u.voice = v;
       if (done) { u.onend = done; u.onerror = done; }
       speechSynthesis.speak(u);
     } catch (e) { if (done) done(); }
@@ -653,52 +654,121 @@ WPS.makeVocab = function (ctx) {
     ls = { L: L, list: list, i: 0, play: false, gen: 0, t: 0 };
     return true;
   }
-  function listenHTML() {
-    var x = ls.list[ls.i], r = st.listenRate || 1;
-    return '<div class="vt-qhead"><button type="button" class="vt-link" id="vlBack">戻る</button><b>聞き流し<small> ' + (ls.i + 1) + ' / ' + ls.list.length + '</small></b><span></span></div>' +
-      '<section class="card vl-card"><p class="muted small">' + h(ls.L[1]) + '・' + h(srcLabel(st.src, items(ls.L).length)) + '</p>' +
-      '<p class="vl-t" id="vlT">' + h(x.t) + '</p><p class="vl-m" id="vlM">' + h(x.m) + '</p>' +
-      '<div class="progress"><i id="vlBar" style="width:' + Math.round((ls.i + 1) / ls.list.length * 100) + '%"></i></div>' +
-      '<div class="vl-ctl"><button type="button" class="vl-b" id="vlPrev" aria-label="前の単語">' + IC.prev + '</button><button type="button" class="vl-b main" id="vlPlay" aria-label="再生・一時停止">' + (ls.play ? IC.pause : IC.play) + '</button><button type="button" class="vl-b" id="vlNext" aria-label="次の単語">' + IC.next + '</button></div>' +
-      '<div class="seg vl-rate">' + [[0.75, '0.75x'], [1, '1x'], [1.25, '1.25x'], [1.5, '1.5x']].map(function (o) { return '<button type="button" class="seg-btn' + (r === o[0] ? ' on' : '') + '" data-vrate="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
-      '<p class="hint">読み上げの言語・声色は、単語トレーニングの「設定」で変えられます。画面を消すと止まる端末があります。</p></section>';
+  // 聞き流しプレーヤー(全画面・暗い背景)
+  var LS_RATES = [[0.8, 'ゆっくり'], [1, 'ふつう'], [1.3, 'はやい']];
+  var LS_VOICES = [['auto', 'ふつうの声'], ['female', '女性の声'], ['male', '男性の声']];
+  function lsTitle() {
+    var src = st.src;
+    if (src === 'weak') return '苦手の聞き流し';
+    if (src === 'fade') return '忘れかけの聞き流し';
+    if (src === 'new') return '新しい語の聞き流し';
+    if (src === 'bm') return 'しおりの聞き流し';
+    return '聞き流し';
   }
+  function lsVoiceSel(lang) {
+    var c = vt().cfg, cur = c['voice_' + lang] || 'auto';
+    return '<label class="lsp-pill"><span>' + (lang === 'en' ? '英語' : '日本語') + '</span><select data-lsvoice="' + lang + '" aria-label="' + (lang === 'en' ? '英語' : '日本語') + 'の声">' +
+      LS_VOICES.map(function (v) { return '<option value="' + v[0] + '"' + (cur === v[0] ? ' selected' : '') + '>' + v[1] + '</option>'; }).join('') + '</select><i aria-hidden="true">▾</i></label>';
+  }
+  function listenHTML() {
+    var x = ls.list[ls.i], r = st.listenRate || 1, en = isEn(ls.L), C = 2 * Math.PI * 52;
+    var pr = (ls.i + 1) / ls.list.length;
+    return '<div class="lsp" role="dialog" aria-label="' + h(lsTitle()) + '">' +
+      '<div class="lsp-top"><button type="button" class="lsp-x" id="vlBack" aria-label="閉じる">' +
+      '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '<b class="lsp-title">' + h(lsTitle()) + '</b><span class="lsp-count" id="vlCount">' + (ls.i + 1) + ' / ' + ls.list.length + '語</span></div>' +
+      '<div class="lsp-main"><p class="lsp-deck">' + h(ls.L[1]) + '</p>' +
+      '<p class="lsp-word' + (en ? ' en' : '') + '" id="vlT">' + h(x.t) + '</p>' +
+      '<p class="lsp-state" id="vlState"><span class="lsp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><em>' + (ls.play ? '読み上げの準備中' : '一時停止中') + '</em></p>' +
+      '<p class="lsp-mean" id="vlM">' + h(x.m) + '</p></div>' +
+      '<div class="lsp-ctl"><button type="button" class="lsp-b" id="vlPrev" aria-label="前の単語">' + IC.prev + '</button>' +
+      '<div class="lsp-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="lsp-ring-bg" cx="60" cy="60" r="52"/><circle class="lsp-ring-fg" id="vlRing" cx="60" cy="60" r="52" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - pr)).toFixed(1) + '"/></svg>' +
+      '<button type="button" class="lsp-play" id="vlPlay" aria-label="' + (ls.play ? '一時停止' : '再生') + '">' + (ls.play ? IC.pause : IC.play) + '</button></div>' +
+      '<button type="button" class="lsp-b" id="vlNext" aria-label="次の単語">' + IC.next + '</button></div>' +
+      '<div class="lsp-voices">' + (en ? lsVoiceSel('en') : '') + lsVoiceSel('ja') + '</div>' +
+      '<div class="lsp-rate" role="group" aria-label="読み上げの速さ">' + LS_RATES.map(function (o) { return '<button type="button" class="' + (r === o[0] ? 'on' : '') + '" data-vrate="' + o[0] + '" aria-pressed="' + (r === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+      '<p class="lsp-note">再生中は画面が消えないようにしています。端末によっては、画面を消すと読み上げが止まります。</p></div>';
+  }
+  function lsPhase(ph) {
+    var el = document.getElementById('vlState'), m = document.getElementById('vlM'), t = document.getElementById('vlT');
+    if (!el) return;
+    el.className = 'lsp-state' + (ph === 'pause' ? ' paused' : '');
+    el.querySelector('em').textContent = ph === 'en' ? '英語を読んでいます' : ph === 'ja' ? '日本語を読んでいます' : ph === 'wait' ? 'つぎの単語へ' : '一時停止中';
+    if (m) m.classList.toggle('on', ph === 'ja');
+    if (t) t.classList.toggle('on', ph === 'en');
+  }
+  // 画面が消えないようにする(対応している端末だけ)
+  var wake = null;
+  function wakeOn() { try { if (navigator.wakeLock && !wake) navigator.wakeLock.request('screen').then(function (w) { wake = w; w.addEventListener('release', function () { wake = null; }); }).catch(function () { /* 無視 */ }); } catch (e) { /* 無視 */ } }
+  function wakeOff() { try { if (wake) wake.release(); } catch (e) { /* 無視 */ } wake = null; }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && ls && ls.play) wakeOn(); });
   function playLoop() {
     if (!ls || !ls.play) return;
+    wakeOn();
     var g = ++ls.gen, x = ls.list[ls.i], c = vt().cfg, tl = isEn(ls.L) ? 'en' : 'ja';
     function show() {
-      var t = document.getElementById('vlT'), m = document.getElementById('vlM'), b = document.getElementById('vlBar'), s = document.querySelector('#view .vt-qhead small');
+      var t = document.getElementById('vlT'), m = document.getElementById('vlM'), k = document.getElementById('vlCount'), rg = document.getElementById('vlRing');
       if (t) t.textContent = x.t; if (m) m.textContent = x.m;
-      if (b) b.style.width = Math.round((ls.i + 1) / ls.list.length * 100) + '%';
-      if (s) s.textContent = ' ' + (ls.i + 1) + ' / ' + ls.list.length;
+      if (k) k.textContent = (ls.i + 1) + ' / ' + ls.list.length + '語';
+      if (rg) { var C = 2 * Math.PI * 52; rg.setAttribute('stroke-dashoffset', (C * (1 - (ls.i + 1) / ls.list.length)).toFixed(1)); }
     }
     show();
+    function alive() { return ls && g === ls.gen && ls.play; }
     function step() {
-      if (!ls || g !== ls.gen || !ls.play) return;
+      if (!alive()) return;
       addTime((Date.now() - ls.t) / 1000); ls.t = Date.now();
+      lsPhase('wait');
       setTimeout(function () {
-        if (!ls || g !== ls.gen || !ls.play) return;
+        if (!alive()) return;
         ls.i++;
         if (ls.i >= ls.list.length) { ls.i = 0; }
         save(); playLoop();
       }, 700);
     }
+    function en(next) { lsPhase('en'); say1(x.t, 'en', next); }
+    function ja(next) { lsPhase('ja'); say1(x.m, 'ja', next); }
     ls.t = Date.now();
     stopSpeak();
-    if (c.lang === 'ja') say1(x.m, 'ja', step);
-    else if (c.lang === 'en' && tl === 'en') say1(x.t, 'en', function () { setTimeout(function () { say1(x.t, 'en', step); }, 500); });
-    else say1(x.t, tl, function () { if (!ls || g !== ls.gen) return; setTimeout(function () { say1(x.m, 'ja', step); }, 350); });
+    if (c.lang === 'ja') ja(step);
+    else if (c.lang === 'en' && tl === 'en') en(function () { if (!alive()) return; setTimeout(function () { if (alive()) en(step); }, 500); });
+    else if (tl === 'en') en(function () { if (!alive()) return; setTimeout(function () { if (alive()) ja(step); }, 350); });
+    else ja(step);
   }
+  function lsClose() { if (ls) { ls.play = false; ls.gen++; } stopSpeak(); wakeOff(); document.body.classList.remove('lsp-open'); save(); ls = null; st.mode = null; ctx.render(); }
   function listenAfter(view) {
-    view.querySelector('#vlBack').addEventListener('click', function () { if (ls) { ls.play = false; ls.gen++; } stopSpeak(); save(); ls = null; st.mode = null; ctx.render(); });
-    view.querySelector('#vlPlay').addEventListener('click', function () {
-      ls.play = !ls.play; this.innerHTML = ls.play ? IC.pause : IC.play;
-      if (ls.play) playLoop(); else { ls.gen++; stopSpeak(); save(); }
+    document.body.classList.add('lsp-open');
+    lsPhase(ls.play ? 'en' : 'pause');
+    view.querySelector('#vlBack').addEventListener('click', lsClose);
+    var play = view.querySelector('#vlPlay');
+    function setBtn() { play.innerHTML = ls.play ? IC.pause : IC.play; play.setAttribute('aria-label', ls.play ? '一時停止' : '再生'); }
+    play.addEventListener('click', function () {
+      ls.play = !ls.play; setBtn();
+      if (ls.play) playLoop(); else { ls.gen++; stopSpeak(); wakeOff(); lsPhase('pause'); save(); }
     });
-    function jump(d) { ls.i = (ls.i + d + ls.list.length) % ls.list.length; ls.gen++; stopSpeak(); if (ls.play) playLoop(); else ctx.render(); }
+    function jump(d) {
+      ls.i = (ls.i + d + ls.list.length) % ls.list.length; ls.gen++; stopSpeak();
+      if (ls.play) playLoop();
+      else { var x = ls.list[ls.i], C = 2 * Math.PI * 52; view.querySelector('#vlT').textContent = x.t; view.querySelector('#vlM').textContent = x.m; view.querySelector('#vlCount').textContent = (ls.i + 1) + ' / ' + ls.list.length + '語'; view.querySelector('#vlRing').setAttribute('stroke-dashoffset', (C * (1 - (ls.i + 1) / ls.list.length)).toFixed(1)); }
+    }
     view.querySelector('#vlPrev').addEventListener('click', function () { jump(-1); });
     view.querySelector('#vlNext').addEventListener('click', function () { jump(1); });
-    view.querySelectorAll('[data-vrate]').forEach(function (b) { b.addEventListener('click', function () { st.listenRate = +b.getAttribute('data-vrate'); view.querySelectorAll('[data-vrate]').forEach(function (y) { y.classList.toggle('on', y === b); }); if (ls.play) { ls.gen++; stopSpeak(); playLoop(); } }); });
+    view.querySelectorAll('[data-vrate]').forEach(function (b) { b.addEventListener('click', function () {
+      st.listenRate = +b.getAttribute('data-vrate');
+      view.querySelectorAll('[data-vrate]').forEach(function (y) { y.classList.toggle('on', y === b); y.setAttribute('aria-pressed', y === b); });
+      if (ls.play) { ls.gen++; stopSpeak(); playLoop(); }
+    }); });
+    view.querySelectorAll('[data-lsvoice]').forEach(function (sel) { sel.addEventListener('change', function () {
+      vt().cfg['voice_' + sel.getAttribute('data-lsvoice')] = sel.value; save();
+      if (ls.play) { ls.gen++; stopSpeak(); playLoop(); }
+    }); });
+    window.addEventListener('hashchange', function onHash() {
+      window.removeEventListener('hashchange', onHash);
+      if (ls) { ls.play = false; ls.gen++; } stopSpeak(); wakeOff(); document.body.classList.remove('lsp-open');
+    });
+    document.addEventListener('keydown', function onKey(e) {
+      if (!ls || st.mode !== 'listen') { document.removeEventListener('keydown', onKey); return; }
+      if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); lsClose(); }
+    });
   }
 
   /* ========== 単語リスト(記憶度つき) ========== */
