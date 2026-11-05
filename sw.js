@@ -27,8 +27,14 @@ self.addEventListener('activate', function (e) {
 // ネットワーク優先(最新版を使い、つながらないときはキャッシュ)
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
+  // ページ(HTML)は、配信サーバーの一時保存(最大10分)を飛ばして、いつも最新を取りにいく
+  var req = e.request, u = new URL(req.url);
+  if (u.origin === location.origin && (req.mode === 'navigate' || /\.html$/.test(u.pathname) || /\/$/.test(u.pathname))) {
+    u.searchParams.set('_sw', Date.now().toString(36));
+    req = new Request(u.toString(), { credentials: 'same-origin' });
+  }
   e.respondWith(
-    fetch(e.request, { cache: 'no-cache' }).then(function (res) {
+    fetch(req, { cache: 'no-cache' }).then(function (res) {
       var copy = res.clone();
       caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
       return res;
