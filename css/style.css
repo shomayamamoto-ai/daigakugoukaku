@@ -1051,6 +1051,10 @@ body { background: var(--bg); letter-spacing: .04em; }
 .ruler { padding: 30px 6px 22px; }
 .ruler-track { position: relative; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #e4e9f2, #cfd9ec); }
 .ruler-fill { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: repeating-linear-gradient(135deg, rgba(208, 52, 44, .55) 0 6px, rgba(208, 52, 44, .3) 6px 12px); }
+.ruler-range { position: absolute; top: -3px; bottom: -3px; border-radius: 8px; background: rgba(40, 90, 200, .18); border: 1px solid rgba(40, 90, 200, .45); }
+.est-how { margin-top: 8px; font-size: .82rem; }
+.est-how summary { cursor: pointer; color: var(--primary); font-weight: 700; }
+.est-how ul { margin: 6px 0 0; }
 .ruler .tick { position: absolute; top: 14px; width: 1px; height: 6px; background: var(--muted); }
 .ruler .tick small { white-space: nowrap; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: .66rem; color: var(--muted); font-weight: 400; }
 .ruler .cp { position: absolute; top: 3px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #fff; border: 1px solid var(--muted); }

@@ -227,25 +227,100 @@ WPS.Analysis = (function () {
     });
   }
 
-  // アプリ内の問題の正答状況から、偏差値と共通テスト得点率を「推定」する(あくまで目安)
-  function estimate(subj) {
-    var list = WPS.Store.get().attempts.filter(function (a) { return a.src !== 'card' && a.q && (!subj || a.s === subj); }).slice(-200);
-    if (list.length < 15) return { n: list.length, hensa: null, kyotsu: null };
-    var W = { 1: 0.8, 2: 1, 3: 1.3 }, sum = 0, ok = 0, basic = 0, basicOk = 0;
-    list.forEach(function (a) {
-      var q = WPS.Q(a.q), lv = q ? q.level : 2, w = W[lv] || 1;
-      sum += w; if (a.ok) ok += w;
-      if (lv <= 2) { basic++; if (a.ok) basicOk++; }
+  /* ----- 偏差値と共通テスト得点率の推定 -----
+   * 考え方(項目反応理論の「ラッシュ型モデル」を簡単にしたもの):
+   *  ・問題ごとに「難しさ b」を偏差値のものさしで決める(基礎 40/標準 50/難関 62)。
+   *    偏差値 b の人がその問題を「当てずっぽうを除いて」半分の確率で解ける、という意味。
+   *    高校生が解く中学の単元は 12 下げる(中学生は高校入試の偏差値なので下げない)。
+   *  ・正解する確率 P = c + (1 − c) ÷ (1 + e^(−(H − b) ÷ 6.5))。c は当てずっぽうで当たる確率(選択肢 n 個なら 1/n、書く問題は 0)。
+   *  ・実際の正解・不正解にいちばんよく合う偏差値 H を、事前の分布(平均 50・標準偏差 12)と合わせて求める(ベイズ推定)。
+   *    問題が少ないうちは 50 に近く、問題が増えるほど実力の値に近づき、幅(±)もせまくなる。
+   *  ・同じ問題は最新の1回だけ使う(くり返して覚えた分を水増ししない。2回目以降の問題は重み 0.6)。
+   *  ・古い解答ほど軽くする(60日で重みが半分)。「自信なし」で正解は 0.6 回分の正解として数える。
+   *  ・全体の偏差値は、志望校で使う教科の重要度に合わせて教科の重みをそろえる(解いた数が多い教科に引っぱられない)。
+   *  ・共通テスト得点率は、大学データ(河合塾の国公立大ボーダー 182件)の「偏差値と共テ得点率」の関係
+   *    (得点率 ≒ 1.294 × 偏差値 − 1.1、相関 0.92)を使って偏差値から換算する。
+   */
+  var IRT = { s: 6.5, b: { 1: 40, 2: 50, 3: 62 }, jhShift: -12, prior: 50, priorSd: 12, half: 60, MIN: 15, MAXN: 400 };
+  function isJHUser() { try { return !!(WPS.isJHStudent && WPS.isJHStudent(WPS.Store.get().profile.grade)); } catch (e) { return false; } }
+  function pCorrect(H, it) { return it.c + (1 - it.c) / (1 + Math.exp(-(H - it.b) / IRT.s)); }
+  function irtItems(subj, jhUser) {
+    var first = {}, last = {};
+    WPS.Store.get().attempts.forEach(function (a) {
+      if (a.src === 'card' || !a.q || (subj && a.s !== subj)) return;
+      if (!first[a.q]) first[a.q] = a; last[a.q] = a;
     });
-    var acc = ok / sum;
-    var hensa = Math.max(30, Math.min(75, Math.round((50 + 10 * (acc - 0.6) / 0.18) * 2) / 2));
-    var kyotsu = basic ? Math.max(20, Math.min(95, Math.round(basicOk / basic * 100))) : null;
-    return { n: list.length, hensa: hensa, kyotsu: kyotsu };
+    var now = Date.now(), items = [];
+    function yOf(a) { return a.ok ? (a.unsure ? 0.6 : 1) : 0; }
+    function rec(a) { return Math.pow(0.5, Math.max(0, (now - (a.t || now)) / 864e5) / IRT.half); }
+    Object.keys(first).forEach(function (id) {
+      var a = first[id], z = last[id], q = WPS.Q(id); if (!q) return;
+      var u = WPS.UNIT_MAP[a.u || q.unit], lv = q.level || 2, b = IRT.b[lv] || 50;
+      if (u && WPS.STAGES.indexOf(u.stage) <= 2 && !jhUser) b += IRT.jhShift;
+      var c = a.mode === 'write' ? 0 : (q.choices && q.choices.length > 1 ? 1 / q.choices.length : 0.25);
+      var base = { b: b, c: c, s: a.s || q.subj, lv: lv };
+      // はじめて解いたときの結果を主に使う。2回目以降(覚えた可能性がある)は 0.3 回分だけ足す
+      items.push(Object.assign({ t: z.t || 0, y: yOf(a), w: rec(a) }, base));
+      if (z !== a) items.push(Object.assign({ t: z.t || 0, y: yOf(z), w: 0.3 * rec(z), rep: 1 }, base));
+    });
+    items.sort(function (x, y) { return y.t - x.t; });
+    return items.slice(0, IRT.MAXN);
+  }
+  // 教科のかたよりをならす:志望校での重要度の比になるように、教科ごとの重みの合計をそろえる
+  function balance(items) {
+    var tw = null; try { tw = WPS.Roadmap.target().weights; } catch (e) { tw = null; }
+    if (!tw) return { items: items, missing: [] };
+    var tot = {}, all = 0; items.forEach(function (it) { tot[it.s] = (tot[it.s] || 0) + it.w; all += it.w; });
+    var have = Object.keys(tot).filter(function (k) { return (tw[k] || 0) > 0; });
+    if (!have.length) return { items: items, missing: [] };
+    var twSum = have.reduce(function (a, k) { return a + tw[k]; }, 0), keep = have.reduce(function (a, k) { return a + tot[k]; }, 0);
+    var out = items.filter(function (it) { return (tw[it.s] || 0) > 0; }).map(function (it) {
+      var o = {}; for (var k in it) o[k] = it[k];
+      o.w = it.w * (tw[it.s] / twSum) / (tot[it.s] / keep); return o;
+    });
+    var missing = Object.keys(tw).filter(function (k) { return tw[k] > 0 && !tot[k] && WPS.SUBJECTS[k]; });
+    return { items: out, missing: missing };
+  }
+  function posterior(items) {
+    var lo = 25, hi = 80, st = 0.25, H, lp = [], mx = -Infinity, i;
+    for (H = lo; H <= hi + 1e-9; H += st) {
+      var v = -Math.pow(H - IRT.prior, 2) / (2 * IRT.priorSd * IRT.priorSd);
+      for (i = 0; i < items.length; i++) {
+        var it = items[i], p = Math.min(0.999, Math.max(0.001, pCorrect(H, it)));
+        v += it.w * (it.y * Math.log(p) + (1 - it.y) * Math.log(1 - p));
+      }
+      lp.push([H, v]); if (v > mx) mx = v;
+    }
+    var z = 0, m = 0, m2 = 0;
+    lp.forEach(function (x) { var e = Math.exp(x[1] - mx); z += e; m += e * x[0]; m2 += e * x[0] * x[0]; });
+    m /= z; return { mean: m, sd: Math.sqrt(Math.max(0, m2 / z - m * m)) };
+  }
+  function hensaToKyotsu(H) { return Math.max(20, Math.min(95, Math.round(1.294 * H - 1.1))); }
+  // 偏差値 H の人が、ふつうの問題のまじり方(基礎4:標準4.5:難関1.5、4択)で取れる正答率の目安
+  function accAt(H) {
+    var mix = [[1, 0.4], [2, 0.45], [3, 0.15]];
+    return mix.reduce(function (a, x) { return a + x[1] * pCorrect(H, { b: IRT.b[x[0]], c: 0.25 }); }, 0);
+  }
+  function estimate(subj) {
+    var jh = isJHUser(), raw = irtItems(subj, jh);
+    var n = raw.filter(function (it) { return !it.rep; }).length;
+    if (n < IRT.MIN) return { n: n, hensa: null, kyotsu: null, lo: null, hi: null, missing: [] };
+    var bl = subj ? { items: raw, missing: [] } : balance(raw);
+    var po = posterior(bl.items.length ? bl.items : raw);
+    function r5(v) { return Math.max(30, Math.min(75, Math.round(v * 2) / 2)); }
+    var hz = r5(po.mean), lo = r5(po.mean - po.sd), hi = r5(po.mean + po.sd);
+    var hard = raw.filter(function (it) { return !it.rep && it.lv >= 2; }).length / Math.max(1, raw.filter(function (it) { return !it.rep; }).length);
+    return {
+      fewHard: hard < 0.2,
+      n: n, hensa: hz, lo: lo, hi: hi, sd: Math.round(po.sd * 10) / 10,
+      kyotsu: jh ? null : hensaToKyotsu(po.mean), kyotsuLo: jh ? null : hensaToKyotsu(po.mean - po.sd), kyotsuHi: jh ? null : hensaToKyotsu(po.mean + po.sd),
+      missing: bl.missing, scale: jh ? '高校入試' : '大学入試'
+    };
   }
 
   return {
     unitStat: unitStat, allStats: allStats, levelStats: levelStats, subjectStats: subjectStats,
-    rootCauses: rootCauses, priority: priority, depth: depth, levelDiagnosis: levelDiagnosis, estimate: estimate,
+    rootCauses: rootCauses, priority: priority, depth: depth, levelDiagnosis: levelDiagnosis, estimate: estimate, accAt: accAt, hensaToKyotsu: hensaToKyotsu,
     mistakes: mistakes, dependents: dependents
   };
 })();

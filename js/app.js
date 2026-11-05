@@ -2936,8 +2936,8 @@
   }
   // 目標とのちがいを表示するカード
   /* ========== 志望校との差の見える化(あとどれだけやればよいか) ========== */
-  // 偏差値と正答率の関係は、アプリの推定式(engine.js の estimate)と同じ:偏差値 ＝ 50 ＋ 10×(正答率−0.6)÷0.18
-  function accForHensa(hz) { return Math.max(0, Math.min(1, 0.6 + (hz - 50) * 0.018)); }
+  // 偏差値と正答率の関係は、アプリの推定モデル(engine.js の estimate)と同じものを使う
+  function accForHensa(hz) { return Math.max(0, Math.min(1, A.accAt(hz))); }
   function gapSection(p, g, est) {
     if (!g || !g.hensa) return '';
     var rm = R.build(), t = rm.target, today = D.today();
@@ -2951,6 +2951,7 @@
       '<div class="ruler-track">' + (nowH !== null ? '<i class="ruler-fill" style="left:' + pos(Math.min(nowH, goalH)) + '%;width:' + Math.abs(pos(goalH) - pos(nowH)) + '%"></i>' : '') +
       [40, 45, 50, 55, 60, 65, 70].map(function (v) { return '<b class="tick" style="left:' + pos(v) + '%"><small>' + v + '</small></b>'; }).join('') +
       cps.map(function (c) { return '<b class="cp" style="left:' + pos(c.v) + '%" title="' + D.label(c.d) + 'までに ' + c.v + '"></b>'; }).join('') +
+      (nowH !== null && est.lo !== null ? '<i class="ruler-range" style="left:' + pos(est.lo) + '%;width:' + Math.max(1, pos(est.hi) - pos(est.lo)) + '%" title="推定の幅 ' + est.lo + '〜' + est.hi + '"></i>' : '') +
       (nowH !== null ? '<span class="pin now" style="left:' + pos(nowH) + '%"><em>いま ' + nowH + '</em></span>' : '') +
       '<span class="pin goal" style="left:' + pos(goalH) + '%"><em>目標 ' + goalH + '</em></span></div></div>';
     if (nowH === null) return html + '<p class="hint">診断テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問答えると、いまの位置と差が表示されます。</p></div>';
@@ -2971,7 +2972,7 @@
     var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / 5) * 5;
     var probs = need * 30;
     var capH = Math.min(goalH, Math.max(60, nowH)), hardN = goalH > capH ? Math.ceil((goalH - capH) / 2.5) * 60 : 0;
-    html += '<h3>あとこれだけやれば届く(目安)</h3>' +
+    if (diff > 0) html += '<h3>あとこれだけやれば届く(目安)</h3>' +
       '<div class="two-step"><div><small>①苦手単元の克服(基礎〜標準)</small><b>' + nowH + ' → ' + capH + '</b></div>' + (hardN ? '<div><small>②標準・難関レベルの演習と過去問</small><b>' + capH + ' → ' + goalH + '</b></div>' : '') + '</div>' +
       '<div class="todo-grid">' +
       '<div class="tg"><small>正答率</small><div class="tg-bar"><i style="width:' + Math.round(accNow * 100) + '%"></i><b style="left:' + Math.round(accGoal * 100) + '%"></b></div><span>いま ' + Math.round(accNow * 100) + '% → 目標 ' + Math.round(accGoal * 100) + '%</span></div>' +
@@ -3003,7 +3004,17 @@
         return '<li class="' + cls + '"><b>' + x.v.toFixed(1) + '</b><span>' + (x.names.length ? h(x.names.join('・')) : '—') + '</span>' + (cls === 'reach' ? '<em>いま届く</em>' : cls === 'goal' ? '<em>目標</em>' : '') + '</li>';
       }).join('') + '</ol><p class="hint">大学データに登録された「その大学の最高の偏差値」で並べた目安です(河合塾 2027年度入試難易予想を参考)。学部・方式で違うので、必ず大学データで確認してください。</p>';
     }
-    return html + '<p class="hint">「いま」はこのアプリの問題の正答状況からの推定で、模試の偏差値とは異なります。必要な量は「1単元 約30問・約150分」「苦手単元の克服で届くのは偏差値60前後まで」「そこから 2.5 上げるごとに標準・難関レベル約60問」と仮定した目安です。</p></div>';
+    return html + '<p class="hint">「いま」はこのアプリの問題の正答状況からの推定で(薄い帯は推定の幅 ' + est.lo + '〜' + est.hi + ')、模試の偏差値とは異なります。必要な量は「1単元 約30問・約150分」「苦手単元の克服で届くのは偏差値60前後まで」「そこから 2.5 上げるごとに標準・難関レベル約60問」と仮定した目安です。</p></div>';
+  }
+  // 推定のしくみ(折りたたみの説明)
+  function estHow() {
+    return '<details class="est-how"><summary>この偏差値はどう計算している?</summary><ul class="bullets">' +
+      '<li>問題ごとに難しさを決めています(基礎=偏差値40、標準=50、難関=62 の人が半分くらい解ける問題)。高校生が解いた中学の単元の問題は、やさしい問題として扱います。</li>' +
+      '<li>どの難しさの問題を、どれだけ正解したかから、それにいちばん合う偏差値を計算します。難しい問題の正解ほど高く、やさしい問題のまちがいほど低く評価されます。4択は当てずっぽうでも25%当たるので、その分を差し引きます。</li>' +
+      '<li>同じ問題は最新の1回だけを使います(くり返して覚えた分で上がりすぎないように)。古い解答ほど軽く数えます(60日で半分)。</li>' +
+      '<li>全体の偏差値は、志望校で使う教科の重要度に合わせて教科の重みをそろえます。解いた問題が少ないうちは50に近く出て、幅(〜)が広くなります。</li>' +
+      '<li>共通テスト得点率は、大学データ(国公立大のボーダー182件)の「偏差値と共テ得点率」の関係から換算しています。</li>' +
+      '<li>あくまでアプリの問題からの目安です。実際の模試の偏差値は、受けた人の集団や問題によって変わります。</li></ul></details>';
   }
   function goalCard(p, inline) {
     var g = activeGoal(p), est = A.estimate();
@@ -3019,7 +3030,10 @@
       rows += (g.kyotsu !== null && g.kyotsu !== undefined ? row('共通テスト得点率', g.kyotsu, est.kyotsu, '%') : '') + row('偏差値', g.hensa, est.hensa, '');
       body = '<p><b>🎯 ' + h(goalLabel(g)) + '</b></p>' + (g.approx ? '<p class="hint">大学全体の偏差値の目安(登録データの最大値)です。<a href="#univ">大学データ</a>で志望学部を「目標にする」と、学部ごとの数値になります。</p>' : '') + '<div class="table-scroll"><table class="kv goal-t">' + rows + '</table></div>' +
         (est.hensa === null ? '<p class="hint">推定には、テストや練習であと ' + Math.max(0, 15 - est.n) + ' 問の解答が必要です。</p>' :
-          '<p class="hint">「いまの推定」は、このアプリの問題の正答状況から計算した目安です。模試の偏差値とは異なります。</p>') +
+          '<p class="hint">いまの推定の幅:偏差値 ' + est.lo + '〜' + est.hi + (est.kyotsuLo !== null && g.kyotsu ? '/共テ ' + est.kyotsuLo + '〜' + est.kyotsuHi + '%' : '') + '(解いた ' + est.n + ' 問から。問題が増えるほど幅がせまくなります)</p>' +
+          (est.fewHard ? '<p class="hint">解いた問題のほとんどが基礎レベルなので、高めにも低めにもぶれやすい状態です。標準・難関レベルの問題を解くと、推定が正確になります。</p>' : '') +
+          (est.missing && est.missing.length ? '<p class="hint">まだ解いていない受験教科:' + est.missing.map(function (k) { return h(WPS.SUBJECTS[k].name); }).join('・') + '(この教科は推定に入っていません)</p>' : '') +
+          estHow()) +
         (g.score ? '<p class="hint">共通テストのボーダー:' + h(g.score) + '点</p>' : '') + '<p class="hint">目安の出典:' + h(g.src || WPS.UNIV_SOURCES[g.year] || '') + '</p>';
     }
     return '<section class="card goal"><h2>📍 目標と現在地</h2>' + body + gapSection(p, g, est) + '</section>';
