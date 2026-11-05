@@ -213,6 +213,23 @@
     var s0 = WPS.SCHOOL_MAP[p.schoolId];
     return s0 ? s0.kind : (WPS.isJHStudent(p.grade) ? 'high' : 'national');
   }
+  // 学部の選び方ガイド(気になる学部にチェックすると、大学データの画面ですぐ探せる)
+  function facultyGuide(p, hidden) {
+    var G = WPS.FACULTY_PICK; if (!G) return '';
+    var mine = p.interests || [];
+    return '<div class="sp-block fg" data-spblock="guide"' + (hidden ? ' hidden' : '') + '><details class="fg-box"' + (mine.length ? '' : '') + '><summary>🧭 学部の選び方ガイド' + (mine.length ? '(気になる学部 ' + mine.length + ')' : '') + '</summary>' +
+      '<p class="fg-lead">' + h(G.lead) + '</p>' +
+      '<div class="fg-ask"><b>まず自分に聞いてみよう</b><ol>' + G.ask.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol></div>' +
+      '<div class="fg-list">' + G.list.map(function (f) {
+        var on = mine.indexOf(f.id) >= 0;
+        return '<section class="fg-card"><label class="fg-head"><input type="checkbox" name="interests" value="' + f.id + '"' + (on ? ' checked' : '') + '> <b>' + h(f.name) + '</b><small>気になる</small></label>' +
+          '<p>' + h(f.learn) + '</p>' +
+          '<p class="fg-sub"><b>こんな人に</b></p><ul>' + f.fit.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+          '<p class="fg-sub"><b>入試で大事な科目(目安)</b> ' + h(f.subj) + '</p>' +
+          '<p class="fg-voice"><b>受験生向け動画で語られていた見方</b>' + h(f.voice) + '</p></section>';
+      }).join('') + '</div>' +
+      '<p class="fg-end">' + h(G.end) + '</p><p class="hint">' + h(G.note) + ' チェックした学部は、保存すると「大学データ」の画面からすぐ探せます。ほかの学部の一覧は「入試情報」の「学部・学科の選び方」にあります。</p></details></div>';
+  }
   function schoolPicker(p) {
     var main = schoolKindOf(p), isHigh = main === 'high';
     var natId = p.schoolNat || (WPS.SCHOOL_MAP[p.schoolId] && WPS.SCHOOL_MAP[p.schoolId].kind === 'national' ? p.schoolId : '');
@@ -238,7 +255,7 @@
         return '<button type="button" class="seg-btn' + (main === k[0] ? ' on' : '') + '" data-spmain="' + k[0] + '" aria-pressed="' + (main === k[0]) + '">' + k[1] + '</button>';
       }).join('') + '</div><small class="muted">本命の試験日をゴールにして、もう一方は併願として中間目標に入れます。</small></div>' +
       '<div class="sp-block" data-spblock="high"' + (isHigh ? '' : ' hidden') + '><b class="sp-label">志望校(高校受験)</b><select name="school_high" data-spsel="high">' + schoolOptions(highId, '', 'high') + '</select></div>' +
-      '<p class="hint" id="spNote"></p>' +
+      '<p class="hint" id="spNote"></p>' + facultyGuide(p, isHigh) +
       '<p class="hint">片方しか受けない場合は「受けない」のままで大丈夫です。まだ決まっていなければ空欄のままでも保存でき、あとから設定で変えられます。( )内は偏差値の目安(河合塾 2027年度入試難易予想を参考。BF=ボーダー・フリー)。</p></fieldset>';
   }
   function spValid(v) { return !!(v && v !== 'none' && WPS.SCHOOL_MAP[v]); }
@@ -343,6 +360,7 @@
       p.minutesWeekday = +fd.get('minutesWeekday');
       p.minutesHoliday = +fd.get('minutesHoliday');
       p.minutes = Math.round(WPS.Time.weeklyMinutes(p) / 7);
+      var its = fd.getAll('interests'); p.interests = its.length ? its : null;
       var subs = fd.getAll('subjects');
       p.subjects = subs.length && subs.length < Object.keys(WPS.SUBJECTS).length ? subs : null;
       S.save();
@@ -3044,6 +3062,14 @@
   function ufLoad(key) { try { var v = JSON.parse(localStorage.getItem(key) || 'null'); if (v) { var d = ufDefault(); Object.keys(d).forEach(function (k) { if (v[k] === undefined) v[k] = d[k]; }); return v; } } catch (e) { /* 保存できない環境でも動く */ } return null; }
   function ufStore(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* 無視 */ } }
   var uf = ufLoad(UF_KEY) || ufDefault();
+  // 志望校の設定で「気になる」にした学部を、ワンタップで学部名検索に入れるボタン
+  function fgChips() {
+    var G = WPS.FACULTY_PICK, mine = (S.get().profile.interests || []);
+    if (!G || !mine.length) return '';
+    return '<div class="fg-chips"><small>気になる学部:</small>' + G.list.filter(function (f) { return mine.indexOf(f.id) >= 0; }).map(function (f) {
+      return '<button type="button" class="chip' + (uf.q === f.q ? ' on' : '') + '" data-fgq="' + h(f.q) + '">' + h(f.name) + '</button>';
+    }).join('') + '</div>';
+  }
   var univState = uf; // 旧コードとの互換
   function favSet() { try { return JSON.parse(localStorage.getItem(UF_FAV) || '{}'); } catch (e) { return {}; } }
   function rowKey(r) { return (r.kind === 'pri' ? 'p' : 'n') + '|' + r.univ + '|' + r.dept + '|' + r.sched; }
@@ -3100,7 +3126,7 @@
     var html = say('条件を組み合わせて、志望校の候補をさがそう。気になる学部は「目標にする」を押すと、ホームとロードマップに今の自分との差が出るよ。', 'normal', 56);
     html += '<section class="card uf"><div class="row-between"><h2>各種条件から探す</h2>' +
       '<label class="uf-year">年度 ' + ufSelect('year', uf.year, years, '年度') + '</label></div>' +
-      '<p class="muted">学部系統・地域・難易度・入試日程などで、大学をしぼりこめます。</p>' +
+      '<p class="muted">学部系統・地域・難易度・入試日程などで、大学をしぼりこめます。</p>' + fgChips() +
       ufSection('kind', '設置区分', !(uf.kinds.nat && uf.kinds.pri), '<div class="uf-checks"><label class="uf-ck"><input type="checkbox" data-ufkind="nat"' + (uf.kinds.nat ? ' checked' : '') + '> <span>国公立</span></label><label class="uf-ck"><input type="checkbox" data-ufkind="pri"' + (uf.kinds.pri ? ' checked' : '') + '> <span>私立</span></label></div>') +
       ufSection('field', '学部系統', anyOn(uf.fields), '<button type="button" class="btn small" data-ufall="fields">すべて選択</button>' + ufChecks('fields', fields) + '<p class="hint">国公立の「北海道地区(全学部)」は、地区別の一覧表のデータです。</p>') +
       ufSection('area', '地域', anyOn(uf.areas), ufChecks('areas', areas)) +
@@ -3155,6 +3181,7 @@
     var q = view.querySelector('input[data-ufv="q"]');
     if (q) q.addEventListener('input', function () { clearTimeout(rerender.t); rerender.t = setTimeout(function () { uf.q = q.value.trim(); uf.shown = 0; rerender(); var n = view.querySelector('input[data-ufv="q"]'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 300); });
     var fv = view.querySelector('[data-ufav]'); if (fv) fv.addEventListener('change', function () { uf.fav = fv.checked ? 1 : 0; uf.shown = 0; rerender(); });
+    view.querySelectorAll('[data-fgq]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-fgq'); uf.q = uf.q === v ? '' : v; uf.shown = 0; rerender(); }); });
     var me = view.querySelector('[data-ufme]'); if (me) me.addEventListener('click', function () { var e = A.estimate().hensa; var r = function (v) { return (Math.round(v / 2.5) * 2.5).toFixed(1); }; uf.hMin = r(Math.max(35, e - 5)); uf.hMax = r(Math.min(75, e + 5)); uf.shown = 0; rerender(); });
     view.querySelectorAll('[data-ufclear]').forEach(function (b) { b.addEventListener('click', function (ev) {
       ev.preventDefault();

@@ -2504,3 +2504,26 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .mq-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
 .mq-tabs button { border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; } .mq-tabs button small { margin-left: 4px; color: var(--muted); font-weight: 400; }
 .mq-tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; } .mq-tabs button.on small { color: rgba(255,255,255,.8); }
+/* ---------- 学部の選び方ガイド ---------- */
+.fg-box { border: 1px solid var(--line, #dfe5ee); border-radius: 12px; padding: 10px 12px; background: #fbfcfe; }
+.fg-box summary { cursor: pointer; font-weight: 800; color: var(--primary); }
+.fg-lead { margin: 10px 0 8px; font-size: .9rem; }
+.fg-ask { background: #f1f6ff; border-radius: 10px; padding: 8px 12px; font-size: .85rem; }
+.fg-ask ol { margin: 4px 0 0; padding-left: 1.3em; }
+.fg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 10px; margin-top: 10px; }
+.fg-card { border: 1px solid var(--line, #dfe5ee); border-radius: 10px; padding: 10px 12px; background: #fff; font-size: .84rem; min-width: 0; overflow-wrap: anywhere; }
+.fg-card p { margin: 6px 0; }
+.fg-card ul { margin: 2px 0 6px; padding-left: 1.2em; }
+.fg-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; cursor: pointer; }
+.fg-head b { font-size: .95rem; }
+.fg-head small { margin-left: auto; color: var(--muted); }
+.fg-sub { color: var(--muted); }
+.fg-sub b { color: var(--ink, #223); margin-right: 4px; }
+.fg-voice { background: #fff8ec; border-left: 3px solid #e0a43a; padding: 6px 8px; border-radius: 6px; }
+.fg-voice b { display: block; font-size: .74rem; color: #a06a10; }
+.fg-end { font-weight: 700; font-size: .88rem; margin: 10px 0 4px; }
+.fg-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.fg-chips .chip { --c: var(--primary); background: #fff; cursor: pointer; font-size: .8rem; padding: 3px 12px; }
+.fg-chips .chip.on { background: var(--primary); color: #fff; }
+.fg-head input[type=checkbox] { width: 20px; height: 20px; min-height: 0; margin: 0; flex: 0 0 auto; display: inline-block; }
+.form label.fg-head, label.fg-head { display: flex !important; flex-direction: row; align-items: center; gap: 8px; margin-bottom: 4px; }
