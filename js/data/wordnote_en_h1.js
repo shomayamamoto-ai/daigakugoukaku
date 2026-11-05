@@ -62,7 +62,7 @@ WPS.addNotes({
   'account for': { alt: ['(割合を)占める ― Women account for 60% of the staff.(女性が職員の6割を占める)', '〜の原因となる'], syn: ['explain'] },
   'after all': { alt: ['だって〜なのだから(理由を添える) ― Let him rest. After all, he is only a child.(休ませてあげて。なにしろまだ子どもなんだから)'] },
   'agree with': { alt: ['(食べ物・気候が)体に合う ― Spicy food doesn\'t agree with me.(辛い物は体に合わない)'], use: '人や意見には agree with、提案には agree to を使うのが基本です。' },
-  'all at once': { alt: ['いっせいに、同時に ― They all spoke all at once.(みんなが一斉に話した)'], syn: ['suddenly'] },
+  'all at once': { alt: ['いっせいに、同時に ― Everyone started talking all at once.(みんなが一斉に話した)'], syn: ['suddenly'] },
   'all the same': { alt: ['どうでもよい、同じことだ ― It\'s all the same to me.(私にはどちらでもいい)'], syn: ['nevertheless'] },
   'as a result': { use: '前の文の「結果」を導くつなぎことば。as a result of 〜 なら「〜の結果として」です。', syn: ['consequently'] },
   'as far as': { alt: ['〜まで(距離) ― I walked as far as the station.(駅まで歩いた)'], use: '範囲は as far as、条件は as long as と区別しましょう。' },
