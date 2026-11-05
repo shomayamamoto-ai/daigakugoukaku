@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261108a';
+  var VER = '20261109a';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
