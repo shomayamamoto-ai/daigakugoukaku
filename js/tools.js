@@ -6,18 +6,26 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261107d';
+  var VER = '20261108a';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     phys: { g: '理科', title: '物理の公式集', icon: '🧲', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    organic: { g: '理科', title: '有機化合物の官能基', icon: '⚛️', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    biocell: { g: '理科', title: '細胞のつくりとホルモン', icon: '🧬', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     units: { g: '理科', title: '単位と定数', icon: '🔬', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     math: { g: '数学', title: '数学の公式集', icon: '📐', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    trig: { g: '数学', title: '三角比の表', icon: '📏', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    sqrt: { g: '数学', title: '平方・平方根の表', icon: '√', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    prime: { g: '数学', title: '素数表', icon: '🔢', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    tense: { g: '英語', title: '英語の時制のまとめ', icon: '⏳', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     verbs: { g: '英語', title: '英語の不規則動詞', icon: '🔤', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
+    kogo: { g: '国語', title: '古文単語の一覧', icon: '🌸', ready: function () { return !!(WPS.BANK && WPS.BANK.kobun_bk); } },
     kobun: { g: '国語', title: '古文の助動詞', icon: '📖', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     keigo: { g: '国語', title: '古文の敬語', icon: '🎎', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     kanbun: { g: '国語', title: '漢文の句形', icon: '📜', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     map: { g: '社会', title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
+    koppen: { g: '社会', title: 'ケッペンの気候区分', icon: '🌦️', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     pref: { g: '社会', title: '都道府県と所在地', icon: '🗾', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     chrono: { g: '社会', title: '日本史・世界史の年表', icon: '🗓️', ready: function () { return !!(WPS.BANK && WPS.BANK.jhistory); } },
     era: { g: '社会', title: '時代区分と中国の王朝', icon: '🏯', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -88,7 +96,7 @@
     load(kind, function (err) {
       var body = el.querySelector('.tl-body');
       if (err) { body.innerHTML = '<p class="muted center" style="padding:24px">読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'; return; }
-      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else refTable(body, (WPS.REFS || {})[kind], kind);
+      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'chrono') chrono(body); else if (kind === 'kogo') kogo(body); else refTable(body, (WPS.REFS || {})[kind], kind);
     });
   }
 
@@ -122,6 +130,13 @@
     });
     out.addEventListener('click', function (ev) { var c = ev.target.closest('td, tbody th'); if (c && out.classList.contains('memo')) c.classList.toggle('shown'); });
     q.addEventListener('input', function () { P.q = q.value; savePref(); draw(); }); draw();
+  }
+  // 古文単語:アプリの古文単語帳と古典常識のデータから作る
+  function kogo(body) {
+    var B = WPS.BANK.kobun_bk || [], P = (WPS.KOBUN_BOOK && WPS.KOBUN_BOOK.parts) || [], secs = [];
+    P.forEach(function (pt, i) { var rows = B.filter(function (x) { return x.part === i + 1; }).map(function (x) { return [x.t, x.m]; }); if (rows.length) secs.push({ h: pt[2] || ('Part ' + (i + 1)), head: ['古語', '意味'], rows: rows }); });
+    var J = (WPS.BANK.kobun_jo || []).map(function (x) { return [x.t, x.m]; }); if (J.length) secs.push({ h: '古典常識', head: ['ことば', '意味'], rows: J });
+    refTable(body, { note: '古文単語 ' + B.length + '語と古典常識 ' + J.length + '語。暗記モードで意味をかくして、思い出す練習ができます。', sections: secs }, 'kogo');
   }
   // 年表:アプリの年号データ(日本史・世界史)から作る。紀元前は「前○○年」
   function chrono(body) {
@@ -331,9 +346,10 @@
     ms.addEventListener('input', function () {
       var w = ms.value.trim().toLowerCase();
       if (!w) { res.innerHTML = ''; return; }
-      if (!(WPS.REFS && WPS.REFS.math && WPS.REFS.phys)) { load('math', function () { load('phys', function () { ms.dispatchEvent(new Event('input')); }); }); res.innerHTML = '<p class="tl-mg">読み込み中…</p>'; return; }
+      if (!(WPS.REFS && WPS.REFS.math && WPS.REFS.phys && WPS.REFS.trig)) { load('math', function () { load('phys', function () { load('trig', function () { ms.dispatchEvent(new Event('input')); }); }); }); res.innerHTML = '<p class="tl-mg">読み込み中…</p>'; return; }
       var hits = [];
       Object.keys(WPS.REFS).forEach(function (k) { if (!KINDS[k]) return; WPS.REFS[k].sections.forEach(function (sec) { sec.rows.forEach(function (r) { if (hits.length < 40 && (sec.h + ' ' + r.join(' ')).toLowerCase().indexOf(w) >= 0) hits.push([k, r, sec.h]); }); }); });
+      ((WPS.BANK || {}).kobun_bk || []).forEach(function (x) { if (hits.length < 40 && (x.t + ' ' + x.m).toLowerCase().indexOf(w) >= 0) hits.push(['kogo', [x.t, x.m]]); });
       ['jhistory', 'whistory'].forEach(function (b) { ((WPS.BANK || {})[b] || []).forEach(function (x) { if (hits.length < 40 && (x.m + ' ' + x.t).toLowerCase().indexOf(w) >= 0) hits.push(['chrono', [(+x.t < 0 ? '前' + (-x.t) : x.t) + '年', x.m]]); }); });
       (WPS.ELEMENTS || []).forEach(function (e) { if (hits.length < 40 && (e[1].toLowerCase() === w || e[2].indexOf(w) >= 0)) hits.push(['ptable', [e[1], e[2] + '(原子番号' + e[0] + ')']]); });
       res.innerHTML = hits.length ? hits.map(function (x) { return '<button type="button" class="tl-hit" data-tlopen="' + x[0] + '" data-tlq="' + h(ms.value.trim()) + '"><em>' + KINDS[x[0]].icon + ' ' + h(KINDS[x[0]].title) + '</em><b>' + h(x[1][0]) + '</b><span>' + h(x[1].slice(1).filter(Boolean).join(' / ')) + '</span></button>'; }).join('') : '<p class="tl-mg">見つかりませんでした</p>';
