@@ -296,11 +296,23 @@ WPS.makeVocab = function (ctx) {
     if (!WPS.VBOOKS) return '';
     var books = WPS.VBOOKS.filter(function (b) { return (b.subj || 'eng') === L[0]; });
     if (!books.length) return '';
-    return '<section class="card"><h2>' + (L[0] === 'eng' ? '英単語帳' : '単語帳') + '</h2><div class="vb-shelf">' + books.map(function (b) {
+    function card(b) {
       var id = b.bank && b.done ? lists().filter(function (o) { return o.L[2] === b.bank; })[0] : null, on = id && L[2] === b.bank;
-      var sub = id ? (on ? '使用中・' : '') + (b.total ? '見出し ' + b.doneMain.toLocaleString() + ' / ' + b.total.toLocaleString() + '語' + (b.done > b.doneMain ? '(派生 ' + (b.done - b.doneMain).toLocaleString() + ')' : '') : b.parts.length + (/^kobun/.test(b.id) ? '分類・' : '学部・') + b.done.toLocaleString() + '語') : (b.note ? b.note + '・' : '') + '準備中' + (b.total ? '(' + b.total.toLocaleString() + '語)' : '');
-      return '<button type="button" class="vb-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + '><b>' + h(b.name) + '</b><small>' + sub + '</small></button>';
-    }).join('') + '</div></section>';
+      var sub;
+      if (!id) sub = '準備中';
+      else if (b.note) sub = h(b.note) + '&nbsp;›';
+      else if (b.total) sub = (b.doneMain < b.total ? b.doneMain.toLocaleString() + ' / ' : '') + b.total.toLocaleString() + '語';
+      else sub = b.done.toLocaleString() + '語';
+      var info = b.desc ? '<button type="button" class="vb-q" data-vbinfo="' + h(b.id) + '" aria-label="' + h(b.name) + 'の説明" aria-expanded="' + (st.vbinfo === b.id) + '">?</button>' : '';
+      return '<div class="vb-cell"><button type="button" class="vb-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + ' aria-pressed="' + !!on + '"><b>' + h(b.name) + (on ? '<em class="vb-now">使用中</em>' : '') + '</b><small>' + sub + '</small></button>' + info + '</div>';
+    }
+    var main = books.filter(function (b) { return !b.grp; }), more = books.filter(function (b) { return b.grp === 'more'; });
+    var sel = books.filter(function (b) { return b.id === st.vbinfo; })[0];
+    return '<section class="card"><h2>' + (L[0] === 'eng' ? '英単語帳をえらぶ' : '単語帳') + '</h2>' +
+      '<div class="vb-shelf">' + main.map(card).join('') + '</div>' +
+      (more.length ? '<h3 class="vb-grp">そのほかの単語帳</h3><div class="vb-shelf">' + more.map(card).join('') + '</div>' : '') +
+      (sel ? '<div class="vb-desc" role="status"><b>' + h(sel.name) + '</b><p>' + h(sel.desc) + '</p>' + (sel.bank && sel.done && sel.total && sel.doneMain < sel.total ? '<small>いま入っているのは見出し語 ' + sel.doneMain.toLocaleString() + '語(全 ' + sel.total.toLocaleString() + '語)です。</small>' : '') + '</div>' : '') +
+      '</section>';
   }
 
   /* ========== トップ画面 ========== */
@@ -1239,6 +1251,7 @@ WPS.makeVocab = function (ctx) {
       });
     });
     view.querySelectorAll('[data-vsubj]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-vsubj'); var f = lists().filter(function (x) { return x.L[0] === k; })[0]; if (f) st.list = f.i; st.src = 'all'; re(); }); });
+    view.querySelectorAll('[data-vbinfo]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-vbinfo'); st.vbinfo = st.vbinfo === v ? null : v; var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }); });
     view.querySelectorAll('[data-vlist]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-vlist'); st.list = /^my:/.test(v) ? v : +v; st.src = 'all'; re(); }); });
     var rg = view.querySelector('#vrGo');
     if (rg) rg.addEventListener('click', function () {

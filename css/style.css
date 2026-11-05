@@ -1495,6 +1495,17 @@ body { background: var(--bg); letter-spacing: .04em; }
 .vb-book small { color: var(--muted); font-size: .76rem; }
 .vb-book.on { border-color: var(--primary); } .vb-book.on b { color: var(--primary); }
 .vb-book.off { background: var(--line); opacity: .7; cursor: default; }
+.vb-cell { position: relative; min-width: 0; }
+.vb-cell .vb-book { width: 100%; height: 100%; min-height: 104px; }
+.vb-cell .vb-book b { font-size: clamp(.9rem, 4.3vw, 1.08rem); word-break: keep-all; overflow-wrap: anywhere; }
+.vb-cell .vb-book small { padding-right: 34px; }
+.vb-q { position: absolute; right: 10px; bottom: 10px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(120, 130, 150, .14); color: var(--muted); font-weight: 800; font-size: .85rem; cursor: pointer; }
+.vb-q[aria-expanded="true"] { background: var(--primary); color: #fff; }
+.vb-now { font-style: normal; margin-left: 6px; padding: 0 6px; border-radius: 6px; background: var(--primary); color: #fff; font-size: .68rem; }
+.vb-grp { margin: 16px 0 8px; font-size: .9rem; color: var(--muted); }
+.vb-desc { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #f1f6ff; font-size: .86rem; }
+.vb-desc p { margin: 4px 0; }
+.vb-desc small { color: var(--muted); }
 .vt-der { font-style: normal; font-size: .66rem; font-weight: 800; background: var(--line); color: var(--muted); border-radius: 4px; padding: 1px 5px; margin-right: 4px; white-space: nowrap; }
 /* 論述カットイン */
 .rj-sum { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 12px; font-size: .88rem; }
