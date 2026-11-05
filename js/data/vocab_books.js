@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは「大学受験 基礎」Part 1〜9・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜9・14 と Part 13 の一部を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -2757,6 +2757,147 @@ annual|年に1度の、毎年の
 bleed|出血する
 crash|衝突する、墜落する、衝突
 specialize|(specialize inで)専門にする
+`;
+// Part 13:画面写真から 138語(見出し110・派生28)を入力。全257語(見出し211・派生46)のうち、残りは写真を受け取りしだい追加
+WPS.VBOOK_DATA.base[13] = `
+congressman|国会議員|派
+script|台本
+haven|避難所
+shoes|靴
+scary|恐ろしい
+where|〜するところで
+widow|未亡人
+gloss|光沢
+sneer|あざ笑う
+creep|這う
+query|質問
+entry|記事、入ること、記入項目
+emoji|絵文字
+moist|湿った
+clone|クローン
+taboo|タブー
+creed|信条
+abide|(abide byで)従う
+epoch|時代
+olive|オリーブ
+villa|別荘
+house|収容する、家
+manga|マンガ
+deity|神
+broth|だし
+table|表、食卓／テーブル
+paste|貼る、のり
+kneel|ひざまずく
+scrub|ごしごし磨く
+water|水辺、水をやる、水
+video|映像
+lapse|経過する
+might|かもしれない、(名詞で)力
+badly|下手に、ひどく
+owner|所有者
+ownership|所有権|派
+madam|奥様
+usual|いつもの
+unusual|珍しい|派
+puppy|子犬
+aloud|声を出して
+geography|地理
+geographer|地理学者|派
+geographical|地理の|派
+geographic|地理的な|派
+biography|伝記
+proverb|ことわざ
+proverbial|ことわざの|派
+asteroid|小惑星
+fluent|流暢な
+fluently|流ちょうに|派
+fluency|流暢さ|派
+neutral|中立の、(色が)控えめな
+eternal|永遠の
+oppress|圧迫する
+oppression|抑圧|派
+trigger|引き起こす、(銃の)引き金
+formula|公式、方法、(数学の)公式
+formulaic|決まり文句の|派
+formulation|定式化、策定|派
+nourish|栄養を与える
+dignity|威厳
+pension|年金
+deficit|赤字
+distort|歪める
+distortion|ゆがみ|派
+refrain|(refrain fromで)控える
+squeeze|搾る
+execute|実行する、処刑する
+executive|幹部|派
+suspend|吊るす、中断する
+extract|抽出する、抜粋
+inspect|検査する
+inspection|検査|派
+inspector|視察官|派
+erosion|侵食
+exploit|利用する、搾取する
+exploitation|搾取|派
+nurture|育てる
+ongoing|進行中の
+worship|崇拝
+startle|驚かせる
+startling|驚くべき|派
+despise|軽蔑する
+discard|捨てる
+inhibit|抑制する
+inhibition|抑制、ためらい／遠慮|派
+inhibitor|阻害物質|派
+prolong|長引かせる
+posture|姿勢
+sibling|兄弟姉妹
+immense|莫大な
+migrate|移住する、渡る
+fuss|大騒ぎ
+quarrel|口論する
+pregnant|妊娠した
+astronomy|天文学
+passion|情熱
+guideline|ガイドライン
+genius|天賦の才
+subscribe|定期購読する、(subscribe toで)賛同する
+subscriber|加入者|派
+hemisphere|半球
+skeleton|骨格
+companion|仲間
+artistic|芸術的な
+antibiotic|抗生物質
+antibiotics|抗生物質|派
+ponder|熟考する
+dismay|うろたえさせる
+asylum|亡命
+feudal|封建制の
+solemn|厳粛な
+notify|知らせる
+mortal|致命的な、死を免れない
+mortality|死亡率|派
+finite|有限の
+infinite|無限の|派
+infinitely|無限に|派
+utmost|最大限の
+excess|過剰
+excessive|過度の|派
+versus|〜対〜
+awaken|目覚めさせる
+litter|散らかす
+refuge|避難
+aspire|(aspire toで)熱望する
+aspiration|熱望|派
+clinic|診療所
+clinical|臨床の|派
+overdo|やり過ぎる
+gently|優しく
+series|連続
+literary|文学の
+liberal|自由主義の、(liberal artsで)一般教養の、寛大な
+compliment|褒め言葉
+perfume|香水
+feast|宴会
 `;
 WPS.VBOOK_DATA.base[14] = `
 adjective|形容詞
