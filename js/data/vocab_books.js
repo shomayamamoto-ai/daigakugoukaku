@@ -36,7 +36,7 @@ if (WPS.KOBUN_BOOK) {
    ['kobun_jo', '古典常識', 'kobun_jo', 12, 18, function (n) { return n; }]].forEach(function (c) {
     var parts = [], data = {};
     for (var i = c[3]; i <= c[4]; i++) { var pr = KB[i - 1]; parts.push([pr[0], pr[1], c[5](pr[2])]); data[i - c[3] + 1] = KD[i]; }
-    WPS.VBOOKS.push({ id: c[0], name: c[1], bank: c[2], named: 1, subj: 'jpn', parts: parts, total: c[0] === 'kobun_jo' ? 199 : parts.reduce(function (a, x) { return a + x[0]; }, 0) }); // 古典常識は「住まい・調度・乗り物」の2語が未入力
+    WPS.VBOOKS.push({ id: c[0], name: c[1], bank: c[2], named: 1, subj: 'jpn', parts: parts, total: parts.reduce(function (a, x) { return a + x[0]; }, 0) });
     WPS.VBOOK_DATA[c[0]] = data;
   });
 }
