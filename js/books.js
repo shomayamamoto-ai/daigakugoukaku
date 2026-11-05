@@ -160,6 +160,19 @@ WPS.makeBooks = function (ctx) {
       if (L.test && L.test.length) html += sec('単元まとめテスト', 'lz-test') + '<p class="muted small">全' + L.test.length + '問。紙に答えを書いてから、1問ずつ「答え」を開いて丸つけしましょう。8問以上で合格です。</p><ol class="lz-dl lz-tl">' + L.test.map(function (t) {
         return '<li><p class="lz-dq">' + rt(t.q) + '</p>' + (t.choices && t.choices.length ? '<ol class="tl-ch" type="A">' + t.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') + '<details><summary>答え</summary><p class="lz-da">答え:<b>' + rt(t.a) + '</b></p>' + (t.exp ? paras(t.exp) : '') + '</details></li>';
       }).join('') + '</ol></section>';
+      // 入試の頻出テーマと解法パターン
+      if (L.pat && L.pat.length) html += sec('入試の頻出テーマと解法', 'lz-pat') + '<p class="muted small">この単元で入試によく出る問題の「型」と、型ごとの解き方です。問題を見たら、まずどの型かを見分けましょう。</p>' + L.pat.map(function (pt, k) {
+        return '<div class="pat-card"><p class="pat-h"><span>型' + (k + 1) + '</span>' + rt(pt.name) + (pt.freq ? '<em>' + h(pt.freq) + '</em>' : '') + '</p>' + (pt.when ? '<p class="pat-w"><b>見分け方</b>' + rt(pt.when) + '</p>' : '') +
+          (pt.how && pt.how.length ? '<ol class="pat-how">' + pt.how.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ol>' : '') +
+          (pt.ex ? '<details class="rx-q"><summary><b>例題</b>' + rt(pt.ex.q) + '</summary><p class="lz-da">答え:<b>' + rt(pt.ex.a) + '</b></p>' + paras(pt.ex.exp || '') + '</details>' : '') + '</div>';
+      }).join('') + '</section>';
+      // 演習問題集(レベル別)
+      if (L.more && L.more.length) {
+        var LVN = ['', '基礎', '標準', '難関'];
+        html += sec('演習問題集(' + L.more.length + '問)', 'lz-more') + '<div class="mq-tabs" role="group" aria-label="レベル">' + [0, 1, 2, 3].map(function (v) { var n = v ? L.more.filter(function (m) { return (m.lv || 1) === v; }).length : L.more.length; return '<button type="button" data-mqlv="' + v + '"' + (v ? '' : ' class="on"') + '>' + (v ? LVN[v] : 'すべて') + '<small>' + n + '</small></button>'; }).join('') + '</div><ol class="lz-dl mq-list">' + L.more.map(function (m) {
+          return '<li data-lv="' + (m.lv || 1) + '"><p class="lz-dq"><em class="lv' + (m.lv || 1) + '">' + LVN[m.lv || 1] + '</em>' + rt(m.q) + '</p>' + (m.choices && m.choices.length ? '<ol class="tl-ch" type="A">' + m.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') + '<details><summary>答えと解説</summary><p class="lz-da">答え:<b>' + rt(m.a) + '</b></p>' + paras(m.exp || '') + '</details></li>';
+        }).join('') + '</ol></section>';
+      }
       // 思考問題・探究(資料・会話・実験を読んで考える)
       if (L.think && L.think.length) html += sec('思考問題・探究', 'lz-think') + '<p class="muted small">資料や会話を読んで考える、共通テストの思考力問題に近い形式です。</p>' + L.think.map(function (t, k) {
         return '<div class="bk-board lz-ex"><div class="bk-bh"><b>思考問題' + (k + 1) + '</b><em>' + h(t.kind || '探究') + '</em></div><div class="bk-bb">' + (t.ctx ? '<div class="th-ctx">' + paras(t.ctx) + '</div>' : '') + '<p class="bk-q">' + rt(t.q) + '</p>' +
@@ -236,6 +249,7 @@ WPS.makeBooks = function (ctx) {
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       var id = p[1];
       if (!view.querySelector('#bkBm')) return; // 読み込み中
+      view.querySelectorAll('[data-mqlv]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-mqlv'); view.querySelectorAll('[data-mqlv]').forEach(function (x) { x.classList.toggle('on', x === b); }); view.querySelectorAll('.mq-list > li').forEach(function (li) { li.style.display = v === '0' || li.getAttribute('data-lv') === v ? '' : 'none'; }); }); });
       var ac = view.querySelector('#acBox'), LL = WPS.LESSONS[id];
       if (ac && LL && LL.cards) {
         var KEY = 'wpsCards', known = (function () { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } })(), kk = known[id] = known[id] || {};

@@ -2491,3 +2491,12 @@ body.locked .tl-panel, body.locked .tl-dock { display: none !important; }
 .sheet-b b { display: block; color: #8a6a1f; margin-bottom: 4px; } .sheet-b ul { margin: 0; padding-left: 1.2em; } .sheet-b li { line-height: 1.75; margin: 2px 0; font-size: 14px; }
 .sheet-k { margin: 12px 0 8px; padding: 10px 12px; border-radius: 10px; background: #fdf3d6; line-height: 1.8; } .sheet-k b { display: block; font-size: 12px; color: #a16207; }
 @media print { body.print-sheet * { visibility: hidden; } body.print-sheet .lz-sheet, body.print-sheet .lz-sheet * { visibility: visible; } body.print-sheet .lz-sheet { position: absolute; left: 0; top: 0; width: 100%; } .sheet-p { display: none; } }
+/* 入試の頻出テーマと解法・演習問題集 */
+.pat-card { margin: 10px 0; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); border-left: 4px solid #b48c40; }
+.pat-h { margin: 0 0 6px; font-weight: 800; font-size: 15.5px; line-height: 1.6; } .pat-h span { display: inline-block; margin-right: 8px; padding: 1px 8px; border-radius: 6px; background: #b48c40; color: #fff; font-size: 12px; vertical-align: 2px; }
+.pat-h em { font-style: normal; margin-left: 8px; font-size: 11.5px; color: #a16207; background: #fdf3d6; border-radius: 6px; padding: 1px 7px; vertical-align: 2px; }
+.pat-w { margin: 4px 0; line-height: 1.8; } .pat-w b { display: block; font-size: 12px; color: var(--muted); }
+.pat-how { margin: 6px 0; padding-left: 1.4em; } .pat-how li { line-height: 1.8; margin: 2px 0; }
+.mq-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 10px; }
+.mq-tabs button { border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; cursor: pointer; } .mq-tabs button small { margin-left: 4px; color: var(--muted); font-weight: 400; }
+.mq-tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; } .mq-tabs button.on small { color: rgba(255,255,255,.8); }
