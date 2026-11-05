@@ -160,6 +160,21 @@ WPS.makeBooks = function (ctx) {
       if (L.test && L.test.length) html += sec('単元まとめテスト', 'lz-test') + '<p class="muted small">全' + L.test.length + '問。紙に答えを書いてから、1問ずつ「答え」を開いて丸つけしましょう。8問以上で合格です。</p><ol class="lz-dl lz-tl">' + L.test.map(function (t) {
         return '<li><p class="lz-dq">' + rt(t.q) + '</p>' + (t.choices && t.choices.length ? '<ol class="tl-ch" type="A">' + t.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') + '<details><summary>答え</summary><p class="lz-da">答え:<b>' + rt(t.a) + '</b></p>' + (t.exp ? paras(t.exp) : '') + '</details></li>';
       }).join('') + '</ol></section>';
+      // 思考問題・探究(資料・会話・実験を読んで考える)
+      if (L.think && L.think.length) html += sec('思考問題・探究', 'lz-think') + '<p class="muted small">資料や会話を読んで考える、共通テストの思考力問題に近い形式です。</p>' + L.think.map(function (t, k) {
+        return '<div class="bk-board lz-ex"><div class="bk-bh"><b>思考問題' + (k + 1) + '</b><em>' + h(t.kind || '探究') + '</em></div><div class="bk-bb">' + (t.ctx ? '<div class="th-ctx">' + paras(t.ctx) + '</div>' : '') + '<p class="bk-q">' + rt(t.q) + '</p>' +
+          (t.choices && t.choices.length ? '<ol class="tl-ch th-ch" type="1">' + t.choices.map(function (c) { return '<li>' + rt(c) + '</li>'; }).join('') + '</ol>' : '') +
+          '<details><summary>答えと考え方</summary><p class="bk-ans">答え:<b>' + rt(t.a) + '</b></p>' + paras(t.exp || '') + '</details></div></div>';
+      }).join('') + '</section>';
+      // 暗記カード(押すと裏返る。覚えたものは印をつけて、次から後ろへ)
+      if (L.cards && L.cards.length) html += sec('暗記カード', 'lz-cards') + '<p class="muted small">カードを押すと答えが出ます。「覚えた」を押したカードは、次から後回しになります。</p><div class="ac" id="acBox" data-u="' + id + '"></div></section>';
+      // 1ページまとめ
+      if (L.sheet) {
+        var sh = L.sheet;
+        html += sec('1ページまとめ', 'lz-sheet') + '<div class="sheet"><p class="sheet-t">' + h(sh.title || u.name) + '</p><div class="sheet-g">' + (sh.blocks || []).map(function (b) {
+          return '<div class="sheet-b"><b>' + rt(b.h) + '</b><ul>' + (b.items || []).map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ul></div>';
+        }).join('') + '</div>' + (sh.key ? '<p class="sheet-k"><b>これだけは</b>' + rt(sh.key) + '</p>' : '') + '<button type="button" class="btn small sheet-p" onclick="document.body.classList.add(\'print-sheet\');window.print();document.body.classList.remove(\'print-sheet\')">印刷する</button></div></section>';
+      }
       // つながる知識
       if (L.link) {
         var lk = L.link;
@@ -221,6 +236,30 @@ WPS.makeBooks = function (ctx) {
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       var id = p[1];
       if (!view.querySelector('#bkBm')) return; // 読み込み中
+      var ac = view.querySelector('#acBox'), LL = WPS.LESSONS[id];
+      if (ac && LL && LL.cards) {
+        var KEY = 'wpsCards', known = (function () { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } })(), kk = known[id] = known[id] || {};
+        var order = LL.cards.map(function (_, i) { return i; }).sort(function (a, b) { return (kk[a] ? 1 : 0) - (kk[b] ? 1 : 0); }), pos = 0, flip = false;
+        var drawCard = function () {
+          var i = order[pos], c = LL.cards[i], n = Object.keys(kk).length;
+          ac.innerHTML = '<div class="ac-top"><span>' + (pos + 1) + ' / ' + order.length + '</span><span>覚えた ' + n + '枚</span></div>' +
+            '<button type="button" class="ac-card' + (flip ? ' flip' : '') + (kk[i] ? ' known' : '') + '" aria-label="カードを裏返す"><span class="ac-side">' + (flip ? '答え' : '問題') + '</span><span class="ac-txt">' + rt(flip ? c[1] : c[0]) + '</span>' + (flip ? '' : '<small>押すと答え</small>') + '</button>' +
+            '<div class="ac-btns"><button type="button" class="btn" data-ac="prev">‹ 前へ</button><button type="button" class="btn' + (kk[i] ? '' : ' primary') + '" data-ac="ok">' + (kk[i] ? '覚えたを外す' : '覚えた ✓') + '</button><button type="button" class="btn" data-ac="next">次へ ›</button></div>' +
+            '<div class="ac-btns2"><button type="button" class="btn ghost small" data-ac="shuf">シャッフル</button><button type="button" class="btn ghost small" data-ac="list">一覧で見る</button></div>';
+        };
+        var saveK = function () { try { localStorage.setItem(KEY, JSON.stringify(known)); } catch (e) { } };
+        ac.addEventListener('click', function (ev) {
+          if (ev.target.closest('.ac-card')) { flip = !flip; drawCard(); return; }
+          var b = ev.target.closest('[data-ac]'); if (!b) return; var k = b.getAttribute('data-ac'), i = order[pos];
+          if (k === 'prev') { pos = (pos + order.length - 1) % order.length; flip = false; }
+          else if (k === 'next') { pos = (pos + 1) % order.length; flip = false; }
+          else if (k === 'ok') { if (kk[i]) delete kk[i]; else { kk[i] = 1; pos = (pos + 1) % order.length; flip = false; } saveK(); }
+          else if (k === 'shuf') { for (var j = order.length - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)), t = order[j]; order[j] = order[r]; order[r] = t; } pos = 0; flip = false; }
+          else if (k === 'list') { ac.innerHTML = '<dl class="ac-list">' + LL.cards.map(function (c, j) { return '<dt>' + (kk[j] ? '✓ ' : '') + rt(c[0]) + '</dt><dd>' + rt(c[1]) + '</dd>'; }).join('') + '</dl><button type="button" class="btn small" data-ac="back">カードにもどる</button>'; return; }
+          drawCard();
+        });
+        drawCard();
+      }
       if (!S.isView()) { var bb = B(); bb.read[id] = Date.now(); bb.last = { b: b.id, u: id }; bb.t = bb.t || {}; bb.t[b.id] = Date.now(); S.save(); }
       view.querySelector('#bkBm').addEventListener('click', function () { var m = B().bm; if (m[id]) delete m[id]; else m[id] = Date.now(); S.save(); this.classList.toggle('on', !!m[id]); this.setAttribute('aria-pressed', !!m[id]); });
       view.querySelector('#bkPractice').addEventListener('click', function () { ctx.practice(id); });
