@@ -2579,3 +2579,61 @@ body.lsp-open { overflow: hidden; }
 .lsp-rate button.on { background: rgba(255, 255, 255, .14); color: #fff; }
 .lsp-note { margin: 14px 0 0; font-size: .76rem; color: #7d8bb0; text-align: center; max-width: 30em; }
 @media (prefers-reduced-motion: reduce) { .lsp-eq i { animation: none; } }
+/* ---------- メンタルコーチ(こころの部屋) ---------- */
+.mind-q h2 { margin: 0; font-size: 1rem; }
+.mq-faces { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px; }
+.mq-face { flex: 1 1 56px; min-width: 56px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer; font: inherit; color: var(--text); }
+.mq-face small { font-size: .62rem; color: var(--muted); line-height: 1.2; text-align: center; word-break: keep-all; overflow-wrap: anywhere; }
+.mq-face input { position: absolute; opacity: 0; pointer-events: none; }
+.mq-face.on, .mq-face:hover { border-color: var(--primary); background: var(--primary-weak); }
+.mc-list { display: grid; gap: 10px; }
+.mc-item { border-left: 4px solid var(--primary); background: #f6f8fc; border-radius: 10px; padding: 10px 12px; }
+.mc-item b { display: block; margin-bottom: 4px; }
+.mc-item p { margin: 0 0 8px; font-size: .88rem; line-height: 1.7; }
+.mc-sos { border-left-color: #d0342c; background: #fff3f2; }
+.mc-write, .mc-breath { border-left-color: #0fa3b8; }
+.mc-sleep { border-left-color: #6b5bd6; }
+.mind-back .mb-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; margin-top: 10px; }
+.mb-opt { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); text-align: left; color: var(--text); text-decoration: none; font: inherit; cursor: pointer; }
+.mb-opt small { color: var(--muted); font-size: .76rem; }
+.mb-opt:hover { border-color: var(--primary); }
+.mind-form .mf-row { display: grid; grid-template-columns: 6.5em 1fr; gap: 10px; align-items: center; margin: 10px 0; }
+.mind-form .mf-row > span { font-weight: 700; font-size: .88rem; }
+@media (max-width: 480px) { .mind-form .mf-row { grid-template-columns: 1fr; gap: 4px; } }
+.mf-scale { display: flex; gap: 6px; }
+.mf-scale label { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 6px 0; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; }
+.mf-scale label.on { border-color: var(--primary); background: var(--primary-weak); }
+.mf-scale input { position: absolute; opacity: 0; pointer-events: none; }
+.mf-scale i { font-style: normal; font-weight: 800; }
+.mf-scale small { font-size: .62rem; color: var(--muted); }
+.mf-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.mf-tags .chip { --c: var(--muted); cursor: pointer; padding: 4px 12px; font-size: .8rem; background: var(--card); }
+.mf-tags .chip.on { --c: var(--primary); background: var(--primary-weak); }
+.mf-tags input { position: absolute; opacity: 0; pointer-events: none; }
+.mf-note { display: grid; gap: 4px; margin: 10px 0; font-weight: 700; font-size: .88rem; }
+.mf-note textarea, .mind-write textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; }
+.mind-graph { width: 100%; height: auto; display: block; }
+.mg-grid { stroke: var(--line); stroke-dasharray: 3 4; }
+.mg-line { fill: none; stroke: #8aa0c8; stroke-width: 2; }
+.mg-study { fill: #4fae84; }
+.mind-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; }
+.mind-tools a { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--text); }
+.mind-tools a small { color: var(--muted); font-size: .76rem; }
+.mind-sos { border: 1.5px solid #f2c4c0; }
+.sos-list { display: grid; gap: 8px; margin: 10px 0; }
+.sos-item { display: grid; gap: 2px; padding: 12px; border-radius: 12px; background: #fff6f5; text-decoration: none; color: var(--text); }
+.sos-item span { font-size: 1.15rem; font-weight: 800; color: #b42318; }
+.sos-item small { color: var(--muted); font-size: .78rem; }
+.mind-wins li { margin: 6px 0; }
+.br-stage { position: relative; height: 240px; display: grid; place-items: center; margin: 10px 0; }
+.br-ring { width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 163, 184, .35), rgba(47, 91, 211, .15)); border: 2px solid rgba(15, 163, 184, .6); transform: scale(.6); transition: transform .12s linear; }
+.br-stage b { position: absolute; font-size: 1rem; }
+.mw-timer { font-size: 1.6rem; font-weight: 800; text-align: center; margin: 8px 0; color: var(--primary); }
+.mp-ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.mp-ex .chip { --c: var(--primary); cursor: pointer; background: var(--card); padding: 4px 10px; white-space: normal; text-align: left; }
+.mind-planf label { display: grid; gap: 4px; margin: 8px 0; font-weight: 700; }
+.mind-planf input { font: inherit; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; }
+.mind-plans li { margin: 6px 0; }
+.mind-risk .mr-level { font-size: 1rem; padding: 8px 12px; border-radius: 10px; background: #eef7f1; }
+.mind-risk .mr-level.warn { background: #fff7e6; }
+.mind-risk .mr-level.alert { background: #fff0ef; }

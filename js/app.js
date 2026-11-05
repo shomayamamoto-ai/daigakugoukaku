@@ -107,6 +107,9 @@
   function say(text, mood, size) {
     return '<div class="say">' + pinpo(size || 64, mood) + '<div class="bubble">' + text + '</div></div>';
   }
+  if (WPS.Mind) WPS.Mind.init({ h: function (x) { return h(x); }, say: say, toast: function (m) { toast(m); }, go: function (x) { go(x); } });
+  function renderMind(arg) { return WPS.Mind ? WPS.Mind.page(arg) : ''; }
+  renderMind.after = function (arg) { if (WPS.Mind) WPS.Mind.after(arg, view, render); };
 
   var LINES = {
     greet: ['今日もきてくれて、うれしいな！', 'いっしょに弱点をねらい撃ちしよう 🎯', '小さな一歩でも、ちゃんと前に進んでいるよ。', '昨日の自分より、ちょっとだけ前へ。それで十分だよ。'],
@@ -141,7 +144,7 @@
     });
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
-      study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor,
+      study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
       memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, map: renderMap, books: renderBooks, etrain: renderEtrain
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'etrain' && ET.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
@@ -157,7 +160,7 @@
   var BANDS = {
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
-    univ: ['Universities', '大学データ'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
+    univ: ['Universities', '大学データ'], mind: ['Mind', 'こころの部屋'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
     study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト'], etrain: ['English Training', '英語 リスニング・ライティング']
   };
   function pageBand(route) {
@@ -683,6 +686,7 @@
     var rm = R.build();
     var tt = R.todayTasks(rm);
     vocabTasks(rm).forEach(function (x) { tt.tasks.push(x); });
+    if (WPS.Mind) tt.tasks = WPS.Mind.liteTasks(tt.tasks);
     var streak = WPS.Streak.count();
     var studied = WPS.Streak.studiedToday();
     var left = Math.ceil(WPS.Streak.hoursLeft());
@@ -704,6 +708,7 @@
       html += '<section class="info">🎁 7日連続達成のごほうびに「おやすみチケット」をプレゼント！ 1日休んでも記録が守られるよ。</section>';
     }
 
+    if (WPS.Mind) html += WPS.Mind.homeCards();
     var greet = studied ? pick(['今日もちゃんと進めたね！ えらい！', 'いい調子！ 今日のきみは一歩前進したよ 🌱']) : pick(LINES.greet);
     html += nextAction(tt);
     html += timeRing(tt);
@@ -753,7 +758,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -774,6 +779,7 @@
   });
   renderHome.after = function () {
     mountOwl('owlHome', true);
+    if (WPS.Mind) WPS.Mind.bindHome(view, render);
     var sb = document.getElementById('startBasic');
     if (sb) sb.addEventListener('click', function () { var ids = levelPick(1, null, 10); if (!ids.length) { toast('問題が見つかりませんでした'); return; } startQuiz(ids, 'study', '基礎レベル演習'); });
     var na = document.getElementById('naRetry'); if (na) na.addEventListener('click', function () { var r = document.getElementById('retryWrong'); if (r) r.click(); });
@@ -2182,7 +2188,8 @@
       '<tr><th>志望校</th><td>' + h(t.school ? t.school.name : '未設定') + ' ' + h(p.schoolName) + ' ' + h(p.track) + '</td></tr>' +
       '<tr><th>本番まで</th><td>' + rm.days + '日(' + h(t.exam) + ')</td></tr>' +
       '<tr><th>学習の継続</th><td>連続 ' + WPS.Streak.count() + '日 ／ 直近14日のうち ' + last14 + '日学習</td></tr>' +
-      '<tr><th>解答数</th><td>テスト・演習 ' + testAttempts.length + '問 ／ 単語帳 ' + (s.attempts.length - testAttempts.length) + '枚</td></tr></table></section>';
+      '<tr><th>解答数</th><td>テスト・演習 ' + testAttempts.length + '問 ／ 単語帳 ' + (s.attempts.length - testAttempts.length) + '枚</td></tr></table></section>' +
+      (WPS.Mind ? WPS.Mind.tutorSection() : '');
 
     if (!testAttempts.length) {
       html += kptReport();

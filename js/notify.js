@@ -59,8 +59,9 @@ WPS.Notify = (function () {
   function messages() {
     var n = WPS.Streak.count();
     var h = Math.ceil(WPS.Streak.hoursLeft());
+    var soft = WPS.Mind && WPS.Mind.notifyLine ? WPS.Mind.notifyLine() : null; // 休みが続いている・つらそうなときは、やさしい言い方にする
     return {
-      remind: {
+      remind: soft || {
         title: 'ピンポより 🦉',
         body: n > 0
           ? n + '日連続の記録、今日もいっしょにつなごう！ カード5枚だけでも大丈夫だよ。'
