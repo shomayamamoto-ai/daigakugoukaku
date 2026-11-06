@@ -14,6 +14,7 @@
     if (force) return true;
     var q = location.search;
     if (/[?&](nointro|notour)\b/.test(q)) return false;
+    if (/bot|crawl|spider|slurp|lighthouse|headless|google-inspectiontool|bingpreview/i.test(navigator.userAgent || '')) return false; // 検索・AIのロボットには流さない
     return true; // 開くたびに必ず流す(画面の切りかえでは流れない)
   }
 

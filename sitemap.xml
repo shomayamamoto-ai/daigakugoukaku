@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/home.html</loc><lastmod>2026-11-06</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/manual.html</loc><lastmod>2026-11-06</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/home.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/guide/</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/guide/nigate.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/guide/plan.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/guide/30min.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/guide/mental.html</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://shomayamamoto-ai.github.io/daigakugoukaku/manual.html</loc><lastmod>2026-11-06</lastmod></url>
 </urlset>

@@ -1,4 +1,4 @@
-# Aqualium(アクアリウム)
+# Aqualium(アクエリアム)
 
 > 個別最適化オンライン家庭教師。テストの答案から「どの単元の、どの思考レベル」でつまずいているかを分析し、弱点だけを集めた専用教材と1回30分のマンツーマン指導で、志望校までの最短ルートをつくるサービスです。
 
@@ -28,3 +28,9 @@
 - [サービス紹介(公式)](https://shomayamamoto-ai.github.io/daigakugoukaku/home.html)
 - [学習アプリ(無料診断テスト)](https://shomayamamoto-ai.github.io/daigakugoukaku/)
 - [使い方マニュアル](https://shomayamamoto-ai.github.io/daigakugoukaku/manual.html)
+
+## 学習ガイド(記事)
+- [本当の苦手単元の見つけ方](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/nigate.html):まちがいを「知識・理解・応用」に分け、前の単元へさかのぼって原因を見つける手順
+- [志望校から逆算する受験勉強の計画の立て方](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/plan.html):基礎・応用・実践の3つの時期と、配点に合わせた優先順位
+- [1回30分の個別指導で成績を上げるしくみ](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/30min.html):自習と授業の役割分担、質問メモ、口頭試問
+- [受験の不安とうまくつきあう方法](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/mental.html):不安の書き出し・緊張のとらえ直し・「もし〜なら」計画など、研究にもとづく5つの方法
