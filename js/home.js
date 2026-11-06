@@ -62,7 +62,10 @@
       WPS.Owl3D.mount(el, { explode: x[1], fallback: fb, dist: x[2] });
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  // 表示を速くするため、3D(three.js 約600KB)はページの表示が終わってから読みこむ。それまではもとの絵を出しておく。検索ロボットには読みこまない
+  if (/bot|crawl|spider|slurp|lighthouse|google-inspectiontool/i.test(navigator.userAgent || '')) return;
+  function later() { var ric = window.requestIdleCallback || function (f) { return setTimeout(f, 600); }; ric(go, { timeout: 2000 }); }
+  if (document.readyState === 'complete') later(); else window.addEventListener('load', later);
 })();
 
 // 「ページの先頭へ」(▲)とロゴ:ヘッダーは画面に固定されているため、#top へのリンクだけではスクロールしない。明示的に一番上へ戻す

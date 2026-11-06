@@ -34,3 +34,7 @@
 - [志望校から逆算する受験勉強の計画の立て方](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/plan.html):基礎・応用・実践の3つの時期と、配点に合わせた優先順位
 - [1回30分の個別指導で成績を上げるしくみ](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/30min.html):自習と授業の役割分担、質問メモ、口頭試問
 - [受験の不安とうまくつきあう方法](https://shomayamamoto-ai.github.io/daigakugoukaku/guide/mental.html):不安の書き出し・緊張のとらえ直し・「もし〜なら」計画など、研究にもとづく5つの方法
+
+## そのほか
+- [使い方マニュアル(操作動画12本・よくある質問)](https://shomayamamoto-ai.github.io/daigakugoukaku/manual.html)
+- [全文版(llms-full.txt)](https://shomayamamoto-ai.github.io/daigakugoukaku/llms-full.txt)
