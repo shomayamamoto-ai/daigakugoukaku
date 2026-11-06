@@ -1,0 +1,19 @@
+# Aqualium
+User-agent: *
+Allow: /
+Disallow: /server/
+Disallow: /tools/
+
+# AI検索・AIアシスタントのクローラーも、紹介ページの閲覧を許可
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://shomayamamoto-ai.github.io/daigakugoukaku/sitemap.xml
