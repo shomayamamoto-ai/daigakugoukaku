@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜10・13・14 を入力済み。Part 11 は300語中283語を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜11・13・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -3061,7 +3061,7 @@ divorce|離婚する
 virtual|仮想の、事実上の
 virtually|事実上|派
 `;
-// Part 11:画面写真から入力(2回分・283語。続きは受け取りしだい追加)
+// Part 11:画面写真から全300語(見出し250・派生50)を入力
 WPS.VBOOK_DATA.base[11] = `
 spectator|観客
 extraordinary|並外れた
@@ -3346,6 +3346,23 @@ coin|硬貨、(新語を)作り出す
 wane|衰える
 post|投稿する、地位／職、郵便
 hive|ミツバチの巣
+slip|滑る
+knot|結び目
+flip|裏返す
+shortage|不足
+vanish|消える
+selfish|自分勝手な
+attain|達成する
+attainment|達成|派
+hazard|危険
+bounce|跳ねる
+revise|修正する
+sphere|球体、領域
+plague|疫病
+immune|免疫がある、免れた
+scheme|計画、陰謀
+treaty|条約
+compel|強制する
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
