@@ -26,7 +26,7 @@
 
 ## ページ
 - [サービス紹介(公式)](https://shomayamamoto-ai.github.io/daigakugoukaku/home.html)
-- [学習アプリ(無料診断テスト)](https://shomayamamoto-ai.github.io/daigakugoukaku/)
+- [無料診断テスト(約10分・登録不要)](https://shomayamamoto-ai.github.io/daigakugoukaku/shindan.html)
 - [使い方マニュアル](https://shomayamamoto-ai.github.io/daigakugoukaku/manual.html)
 
 ## 学習ガイド(記事)
