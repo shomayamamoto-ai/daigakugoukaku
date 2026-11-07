@@ -142,6 +142,10 @@
     document.querySelectorAll('.nav a').forEach(function (a) {
       a.classList.toggle('active', a.getAttribute('data-r') === route || (route === 'test' && a.getAttribute('data-r') === 'home') || (route === 'study' && a.getAttribute('data-r') === 'books') || (route === 'cards' && a.getAttribute('data-r') === 'vocab'));
     });
+    // 「その他」にまとめた画面を開いているときは「その他」を光らせる
+    var more = document.querySelector('.nav .nav-more');
+    if (more) more.classList.toggle('active', ['timer', 'tutor', 'search', 'settings'].indexOf(route) >= 0);
+    navSheet(false);
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
@@ -2794,8 +2798,11 @@
     var box = document.getElementById('tourBox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'tourBox', className: 'tour-box' }));
     box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
     var el = st.sel ? document.querySelector(st.sel) : null;
+    // スマホでは「その他」にまとめた項目は、その他ボタンを指す
+    var inMore = el && el.offsetParent === null && el.closest('.nav');
+    if (inMore) el = document.querySelector('.nav .nav-more');
     var last = tourI === TOUR.length - 1;
-    box.innerHTML = '<p class="tour-step">' + (tourI + 1) + ' / ' + TOUR.length + '</p><h2>' + h(st.t) + '</h2><p>' + h(st.d) + '</p>' +
+    box.innerHTML = '<p class="tour-step">' + (tourI + 1) + ' / ' + TOUR.length + '</p><h2>' + h(st.t) + '</h2><p>' + h(st.d) + (inMore ? '(スマホでは下の「その他」の中にあります)' : '') + '</p>' +
       (st.link ? '<p><a href="' + st.link + '" target="_blank" rel="noopener">使い方マニュアル(動画つき)を開く</a></p>' : '') +
       '<div class="tour-btns"><button type="button" class="btn ghost" id="tourSkip">' + (last ? '閉じる' : 'スキップ') + '</button>' + (tourI ? '<button type="button" class="btn" id="tourPrev">戻る</button>' : '') + '<button type="button" class="btn primary" id="tourNext">' + (last ? 'はじめる' : '次へ') + '</button></div>';
     if (el) {
@@ -3386,8 +3393,25 @@
     on('syncStop', function () { ask('この端末の同期をやめますか?(データはこの端末に残ります)', 'やめる', function () { WPS.Sync.disable(); render(); }); });
   }
 
+  /* ---------- 下部ナビの「その他」 ---------- */
+  function navSheet(open) {
+    var sh = document.getElementById('navSheet'), btn = document.querySelector('.nav .nav-more');
+    if (!sh || !btn) return;
+    sh.hidden = !open; btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.classList.toggle('sheet-open', !!open);
+    if (open) { var f = sh.querySelector('a'); if (f) f.focus(); }
+  }
+  function bindNavSheet() {
+    var sh = document.getElementById('navSheet'), btn = document.querySelector('.nav .nav-more');
+    if (!sh || !btn) return;
+    btn.addEventListener('click', function () { navSheet(sh.hidden); });
+    sh.addEventListener('click', function (e) { if (e.target.closest('[data-close]') || e.target.closest('a')) navSheet(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sh.hidden) { navSheet(false); btn.focus(); } });
+  }
+
   /* ---------- 起動 ---------- */
   function boot() {
+    bindNavSheet();
     view = document.getElementById('view');
     applyPalette();
     if (WPS.univSchools) WPS.univSchools(); // 大学データの大学を志望校として使えるようにする

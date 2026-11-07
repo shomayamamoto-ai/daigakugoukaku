@@ -34,3 +34,8 @@ h3 { font-size: 1rem; margin: 18px 0 4px; }
 .g-ft { text-align: center; padding: 30px 16px; font-size: .8rem; color: var(--mut); }
 .g-ft nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-bottom: 8px; }
 img { max-width: 100%; height: auto; }
+/* タップしやすさ(44px目安) */
+.g-hd nav a, .g-ft nav a { display: inline-flex; align-items: center; min-height: 44px; }
+.g-hd nav { gap: 4px 14px; }
+.g-hd .g-cta { min-height: 44px; padding: 0 16px; }
+.g-ft nav { gap: 0 16px; }

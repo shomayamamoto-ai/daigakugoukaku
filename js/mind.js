@@ -18,7 +18,7 @@ WPS.Mind = (function () {
   function h(x) { return C ? C.h(x) : String(x == null ? '' : x); }
 
   /* ---------- 気分の顔(絵文字を使わない SVG) ---------- */
-  var FACE = ['', 'とてもつらい', 'つらい', 'ふつう', 'いい感じ', 'とてもいい'];
+  var FACE = ['', 'とても\u200bつらい', 'つらい', 'ふつう', 'いい感じ', 'とても\u200bいい'];
   var FACE_C = ['', '#7c8db0', '#8fa7c9', '#b9b48e', '#7fbf9a', '#4fae84'];
   function face(n, size) {
     size = size || 34;

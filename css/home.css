@@ -218,9 +218,11 @@ a { color: inherit; }
 .car-btn.prev { left: -8px; }
 .car-btn.next { right: -8px; }
 @media (min-width: 640px) { .car-btn { display: block; } .car-btn.prev { left: -22px; } .car-btn.next { right: -22px; } }
-.car-dots { display: flex; justify-content: center; gap: 8px; }
-.car-dots button { width: 8px; height: 8px; border-radius: 50%; border: 0; padding: 0; background: #c3cee3; cursor: pointer; }
-.car-dots button.on { background: var(--blue-600); width: 22px; border-radius: 6px; }
+.car-dots { display: flex; justify-content: center; gap: 0; }
+.car-dots button { position: relative; width: 24px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer; }
+.car-dots button::before { content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 4px; background: #c3cee3; transition: width .2s, margin .2s; }
+.car-dots button.on { width: 38px; }
+.car-dots button.on::before { width: 22px; margin-left: -11px; background: var(--blue-600); }
 
 .flow { background: var(--white); }
 .fcard { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
@@ -376,7 +378,7 @@ a { color: inherit; }
 .ft-nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; }
 @media (min-width: 640px) { .ft-nav { grid-template-columns: repeat(4, 1fr); } }
 .ft-nav ul { list-style: none; margin: 0; padding: 0; }
-.ft-nav a { display: inline-block; padding: 5px 0; font-size: 13px; text-decoration: none; color: #c9d4ee; }
+.ft-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0; font-size: 13px; text-decoration: none; color: #c9d4ee; }
 .ft-nav a:hover { color: #fff; }
 .ft-copy { text-align: center; margin: 40px 0 0; color: #7f8db0; }
 
@@ -562,4 +564,4 @@ body.sv-open { overflow: hidden; }
 .guide-links { max-width: 860px; margin: 30px auto 0; padding: 18px 20px; border-radius: 16px; background: #fff; border: 1px solid #dfe6f2; }
 .gl-ttl { font-weight: 700; margin: 0 0 6px; }
 .guide-links ul { margin: 0; padding-left: 1.2em; line-height: 2; }
-.gl-more { display: inline-block; margin-top: 8px; font-weight: 700; }
+.gl-more { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; font-weight: 700; }

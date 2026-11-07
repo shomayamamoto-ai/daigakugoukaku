@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Allura&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20261111e">
+  <link rel="stylesheet" href="css/style.css?v=20261108a">
 </head>
 <body>
   <script src="js/intro.js?v=20261111a"></script>
@@ -33,6 +33,7 @@
 
   <main id="view" class="container" aria-live="polite">
     <noscript>このアプリを使うには JavaScript を有効にしてください。</noscript>
+    <div class="boot-wait" role="status"><span class="boot-spin" aria-hidden="true"></span>読み込み中…</div>
   </main>
 
   <nav class="nav" aria-label="メインメニュー">
@@ -40,92 +41,105 @@
     <a href="#roadmap" data-r="roadmap"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18l5-12 5 8 3-4 3 8"/></svg>計画</a>
     <a href="#books" data-r="books"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>テキスト</a>
     <a href="#vocab" data-r="vocab"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h6"/></svg>単語帳</a>
-    <a href="#timer" data-r="timer"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>タイマー</a>
+    <a href="#timer" data-r="timer" class="nav-sub"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>タイマー</a>
     <a href="#mind" data-r="mind"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>こころ</a>
-    <a href="#tutor" data-r="tutor"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>先生用</a>
-    <a href="manual.html" data-r="manual" class="nav-manual"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.5"/><path d="M12 17h.01"/></svg>マニュアル</a>
+    <a href="#tutor" data-r="tutor" class="nav-sub"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>先生用</a>
+    <a href="manual.html" data-r="manual" class="nav-manual nav-sub"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.5"/><path d="M12 17h.01"/></svg>マニュアル</a>
+    <button type="button" class="nav-more" aria-expanded="false" aria-controls="navSheet"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>その他</button>
   </nav>
+  <div class="nav-sheet" id="navSheet" hidden>
+    <div class="nav-sheet-bg" data-close></div>
+    <div class="nav-sheet-in" role="dialog" aria-modal="true" aria-label="その他のメニュー">
+      <p class="nav-sheet-h">その他のメニュー<button type="button" class="nav-sheet-x" data-close aria-label="閉じる">×</button></p>
+      <a href="#timer" data-r="timer"><b>タイマー</b><small>集中して勉強する時間をはかる</small></a>
+      <a href="#search" data-r="search"><b>アプリ内検索</b><small>単元・単語・用語をさがす</small></a>
+      <a href="#tutor" data-r="tutor"><b>先生用レポート</b><small>先生・保護者に見せる学習記録</small></a>
+      <a href="#settings" data-r="settings"><b>設定</b><small>志望校・テーマ・同期・通知</small></a>
+      <a href="manual.html"><b>マニュアル</b><small>使い方をくわしく見る</small></a>
+      <a href="home.html"><b>サービス紹介</b><small>Aqualium のホームページ</small></a>
+    </div>
+  </div>
 
   <div id="toast" class="toast" role="status"></div>
 
-  <script src="js/data/units.js?v=20261105c"></script>
-  <script src="js/data/units_extra.js?v=20261105c"></script>
-  <script src="js/data/units_more.js?v=20261105c"></script>
-  <script src="js/data/units_math.js?v=20261105c"></script>
-  <script src="js/data/units_extra2.js?v=20261105c"></script>
-  <script src="js/data/units_extra3.js?v=20261105c"></script>
-  <script src="js/data/units_adv.js?v=20261105c"></script>
-  <script src="js/data/units_hard.js?v=20261105c"></script>
-  <script src="js/data/units_new_hsogo.js?v=20261105c"></script>
-  <script src="js/data/units_new_geo.js?v=20261105c"></script>
-  <script src="js/data/units_new_rinri.js?v=20261105c"></script>
-  <script src="js/data/units_new_phys.js?v=20261105c"></script>
-  <script src="js/data/units_new_chem.js?v=20261105c"></script>
-  <script src="js/data/units_new_bio.js?v=20261105c"></script>
-  <script src="js/data/units_new_earth.js?v=20261105c"></script>
-  <script src="js/data/units_new_kyotsu.js?v=20261105c"></script>
-  <script src="js/data/units_new_englis.js?v=20261105c"></script>
-  <script src="js/data/units_new_life.js?v=20261105c"></script>
-  <script src="js/data/units_new_jhlang.js?v=20261105c"></script>
-  <script src="js/data/units_new_jhmss.js?v=20261105c"></script>
-  <script src="js/data/units_new_jhist.js?v=20261105i"></script>
-  <script src="js/data/units_new_whista.js?v=20261105h"></script>
-  <script src="js/data/units_new_whistb.js?v=20261105h"></script>
-  <script src="js/data/units_new_civics.js?v=20261105h"></script>
-  <script src="js/data/units_new_geob.js?v=20261105i"></script>
-  <script src="js/data/banks_lang.js?v=20261105c"></script>
-  <script src="js/data/banks_sci_soc.js?v=20261105c"></script>
-  <script src="js/data/banks_more.js?v=20261105c"></script>
-  <script src="js/data/vocab_jh.js?v=20261105c"></script>
-  <script src="js/data/vocab_idiom.js?v=20261105c"></script>
-  <script src="js/data/vocab_idiom2.js?v=20261105c"></script>
-  <script src="js/data/vocab_sci.js?v=20261105c"></script>
-  <script src="js/data/vocab_merge.js?v=20261105c"></script>
-  <script src="js/data/vocab_kobun.js?v=20261111a"></script>
-  <script src="js/data/vocab_books.js?v=20261107p11c"></script>
-  <script src="js/data/emoji.js?v=20261105c"></script>
-  <script src="js/data/history_ctx.js?v=20261109a"></script>
-  <script src="js/data/generators.js?v=20261105c"></script>
-  <script src="js/data/generators_more.js?v=20261105c"></script>
-  <script src="js/data/generators_math.js?v=20261105c"></script>
-  <script src="js/data/generators_extra2.js?v=20261105c"></script>
-  <script src="js/data/generators_extra3.js?v=20261105c"></script>
-  <script src="js/data/generators_adv.js?v=20261105c"></script>
-  <script src="js/data/generators_hard.js?v=20261105c"></script>
-  <script src="js/data/build.js?v=20261105c"></script>
-  <script src="js/data/schools.js?v=20261105c"></script>
-  <script src="js/data/faculty_guide.js?v=20261110b"></script>
-  <script src="js/data/exam_info.js?v=20261105c"></script>
-  <script src="js/data/methods.js?v=20261105c"></script>
-  <script src="js/data/curriculum.js?v=20261105c"></script>
-  <script src="js/data/prereq_why.js?v=20261105f"></script>
-  <script src="js/data/notes_core.js?v=20261110a"></script>
-  <script src="js/data/wordnote_jp.js?v=20261109a"></script>
-  <script src="js/data/wordnote_ko.js?v=20261105f"></script>
-  <script src="js/data/curriculum_new.js?v=20261105h"></script>
-  <script src="js/data/univ_2027.js?v=20261105c"></script>
-  <script src="js/data/univ_2027_region.js?v=20261105c"></script>
-  <script src="js/data/univ_2027_private.js?v=20261105c"></script>
-  <script src="js/data/univ_2027_summary.js?v=20261105c"></script>
-  <script src="js/engine.js?v=20261110a"></script>
-  <script src="js/figures.js?v=20261105c"></script>
-  <script src="js/notify.js?v=20261111a"></script>
-  <script src="js/sync.js?v=20261105c"></script>
-  <script src="js/owl3d.js?v=20261105c"></script>
-  <script src="js/data/ronjutsu.js?v=20261105c"></script>
-  <script src="js/ronjutsu.js?v=20261105c"></script>
-  <script src="js/data/whq.js?v=20261109a"></script>
-  <script src="js/data/jhq.js?v=20261105c"></script>
-  <script src="js/whq.js?v=20261109a"></script>
-  <script src="js/books.js?v=20261110a"></script>
-  <script src="js/mock.js?v=20261105c"></script>
-  <script src="js/quest.js?v=20261105e"></script>
-  <script src="js/data/conversation.js?v=20261105c"></script>
-  <script src="js/mind.js?v=20261111d"></script>
-  <script src="js/vocab.js?v=20261110c"></script>
-  <script src="js/etrain.js?v=20261107b"></script>
-  <script src="js/tools.js?v=20261109a"></script>
-  <script src="js/auth.js?v=20261105c"></script>
-  <script src="js/app.js?v=20261111a"></script>
+  <script defer src="js/data/units.js?v=20261105c"></script>
+  <script defer src="js/data/units_extra.js?v=20261105c"></script>
+  <script defer src="js/data/units_more.js?v=20261105c"></script>
+  <script defer src="js/data/units_math.js?v=20261105c"></script>
+  <script defer src="js/data/units_extra2.js?v=20261105c"></script>
+  <script defer src="js/data/units_extra3.js?v=20261105c"></script>
+  <script defer src="js/data/units_adv.js?v=20261105c"></script>
+  <script defer src="js/data/units_hard.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_hsogo.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_geo.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_rinri.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_phys.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_chem.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_bio.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_earth.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_kyotsu.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_englis.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_life.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_jhlang.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_jhmss.js?v=20261105c"></script>
+  <script defer src="js/data/units_new_jhist.js?v=20261105i"></script>
+  <script defer src="js/data/units_new_whista.js?v=20261105h"></script>
+  <script defer src="js/data/units_new_whistb.js?v=20261105h"></script>
+  <script defer src="js/data/units_new_civics.js?v=20261105h"></script>
+  <script defer src="js/data/units_new_geob.js?v=20261105i"></script>
+  <script defer src="js/data/banks_lang.js?v=20261105c"></script>
+  <script defer src="js/data/banks_sci_soc.js?v=20261105c"></script>
+  <script defer src="js/data/banks_more.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_jh.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_idiom.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_idiom2.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_sci.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_merge.js?v=20261105c"></script>
+  <script defer src="js/data/vocab_kobun.js?v=20261111a"></script>
+  <script defer src="js/data/vocab_books.js?v=20261107p11c"></script>
+  <script defer src="js/data/emoji.js?v=20261105c"></script>
+  <script defer src="js/data/history_ctx.js?v=20261109a"></script>
+  <script defer src="js/data/generators.js?v=20261105c"></script>
+  <script defer src="js/data/generators_more.js?v=20261105c"></script>
+  <script defer src="js/data/generators_math.js?v=20261105c"></script>
+  <script defer src="js/data/generators_extra2.js?v=20261105c"></script>
+  <script defer src="js/data/generators_extra3.js?v=20261105c"></script>
+  <script defer src="js/data/generators_adv.js?v=20261105c"></script>
+  <script defer src="js/data/generators_hard.js?v=20261105c"></script>
+  <script defer src="js/data/build.js?v=20261105c"></script>
+  <script defer src="js/data/schools.js?v=20261105c"></script>
+  <script defer src="js/data/faculty_guide.js?v=20261110b"></script>
+  <script defer src="js/data/exam_info.js?v=20261105c"></script>
+  <script defer src="js/data/methods.js?v=20261105c"></script>
+  <script defer src="js/data/curriculum.js?v=20261105c"></script>
+  <script defer src="js/data/prereq_why.js?v=20261105f"></script>
+  <script defer src="js/data/notes_core.js?v=20261110a"></script>
+  <script defer src="js/data/wordnote_jp.js?v=20261109a"></script>
+  <script defer src="js/data/wordnote_ko.js?v=20261105f"></script>
+  <script defer src="js/data/curriculum_new.js?v=20261105h"></script>
+  <script defer src="js/data/univ_2027.js?v=20261105c"></script>
+  <script defer src="js/data/univ_2027_region.js?v=20261105c"></script>
+  <script defer src="js/data/univ_2027_private.js?v=20261105c"></script>
+  <script defer src="js/data/univ_2027_summary.js?v=20261105c"></script>
+  <script defer src="js/engine.js?v=20261110a"></script>
+  <script defer src="js/figures.js?v=20261105c"></script>
+  <script defer src="js/notify.js?v=20261111a"></script>
+  <script defer src="js/sync.js?v=20261105c"></script>
+  <script defer src="js/owl3d.js?v=20261105c"></script>
+  <script defer src="js/data/ronjutsu.js?v=20261105c"></script>
+  <script defer src="js/ronjutsu.js?v=20261105c"></script>
+  <script defer src="js/data/whq.js?v=20261109a"></script>
+  <script defer src="js/data/jhq.js?v=20261105c"></script>
+  <script defer src="js/whq.js?v=20261109a"></script>
+  <script defer src="js/books.js?v=20261110a"></script>
+  <script defer src="js/mock.js?v=20261105c"></script>
+  <script defer src="js/quest.js?v=20261105e"></script>
+  <script defer src="js/data/conversation.js?v=20261105c"></script>
+  <script defer src="js/mind.js?v=20261108a"></script>
+  <script defer src="js/vocab.js?v=20261110c"></script>
+  <script defer src="js/etrain.js?v=20261107b"></script>
+  <script defer src="js/tools.js?v=20261109a"></script>
+  <script defer src="js/auth.js?v=20261105c"></script>
+  <script defer src="js/app.js?v=20261108a"></script>
 </body>
 </html>

@@ -2677,3 +2677,54 @@ body.lsp-open { overflow: hidden; }
 .mind-kind textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px; border: 1.5px solid var(--line); border-radius: 10px; }
 .mq-face, .mf-scale label, .mf-tags .chip { position: relative; }
 .mq-face input, .mf-scale input, .mf-tags input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
+
+/* ===================== UI/UX 最適化(2026-11) =====================
+   1) 下部ナビ:スマホは5つ＋「その他」  2) タップ領域は44px以上
+   3) スマホではページ見出し帯を小さくして、本文を1画面目に  4) 文字は11px以上 */
+.nav-more { display: none; flex: 1; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 2px; border: 0; background: none; color: var(--muted); font: inherit; font-size: 11px; cursor: pointer; border-radius: 8px; position: relative; }
+.nav-more.active { color: var(--primary); font-weight: 700; }
+.nav-more.active::after { content: ""; position: absolute; left: 32%; right: 32%; top: 0; height: 3px; border-radius: 3px; background: var(--primary); }
+.nav-sheet { position: fixed; inset: 0; z-index: 60; }
+.nav-sheet[hidden] { display: none; }
+.nav-sheet-bg { position: absolute; inset: 0; background: rgba(2, 11, 31, .45); }
+.nav-sheet-in { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80vh; overflow-y: auto; background: var(--card); color: var(--text); border-radius: 20px 20px 0 0; padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); animation: navSheetUp .22s ease-out; }
+@keyframes navSheetUp { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .nav-sheet-in { animation: none; } }
+.nav-sheet-h { display: flex; align-items: center; justify-content: space-between; margin: 0 0 4px; font-weight: 700; font-size: .95rem; }
+.nav-sheet-x { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+.nav-sheet-in a { display: flex; flex-direction: column; gap: 2px; min-height: 56px; justify-content: center; padding: 8px 12px; border-radius: 12px; color: var(--text); text-decoration: none; border-top: 1px solid var(--line); }
+.nav-sheet-in a:first-of-type { border-top: 0; }
+.nav-sheet-in a:hover, .nav-sheet-in a:focus-visible { background: var(--primary-weak); }
+.nav-sheet-in a b { font-size: 1rem; }
+.nav-sheet-in a small { font-size: .8rem; color: var(--muted); }
+body.sheet-open { overflow: hidden; }
+@media (max-width: 760px) {
+  .nav a.nav-sub { display: none; }
+  .nav-more { display: flex; }
+  .nav a, .nav-more { font-size: 11px; letter-spacing: 0; min-height: 48px; justify-content: center; }
+  .nav a.nav-manual { letter-spacing: 0; }
+  /* 上のバー:サービス紹介は「その他」へ。残りのボタンは44px */
+  .topbar .home-link { display: none; }
+  .topbar .gear { margin-left: auto; }
+  .tb-search, .topbar .tb-tools { min-width: 44px; min-height: 44px; }
+  .topbar .gear { min-height: 44px; display: inline-flex; align-items: center; padding: 0 10px; }
+  /* 見出し帯は小さく(本文がすぐ見えるように) */
+  .page-band { padding: 12px 16px 12px; margin-bottom: 12px; }
+  .page-band .pb-en { font-size: 1.75rem; }
+  .page-band .pb-ja { font-size: .9rem; letter-spacing: .1em; }
+  /* タップしやすさ(44px目安) */
+  #view .btn.small, #view .page-toc a, .pl-subj button, .pl-modes button { min-height: 44px; }
+  .page-toc a { display: inline-flex; align-items: center; }
+  .vc-nav { width: 44px; height: 44px; }
+  .vb-q { width: 40px; height: 40px; right: 6px; bottom: 6px; }
+  #view .check { min-width: 44px; min-height: 44px; }
+  .vt-links a, #view a.link { display: inline-flex; align-items: center; min-height: 44px; }
+  /* 気分の顔ボタン:ことばを1行で */
+  .mq-face small { font-size: 11px; word-break: keep-all; overflow-wrap: normal; }
+  #view label.chip, .et-lv button { min-height: 44px; display: inline-flex; align-items: center; }
+}
+@media (min-width: 761px) { .tb-search { width: 40px; height: 40px; } }
+/* 起動中の表示(スクリプトの読み込みが終わるまで) */
+.boot-wait { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 30vh 0 0; color: var(--muted); font-size: .9rem; }
+.boot-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--primary); animation: bootSpin .8s linear infinite; }
+@keyframes bootSpin { to { transform: rotate(360deg); } }

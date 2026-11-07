@@ -41,7 +41,7 @@ li { margin: 4px 0; }
 .tip { background: var(--primary-weak); border-radius: 12px; padding: 10px 14px; font-size: .9rem; margin-top: 10px; }
 .tip b { display: block; }
 .cta { display: inline-block; margin-top: 6px; padding: 12px 20px; border-radius: 12px; background: var(--primary); color: #fff; font-weight: 800; text-decoration: none; }
-footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 16px 40px; }
+footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 16px 40px; } footer a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 /* 下メニュー(アプリと同じ) */
@@ -69,7 +69,7 @@ li.pc-only { display: none; } body.pc li.pc-only { display: list-item; }
 body.pc video { max-width: 100%; aspect-ratio: 1024 / 640; border-radius: 12px; border-width: 4px; }
 @media (min-width: 720px) { body.pc .sec { grid-template-columns: minmax(0, 1fr); } }
 .kbd { display: inline-block; min-width: 1.8em; padding: 0 6px; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; background: var(--card); font: 700 .82rem/1.6 ui-monospace, monospace; text-align: center; }
-table.keys { width: 100%; border-collapse: collapse; margin: 8px 0; } table.keys td { padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table.keys td:first-child { white-space: nowrap; width: 1%; }
+table.keys { width: 100%; border-collapse: collapse; margin: 8px 0; } table.keys td { overflow-wrap: anywhere; word-break: break-word; } table.keys td { padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table.keys td:first-child { white-space: nowrap; width: 1%; }
 .badge { display: inline-block; font-size: .7rem; font-weight: 800; color: #fff; background: var(--accent); border-radius: 6px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
 /* パソコンの広い画面では、目次を左に固定 */
 @media (min-width: 1100px) {
@@ -101,7 +101,7 @@ table.keys { width: 100%; border-collapse: collapse; margin: 8px 0; } table.keys
 <header><div class="in">
   <p class="en">Manual</p>
   <h1>Aqualium 使い方マニュアル</h1>
-  <p>12の場面を、操作動画つきで説明します。順番は、アプリ下のメニュー(ホーム → 計画 → テキスト → 単語帳 → タイマー → 先生用)と同じです。動画は音声なしです。字幕と、黄色い丸(<span class="sp-only">タップ</span><span class="pc-only">クリック</span>した場所)を見ながら進めてください。</p>
+  <p>12の場面を、操作動画つきで説明します。順番は、アプリ下のメニュー(ホーム → 計画 → テキスト → 単語帳 → タイマー → 先生用)と同じです。スマホでは、タイマー・先生用・設定・検索は、下のメニューの「その他」の中にあります。動画は音声なしです。字幕と、黄色い丸(<span class="sp-only">タップ</span><span class="pc-only">クリック</span>した場所)を見ながら進めてください。</p>
   <div class="dev" role="group" aria-label="表示する画面"><button type="button" data-dev="sp">📱 スマホ版</button><button type="button" data-dev="pc">💻 パソコン版</button></div><a class="cta" href="index.html">アプリを開く</a>
 </div></header>
 <main>
