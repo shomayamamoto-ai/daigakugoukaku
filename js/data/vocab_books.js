@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜10・13・14 を入力済み。Part 11 は一部(141語)入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜10・13・14 を入力済み。Part 11 は300語中283語を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -3061,7 +3061,7 @@ divorce|離婚する
 virtual|仮想の、事実上の
 virtually|事実上|派
 `;
-// Part 11:画面写真から入力(1回目・141語。続きは受け取りしだい追加)
+// Part 11:画面写真から入力(2回分・283語。続きは受け取りしだい追加)
 WPS.VBOOK_DATA.base[11] = `
 spectator|観客
 extraordinary|並外れた
@@ -3204,6 +3204,148 @@ boast|(boast ofで)自慢する、(優れたものを)持っている
 orbit|軌道
 seize|つかむ、押収する
 steep|急な
+steeply|急に|派
+usage|用法
+curse|呪い、呪う
+fluid|流体、流動的な
+rebel|反逆者
+crawl|這って進む
+smash|粉砕する
+alert|油断のない、警告する
+decay|腐る、衰える
+harsh|厳しい
+swift|素早い
+ample|十分な
+gross|総計の、ひどい
+draft|下書き、徴兵
+dread|恐れる
+mercy|慈悲
+merciful|慈悲深い|派
+exert|働かせる
+bribe|賄賂
+bribery|贈賄|派
+terminal|末期の、終点
+guilty|有罪の、罪悪感がある
+predator|捕食動物
+deserve|値する
+modify|修正する
+modification|修正|派
+undergo|経験する
+dramatic|劇的な
+acknowledge|認める
+acknowledgment|承認、謝辞|派
+tropical|熱帯の
+patent|特許
+assert|主張する
+assertion|主張|派
+assertive|自己主張の強い|派
+verbal|言葉による
+nonverbal|言葉を使わない|派
+vein|静脈
+bare|むき出しの
+barely|かろうじて|派
+heir|相続人
+slap|平手打ちする
+foul|不快な、反則
+lure|誘い込む
+pill|錠剤
+herd|群れ
+mode|方式
+jail|刑務所
+grip|握る
+deed|行為、証書
+fame|名声
+rational|理性的な
+irrational|不合理な|派
+sequence|連続
+restore|回復する、修復する
+restoration|修復|派
+fake|偽の
+innocent|無実の、無邪気な
+immigration|移民
+punctual|時間を守る
+lord|神
+motion|動き、動議
+regulate|規制する
+regulation|規則|派
+bar|禁じる、棒、障害
+HIV|HIV
+LED|発光ダイオード
+inn|旅館
+tag|札
+gap|差
+rug|敷物
+cab|タクシー
+fur|毛皮
+naked|裸の
+core|核心、芯
+tense|緊張した、時制
+tension|緊張|派
+submit|提出する、服従する
+submission|服従|派
+submissive|従順な|派
+enclose|同封する、囲む
+enclosure|囲い|派
+means|手段、(特定な表現で)財産
+chaos|大混乱
+flock|群れ
+grace|優美さ
+graceful|優雅な|派
+fancy|高級な
+pause|休止
+mourn|嘆く
+probe|探査機、探針、調査する
+yield|産出する、屈する、収穫量／収益
+weary|疲れている
+flesh|肉
+erect|直立した、建てる
+erection|建設|派
+reign|統治
+asset|資産
+drift|漂う
+flame|炎
+grave|墓、(形容詞で)重大な
+graveyard|墓地|派
+realm|領域
+phase|段階
+adore|熱愛している
+utter|発する、まったくの
+utterly|まったく|派
+surge|急増
+frown|眉をひそめる
+cling|(cling toで)しがみつく、固執する
+evoke|呼び起こす
+token|しるし
+quest|探求
+scorn|軽蔑
+stray|野良の、道に迷った
+naive|世間知らずの
+prone|〜しがちである
+dispute|論争
+manual|手作業の、手引き書
+conquer|征服する、克服する
+weed|雑草
+pollen|花粉
+accordingly|従って
+fragment|破片
+luxury|ぜいたく
+prospect|見込み
+bias|偏見、偏り
+biased|偏った|派
+tissue|組織、ティッシュ
+solar|太陽の
+dialogue|対話
+privilege|特権
+justice|正義
+ripe|熟した
+ripen|熟する|派
+greedy|貪欲な
+weird|奇妙な
+mend|修理する
+coin|硬貨、(新語を)作り出す
+wane|衰える
+post|投稿する、地位／職、郵便
+hive|ミツバチの巣
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
