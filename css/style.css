@@ -2728,3 +2728,61 @@ body.sheet-open { overflow: hidden; }
 .boot-wait { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 30vh 0 0; color: var(--muted); font-size: .9rem; }
 .boot-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--primary); animation: bootSpin .8s linear infinite; }
 @keyframes bootSpin { to { transform: rotate(360deg); } }
+
+/* ===================== テキスト(教科書)の読みやすさ(2026-11) ===================== */
+/* 上のバー:見出しボタン・しおり・進み具合 */
+.bk-tb { position: sticky; }
+.bk-tb a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; }
+.bk-tb-r { justify-self: end; display: inline-flex; align-items: center; gap: 2px; }
+.bk-jumpb, .bk-tb .bk-bmb { width: 44px; height: 44px; display: inline-grid; place-items: center; border: 0; border-radius: 10px; background: none; color: #dfe6f2; cursor: pointer; }
+.bk-jumpb:hover, .bk-jumpb:focus-visible { background: rgba(255, 255, 255, .1); }
+.bk-prog-top { position: absolute; left: 10px; right: 10px; bottom: 3px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .15); overflow: hidden; }
+.bk-prog-top i { display: block; height: 100%; width: 0; background: #8ab4ff; border-radius: 3px; transition: width .15s linear; }
+/* 見出しの一覧(下から出るシート) */
+.bk-jump { position: fixed; inset: 0; z-index: 61; }
+.bk-jump[hidden] { display: none; }
+.bk-jump-bg { position: absolute; inset: 0; background: rgba(2, 11, 31, .45); }
+.bk-jump-in { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78vh; display: flex; flex-direction: column; background: var(--card); color: var(--text); border-radius: 20px 20px 0 0; padding: 8px 16px calc(14px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0, 0, 0, .25); }
+@media (min-width: 761px) { .bk-jump-in { left: auto; right: 16px; bottom: 16px; width: 420px; border-radius: 18px; max-height: calc(100vh - 120px); } }
+.bk-jump-h { display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 700; }
+.bk-jump-x { width: 44px; height: 44px; border: 0; background: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; border-radius: 50%; }
+.bk-fs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 0 10px; border-bottom: 1px solid var(--line); }
+.bk-fs span { font-size: .85rem; color: var(--muted); margin-right: 4px; }
+.bk-fs button { min-width: 48px; min-height: 40px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.bk-fs button.on { border-color: var(--primary); background: var(--primary-weak); color: var(--primary); }
+.bk-jump-list { list-style: none; margin: 6px 0 0; padding: 0; overflow-y: auto; counter-reset: jl; }
+.bk-jump-list li { counter-increment: jl; }
+.bk-jump-list a { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 8px; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 600; line-height: 1.4; }
+.bk-jump-list a::before { content: counter(jl); flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--line); color: var(--muted); font-size: .75rem; font-weight: 800; }
+.bk-jump-list li.cur a { background: var(--primary-weak); color: var(--primary); }
+.bk-jump-list li.cur a::before { background: var(--primary); color: #fff; }
+.bk-jump-list a:hover, .bk-jump-list a:focus-visible { background: var(--primary-weak); }
+/* 「この単元の流れ」も押せるように */
+.lz-map ol a { color: var(--primary); text-decoration: none; display: block; padding: 8px 0; }
+.lz-map ol a:hover { text-decoration: underline; }
+/* 前回の続き */
+.bk-resume-pos { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; padding: 8px 8px 8px 14px; border-radius: 12px; background: var(--primary-weak); font-size: .9rem; }
+.bk-resume-pos .btn { margin-left: auto; }
+.bk-resume-x { width: 40px; height: 40px; border: 0; background: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
+/* 文字の大きさ */
+.bk-fs-s .bk-page { font-size: 14px; } .bk-fs-m .bk-page { font-size: 16px; } .bk-fs-l .bk-page { font-size: 18px; } .bk-fs-xl .bk-page { font-size: 20px; }
+.bk-reader[class*="bk-fs-"] .bk-sec p, .bk-reader[class*="bk-fs-"] .bk-sec li, .bk-reader[class*="bk-fs-"] .bk-sec dd { font-size: 1em; }
+/* 前後の単元:スマホでは画面に固定しない(本文を広く) */
+@media (max-width: 760px) {
+  .bk-pn { position: static; }
+  .bk-pn a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+  .bk-tb { padding: 2px 4px 8px; }
+}
+/* 答え・解説を開くボタンを押しやすく */
+.bk-page details > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.mq-tabs button { min-height: 44px; }
+/* 本棚:教科でしぼりこむ */
+.bk-subj { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
+.bk-subj::-webkit-scrollbar { display: none; }
+.bk-subj-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-weight: 700; font-size: .9rem; cursor: pointer; }
+.bk-subj-btn small { font-size: .75rem; color: var(--muted); font-weight: 600; }
+.bk-subj-btn[style*="--c"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.bk-subj-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.bk-subj-btn.on small { color: rgba(255, 255, 255, .85); }
+.bk-subj-btn.on::before { background: #fff; }
+.bk-toc li a { min-height: 44px; }

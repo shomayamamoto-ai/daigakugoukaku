@@ -914,7 +914,7 @@
   };
 
   // まだ正解できていない「間違えた問題」(新しい順)。同じ問題を後で正解していれば外す
-  var BK = WPS.makeBooks({ h: h, render: render, stats: function () { return A.allStats(); }, practice: function (id) { var u = WPS.UNIT_MAP[id]; var ids = shuffle(unitSet(u)).slice(0, 5); if (!ids.length) { toast('この単元の問題がまだありません'); return; } startQuiz(ids, 'study', u.name + 'の練習'); } });
+  var BK = WPS.makeBooks({ h: h, render: render, toast: toast, stats: function () { return A.allStats(); }, practice: function (id) { var u = WPS.UNIT_MAP[id]; var ids = shuffle(unitSet(u)).slice(0, 5); if (!ids.length) { toast('この単元の問題がまだありません'); return; } startQuiz(ids, 'study', u.name + 'の練習'); } });
   function renderBooks(arg) { return BK.render(arg); }
   renderBooks.after = function (arg) { BK.after(arg); };
   var MK = WPS.makeMock({ h: h, toast: toast, shuffle: shuffle, render: render, levelPick: levelPick, diffOf: diffOf, confirm: function (msg, fn, lab) { ask(msg, lab, fn); } });

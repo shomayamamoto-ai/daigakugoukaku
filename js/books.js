@@ -7,7 +7,8 @@
 window.WPS = window.WPS || {};
 WPS.makeBooks = function (ctx) {
   var h = ctx.h, S = WPS.Store;
-  var st = { lv: null, q: '', sort: 'order', grid: false };
+  var st = { lv: null, q: '', sort: 'order', grid: false, subj: '' };
+  var SUBJ_ORDER = ['jpn', 'math', 'eng', 'sci', 'soc', 'info'];
   function B() { var s = S.get(); if (!s.books) s.books = { read: {}, bm: {}, last: null }; return s.books; }
   function allowed(u) { var p = S.get().profile; return WPS.unitVisible(u, p.grade); }
 
@@ -48,12 +49,16 @@ WPS.makeBooks = function (ctx) {
     if (!st.lv) st.lv = jhGrade ? 'jh' : 'hs';
     var isJH = function (b) { return b.stage === 'jh'; };
     var q = st.q.trim();
-    var list = bs.filter(function (b) { return (st.lv === 'jh' ? isJH(b) : !isJH(b)) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { return WPS.UNIT_MAP[id].name.indexOf(q) >= 0; })); });
+    var inLv = bs.filter(function (b) { return st.lv === 'jh' ? isJH(b) : !isJH(b); });
+    var subjs = SUBJ_ORDER.filter(function (k) { return inLv.some(function (b) { return b.subj === k; }); });
+    if (st.subj && subjs.indexOf(st.subj) < 0) st.subj = '';
+    var list = bs.filter(function (b) { return (st.lv === 'jh' ? isJH(b) : !isJH(b)) && (!st.subj || b.subj === st.subj) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { return WPS.UNIT_MAP[id].name.indexOf(q) >= 0; })); });
     if (st.sort === 'recent') { var t = B().t || {}; list.sort(function (a, c) { return (t[c.id] || 0) - (t[a.id] || 0); }); }
     var last = B().last && WPS.UNIT_MAP[B().last.u] ? B().last : null;
     var html = '';
     if (last) { var lb = bookOf(last.b); if (lb) html += '<section class="card bk-resume"><a href="#books/' + lb.id + '/' + last.u + '"><span>続きから読む</span><b>' + h(lb.name) + '・' + h(WPS.UNIT_MAP[last.u].name) + '</b></a></section>'; }
     html += '<div class="bk-bar"><div class="bk-lv" role="tablist" aria-label="中学・高校">' + [['jh', '中学'], ['hs', '高校']].map(function (o) { return '<button type="button" role="tab" class="bk-lv-btn' + (st.lv === o[0] ? ' on' : '') + '" aria-selected="' + (st.lv === o[0]) + '" data-bklv="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="bk-subj" role="group" aria-label="教科でしぼりこむ">' + [''].concat(subjs).map(function (k) { var c = k ? inLv.filter(function (b) { return b.subj === k; }).length : inLv.length; return '<button type="button" class="bk-subj-btn' + (st.subj === k ? ' on' : '') + '" aria-pressed="' + (st.subj === k) + '" data-bksubj="' + k + '"' + (k ? ' style="--c:' + ((WPS.SUBJECTS[k] || {}).color || '#1146d6') + '"' : '') + '>' + (k ? h(WPS.SUBJECTS[k].name) : 'すべて') + '<small>' + c + '</small></button>'; }).join('') + '</div>' +
       '<div class="bk-tools"><input id="bkq" type="search" value="' + h(st.q) + '" placeholder="本・単元を検索" aria-label="本・単元を検索"></div></div>';
     html += '<section class="card bk-shelf' + (st.grid ? ' grid' : '') + '">' + (list.length ? list.map(function (b) {
       var n = readCount(b);
@@ -66,7 +71,7 @@ WPS.makeBooks = function (ctx) {
   function toc(b) {
     var r = B().read, bm = B().bm, stats = ctx.stats(), n = 1;
     var html = '<div class="bk-reader"><div class="bk-tb"><a href="#books" aria-label="本棚へ戻る">‹ 本棚</a><b>' + h(b.short) + '</b><span></span></div>' +
-      '<div class="bk-page bk-front">' + cover(b, true) + '<p class="muted small">' + b.chapters.length + '章・' + b.units.length + '単元。読んだページには✓がつきます。</p></div>' +
+      '<div class="bk-page bk-front">' + cover(b, true) + '<p class="muted small">' + b.chapters.length + '章・' + b.units.length + '単元。最後の方まで読んだページには✓がつきます。</p></div>' +
       '<section class="card bk-toc"><h2>目次</h2>' + b.chapters.map(function (ch, ci) {
         return '<div class="bk-ch"><h3>第' + (ci + 1) + '章 ' + h(ch.name) + '</h3><ol start="' + n + '" style="--start:' + (n - 1) + '">' + ch.units.map(function (id) {
           n++; var u = WPS.UNIT_MAP[id], ok = allowed(u), s = stats[id] ? stats[id].status : 'untested';
@@ -75,6 +80,10 @@ WPS.makeBooks = function (ctx) {
       }).join('') + '</section></div>';
     return html;
   }
+
+  // 文字の大きさ(この端末に保存)と、どこまで読んだか
+  function fontSize() { try { return localStorage.getItem('wpsBkFs') || 'm'; } catch (e) { return 'm'; } }
+  function resumePos(id) { var p = (B().pos || {})[id]; return p && p.pct >= 8 && p.pct <= 92 ? p.pct : 0; }
 
   /* ---------- 単元のページ ---------- */
   function examples(u) {
@@ -125,10 +134,14 @@ WPS.makeBooks = function (ctx) {
     var u = WPS.UNIT_MAP[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
     var ch = b.chapters.filter(function (c) { return c.units.indexOf(id) >= 0; })[0], bm = !!B().bm[id];
     var stt = ctx.stats()[id], ex = examples(u), ms = mistakes(u);
-    var html = '<div class="bk-reader"><div class="bk-tb"><a href="#books/' + b.id + '" aria-label="目次へ">‹ 目次</a><b>' + h(b.short) + '</b><button type="button" class="bk-bmb' + (bm ? ' on' : '') + '" id="bkBm" aria-pressed="' + bm + '" aria-label="しおり"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z" fill="currentColor"/></svg></button></div>';
+    var html = '<div class="bk-reader bk-fs-' + fontSize() + '"><div class="bk-tb"><a href="#books/' + b.id + '" aria-label="目次へ">‹ 目次</a><b>' + h(b.short) + '</b><span class="bk-tb-r"><button type="button" class="bk-jumpb" id="bkJumpBtn" aria-expanded="false" aria-controls="bkJump" aria-label="この単元の見出し・文字の大きさ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg></button><button type="button" class="bk-bmb' + (bm ? ' on' : '') + '" id="bkBm" aria-pressed="' + bm + '" aria-label="しおり"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z" fill="currentColor"/></svg></button></span><span class="bk-prog-top" aria-hidden="true"><i id="bkProg"></i></span></div>' +
+      '<div class="bk-jump" id="bkJump" hidden><div class="bk-jump-bg" data-jclose></div><div class="bk-jump-in" role="dialog" aria-modal="true" aria-label="この単元の見出し"><p class="bk-jump-h">この単元の見出し<button type="button" class="bk-jump-x" data-jclose aria-label="閉じる">×</button></p>' +
+      '<div class="bk-fs" role="group" aria-label="文字の大きさ"><span>文字の大きさ</span>' + [['s', '小'], ['m', '中'], ['l', '大'], ['xl', '特大']].map(function (f) { return '<button type="button" data-bkfs="' + f[0] + '" aria-pressed="' + (fontSize() === f[0]) + '"' + (fontSize() === f[0] ? ' class="on"' : '') + '>' + f[1] + '</button>'; }).join('') + '</div>' +
+      '<ol class="bk-jump-list" id="bkJumpList"></ol></div></div>' +
+      (resumePos(id) ? '<p class="bk-resume-pos" id="bkResume">前回は <b>' + resumePos(id) + '%</b> まで読みました<button type="button" class="btn small" id="bkResumeGo">続きへ</button><button type="button" class="bk-resume-x" id="bkResumeX" aria-label="閉じる">×</button></p>' : '');
     html += '<article class="bk-page"><p class="bk-crumb">' + h(ch ? ch.name : '') + '</p><h1>' + h(u.name) + '</h1><p class="bk-sub">' + h(WPS.SUBJECTS[u.subj].name) + '・' + h(u.stage) + (stt && stt.n ? '・正答率 ' + Math.round(stt.acc * 100) + '%' : '') + '</p>';
     var L = (WPS.LESSONS || {})[id], n = 0;
-    function sec(t, cls) { n++; return '<section class="bk-sec' + (cls ? ' ' + cls : '') + '"><h2><span>' + n + '</span>' + h(t) + '</h2>'; }
+    function sec(t, cls) { n++; return '<section class="bk-sec' + (cls ? ' ' + cls : '') + '" id="bks-' + n + '"><h2><span>' + n + '</span>' + h(t) + '</h2>'; }
     if (L) {
       html += '<div class="lz-goal"><b>この単元でできるようになること</b><p>' + rt(L.goal) + '</p></div>';
       if (u.prereq && u.prereq.length) html += preLinks(u);
@@ -243,6 +256,59 @@ WPS.makeBooks = function (ctx) {
     if (b) return toc(b);
     return shelf();
   }
+  // 読む画面の道具:見出しへジャンプ・進み具合のバー・続きから・読み終わりの記録・文字の大きさ
+  var scrollFn = null;
+  function readerTools(view, id) {
+    var article = view.querySelector('.bk-page'), bar = document.getElementById('bkProg'), list = document.getElementById('bkJumpList'), jump = document.getElementById('bkJump'), jb = document.getElementById('bkJumpBtn');
+    if (!article) return;
+    var secs = [].slice.call(article.querySelectorAll('.bk-sec')).filter(function (x) { return x.querySelector('h2'); });
+    list.innerHTML = secs.map(function (x) { var t = x.querySelector('h2').textContent.replace(/^\d+/, '').trim(); return '<li><a href="#' + x.id + '" data-jump="' + x.id + '">' + h(t) + '</a></li>'; }).join('');
+    // 「この単元の流れ」も、押すとその節へ移動できるようにする
+    var map = article.querySelector('.lz-map ol');
+    if (map) [].slice.call(map.children).forEach(function (li) { var t = li.textContent.trim(), hit = secs.filter(function (x) { return x.querySelector('h2').textContent.replace(/^\d+/, '').trim() === t; })[0]; if (hit) li.innerHTML = '<a href="#' + hit.id + '" data-jump="' + hit.id + '">' + h(t) + '</a>'; });
+    function topOffset() { var tb = view.querySelector('.bk-tb'); return (tb ? tb.offsetHeight : 0) + 12; }
+    // 遠いときは一瞬で、近いときはなめらかに移動する
+    function scrollTop(y) { window.scrollTo({ top: y, behavior: Math.abs(y - window.scrollY) > window.innerHeight * 2.5 ? 'auto' : 'smooth' }); }
+    function go(sid) { var el = document.getElementById(sid); if (el) scrollTop(el.getBoundingClientRect().top + window.scrollY - topOffset()); }
+    function open(o) { jump.hidden = !o; jb.setAttribute('aria-expanded', o ? 'true' : 'false'); document.body.classList.toggle('sheet-open', o); if (o) { var cur = list.querySelector('.cur a') || list.querySelector('a'); if (cur) { cur.focus(); cur.scrollIntoView({ block: 'center' }); } } }
+    jb.addEventListener('click', function () { open(jump.hidden); });
+    jump.addEventListener('click', function (e) { if (e.target.closest('[data-jclose]')) { open(false); jb.focus(); } });
+    jump.addEventListener('keydown', function (e) { if (e.key === 'Escape') { open(false); jb.focus(); } });
+    var onJump = function (e) { var a = e.target.closest('[data-jump]'); if (!a) return; e.preventDefault(); open(false); go(a.getAttribute('data-jump')); };
+    article.addEventListener('click', onJump); list.addEventListener('click', onJump);
+    view.querySelectorAll('[data-bkfs]').forEach(function (x) { x.addEventListener('click', function () {
+      var f = x.getAttribute('data-bkfs'), rd = view.querySelector('.bk-reader'), mid = window.scrollY / Math.max(1, document.documentElement.scrollHeight);
+      try { localStorage.setItem('wpsBkFs', f); } catch (e) { }
+      rd.className = rd.className.replace(/bk-fs-\w+/, 'bk-fs-' + f);
+      view.querySelectorAll('[data-bkfs]').forEach(function (y) { y.classList.toggle('on', y === x); y.setAttribute('aria-pressed', y === x); });
+      window.scrollTo(0, mid * document.documentElement.scrollHeight);
+    }); });
+    // 前回の続きへ
+    var rs = document.getElementById('bkResume'), saved = ((B().pos || {})[id] || {}).pct || 0;
+    if (rs) {
+      document.getElementById('bkResumeGo').addEventListener('click', function () { rs.remove(); scrollTop(saved / 100 * (document.documentElement.scrollHeight - window.innerHeight)); });
+      document.getElementById('bkResumeX').addEventListener('click', function () { rs.remove(); });
+    }
+    // 進み具合・今いる節・読み終わり
+    if (scrollFn) window.removeEventListener('scroll', scrollFn);
+    var tm = null, marked = !!B().read[id], first = true;
+    scrollFn = function () {
+      if (!document.body.contains(article)) { window.removeEventListener('scroll', scrollFn); scrollFn = null; return; }
+      var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight), pct = Math.min(100, Math.round(window.scrollY / max * 100));
+      if (bar) bar.style.width = pct + '%';
+      var cur = null, off = topOffset() + 20; secs.forEach(function (x) { if (x.getBoundingClientRect().top <= off) cur = x; });
+      [].slice.call(list.children).forEach(function (li, i) { li.classList.toggle('cur', secs[i] === cur); });
+      // 開いた直後(まだ動かしていないとき)は、前回の位置を上書きしない
+      if (S.isView() || first) { first = false; return; }
+      clearTimeout(tm); tm = setTimeout(function () {
+        var bb = B(); bb.pos = bb.pos || {}; bb.pos[id] = { pct: pct, t: Date.now() };
+        // 最後の方(85%)まで読んだら「読んだ」にする
+        if (pct >= 85 && !marked) { marked = true; bb.read[id] = Date.now(); ctx.toast && ctx.toast('この単元を「読んだ」にしました'); }
+        S.save();
+      }, 400);
+    };
+    window.addEventListener('scroll', scrollFn, { passive: true }); scrollFn();
+  }
   function after(arg) {
     var view = document.getElementById('view'), p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
@@ -274,13 +340,15 @@ WPS.makeBooks = function (ctx) {
         });
         drawCard();
       }
-      if (!S.isView()) { var bb = B(); bb.read[id] = Date.now(); bb.last = { b: b.id, u: id }; bb.t = bb.t || {}; bb.t[b.id] = Date.now(); S.save(); }
+      if (!S.isView()) { var bb = B(); bb.last = { b: b.id, u: id }; bb.t = bb.t || {}; bb.t[b.id] = Date.now(); S.save(); }
+      readerTools(view, id);
       view.querySelector('#bkBm').addEventListener('click', function () { var m = B().bm; if (m[id]) delete m[id]; else m[id] = Date.now(); S.save(); this.classList.toggle('on', !!m[id]); this.setAttribute('aria-pressed', !!m[id]); });
       view.querySelector('#bkPractice').addEventListener('click', function () { ctx.practice(id); });
       return;
     }
     if (b) return;
     view.querySelectorAll('[data-bklv]').forEach(function (x) { x.addEventListener('click', function () { st.lv = x.getAttribute('data-bklv'); re(); }); });
+    view.querySelectorAll('[data-bksubj]').forEach(function (x) { x.addEventListener('click', function () { st.subj = x.getAttribute('data-bksubj'); re(); }); });
     var q = view.querySelector('#bkq'), tm;
     q.addEventListener('input', function () { clearTimeout(tm); tm = setTimeout(function () { st.q = q.value; re(); var el = document.getElementById('bkq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }, 250); });
   }
