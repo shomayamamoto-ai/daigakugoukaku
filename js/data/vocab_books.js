@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。Part 10 は一部(135語)入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。Part 10 は300語中275語を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -2758,7 +2758,7 @@ bleed|出血する
 crash|衝突する、墜落する、衝突
 specialize|(specialize inで)専門にする
 `;
-// Part 10:画面写真から入力(1回目・135語。写真と写真のあいだの単語は、続きの写真を受け取りしだい追加)
+// Part 10:画面写真から入力(2回分・275語。写真と写真のあいだで写っていない単語は、受け取りしだい追加)
 WPS.VBOOK_DATA.base[10] = `
 prompt|迅速な、促す
 withdraw|引っ込める、引き出す
@@ -2895,6 +2895,146 @@ endangered|絶滅の危機にある|派
 glimpse|ちらりと見る
 faculty|能力、(大学の)学部、(大学の)教員団
 somewhat|いくぶん
+drag|引きずる
+vehicle|乗り物、伝達手段
+yawn|あくびをする
+alien|異質な、外国人
+alienate|疎外する|派
+administration|経営、政権
+accidentally|偶然、誤って
+candidate|候補者
+love|愛している
+handsome|ハンサムな
+money|お金
+want|欲しい
+juice|ジュース
+again|再び
+happy|うれしい
+thank|感謝する
+sweet|甘い
+surprise|驚かす
+surprised|驚いて|派
+straw|ストロー、わら
+package|包み
+turtle|カメ
+finally|とうとう
+beach|浜辺
+rope|ロープ
+look|見る、見える
+dish|皿、料理
+surprisingly|驚くほど
+eco-friendly|環境にやさしい
+church|教会
+number|数
+jog|ジョギング
+differently|異なって
+indoors|屋内で
+world|世界
+worldwide|世界的な
+fortunate|幸運な
+often|しばしば
+think|思う
+thought|考え|派
+thoughtful|思いやりがある|派
+thoughtless|不注意な、思いやりのない|派
+gift|贈り物、才能
+rarely|めったに…ない
+business|商売、会社
+backward|後ろへ
+team|チーム
+fool|愚か者、だます、(make a fool ofで)ばかにする
+contradictory|矛盾している
+conserve|保護する、節約する
+conservation|保護|派
+conservationist|自然保護論者|派
+breath|息
+breathing|呼吸|派
+bath|入浴、浴槽
+use|使う
+useful|役に立つ|派
+useless|役に立たない|派
+marriage|結婚
+tail|しっぽ
+later|あとで
+musical|音楽の
+run|立候補する、経営する、走る、作動する、(実験・プログラムを)実行する
+carefully|注意深く
+angel|天使
+animal|動物
+group|グループ
+please|喜ばせる
+pleasant|楽しい|派
+pleasure|喜び|派
+pleased|喜んで|派
+unpleasant|不愉快な|派
+strong|強い
+strength|力|派
+strengthen|強くする|派
+city|都市
+creative|創造力のある
+creativity|創造性|派
+next|次の
+exciting|わくわくさせる
+romantic|恋愛の
+warm|暖かい
+slow|遅い
+unbelievable|信じられない
+test|検査
+summary|要約
+reader|読者
+journalist|ジャーナリスト
+well-known|よく知られている
+impatient|いらいらしている
+reluctantly|いやいやながら
+poor|貧しい
+wall|壁
+like|好む、〜のような
+hungry|空腹の
+family|家族
+study|勉強、研究、書斎、勉強する／研究する
+sleepy|眠い
+economics|経済学
+institute|研究所、設ける
+institution|機関、制度|派
+secondary|第2の
+difficulty|困難
+lifestyle|生活様式
+drink|飲む
+cool|冷える
+social|社会の、社交の
+toward(s)|の方へ
+tiring|疲れさせる
+doctor|医者、博士
+vitamin|ビタミン
+small|小さい
+corn|トウモロコシ
+bean|豆
+alcohol|アルコール
+alcoholism|アルコール依存症|派
+smoke|煙
+calorie|カロリー
+farmer|農家
+noisy|騒々しい
+pan|フライパン
+shell|殻
+shock|衝撃
+shocked|ショックを受けた|派
+tightly|ぴったりと
+grammar|文法
+interpretation|解釈
+importantly|重要なことには
+mirror|鏡
+garden|庭
+prey|餌食
+routine|日課
+distress|苦しみ
+distressful|苦しみを引き起こす|派
+twist|ひねる
+twisted|ねじれた|派
+appoint|任命する
+appointment|予約、約束、任命|派
+threaten|脅かす
+threatened|絶滅の危機に瀕した|派
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
