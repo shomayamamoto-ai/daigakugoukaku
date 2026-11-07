@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。Part 10 は300語中275語を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜10・13・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -2758,7 +2758,7 @@ bleed|出血する
 crash|衝突する、墜落する、衝突
 specialize|(specialize inで)専門にする
 `;
-// Part 10:画面写真から入力(2回分・275語。写真と写真のあいだで写っていない単語は、受け取りしだい追加)
+// Part 10:画面写真から全300語(見出し241・派生59)を入力
 WPS.VBOOK_DATA.base[10] = `
 prompt|迅速な、促す
 withdraw|引っ込める、引き出す
@@ -3035,6 +3035,31 @@ appoint|任命する
 appointment|予約、約束、任命|派
 threaten|脅かす
 threatened|絶滅の危機に瀕した|派
+discipline|しつけ、(学問の)分野、規律、訓練する
+rid|取り除く
+dye|染める
+rub|こする
+dip|浸す
+lag|遅れる
+apt|〜する傾向がある、適切な
+myth|神話、根拠のない通念
+stroke|脳卒中、なでる、一打
+hypothesis|仮説
+physician|医師
+peer|仲間、じっと見る
+shelter|避難住居
+vessel|管、船
+colony|植民地、群落
+territory|領土、縄張り
+layer|層
+advent|到来
+leak|漏れる
+vital|不可欠な
+vitality|元気|派
+clap|たたく
+divorce|離婚する
+virtual|仮想の、事実上の
+virtually|事実上|派
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
