@@ -21,6 +21,12 @@
   function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* 無視 */ } }
   function load() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
   function top() { window.scrollTo(0, 0); }
+  function band(en, title, lead, crumbs) {
+    var e = document.getElementById('sdEn'), t = document.getElementById('sdTitle'), l = document.getElementById('sdLead'), c = document.getElementById('sdCrumb');
+    if (e) e.textContent = en; if (t) t.textContent = title; if (l) l.innerHTML = lead || '';
+    if (c) c.innerHTML = '<li><a href="home.html">Aqualium</a></li>' + crumbs.map(function (x, i) { return '<li>' + (x[1] ? '<a href="' + x[1] + '">' + x[0] + '</a>' : x[0]) + '</li>'; }).join('');
+  }
+  function ttl(en, ja) { return '<h2 class="ttl"><span class="en">' + en + '</span><span class="ja">' + ja + '</span></h2>'; }
 
   // 出題できる問題(学年までの単元)
   function pool(subj, level, opt) {
@@ -38,7 +44,7 @@
   }
   function pick(subj) {
     var r = run.by[subj], lv = r.lv, cand = [];
-    if (r.dig && r.dig.length) { cand = pool(subj, 1, { units: r.dig }).concat(pool(subj, 2, { units: r.dig })); r.dig = null; if (cand.length) { var c0 = cand[Math.floor(Math.random() * cand.length)]; c0.dug = 1; return c0; } }
+    if (r.dig && r.dig.length) { cand = pool(subj, 1, { units: r.dig }).concat(pool(subj, 2, { units: r.dig })); r.dig = null; if (cand.length) { var c0 = cand[Math.floor(Math.random() * cand.length)].slice(); c0.dug = 1; c0.from = r.from; return c0; } }
     for (var k = 0; k < 3 && !cand.length; k++) {
       var l = [lv, lv - 1, lv + 1][k]; if (l < 1 || l > 3) continue;
       cand = pool(subj, l);
@@ -52,9 +58,8 @@
   function start() {
     var prev = load();
     var grades = ['中1', '中2', '中3', '高1', '高2', '高3', '既卒'];
-    root.innerHTML = '<ol class="g-crumb"><li><a href="home.html">Aqualium</a></li><li>無料診断テスト</li></ol>' +
-      '<section class="sd-hero"><p class="sd-en">Free Diagnosis</p><h1>無料診断テスト</h1><p>学年と教科を選んで、<b>15問</b>に答えるだけ。教科ごとの到達レベルと、<b>本当につまずいている単元</b>が分かります。</p>' +
-      '<ul class="sd-badges"><li>約10分</li><li>登録・ログイン不要</li><li>無料</li></ul></section>' +
+    band('Free Diagnosis', '無料診断テスト', '学年と教科を選んで、<b>15問</b>に答えるだけ。教科ごとの到達レベルと、<b>本当につまずいている単元</b>が分かります。<span class="sd-badges"><i>約10分</i><i>登録・ログイン不要</i><i>無料</i></span>', [['無料診断テスト']]);
+    root.innerHTML = ttl('Start', '診断をはじめる') +
       '<section class="sd-card"><h2>1. 学年を選んでください</h2><div class="sd-grid" role="radiogroup" aria-label="学年">' + grades.map(function (g) {
         return '<button type="button" class="sd-opt' + (st.grade === g ? ' on' : '') + '" data-g="' + g + '" aria-pressed="' + (st.grade === g) + '">' + g + '</button>'; }).join('') + '</div>' +
       '<h2>2. 診断する教科を選んでください<small>(1〜5教科)</small></h2><div class="sd-grid" aria-label="教科">' + Object.keys(D.subj).filter(function (k) { return k !== 'info'; }).map(function (k) {
@@ -89,24 +94,25 @@
     if (!q) { run.order.splice(run.i, 1); return next(); }
     run.used.push(q[2]);
     var u = U(q[0]), ch = shuffle(q[3]);
-    run.cur = { q: q, subj: subj, u: u, ch: ch, dug: !!q.dug };
+    run.cur = { q: q, subj: subj, u: u, ch: ch, dug: !!q.dug, dugFrom: q.from || null };
+    band('Question ' + (run.i + 1), '第' + (run.i + 1) + '問 / 全' + run.order.length + '問', 'わからないときは「わからない」を選ぶと、診断が正確になります。', [['無料診断テスト', 'shindan.html'], ['出題中']]);
     root.innerHTML = '<div class="sd-bar"><span>' + (run.i + 1) + ' / ' + run.order.length + '</span><i style="width:' + Math.round(run.i / run.order.length * 100) + '%"></i></div>' +
       '<section class="sd-card sd-q"><p class="sd-meta"><b>' + h(D.subj[subj]) + '</b>' + h(u.stage) + '・' + h(u.name) + '<em>' + LV[q[1]] + '</em>' + (run.cur.dug ? '<em class="dig">前の単元をたしかめる問題</em>' : '') + '</p>' +
       '<p class="sd-text">' + h(q[2]).replace(/\n/g, '<br>') + '</p><div class="sd-choices">' +
       ch.map(function (c, i) { return '<button type="button" class="sd-c" data-c="' + i + '"><span>' + 'ABCD'[i] + '</span>' + h(c) + '</button>'; }).join('') +
       '<button type="button" class="sd-c sd-skip" data-c="-1">わからない</button></div></section>' +
-      '<p class="sd-note">わからないときは、当てずっぽうより「わからない」を選ぶと、診断が正確になります。</p>';
+      '';
     root.querySelectorAll('[data-c]').forEach(function (b) { b.addEventListener('click', function () { answer(+b.getAttribute('data-c')); }); });
     top();
   }
   function answer(i) {
     var c = run.cur, ok = i >= 0 && c.ch[i] === c.q[3][0], r = run.by[c.subj];
-    run.ans.push({ s: c.subj, u: c.u.id, lv: c.q[1], ok: ok, skip: i < 0, dug: c.dug });
+    run.ans.push({ s: c.subj, u: c.u.id, lv: c.q[1], ok: ok, skip: i < 0, dug: c.dug, pre: c.dugFrom || null });
     if (ok) r.lv = Math.min(3, r.lv + 1);
     else {
       r.lv = Math.max(1, r.lv - 1);
       // 高校の単元をまちがえたら、その土台の単元を次に確かめる(さかのぼり)
-      if (c.u.pre && c.u.pre.length) r.dig = c.u.pre.slice();
+      if (c.u.pre && c.u.pre.length) { r.dig = c.u.pre.slice(); r.from = c.u.id; }
     }
     root.querySelectorAll('[data-c]').forEach(function (b) {
       var k = +b.getAttribute('data-c'); b.disabled = true;
@@ -122,7 +128,7 @@
 
   /* ---------- 結果 ---------- */
   function finish() {
-    var res = { date: new Date().toLocaleDateString('ja-JP'), grade: st.grade, subs: {}, weak: [], roots: [] };
+    var res = { date: new Date().toLocaleDateString('ja-JP'), grade: st.grade, subs: {}, weak: [], roots: [], log: run.ans.map(function (x) { return [x.s, x.u, x.lv, x.ok ? 1 : 0, x.dug ? 1 : 0, x.pre]; }) };
     st.subs.forEach(function (k) {
       var a = run.ans.filter(function (x) { return x.s === k; }); if (!a.length) return;
       var w = { 1: 1, 2: 1.4, 3: 1.9 }, sc = 0, mx = 0;
@@ -131,7 +137,8 @@
       // 到達レベル:難しさで重みをつけた正答率で決める(難関は難関の問題に正解していることが条件)
       var rate = sc / mx, okHard = a.some(function (x) { return x.ok && x.lv === 3; });
       var level = rate >= 0.75 && okHard ? 3 : rate >= 0.5 && okHi >= 1 ? 2 : 1;
-      res.subs[k] = { n: a.length, ok: okAll, rate: Math.round(sc / mx * 100), level: level };
+      var byLv = { 1: [0, 0], 2: [0, 0], 3: [0, 0] }; a.forEach(function (x) { byLv[x.lv][1]++; if (x.ok) byLv[x.lv][0]++; });
+      res.subs[k] = { n: a.length, ok: okAll, rate: Math.round(sc / mx * 100), level: level, byLv: byLv };
     });
     var seenW = {}, seenR = {};
     run.ans.forEach(function (x) {
@@ -141,28 +148,82 @@
     });
     save(res); result(res);
   }
+  /* ---------- グラフ(学習アプリと同じ形) ---------- */
+  // 教科バランスのレーダーチャート(3教科以上)/横棒グラフ(1〜2教科)
+  function radar(res, ks) {
+    if (ks.length < 3) {
+      return '<div class="sd-bars">' + ks.map(function (k) { var v = res.subs[k].rate; return '<div class="sd-bar-row"><b style="color:' + D.col[k] + '">' + h(D.subj[k]) + '</b><span class="sd-hbar"><i style="width:' + v + '%;background:' + D.col[k] + '"></i><em style="left:80%"></em></span><strong>' + v + '%</strong></div>'; }).join('') + '</div>';
+    }
+    var W = 340, H = 300, cx = W / 2, cy = H / 2 + 4, R0 = 96, n = ks.length;
+    function pt(i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n, r = R0 * v / 100; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+    function poly(vs) { return vs.map(function (v, i) { var p = pt(i, v); return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    var g = '';
+    [20, 40, 60, 80, 100].forEach(function (lv) { g += '<polygon class="rd-grid' + (lv === 80 ? ' goal' : '') + '" points="' + poly(ks.map(function () { return lv; })) + '"/>'; });
+    ks.forEach(function (k, i) { var p = pt(i, 100); g += '<line class="rd-ax" x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '"/>'; });
+    [0, 40, 80].forEach(function (lv) { var p = pt(0, lv); g += '<text class="rd-tick" x="' + (p[0] + 4) + '" y="' + (p[1] + 4) + '">' + lv + '</text>'; });
+    var vs = ks.map(function (k) { return res.subs[k].rate; });
+    g += '<polygon class="rd-cur" points="' + poly(vs) + '"/>';
+    vs.forEach(function (v, i) { var p = pt(i, v); g += '<circle class="rd-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4"/>'; });
+    ks.forEach(function (k, i) {
+      var p = pt(i, 122), anc = Math.abs(p[0] - cx) < 10 ? 'middle' : p[0] > cx ? 'start' : 'end';
+      g += '<text class="rd-lab" x="' + p[0].toFixed(1) + '" y="' + (p[1] - 2).toFixed(1) + '" text-anchor="' + anc + '"><tspan fill="' + D.col[k] + '">' + h(D.subj[k]) + '</tspan><tspan class="rd-v" x="' + p[0].toFixed(1) + '" dy="14">' + vs[i] + '%</tspan></text>';
+    });
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="radar" role="img" aria-label="教科ごとの得点率のレーダーチャート">' + g + '</svg>' +
+      '<p class="rd-leg"><span class="cur">あなた</span><span class="goal">得意の目安 80%</span></p>';
+  }
+  // 到達レベルのものさし(基礎・標準・難関)
+  function ruler(res, ks) {
+    return '<div class="sd-rulers">' + ks.map(function (k) {
+      var s = res.subs[k], pos = Math.max(4, Math.min(96, s.rate));
+      return '<div class="sd-ruler"><div class="sd-ruler-h"><b style="color:' + D.col[k] + '">' + h(D.subj[k]) + '</b><span class="lv lv' + s.level + '">' + LV[s.level] + 'レベル</span></div>' +
+        '<div class="sd-track"><i class="z1"></i><i class="z2"></i><i class="z3"></i><span class="pin" style="left:' + pos + '%;background:' + D.col[k] + '"><em>' + s.rate + '%</em></span></div>' +
+        '<div class="sd-zone"><span>基礎</span><span>標準</span><span>難関</span></div>' +
+        '<p class="sd-lvtab">' + [1, 2, 3].map(function (l) { var x = s.byLv[l]; return x[1] ? LV[l] + ' <b>' + x[0] + '/' + x[1] + '</b>' : ''; }).filter(Boolean).join('<span>・</span>') + '</p></div>';
+    }).join('') + '</div>';
+  }
+  // 解答のあゆみ(難しさの上がり下がり)
+  function path(res) {
+    var L = res.log || []; if (!L.length) return '';
+    var W = Math.max(320, L.length * 34 + 40), H = 150, x = function (i) { return 30 + i * (W - 50) / Math.max(1, L.length - 1); }, y = function (l) { return 120 - (l - 1) * 45; };
+    var g = [1, 2, 3].map(function (l) { return '<line x1="24" x2="' + (W - 10) + '" y1="' + y(l) + '" y2="' + y(l) + '" class="ph-grid"/><text x="0" y="' + (y(l) + 4) + '" class="ph-lab">' + LV[l] + '</text>'; }).join('');
+    g += '<polyline class="ph-line" points="' + L.map(function (a, i) { return x(i).toFixed(1) + ',' + y(a[2]); }).join(' ') + '"/>';
+    g += L.map(function (a, i) { return '<g><circle cx="' + x(i).toFixed(1) + '" cy="' + y(a[2]) + '" r="9" fill="' + (a[3] ? '#2d9b6a' : '#d0342c') + '" stroke="' + D.col[a[0]] + '" stroke-width="2.5"/><text x="' + x(i).toFixed(1) + '" y="' + (y(a[2]) + 4) + '" class="ph-mk">' + (a[3] ? '○' : '×') + '</text>' + (a[4] ? '<text x="' + x(i).toFixed(1) + '" y="' + (y(a[2]) - 14) + '" class="ph-dig">さかのぼり</text>' : '') + '<text x="' + x(i).toFixed(1) + '" y="146" class="ph-n">' + (i + 1) + '</text></g>'; }).join('');
+    return '<div class="sd-path"><svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="解答のあゆみ">' + g + '</svg></div>' +
+      '<p class="sd-grp">' + Object.keys(res.subs).map(function (k) { return '<span><i style="background:' + D.col[k] + '"></i>' + h(D.subj[k]) + '</span>'; }).join('') + '<span><i style="background:#2d9b6a"></i>正解</span><span><i style="background:#d0342c"></i>不正解</span></p>';
+  }
+  // さかのぼりマップ(まちがえた単元 ← 土台の単元)
+  function rootMap(res) {
+    var L = res.log || [], pairs = [];
+    L.forEach(function (a) { if (a[4] && a[5]) { var top = U(a[5]), base = U(a[1]); if (top && base) pairs.push([top, base, a[3], a[0]]); } });
+    if (!pairs.length) return '';
+    return '<div class="sd-map">' + pairs.map(function (p) {
+      return '<div class="sd-chain"><div class="node ng"><small>' + h(D.subj[p[3]]) + '・' + h(p[0].stage) + '</small><b>' + h(p[0].name) + '</b><span>×まちがえた</span></div><div class="arrow" aria-hidden="true">土台をたしかめる ▼</div>' +
+        '<div class="node ' + (p[2] ? 'ok' : 'ng root') + '"><small>' + h(p[1].stage) + '</small><b>' + h(p[1].name) + '</b><span>' + (p[2] ? '○できた ― 原因は上の単元そのもの' : '×ここが「根っこ」かもしれない') + '</span></div></div>';
+    }).join('') + '</div>';
+  }
   function result(res) {
     var ks = Object.keys(res.subs);
     var lowest = ks.slice().sort(function (a, b) { return res.subs[a].rate - res.subs[b].rate; })[0];
-    var html = '<ol class="g-crumb"><li><a href="home.html">Aqualium</a></li><li>無料診断テスト</li><li>結果</li></ol>' +
-      '<section class="sd-hero"><p class="sd-en">Result</p><h1>診断の結果</h1><p>' + h(res.grade) + '・' + h(res.date) + '</p></section>' +
-      '<section class="sd-card"><h2>教科ごとの到達レベル(目安)</h2><div class="sd-subs">' + ks.map(function (k) {
-        var s = res.subs[k];
-        return '<div class="sd-sub"><b>' + h(D.subj[k]) + '</b><div class="sd-meter" aria-label="到達レベル ' + LV[s.level] + '"><i class="' + (s.level >= 1 ? 'on' : '') + '"></i><i class="' + (s.level >= 2 ? 'on' : '') + '"></i><i class="' + (s.level >= 3 ? 'on' : '') + '"></i></div>' +
-          '<span>' + LV[s.level] + 'レベル</span><small>' + s.ok + ' / ' + s.n + '問 正解</small></div>'; }).join('') + '</div>' +
-      '<p class="sd-note">基礎=教科書の基本、標準=入試の標準問題、難関=難関校レベル。問題数が少ないため、あくまで目安です。</p></section>';
-    if (res.roots.length) html += '<section class="sd-card sd-root"><h2>つまずきの「根っこ」かもしれない単元</h2><p>まちがえた問題の土台になっている前の単元でも、まちがいがありました。上の単元より先に、ここから学び直すと伸びやすくなります。</p><ul>' +
-      res.roots.map(function (x) { return '<li><b>' + h(x[1]) + '</b><small>' + h(D.subj[x[3]]) + '・' + h(x[2]) + '</small></li>'; }).join('') + '</ul></section>';
-    html += '<section class="sd-card"><h2>まちがえた単元</h2>' + (res.weak.length ? '<ul class="sd-weak">' + res.weak.map(function (x) {
+    var best = ks.slice().sort(function (a, b) { return res.subs[b].rate - res.subs[a].rate; })[0];
+    band('Result', '診断の結果', h(res.grade) + '・' + h(res.date) + ' ／ 答えた問題 ' + (res.log ? res.log.length : '') + '問', [['無料診断テスト', 'shindan.html'], ['結果']]);
+    var html = ttl('Balance', '教科ごとの得点率') + '<section class="sd-card">' + radar(res, ks) +
+      '<p class="sd-msg">' + (best && lowest && best !== lowest ? 'いちばん得意なのは<b>' + h(D.subj[best]) + '(' + res.subs[best].rate + '%)</b>、伸びしろが大きいのは<b>' + h(D.subj[lowest]) + '(' + res.subs[lowest].rate + '%)</b>です。' : '') +
+      '<small>得点率は、難しい問題ほど重みをつけて計算しています(基礎1・標準1.4・難関1.9)。</small></p></section>';
+    html += ttl('Level', '到達レベル(目安)') + '<section class="sd-card">' + ruler(res, ks) + '<p class="sd-note">基礎=教科書の基本/標準=入試の標準問題/難関=難関校レベル。問題数が少ないため、あくまで目安です。</p></section>';
+    if (res.log) html += ttl('Path', '解答のあゆみ') + '<section class="sd-card"><p class="sd-desc">正解すると次は難しく、まちがえるとやさしくなります。高校の単元をまちがえたときは、その土台の単元を出して原因を「さかのぼり」ました。</p>' + path(res) + '</section>';
+    var map = res.log ? rootMap(res) : '';
+    if (map) html += ttl('Root cause', 'さかのぼりマップ') + '<section class="sd-card"><p class="sd-desc">まちがえた単元の「土台」も確かめました。土台でもまちがえた単元が、つまずきの根っこかもしれません。</p>' + map + '</section>';
+    else if (res.roots.length) html += ttl('Root cause', 'つまずきの根っこかもしれない単元') + '<section class="sd-card"><ul class="sd-weak">' + res.roots.map(function (x) { return '<li><b>' + h(x[1]) + '</b><small>' + h(D.subj[x[3]]) + '・' + h(x[2]) + '</small></li>'; }).join('') + '</ul></section>';
+    html += ttl('Weak points', 'まちがえた単元') + '<section class="sd-card">' + (res.weak.length ? '<ul class="sd-weak">' + res.weak.map(function (x) {
       var u = U(x[0]), pre = (u.pre || []).map(U).filter(Boolean);
-      return '<li><b>' + h(x[1]) + '</b><small>' + h(D.subj[x[3]]) + '・' + h(x[2]) + '</small>' + (pre.length ? '<span class="sd-pre">土台になる単元:' + pre.map(function (p) { return h(p.name) + '(' + h(p.stage) + ')'; }).join('、') + '</span>' : '') + '</li>'; }).join('') + '</ul>' : '<p>まちがえた問題はありませんでした。すばらしい！ より難しい問題で、伸ばせるところを探していきましょう。</p>') + '</section>';
-    html += '<section class="sd-card sd-next"><h2>次にやること</h2><ol>' +
+      return '<li style="border-left-color:' + D.col[x[3]] + '"><b>' + h(x[1]) + '</b><small>' + h(D.subj[x[3]]) + '・' + h(x[2]) + '</small>' + (pre.length ? '<span class="sd-pre">土台になる単元:' + pre.map(function (p) { return h(p.name) + '(' + h(p.stage) + ')'; }).join('、') + '</span>' : '') + '</li>'; }).join('') + '</ul>' : '<p class="sd-desc">まちがえた問題はありませんでした。すばらしい！ より難しい問題で、伸ばせるところを探していきましょう。</p>') + '</section>';
+    html += ttl('Next step', '次にやること') + '<section class="sd-card sd-next"><ol>' +
       (lowest ? '<li>いちばん伸びしろが大きいのは<b>' + h(D.subj[lowest]) + '</b>です。</li>' : '') +
       (res.roots.length ? '<li>まずは「根っこ」の単元(' + h(res.roots[0][1]) + ')を、基本から確かめましょう。</li>' : res.weak.length ? '<li>まちがえた単元の「土台になる単元」から確かめると、原因が見つかりやすくなります。</li>' : '') +
-      '<li>15問の診断では分かることに限りがあります。Aqualium の受講では、全286単元の診断と、あなた専用の教材・1回30分の個別指導で、弱点を一つずつ解消していきます。</li></ol>' +
-      '<div class="sd-ctas"><a class="sd-go" href="home.html#contact">受講について相談する</a><a class="sd-go sub" href="home.html#price">料金を見る</a><button type="button" class="sd-go sub" id="sdAgain">もう一度診断する</button></div>' +
+      '<li>15問の診断で分かることには限りがあります。Aqualium の受講では、全286単元の診断と、あなた専用の教材・1回30分の個別指導で、弱点を一つずつ解消していきます。</li></ol>' +
+      '<div class="sd-ctas"><a class="btn btn-grad" href="home.html#contact">受講について相談する</a><a class="btn btn-line" href="home.html#price">料金を見る</a><button type="button" class="btn btn-line" id="sdAgain">もう一度診断する</button></div>' +
       '<p class="sd-note">この結果は、この端末だけに保存されています。</p></section>' +
-      '<section class="sd-card"><h2>あわせて読みたい</h2><ul class="sd-links"><li><a href="guide/nigate.html">本当の苦手単元の見つけ方</a></li><li><a href="guide/plan.html">志望校から逆算する受験勉強の計画の立て方</a></li></ul></section>';
+      ttl('Column', 'あわせて読みたい') + '<section class="sd-card"><ul class="sd-links"><li><a href="guide/nigate.html">本当の苦手単元の見つけ方</a></li><li><a href="guide/plan.html">志望校から逆算する受験勉強の計画の立て方</a></li></ul></section>';
     root.innerHTML = html;
     root.querySelector('#sdAgain').addEventListener('click', function () { st.grade = res.grade; start(); });
     top();
