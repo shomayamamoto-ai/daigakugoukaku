@@ -16,12 +16,20 @@
 .sd .ttl:first-child { margin-top: 0; }
 .sd-card { background: #fff; border-radius: 20px; padding: 22px clamp(16px, 4vw, 30px); margin: 0 0 18px; box-shadow: 0 10px 30px rgba(4, 20, 58, .06); }
 .sd-card h2 { margin: 6px 0 12px; font-size: 16px; letter-spacing: .06em; color: var(--navy-800); }
-.sd-card h2 small { font-weight: 400; color: #5d6a85; margin-left: 4px; font-size: 12px; }
+.sd-card h2 small { white-space: nowrap; display: inline-block; font-weight: 400; color: #5d6a85; margin-left: 4px; font-size: 12px; }
 .sd-desc { margin: 0 0 12px; font-size: 14px; line-height: 1.9; color: #3b4766; }
 .sd-note { font-size: 12px; color: #5d6a85; margin: 12px 0 0; text-align: center; line-height: 1.8; }
 .sd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 92px), 1fr)); gap: 8px; margin-bottom: 18px; }
 .sd-opt { font: inherit; font-weight: 700; padding: 12px 6px; border: 1.5px solid #dfe6f2; border-radius: 12px; background: #fff; color: var(--navy-800); cursor: pointer; }
 .sd-opt.on { border-color: var(--blue-600); background: #e8eefc; color: var(--blue-600); }
+.sd-cgrp { margin-bottom: 4px; }
+.sd-cgrp .sd-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr)); margin-bottom: 12px; }
+.sd-cgrp-h { display: flex; align-items: center; gap: 7px; margin: 0 0 7px; font-size: 13px; font-weight: 700; color: #5d6a85; letter-spacing: .08em; }
+.sd-cgrp-h i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.sd-cgrp .sd-opt { font-size: 14px; line-height: 1.35; word-break: keep-all; overflow-wrap: anywhere; }
+.sd-cnote { margin: -4px 0 12px; font-size: 13px; }
+.sd-count { margin: 4px 0 14px; padding: 10px 12px; border-radius: 10px; background: #f3f6fb; font-size: 13px; color: #5d6a85; line-height: 1.7; text-align: center; }
+.sd-count b { color: var(--navy-800); }
 .sd-go, .btn-grad { display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 6px; padding: 14px 20px; border: 0; border-radius: 999px; font: inherit; font-weight: 700; font-size: 15px; letter-spacing: .08em; color: #fff; text-decoration: none; cursor: pointer;
   background: var(--grad); background-size: 140% 100%; box-shadow: 0 10px 24px rgba(17, 70, 214, .25); }
 .sd-go:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
