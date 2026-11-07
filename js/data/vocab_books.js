@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜9・13・14 を入力済み。Part 10 は一部(135語)入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -2757,6 +2757,144 @@ annual|年に1度の、毎年の
 bleed|出血する
 crash|衝突する、墜落する、衝突
 specialize|(specialize inで)専門にする
+`;
+// Part 10:画面写真から入力(1回目・135語。写真と写真のあいだの単語は、続きの写真を受け取りしだい追加)
+WPS.VBOOK_DATA.base[10] = `
+prompt|迅速な、促す
+withdraw|引っ込める、引き出す
+interfere|(interfere withで)干渉する
+gaze|見つめる
+launch|打ち上げる、始める
+glance|ちらりと見る
+insight|洞察／見識
+insightful|洞察に満ちた|派
+foster|育む
+stumble|つまずく
+oblige|義務づける
+obligation|義務|派
+stem|茎、(stem fromで)〜に由来する
+scratch|ひっかく
+embrace|抱きしめる、受け入れる
+via|〜経由で
+border|国境
+astonish|驚かせる
+dialect|方言
+correspond|(correspond toで)一致する、やりとりする、(correspond toで)相当する
+correspondence|通信|派
+correspondent|特派員|派
+will|意志、遺言書
+hand|手、(時計の)針
+handful|一握りの量|派
+now|今
+so|だから
+emphasis|強調
+weaken|弱める
+body|体、死体、団体
+elder|年上の
+motivate|〜に動機を与える
+motivation|モチベーション|派
+say|言う、書いてある
+saying|ことわざ|派
+must|〜しなければならない、〜に違いない
+data|データ
+as|〜として、〜するとき、〜なので、〜するように、〜につれて
+then|その時
+identity|身元、同一性
+peak|頂点
+eyesight|視力
+wealthy|裕福な
+addition|追加
+additional|追加の|派
+palace|宮殿
+confident|自信のある
+confidential|機密の|派
+primarily|主に
+willing|嫌がらずに〜する|派
+unwilling|したがらない|派
+evident|明らかな
+evidently|明らかに|派
+afterward(s)|その後
+long|(long forで)切望する、長い、長い間
+length|長さ|派
+sit|座る
+quickly|速く
+naturally|自然に
+blind|目の見えない
+healthy|健康な
+silence|沈黙
+chemistry|化学
+instruct|指示する
+instruction|指示、教育|派
+closely|密接に、注意深く
+intentionally|故意に
+broad|広い
+superstitious|迷信的な
+subsequently|その後
+alongside|〜のそばに
+lawyer|弁護士
+transport|輸送する
+exact|正確な
+exactly|正確に|派
+globe|地球
+globalism|グローバリズム|派
+exclude|除外する
+excluding|除いて|派
+exclusion|除外|派
+depart|出発する
+department|部門|派
+departure|出発|派
+cast|投げる、配役、(光・疑いを)投げかける
+scatter|まき散らす
+attribute|〜のせいだとする、特性
+stereotype|固定観念
+stereotypical|固定観念的な|派
+stereotypically|型どおりに、固定観念で|派
+neglect|怠る、放置する
+scare|おびえさせる
+scared|怖がって|派
+rank|位置づける
+stir|かき混ぜる
+stir-fry|炒める|派
+stirring|感動的な|派
+enthusiasm|熱意
+tiny|とても小さな
+witness|目撃者、目撃する
+imitate|まねる
+substance|物質、実質／内容
+equivalent|同等の
+undertake|引き受ける
+multiple|複数の
+drown|溺れ死ぬ
+split|割る
+constant|絶え間ない、一定の
+constantly|絶えず|派
+stomachache|腹痛
+descend|降下する
+descendant|子孫|派
+irritate|いらいらさせる
+visual|視覚の
+visually|視覚的に|派
+enterprise|企業、事業、進取の気性
+counterpart|対応する人
+install|設置する
+installation|取り付け|派
+load|荷、積む
+urge|強く勧める
+urgency|さし迫ったこと|派
+odd|奇妙な、奇数の
+bump|ぶつかる
+bumper|バンパー|派
+bumpy|でこぼこの|派
+strain|負担、(生物の)系統、無理に力を加える
+cultivate|耕す、育む
+temper|気性
+stare|じっと見つめる
+tongue|舌、言語
+endanger|危険にさらす
+endangered|絶滅の危機にある|派
+glimpse|ちらりと見る
+faculty|能力、(大学の)学部、(大学の)教員団
+somewhat|いくぶん
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
