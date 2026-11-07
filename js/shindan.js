@@ -18,8 +18,46 @@
   function sIdx(s) { return D.stages.indexOf(s); }
   function gIdx() { return st.grade === '既卒' ? 5 : sIdx(st.grade); }
   function isJH() { return gIdx() <= 2; }
-  function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* 無視 */ } }
-  function load() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  /* ---------- 結果の保存 ----------
+   * 1) この端末に履歴として保存(最大10回分)  2) PDF・印刷  3) 保存用リンク(結果を URL の # 以降に入れる。サーバーには送らない) */
+  var HKEY = 'aqShindanHist';
+  function hist() {
+    var a = [];
+    try { a = JSON.parse(localStorage.getItem(HKEY) || '[]') || []; } catch (e) { a = []; }
+    if (!a.length) { try { var old = JSON.parse(localStorage.getItem(KEY) || 'null'); if (old) a = [old]; } catch (e) { /* 無視 */ } }
+    return a;
+  }
+  function save(v) {
+    if (!v.id) v.id = Date.now().toString(36);
+    var a = hist().filter(function (x) { return x.id !== v.id; }); a.unshift(v); a = a.slice(0, 10);
+    try { localStorage.setItem(HKEY, JSON.stringify(a)); localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch (e) { return false; }
+  }
+  function load() { return hist()[0] || null; }
+  function delHist(id) { var a = hist().filter(function (x) { return x.id !== id; }); try { localStorage.setItem(HKEY, JSON.stringify(a)); if (!a.length) localStorage.removeItem(KEY); else localStorage.setItem(KEY, JSON.stringify(a[0])); } catch (e) { /* 無視 */ } }
+  // 結果を短い文字列にする(リンク用)
+  function pack(res) {
+    var o = { v: 1, d: res.date, g: res.grade, s: {}, w: res.weak.map(function (x) { return x[0]; }), r: res.roots.map(function (x) { return x[0]; }), l: res.log || [] };
+    Object.keys(res.subs).forEach(function (k) { var x = res.subs[k]; o.s[k] = [x.n, x.ok, x.rate, x.level, [x.byLv[1], x.byLv[2], x.byLv[3]]]; });
+    var j = JSON.stringify(o);
+    return btoa(unescape(encodeURIComponent(j))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unpack(str) {
+    try {
+      var j = decodeURIComponent(escape(atob(str.replace(/-/g, '+').replace(/_/g, '/')))), o = JSON.parse(j);
+      if (!o || o.v !== 1) return null;
+      var res = { date: o.d, grade: o.g, subs: {}, weak: [], roots: [], log: o.l || [], shared: true };
+      Object.keys(o.s).forEach(function (k) { var x = o.s[k]; if (!D.subj[k]) return; res.subs[k] = { n: x[0], ok: x[1], rate: x[2], level: x[3], byLv: { 1: x[4][0], 2: x[4][1], 3: x[4][2] } }; });
+      function row(id) { var u = U(id); return u ? [u.id, u.name, u.stage, u.subj] : null; }
+      res.weak = (o.w || []).map(row).filter(Boolean); res.roots = (o.r || []).map(row).filter(Boolean);
+      return res;
+    } catch (e) { return null; }
+  }
+  function linkOf(res) { return location.href.split('#')[0].split('?')[0] + '#r=' + pack(res); }
+  function copy(text, done) {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+    else { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } t.remove(); done(ok); }
+  }
+  function toast(msg) { var t = document.getElementById('sdToast'); if (!t) { t = document.createElement('div'); t.id = 'sdToast'; t.className = 'sd-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); } t.textContent = msg; t.classList.add('on'); clearTimeout(toast.tm); toast.tm = setTimeout(function () { t.classList.remove('on'); }, 2400); }
   function top() { window.scrollTo(0, 0); }
   function band(en, title, lead, crumbs) {
     var e = document.getElementById('sdEn'), t = document.getElementById('sdTitle'), l = document.getElementById('sdLead'), c = document.getElementById('sdCrumb');
@@ -66,7 +104,7 @@
         var on = st.subs.indexOf(k) >= 0; return '<button type="button" class="sd-opt' + (on ? ' on' : '') + '" data-s="' + k + '" aria-pressed="' + on + '">' + h(D.subj[k]) + '</button>'; }).join('') + '</div>' +
       '<button type="button" class="sd-go" id="sdGo"' + (st.grade && st.subs.length ? '' : ' disabled') + '>診断をはじめる</button>' +
       '<p class="sd-note">答えはこの端末だけに保存され、送信されることはありません。</p></section>' +
-      (prev ? '<p class="sd-prev">前回の結果(' + h(prev.date) + ')を<button type="button" class="sd-link" id="sdPrev">もう一度見る</button></p>' : '');
+      (prev ? histHTML() : '');
     root.querySelectorAll('[data-g]').forEach(function (b) { b.addEventListener('click', function () { st.grade = b.getAttribute('data-g'); start(); }); });
     root.querySelectorAll('[data-s]').forEach(function (b) { b.addEventListener('click', function () {
       var k = b.getAttribute('data-s'), i = st.subs.indexOf(k);
@@ -74,7 +112,22 @@
       start();
     }); });
     var go = root.querySelector('#sdGo'); if (go) go.addEventListener('click', begin);
-    var pv = root.querySelector('#sdPrev'); if (pv) pv.addEventListener('click', function () { result(prev); });
+    bindHist();
+  }
+
+  function avgRate(r) { var ks = Object.keys(r.subs); return ks.length ? Math.round(ks.reduce(function (a, k) { return a + r.subs[k].rate; }, 0) / ks.length) : 0; }
+  function histHTML() {
+    var a = hist(); if (!a.length) return '';
+    return ttl('History', '保存した診断結果') + '<section class="sd-card sd-hist"><ul>' + a.map(function (r, i) {
+      var ks = Object.keys(r.subs), av = avgRate(r), prev = a[i + 1], diff = prev ? av - avgRate(prev) : null;
+      return '<li><button type="button" class="sd-hist-open" data-hopen="' + h(r.id || i) + '"><b>' + h(r.date) + '<small>' + h(r.grade) + '</small></b><span>' + ks.map(function (k) { return h(D.subj[k]); }).join('・') + '</span>' +
+        '<em>平均 ' + av + '%' + (diff !== null && diff !== 0 ? '<i class="' + (diff > 0 ? 'up' : 'dn') + '">' + (diff > 0 ? '+' : '') + diff + '</i>' : '') + '</em></button>' +
+        '<button type="button" class="sd-hist-del" data-hdel="' + h(r.id || i) + '" aria-label="' + h(r.date) + 'の結果を削除">削除</button></li>';
+    }).join('') + '</ul><p class="sd-note">この端末のブラウザに、最大10回分まで保存されます。ほかの端末で見るときは、結果画面の「保存用リンク」を使ってください。</p></section>';
+  }
+  function bindHist() {
+    root.querySelectorAll('[data-hopen]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-hopen'), r = hist().filter(function (x, i) { return String(x.id || i) === id; })[0]; if (r) result(r); }); });
+    root.querySelectorAll('[data-hdel]').forEach(function (b) { b.addEventListener('click', function () { if (!confirm('この診断結果を削除しますか?')) return; delHist(b.getAttribute('data-hdel')); toast('削除しました'); start(); }); });
   }
 
   /* ---------- 出題 ---------- */
@@ -146,7 +199,7 @@
       if (!seenW[u.id]) { seenW[u.id] = 1; res.weak.push([u.id, u.name, u.stage, x.s]); }
       if (x.dug && !seenR[u.id]) { seenR[u.id] = 1; res.roots.push([u.id, u.name, u.stage, x.s]); }
     });
-    save(res); result(res);
+    var saved = save(res); result(res); toast(saved ? '診断結果をこの端末に保存しました' : 'この端末には保存できませんでした。保存用リンクかPDFで保存してください');
   }
   /* ---------- グラフ(学習アプリと同じ形) ---------- */
   // 教科バランスのレーダーチャート(3教科以上)/横棒グラフ(1〜2教科)
@@ -206,7 +259,12 @@
     var lowest = ks.slice().sort(function (a, b) { return res.subs[a].rate - res.subs[b].rate; })[0];
     var best = ks.slice().sort(function (a, b) { return res.subs[b].rate - res.subs[a].rate; })[0];
     band('Result', '診断の結果', h(res.grade) + '・' + h(res.date) + ' ／ 答えた問題 ' + (res.log ? res.log.length : '') + '問', [['無料診断テスト', 'shindan.html'], ['結果']]);
-    var html = ttl('Balance', '教科ごとの得点率') + '<section class="sd-card">' + radar(res, ks) +
+    var html = '<section class="sd-card sd-save no-print"><h2>この結果を保存する</h2><div class="sd-save-btns">' +
+      (res.shared ? '<button type="button" class="btn btn-line" id="sdKeep">この端末に保存</button>' : '<span class="sd-saved">この端末に保存済み</span>') +
+      '<button type="button" class="btn btn-line" id="sdPdf">PDF・印刷で保存</button><button type="button" class="btn btn-line" id="sdLink">保存用リンクをコピー</button>' +
+      (navigator.share ? '<button type="button" class="btn btn-line" id="sdShare">保護者などに送る</button>' : '') + '</div>' +
+      '<p class="sd-note">保存用リンクには結果だけが入っています(名前などの個人情報はふくみません)。開くと、ほかの端末でもこの結果を見られます。</p></section>' +
+      ttl('Balance', '教科ごとの得点率') + '<section class="sd-card">' + radar(res, ks) +
       '<p class="sd-msg">' + (best && lowest && best !== lowest ? 'いちばん得意なのは<b>' + h(D.subj[best]) + '(' + res.subs[best].rate + '%)</b>、伸びしろが大きいのは<b>' + h(D.subj[lowest]) + '(' + res.subs[lowest].rate + '%)</b>です。' : '') +
       '<small>得点率は、難しい問題ほど重みをつけて計算しています(基礎1・標準1.4・難関1.9)。</small></p></section>';
     html += ttl('Level', '到達レベル(目安)') + '<section class="sd-card">' + ruler(res, ks) + '<p class="sd-note">基礎=教科書の基本/標準=入試の標準問題/難関=難関校レベル。問題数が少ないため、あくまで目安です。</p></section>';
@@ -225,9 +283,15 @@
       '<p class="sd-note">この結果は、この端末だけに保存されています。</p></section>' +
       ttl('Column', 'あわせて読みたい') + '<section class="sd-card"><ul class="sd-links"><li><a href="guide/nigate.html">本当の苦手単元の見つけ方</a></li><li><a href="guide/plan.html">志望校から逆算する受験勉強の計画の立て方</a></li></ul></section>';
     root.innerHTML = html;
-    root.querySelector('#sdAgain').addEventListener('click', function () { st.grade = res.grade; start(); });
+    root.querySelector('#sdAgain').addEventListener('click', function () { if (location.hash) history.replaceState(null, '', location.pathname); st.grade = res.grade; start(); });
+    var pdf = root.querySelector('#sdPdf'); if (pdf) pdf.addEventListener('click', function () { var t = document.title; document.title = 'Aqualium 診断結果 ' + res.date; window.print(); setTimeout(function () { document.title = t; }, 500); });
+    var lk = root.querySelector('#sdLink'); if (lk) lk.addEventListener('click', function () { copy(linkOf(res), function (ok) { toast(ok ? '保存用リンクをコピーしました。メモやLINEに貼って保存してください' : 'コピーできませんでした'); }); });
+    var sh = root.querySelector('#sdShare'); if (sh) sh.addEventListener('click', function () { navigator.share({ title: 'Aqualium 無料診断テストの結果', text: res.date + ' ' + res.grade + ' の診断結果', url: linkOf(res) }).catch(function () { /* 取り消し */ }); });
+    var kp = root.querySelector('#sdKeep'); if (kp) kp.addEventListener('click', function () { delete res.shared; var ok = save(res); toast(ok ? 'この端末に保存しました' : '保存できませんでした'); kp.outerHTML = '<span class="sd-saved">この端末に保存済み</span>'; });
     top();
   }
 
-  start();
+  var m = location.hash.match(/^#r=([A-Za-z0-9_-]+)/), shared = m ? unpack(m[1]) : null;
+  if (shared) { var dup = hist().filter(function (x) { return x.date === shared.date && x.grade === shared.grade && JSON.stringify(x.log) === JSON.stringify(shared.log); })[0]; result(dup || shared); }
+  else start();
 })();
