@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -26,7 +26,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -5001,6 +5001,134 @@ magnitude|大きさ
 nuance|微妙な違い
 exemplify|例証する
 sovereignty|主権
+`;
+// 7 = 早稲田 スポーツ科学部(画面写真から全125語)
+WPS.VBOOK_DATA.sokei[7] = `
+eventual|最終的な
+administrator|管理者
+gymnastic|体操の
+imperative|必須の、必須の課題、命令形の
+linguist|言語学者
+sedentary|座りがちの
+spite|悪意
+tout|うるさく売り込む
+amid|～の真っただ中で
+ancestral|先祖の
+apathetic|無関心な
+appreciation|感謝、理解
+atop|～の上に
+blockbuster|大ヒット作
+calculus|微積分
+champion|擁護者、擁護する、優勝者
+chemotherapy|化学療法
+colonist|入植者
+communal|共同の
+concussion|脳震盪
+cosmic|宇宙の
+cradle|揺りかご、発祥地
+credible|信頼できる
+critique|批評
+curator|学芸員
+dietary|食事の
+diffusion|拡散
+discriminatory|差別的な
+fable|寓話
+feminist|男女同権論者
+gel|ゲル状のもの
+geopolitical|地政学的な
+headgear|かぶり物
+hormone|ホルモン
+humility|謙虚さ
+inaugural|就任の
+inflexibility|柔軟性のなさ
+intrusive|押しつけがましい
+intuitively|直感的に
+invasive|侵略的な
+lineage|血統
+lucrative|儲かる
+mannerism|癖
+milestone|画期的出来事
+mint|ミント、造幣局
+neurochemical|神経化学物質
+objectionable|好ましくない
+patriotism|愛国心
+perseverance|忍耐
+practitioner|実践者、開業医
+proliferation|急増
+prowess|卓越した技量
+quantify|数量化する
+rodent|齧歯類
+salient|顕著な
+sexism|性差別
+slot|枠
+socioeconomic|社会経済的な
+spurt|噴出する
+telegraph|電信
+upbeat|楽観的な
+upfront|率直な、前もって
+veneer|うわべ
+vent|通気口
+vie|競う
+villain|悪役
+void|空虚、無効の
+impede|邪魔する
+elaborate|手の込んだ、詳しく述べる
+notorious|悪名高い
+skeptical|懐疑的な
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい
+manifest|明らかな、明らかに示す
+incorporate|取り入れる
+signify|意味する
+undermine|弱める
+mandatory|義務的な
+longevity|長寿
+compensate|補償する
+intervene|介入する
+subsequent|続いて起こる
+indigenous|固有の
+contemplate|熟考する
+improvise|即興で作る
+prevalent|広く行き渡っている
+legislation|法律
+endeavor|努力
+accommodate|収容する、適応させる
+disrupt|かき乱す
+sanctuary|聖域
+demographic|人口統計上の
+entrepreneur|起業家
+controversy|論争
+unprecedented|前例のない
+anthropology|人類学
+contend|戦う、主張する
+physiological|生理的な
+prose|散文
+ideology|イデオロギー
+rhetoric|修辞
+autonomy|自治、自主性
+concede|認める
+apparatus|装置
+paradigm|パラダイム
+resilient|回復力のある
+susceptible|影響を受けやすい
+eloquent|雄弁な
+stance|立場
+proponent|支持者
+predominantly|主に
+bewilder|当惑させる
+constrain|制約する
+facilitate|促進する
+confer|授与する、相談する
+propel|推進する
+dormant|休止状態の
+pivotal|極めて重要な
+futile|無駄な
+legitimacy|正当性
+magnitude|大きさ
+disperse|分散させる
+exemplify|例証する
+augment|増強する
+attest|証明する
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
