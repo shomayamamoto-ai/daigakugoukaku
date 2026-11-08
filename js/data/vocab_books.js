@@ -6375,7 +6375,7 @@ concentrate on|～に集中する
 put up|～を建てる、掲げる
 go down|下がる、沈む
 `;
-// 中学英単語:3 = 中学2年(画面写真から入力。続きは受け取りしだい追加)
+// 中学英単語:3 = 中学2年(画面写真から全425語)
 WPS.VBOOK_DATA.jh[3] = `
 agree|賛成する、同意する
 borrow|～を借りる
@@ -6503,6 +6503,15 @@ worst|最も悪い、最も悪く
 better|もっとよい、もっと上手に
 best|最もよい、最も上手に
 adult|大人、大人の
+guest|客、招待客
+visitor|訪問者、観光客
+neighbor|近所の人、隣人
+host|主人(役)、主催者
+leader|リーダー、指導者
+writer|作家、書く人
+volunteer|ボランティア、進んで～する
+engineer|技術者、エンジニア
+scientist|科学者
 designer|デザイナー
 staff|職員、スタッフ
 police|警察
