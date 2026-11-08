@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -27,7 +27,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -5129,6 +5129,152 @@ disperse|分散させる
 exemplify|例証する
 augment|増強する
 attest|証明する
+`;
+// 8 = 慶應 法学部(画面写真から入力・158語中143語。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[8] = `
+spite|悪意
+cascade|小滝
+cult|カルト
+feminism|男女同権主義
+feminist|男女同権論者
+foremost|第一の
+haul|引っ張る
+intensify|強める
+perpetuate|永続させる
+plea|嘆願
+ripple|さざ波
+sublime|崇高な
+adjacent|隣接した
+adversary|敵
+advert|広告
+aftermath|余波
+akin|似ている
+allure|魅力
+appreciation|感謝、理解
+arcane|難解な
+aristocrat|貴族
+aura|雰囲気
+aversion|嫌悪
+awe|畏敬の念
+awesome|畏敬の念を起こさせる
+bustling|にぎわう
+captive|捕らわれた
+cerebral|脳の
+champion|擁護者、擁護する、優勝者
+compulsion|強制、衝動
+consensual|合意に基づく
+constitutional|憲法の
+conviction|確信、有罪判決
+demise|消滅
+democrat|民主主義者
+detection|検出
+detritus|残骸
+elasticity|弾力性
+elusive|捉えどころのない
+err|誤る
+exacerbate|悪化させる
+falsehood|虚偽
+fort|砦
+fraud|詐欺
+gel|ゲル状のもの
+gravitate|引き寄せられる
+gymnastic|体操の
+hack|切り刻む、不正侵入する
+humane|人道的な
+impoverished|貧困化した
+indicator|指標
+inextricably|密接に
+ingenuity|創意工夫
+inhospitable|住みにくい
+institutional|制度の
+interrogation|尋問
+invasive|侵略的な
+lucrative|儲かる
+mannerism|癖
+momentarily|一瞬、(主に米)間もなく
+monstrous|途方もない
+mosaic|モザイク
+mystic|神秘的な
+nostril|鼻孔
+operational|運用上の
+pernicious|有害な
+prevalence|普及
+promotional|販促の
+propaganda|政治宣伝
+prudent|思慮深い
+quantitative|量的な
+quantum|量子
+radiant|輝く
+rebellion|反乱
+referendum|国民投票
+relentlessly|容赦なく
+reproductive|生殖の
+resonate|共鳴する
+retention|保持
+retribution|報い
+ruthless|無慈悲な
+secular|世俗的な
+semantic|意味の
+sexism|性差別
+sovereign|主権を持つ、君主
+sustenance|栄養
+tar|タール
+theorist|理論家
+trauma|トラウマ
+undeniably|否定できないほど
+veneer|うわべ
+veterinary|獣医の
+vibrant|活気のある
+vie|競う
+void|空虚、無効の
+wastage|浪費
+whereby|それによって～する
+elaborate|手の込んだ、詳しく述べる
+penetrate|貫通する
+authentic|本物の
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい
+advocate|提唱者、提唱する
+presume|推定する
+comprise|～から成る、占める
+prescribe|処方する、規定する
+consensus|合意
+undermine|弱める
+ambiguous|あいまいな
+mandatory|義務的な
+compensate|補償する
+displace|取って代わる
+paradox|逆説
+intervene|介入する
+indigenous|固有の
+contemplate|熟考する
+indulge|(indulge inで)ふける
+integrity|誠実、完全性
+prevalent|広く行き渡っている
+premise|前提、(premisesで)建物と敷地、～を前提とする
+legislation|法律
+nonetheless|それにもかかわらず
+acute|深刻な、鋭い、急性の
+prosecute|起訴する
+authorize|権限を与える
+extravagant|ぜいたくな
+controversy|論争
+sentiment|感情
+conscientious|良心的な
+regime|政権
+tyranny|圧政
+contend|戦う、主張する
+converse|逆の、正反対のもの、会話する
+curb|抑制する
+discourse|話し合い
+contempt|軽蔑
+deduce|推定する
+convict|有罪判決を下す
+administer|管理する、(薬を)投与する
+doctrine|教義
+intricate|複雑な
+plausible|もっともらしい
+amend|修正する
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
