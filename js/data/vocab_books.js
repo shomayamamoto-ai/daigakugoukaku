@@ -7766,6 +7766,109 @@ major in|～を専攻する
 refrain from|～を控える
 sooner or later|遅かれ早かれ
 `;
+// 英熟語:10 = MARCH⑦(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[10] = `
+much less|まして～ない
+on the market|売りに出されて
+turn back|引き返す
+as a matter of fact|実のところ
+have an impact on|～に影響を与える
+think twice|よく考え直す
+by comparison|比較すると
+feel free to|自由に～する
+from scratch|ゼロから
+give back|～を返す
+obsessed with|～に取りつかれている
+out of sight|見えない所に
+settle on|～に決める
+absent from|～を欠席している
+no sooner A than|～するやいなや…
+stand by|～を支持する、待機する
+absorbed in|～に夢中である
+all day long|一日中
+date from|～から始まる
+warm up|準備運動する、温まる
+fit for|～に適している
+try one's best|全力を尽くす
+at a loss|途方に暮れて
+give A a hand|～に手を貸す
+to begin with|まず第一に
+in theory|理論上は
+cut out|～を切り取る、やめる
+dispose of|～を処分する
+in question|問題の、当該の
+hold true|当てはまる
+nothing more than|～にすぎない
+get away with|～をして罰を逃れる
+from time to time|時々
+in itself|それ自体で
+on occasion|時折
+bother to|わざわざ～する
+for the benefit of|～のために
+on track|順調に進んで
+pay back|～を返す、仕返しする
+rob A of|Aから…を奪う
+take down|～を書き留める、取り壊す
+hand out|～を配る
+in exchange for|～と引き換えに
+all the same|それでもやはり
+for the time being|当分の間
+hand down|～を後世に伝える
+lock up|～に鍵をかける
+owe A to|Aは…のおかげである
+cut down on|～を減らす
+go along with|～に同調する
+blame A on|AをBのせいにする
+leave over|～を残す
+take one's time|ゆっくりやる
+all of a sudden|突然
+count in|～を数に入れる
+take turns|交代でする
+wear out|すり減る、疲れ果てさせる
+keep an eye on|～から目を離さない
+mix up|～を混同する
+devote oneself to|～に専念する
+the other way around|逆に、あべこべに
+clear up|～を解決する、晴れる
+conform to|～に従う、一致する
+sign in|サインインする
+bear on|～に関係がある
+draw up|～を作成する
+representative of|～を代表している
+in the short term|短期的には
+operate on|～を手術する
+fill up|～を満たす
+light up|明るくなる
+make ends meet|家計をやりくりする
+close down|閉鎖する
+inferior to|～より劣っている
+more often than not|たいてい
+out of fashion|流行遅れで
+single out|～を選び出す
+by all means|ぜひとも
+embark on|～に乗り出す
+opt for|～を選ぶ
+out of date|時代遅れの
+there is no -ing|～することはできない
+with the exception of|～を除いて
+come about|起こる
+identical to|～と同一である
+in place of|～の代わりに
+in the long term|長期的には
+tie up|～を縛る、拘束する
+complain of|(苦痛など)を訴える
+for fear that|～することを恐れて
+from the perspective of|～の視点から
+go without|～なしで済ます
+have difficulty in|～するのに苦労する
+live through|～を生き抜く
+on hand|手元にあって
+take back|～を取り消す、返す
+think up|～を考え出す
+fall for|～にだまされる、惚れる
+forgive A for|…のことでAを許す
+may as well do|～したほうがよい
+`;
 // 英熟語:11 = MARCH⑧(画面写真から全100語)
 WPS.VBOOK_DATA.idiom[11] = `
 on account of|～のために
