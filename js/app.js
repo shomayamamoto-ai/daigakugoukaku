@@ -2463,7 +2463,15 @@
   }
   renderSettings.after = function () {
     var lo = document.getElementById('logoutBtn'); if (lo) lo.addEventListener('click', function () { ask('ログアウトしますか?(学習の記録は、この端末に残ります)', 'ログアウト', function () { WPS.Auth.logout(); go('#home'); }); });
-    var ri = document.getElementById('replayIntro'); if (ri) ri.addEventListener('click', function () { if (WPS.Intro) WPS.Intro.play({ force: true }); });
+    var ri = document.getElementById('replayIntro'); if (ri) ri.addEventListener('click', function () {
+      // オープニングムービーはWebサイト用。アプリでは、見たいときだけ読みこんで流す
+      if (WPS.Intro) { WPS.Intro.play({ force: true }); return; }
+      window.WPS_INTRO_MANUAL = true;
+      var sc = document.createElement('script'); sc.src = 'js/intro.js?v=20261108a';
+      sc.onload = function () { if (WPS.Intro) WPS.Intro.play({ force: true }); };
+      sc.onerror = function () { toast('読みこめませんでした。通信の状態を確かめてください'); };
+      document.head.appendChild(sc);
+    });
     var rt = document.getElementById('replayTour'); if (rt) rt.addEventListener('click', function () { go('#home'); setTimeout(function () { window.scrollTo(0, 0); WPS.startTour(); }, 400); });
     var s = S.get();
     bindProfileForm(function () { toast('保存したよ！ ロードマップも更新したよ'); render(); });

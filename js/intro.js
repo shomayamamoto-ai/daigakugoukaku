@@ -3,7 +3,8 @@
  * 反射(フレネル)・照明のハイライト・波紋・映りこみのゆがみを表現する。
  * 輪郭だけ光る(リムライト)水瓶から、ガラスのような水が1本注がれ、波紋が広がる。
  * 最後に AQUALIUM の文字が浮かび、その映りこみが波でゆらぐ。光が1回だけ文字の上を走る。
- * サイトを開くたび(読みこむたび)に必ず流す。?nointro・?notour のときだけ流さない。
+ * Webサイト(home.html)を開くたび(読みこむたび)に必ず流す。?nointro・?notour のときだけ流さない。
+ * 学習アプリ(index.html)では自動で流さない(設定の「オープニングムービーを見る」から流せる)。
  * タップ/SKIP/Esc で飛ばせる。動きを減らす設定・WebGL が使えない端末では、静止したロゴを短く出す。
  */
 (function () {
@@ -396,5 +397,6 @@
   }
 
   WPS.Intro = { play: play };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { play(); }); else play();
+  // 学習アプリ(設定の「オープニングムービーを見る」)から読みこんだときは、自動では流さない
+  if (!window.WPS_INTRO_MANUAL) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { play(); }); else play(); }
 })();
