@@ -5440,6 +5440,109 @@ jealous of|～をねたんでいる
 try on|～を試着する
 go on with|～を続ける
 `;
+// 英熟語:4 = MARCH①(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[4] = `
+thousands of|何千もの
+as much as|～ほども
+return to|～に戻る
+grow up|成長する
+happen to|たまたま～する
+end up|最終的に～になる
+attempt to|～しようと試みる
+pay for|～の代金を払う、～の報いを受ける
+millions of|何百万もの
+along with|～と一緒に
+nevertheless|それにもかかわらず
+take place|行われる、起こる
+after all|結局、何といっても
+force A to|Aに～することを強いる
+compare with|～と比較する
+figure out|～を理解する、解明する
+suffer from|～に苦しむ
+the moment|～するとすぐに
+at work|働いて、作用して
+on earth|(疑問詞強調)一体全体
+prevent A from|Aが…するのを妨げる
+in general|一般に
+take to|～が好きになる、～し始める
+in spite of|～にもかかわらず
+responsible for|～に責任がある
+published in|～に掲載された
+designed to|～するように設計されている
+call for|～を必要とする、要求する
+a matter of|～の問題
+adapt to|～に適応する
+but for|～がなければ
+as a result of|～の結果として
+apply to|～に当てはまる
+right now|今すぐ
+affected by|～の影響を受けている
+in -ing|～する際に
+approach to|～への取り組み方
+capable of|～する能力がある
+by the time|～するまでには
+in the middle of|～の最中に
+on average|平均して
+turn to|～に頼る、～の方を向く
+not necessarily|必ずしも～ではない
+train A to|Aを～するよう訓練する
+filled with|～で満ちている
+fill in|～に記入する
+intend to|～するつもりである
+put on|～を身につける
+add to|～を増やす
+and so on|～など
+as far as|～する範囲では
+and yet|それにもかかわらず
+as for|～について言えば
+live on|～を主食にする、～で生活する
+when it comes to|～のこととなると
+take on|～を引き受ける、帯びる
+get out of|～から出る、～を免れる
+care for|～の世話をする、～を好む
+struggle to|～しようと奮闘する
+at a time|一度に
+work out|～を解決する、うまくいく
+choose to|～することを選ぶ
+result from|～から生じる
+adapted from|～から脚色・改作された
+bring about|～をもたらす
+care about|～を気にかける
+in short|要するに
+in part|一部は
+protect A from|Aを…から守る
+what is called|いわゆる
+be forced to do|～せざるを得ない
+mentioned in|～で言及された
+in public|人前で
+keep up|～を維持する
+break down|故障する、決裂する、分解する
+except for|～を除いて
+at once|すぐに、同時に
+get in|入る、到着する
+limited to|～に限られている
+at the moment|今のところ
+look to|～に期待する
+turn into|～に変わる
+nonetheless|それにもかかわらず
+if not|そうでないとしても
+take off|離陸する、(服を)脱ぐ
+get up|起きる
+available to|～が利用できる
+graduate from|～を卒業する
+as a whole|全体として
+have on|～を身につけている
+go up|上がる
+remind A of|Aに…を思い出させる
+invest in|～に投資する
+wake up|目を覚ます
+afford to|～する余裕がある
+together with|～と一緒に
+show up|現れる
+go for|～を選ぶ、～に当てはまる
+pay attention to|～に注意を払う
+make for|～に役立つ、～の方へ向かう
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
