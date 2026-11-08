@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜11・13・14 を入力済み。Part 12 は一部(144語)入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜11・13・14 を入力済み。Part 12 は300語中283語を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -3364,7 +3364,7 @@ scheme|計画、陰謀
 treaty|条約
 compel|強制する
 `;
-// Part 12:画面写真から入力(1回目・144語。続きは受け取りしだい追加)
+// Part 12:画面写真から入力(2回分・283語。続きは受け取りしだい追加)
 WPS.VBOOK_DATA.base[12] = `
 compelling|説得力のある|派
 divert|そらす
@@ -3509,6 +3509,146 @@ margin|余白、差、利幅
 marginal|わずかな|派
 marginally|わずかに|派
 spouse|配偶者
+tackle|取り組む
+worsen|悪化する
+induce|引き起こす
+induction|導入|派
+inducement|促すこと|派
+insert|差し込む
+insertion|挿入|派
+thesis|論文、テーマ
+galaxy|銀河
+defect|欠陥
+clumsy|不器用な
+innate|生まれつきの
+innately|生まれつき|派
+tender|柔らかい、優しい
+thrill|ぞくぞくさせる
+thrilled|とてもうれしい|派
+liable|〜しがちだ、(liable forで)〜に法的責任がある
+pierce|突き刺す
+embody|具体化する
+census|国勢調査
+vacuum|真空
+wicked|悪意のある
+scarce|乏しい
+scarcity|不足|派
+broadcast|放送する
+destiny|運命
+destined|運命づけられた、(be destined forで)〜行きの／〜宛ての|派
+crew|乗組員
+tone|口調、音色
+wisdom|知恵
+brand-new|新品の
+mere|単なる
+merely|単に|派
+coward|臆病者
+civilization|文明
+blossom|花が咲く
+lower|下げる
+given|決められた、〜を考慮すると
+vowel|母音
+agony|苦痛
+endow|授ける
+endowed|恵まれた|派
+sober|酔っていない
+await|待つ
+awaiting|待つ|派
+greed|強欲
+click|クリックする
+drone|ドローン
+fatal|致命的な
+mimic|まねる
+vapor|蒸気
+fairy|妖精
+brand|ブランド
+swing|揺らす
+basin|流域、盆地、洗面器
+spray|吹きかける
+blend|混ぜる
+blade|刃
+stalk|忍び寄る、茎
+repay|返済する
+isolate|孤立させる
+isolation|孤立|派
+isolated|孤立した|派
+scarcely|ほとんど〜ない
+recruit|採用する
+triumph|勝利
+triumphant|勝ち誇った|派
+uncover|明らかにする
+cherish|大切にする
+supreme|最高の
+funeral|葬式
+microbe|微生物
+microbial|微生物の|派
+fatigue|疲労
+consent|合意
+hygiene|衛生
+conform|(conform toで)合わせる
+conformity|順応|派
+enforce|施行する
+enforcement|実施|派
+revenue|歳入、収益
+hostile|敵意のある
+confine|閉じ込める、制限する
+utilize|利用する
+utilization|利用|派
+conceal|隠す
+prevail|普及している、勝る
+tuition|授業料
+drought|干ばつ
+fertile|肥沃な
+fertility|肥沃|派
+fertilizer|肥料|派
+obscure|わかりにくい、あまり知られていない、見えにくくする
+fragile|壊れやすい
+fragility|壊れやすさ|派
+precede|先行する
+precedent|先例|派
+confess|白状する
+furious|激怒した
+impulse|衝動
+radical|根本的な、急進的な
+radicalism|急進主義|派
+radically|根本的に|派
+trivial|ささいな
+triviality|取るに足らないこと|派
+surpass|上回る
+dictate|命令する、左右する
+dictator|独裁者|派
+provoke|引き起こす、怒らせる
+provocation|挑発|派
+provocative|挑発的な|派
+disgust|嫌悪を抱かせる
+disgusting|むかつくような|派
+surplus|余剰
+cuisine|料理
+questionnaire|アンケート
+opponent|対戦相手、反対者
+discount|割引、割り引く、重要でないとみなす
+quote|引用する
+portion|部分、1人前
+moderate|適度な
+laundry|洗濯
+incentive|動機づけ
+clarify|明らかにする
+clarification|明確化|派
+grocery|食料品店
+grocer|食料品店の主人|派
+fortune|財産、運
+particle|粒子
+correlation|相関
+frequent|頻繁な、しばしば訪れる
+frequently|頻繁に|派
+offend|怒らせる
+offensive|不快な、攻撃的な|派
+offending|怒らせる|派
+empire|帝国
+emperor|皇帝|派
+accent|なまり、アクセント
+namely|すなわち
+lament|嘆く
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
