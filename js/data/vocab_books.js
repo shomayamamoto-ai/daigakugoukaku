@@ -7766,6 +7766,109 @@ major in|～を専攻する
 refrain from|～を控える
 sooner or later|遅かれ早かれ
 `;
+// 英熟語:9 = MARCH⑥(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[9] = `
+aside from|～は別として
+check in|チェックインする
+day and night|昼も夜も
+take the place of|～に取って代わる
+burst into|突然～し出す
+hit on|～を思いつく
+speak out|はっきり意見を言う
+in the age of|～の時代に
+trade in|～を下取りに出す
+in accordance with|～に従って
+addicted to|～の中毒である
+decide on|～に決める
+curious about|～に好奇心がある
+in private|内密に
+try out|～を試す
+compensate for|～を埋め合わせる
+guilty of|～の罪を犯している
+make up one's mind|決心する
+on purpose|わざと
+upside down|逆さまに
+fill out|(書類)に記入する
+throw out|～を捨てる、追い出す
+pile up|積み重なる
+prohibit A from|Aが…するのを禁じる
+resistant to|～に抵抗力がある
+sure of|～を確信している
+out of the question|問題外で、不可能で
+angry with|～に腹を立てている
+wipe out|～を全滅させる
+susceptible to|～の影響を受けやすい
+prone to|～しがちである
+by nature|生まれつき
+drop by|立ち寄る
+as a consequence|その結果として
+on the rise|増加中で
+identify with|～と一体感を持つ
+in return for|～のお返しに
+on the part of|～の側の
+work through|～を乗り越える
+beneficial to|～に有益である
+make an effort|努力する
+married to|～と結婚している
+start out|出発する、始める
+get by|何とかやっていく
+in the presence of|～の面前で
+no less than|～も(多く)
+on the side|副業として、付け合わせで
+keep to|～を守る、～から離れない
+native to|～原産である
+on -ing|～するとすぐに
+sign up for|～に申し込む
+at all times|常に
+it is not until A that|～して初めて…する
+on the way to|～へ行く途中で
+once in a while|時々
+one by one|一つずつ
+surprised at|～に驚いている
+to tell the truth|実を言うと
+in a hurry|急いで
+meet the needs of|～のニーズを満たす
+join in|～に加わる
+from a distance|遠くから
+hang around|ぶらつく
+tell A from|Aを…と見分ける
+feed on|～を餌にする
+convince A of|Aに…を確信させる
+eat out|外食する
+in principle|原則として
+at the center of|～の中心に
+vice versa|逆もまた同様
+hold back|～を抑える、ためらう
+make the most of|～を最大限に活用する
+to the extent that|～する程度まで
+by way of|～経由で、～として
+confined to|～に限られている
+gain weight|体重が増える
+in demand|需要があって
+as far as A concerned|～に関する限り
+be to blame for|～の責任がある
+enthusiastic about|～に熱心である
+settle down|落ち着く
+get at|～を言おうとする、～に達する
+add up to|合計～になる
+grow out of|～から生じる、成長して～を脱する
+as ever|相変わらず
+give off|(光・匂い)を発する
+now and then|時々
+hold out|持ちこたえる
+on the edge of|～の縁で、～の瀬戸際で
+take it easy|気楽にやる
+touch on|～に言及する
+on the one hand|一方では
+as follows|次のとおり
+entitled to|～する権利がある
+give birth to|～を生む
+fall out|仲たがいする
+worthy of|～に値する
+wind up|最後には～になる
+in support of|～を支持して
+in vain|無駄に
+`;
 // 英熟語:10 = MARCH⑦(画面写真から全100語)
 WPS.VBOOK_DATA.idiom[10] = `
 much less|まして～ない
