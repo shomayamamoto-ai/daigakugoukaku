@@ -5520,6 +5520,109 @@ sell off|～を売り払う
 stand to reason|道理にかなう
 stand up to|～に立ち向かう
 `;
+// 英熟語:13 = 早慶①(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[13] = `
+in the hands of|～の手中に、～に委ねられて
+to a certain extent|ある程度まで
+in a sense|ある意味で
+strive for|～を得ようと努力する
+inherent in|～に固有である
+at large|全体としての、逃亡中で
+deprived of|～を奪われている
+lose sight of|～を見失う
+put forward|～を提案する
+watch over|～を見守る
+what is more|その上
+in one's own right|それ自体の力で、本来の資格で
+to the contrary|それと反対の
+take account of|～を考慮する
+cautious about|～に用心深い
+for one's part|～としては
+in the name of|～の名のもとに
+argue against|～に反対の主張をする
+by and large|概して
+compatible with|～と両立する
+in agreement with|～と一致して
+so to speak|いわば
+be obliged to do|～せざるを得ない
+comply with|～に従う
+content with|～に満足している
+stand up for|～を擁護する
+at all costs|どんな犠牲を払っても
+draw attention to|～に注意を引く
+for the moment|当面は
+kick off|始まる
+come under|～を受ける
+in large part|大部分は
+keep out|～を締め出す
+at first glance|一見したところ
+at one's disposal|～の自由になる
+applicable to|～に適用できる
+at odds with|～と対立して
+cover up|～を隠す
+peculiar to|～に特有である
+apologize to|～に謝る
+bump into|～に偶然出会う
+cut back on|～を削減する
+fall apart|ばらばらになる
+let go of|～を手放す
+hold to|～を守る
+in silence|黙って
+scores of|多数の
+take shape|形になる
+at a distance|少し離れて
+fall short of|～に達しない
+fluent in|～が流暢である
+needless to say|言うまでもなく
+pin down|～を突き止める
+at the latest|遅くとも
+immune to|～に免疫がある
+irrespective of|～に関係なく
+start off|始める
+tolerant of|～に寛容である
+as it happens|実は、たまたま
+boast of|～を自慢する
+in the interest of|～のために
+no A whatsoever|全く～ない
+from the point of view of|～の観点から
+allergic to|～にアレルギーがある
+lag behind|～に遅れをとる
+work up|～を奮い起こす
+gain access to|～を利用できるようになる
+on fire|燃えて
+lead up to|～に至る
+run the risk of|～の危険を冒す
+under pressure|プレッシャーを受けて
+wary of|～を警戒している
+at length|詳細に、ついに
+deserve to|～するに値する
+for fear of|～を恐れて
+have something to do with|～と何か関係がある
+live off|～に頼って生きる
+preferable to|～より好ましい
+acquainted with|～を知っている、面識がある
+at the cost of|～を犠牲にして
+miss the point|要点を外す
+ashamed of|～を恥じている
+hand in hand|手を取り合って
+liable to|～しがちである
+responsive to|～に敏感に反応する
+win over|～を味方につける
+at heart|心の底では
+distinct from|～と異なっている
+dress up|着飾る
+irrelevant to|～に無関係である
+track down|～を追跡して見つける
+bet on|～に賭ける
+carry over|～を持ち越す
+consist in|～にある、存する
+go hand in hand|密接に関連している
+in conjunction with|～と併せて
+in harmony with|～と調和して
+knock out|～を打ち負かす
+pull off|～をやり遂げる
+a good deal of|多量の
+`;
 // 英熟語:15 = 早慶③(画面写真から全44語)
 WPS.VBOOK_DATA.idiom[15] = `
 by mistake|間違って
