@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -26,7 +26,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -5421,6 +5421,153 @@ mediate|調停する
 deter|思いとどまらせる
 resilience|回復力
 nuance|微妙な違い
+`;
+// 10 = 早稲田 文学部(画面写真から入力・264語中144語。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[10] = `
+spite|悪意
+authoritative|権威ある
+benefactor|後援者
+biodiversity|生物多様性
+capitalist|資本主義の
+celestial|天体の
+chaotic|混沌とした
+coercive|強制的な
+conceptual|概念的な
+cosmopolitan|国際的な
+delusion|妄想
+enthusiast|熱心な人
+erode|侵食する
+fable|寓話
+fascist|ファシストの
+hospitable|もてなしのよい
+inadvertently|うっかり
+landmass|陸塊
+maize|トウモロコシ
+missionary|宣教師
+onward|前へ
+patriotism|愛国心
+porcelain|磁器
+pragmatic|実際的な
+proliferate|急増する
+secular|世俗的な
+stark|明白な
+tactic|戦術
+telegraph|電信
+undeniably|否定できないほど
+vibrant|活気のある
+abnormal|異常な
+administrative|管理の
+administrator|管理者
+aftermath|余波
+albeit|～ではあるが
+allusion|それとない言及
+alphabetic|アルファベットの
+antagonist|敵対者
+apathetic|無関心な
+appreciation|感謝、理解
+approximation|近似
+archaic|古風な
+ardent|熱心な
+aristocrat|貴族
+arrogance|傲慢さ
+artifice|策略
+astrology|占星術
+aviation|航空
+awesome|畏敬の念を起こさせる
+axiom|公理
+barbarian|野蛮人
+biblical|聖書の
+bishop|司教
+bizarre|奇妙な
+bliss|至福
+bluntly|単刀直入に
+botany|植物学
+bumblebee|マルハナバチ
+champion|擁護者、擁護する、優勝者
+chant|唱える
+churn|かき回す
+clockwork|時計仕掛け
+cognition|認知
+colonist|入植者
+commentary|解説
+commoner|庶民
+communism|共産主義
+conceptualize|概念化する
+concession|譲歩、特許権／営業権
+concur|同意する
+cornerstone|礎
+credible|信頼できる
+critique|批評
+crook|詐欺師
+cubic|立方の
+custodian|管理人
+diffusion|拡散
+eerie|不気味な
+ensemble|合奏団
+eventual|最終的な
+facet|側面
+fad|一時的流行
+fiscal|財政の
+flicker|ちらつく
+forebear|先祖
+foresight|先見の明
+formidable|手ごわい
+generalization|一般化
+grievance|不満
+gunpowder|火薬
+habitually|習慣的に
+humility|謙虚さ
+immediacy|即時性
+impediment|障害
+inaugural|就任の
+indicator|指標
+inductive|帰納的な
+inextricably|密接に
+instability|不安定
+institutional|制度の
+instructional|教育用の
+invasive|侵略的な
+jurisdiction|管轄権
+kin|親族
+kinship|親族関係
+liberation|解放
+linguist|言語学者
+mercury|水銀
+molecular|分子の
+monastic|修道院の
+nationalist|国家主義者
+neurochemical|神経化学物質
+newfound|新たに得た
+nostalgia|郷愁
+observatory|天文台
+operational|運用上の
+painstaking|入念な
+parliamentary|議会の
+patron|後援者、常連客
+perimeter|周囲
+peripheral|周辺の
+perseverance|忍耐
+pest|害虫
+piety|敬虔さ
+practitioner|実践者、開業医
+progression|進行
+prowess|卓越した技量
+punitive|懲罰的な
+quantitative|量的な
+queer|風変わりな
+ravage|荒廃させる
+renovation|改修
+reproach|非難
+reproductive|生殖の
+republican|共和制の
+retribution|報い
+revelation|暴露
+rigorous|厳密な
+rite|儀式
+safeguard|守る
+salient|顕著な
+sanctity|神聖さ
+secrecy|秘密保持
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
