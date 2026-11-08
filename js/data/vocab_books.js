@@ -6321,6 +6321,109 @@ strive to|～しようと努力する
 committed to|～に献身している
 pull out|引き抜く、撤退する
 `;
+// 英熟語:7 = MARCH④(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[7] = `
+if any|もしあるとしても
+put out|(火)を消す
+get together|集まる
+go off|(爆弾が)爆発する、(警報が)鳴る
+end in|～に終わる
+in the context of|～の文脈で、～の状況で
+true of|～に当てはまる
+tell the truth|本当のことを言う
+at the expense of|～を犠牲にして
+devoted to|～に専念している
+no wonder|～も当然だ
+see to|～に気を配る、対処する
+make a difference|違いを生む、重要である
+that is why|だから～である
+cut off|～を切り離す、遮断する
+look on|傍観する
+catch up with|～に追いつく
+crucial to|～にとって極めて重要である
+in danger of|～の危険があって
+on the basis of|～に基づいて
+in love with|～に恋して
+live by|～に従って生きる
+count on|～を当てにする
+run for|～に立候補する
+name after|～にちなんで名付ける
+at the time of|～の時点で
+to some extent|ある程度まで
+with the help of|～の助けを借りて
+use up|～を使い果たす
+quite a few|かなり多くの
+take notes|メモを取る
+by hand|手作業で
+free from|～がない、～を免れている
+in relation to|～に関連して
+call on|～に求める、(人を)訪ねる
+independent of|～から独立している
+for the most part|大部分は
+not to mention|～は言うまでもなく
+seek out|～を探し出す
+threaten to|～するとおどす、～する恐れがある
+break up|解散する、別れる
+keep A in mind|～を心に留めておく
+die from|(外傷・事故)で死ぬ
+get through|～を切り抜ける、終える
+relevant to|～に関連している
+speak up|大きな声で話す、率直に言う
+in touch with|～と連絡を取って
+look through|～に目を通す
+at most|多くても
+catch on|人気が出る、理解する
+die of|(病気など)で死ぬ
+on foot|徒歩で
+play a role in|～で役割を果たす
+popular with|～に人気がある
+correspond to|～に相当する、一致する
+exchange A for|Aを…と交換する
+critical of|～に批判的である
+at best|せいぜい
+so as to do|～するために
+write down|～を書き留める
+pay off|(努力が)実を結ぶ、完済する
+anything but|決して～ではない
+dedicated to|～に捧げられている、熱心である
+in any case|いずれにせよ
+run through|～にざっと目を通す
+shut down|閉鎖する、停止する
+in the absence of|～がない場合に
+on the whole|全体として
+leave out|～を省く
+substitute for|～の代わりをする
+anxious about|～を心配している
+get over|～を乗り越える、回復する
+look down on|～を見下す
+in the process of|～の最中で
+be used to -ing|～に慣れている
+concerned that|～ということを心配している
+reflect on|～を熟考する
+at hand|手近に、間近に
+fall in love with|～と恋に落ちる
+have A in mind|～を考えている
+do without|～なしで済ます
+have to do with|～と関係がある
+in effect|事実上、実施されて
+set off|出発する、引き起こす
+show off|～を見せびらかす
+with respect to|～に関して
+leave A alone|～をそっとしておく
+little more than|～にすぎない
+by no means|決して～ない
+pick out|～を選び出す
+at the bottom of|～の底に、～の根底に
+in a row|連続して
+do away with|～を廃止する
+for certain|確かに
+in practice|実際には
+draw on|～を利用する、頼る
+hang up|電話を切る
+vote for|～に賛成票を投じる
+to the point|要を得た
+make a decision|決定を下す
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
