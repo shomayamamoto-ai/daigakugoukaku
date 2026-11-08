@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -26,7 +26,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -5290,6 +5290,137 @@ futile|無駄な
 homogeneous|均質の
 proportional|比例した
 humanitarian|人道的な
+`;
+// 9 = 早稲田 商学部(画面写真から全128語)
+WPS.VBOOK_DATA.sokei[9] = `
+lucrative|儲かる
+spite|悪意
+appreciation|感謝、理解
+brisk|活発な
+diversify|多様化する
+rationale|論理的根拠
+vicinity|近所
+academia|学界
+achiever|成功者
+administrative|管理の
+administrator|管理者
+akin|似ている
+amid|～の真っただ中で
+biodiversity|生物多様性
+brew|醸造する
+bumblebee|マルハナバチ
+communism|共産主義
+compassionate|思いやりのある
+compulsion|強制、衝動
+concussion|脳震盪
+consolidate|統合する
+correlate|相関する
+detection|検出
+downplay|軽く扱う
+enthusiast|熱心な人
+equity|公平、株式
+erode|侵食する
+escalate|拡大する
+escalation|段階的拡大
+etiquette|礼儀作法
+foremost|第一の
+fret|やきもきする
+generalization|一般化
+glamorous|華やかな
+grieve|深く悲しむ
+impasse|行き詰まり
+inconsistency|矛盾
+indicator|指標
+inequity|不公平
+instability|不安定
+invasive|侵略的な
+loom|迫る、織機
+metric|指標
+momentarily|一瞬、(主に米)間もなく
+omnipresent|遍在する
+patriotism|愛国心
+perpetuate|永続させる
+pest|害虫
+promotional|販促の
+quantitative|量的な
+resonance|共鳴
+retention|保持
+scholastic|学業の
+sedentary|座りがちの
+shelve|棚上げにする
+slowdown|減速
+socioeconomic|社会経済的な
+suite|ひと続きの部屋
+supervise|監督する
+systematically|体系的に
+undeniably|否定できないほど
+upfront|率直な、前もって
+vintage|年代物の
+impede|邪魔する
+inherent|固有の
+designate|指定する
+elaborate|手の込んだ、詳しく述べる
+notorious|悪名高い
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい
+advocate|提唱者、提唱する
+incorporate|取り入れる
+presume|推定する
+comprise|～から成る、占める
+prescribe|処方する、規定する
+consensus|合意
+undermine|弱める
+ambiguous|あいまいな
+longevity|長寿
+illuminate|照らす、解明する
+refine|洗練させる
+displace|取って代わる
+intervene|介入する
+subsequent|続いて起こる
+compatible|適合する、互換性がある
+integrity|誠実、完全性
+legislation|法律
+nonetheless|それにもかかわらず
+endeavor|努力
+ubiquitous|至る所にある
+disrupt|かき乱す
+entrepreneur|起業家
+compliance|従うこと
+sentiment|感情
+contend|戦う、主張する
+ideology|イデオロギー
+subordinate|部下、下位の
+adverse|不利な
+paradigm|パラダイム
+deem|OをCだと思う
+susceptible|影響を受けやすい
+onset|始まり
+proponent|支持者
+replicate|複製する
+predominantly|主に
+bewilder|当惑させる
+entail|伴う
+incidence|発生
+herald|～の到来を告げる
+livelihood|生計
+sinister|邪悪な
+alleviate|軽減する
+eradicate|根絶する
+harness|利用する
+scrutinize|詳細に調べる
+gauge|判断する
+facilitate|促進する
+propel|推進する
+redundant|不要な
+pivotal|極めて重要な
+methodology|方法論
+detrimental|有害な
+robust|頑強な
+feasible|実現可能な
+mediate|調停する
+deter|思いとどまらせる
+resilience|回復力
+nuance|微妙な違い
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
