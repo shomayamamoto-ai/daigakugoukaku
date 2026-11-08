@@ -4677,6 +4677,87 @@ physiology|生理学
 disperse|分散させる、散らばる
 attest|証明する、証言する
 `;
+// 英熟語:12 = MARCH⑨(画面写真から全78語)
+WPS.VBOOK_DATA.idiom[12] = `
+take the lead|先頭に立つ
+as A as ever|相変わらず～
+get ready for|～の準備をする
+on demand|要求に応じて
+up to date|最新の
+wear on|(時が)過ぎる
+at the mercy of|～のなすがままで
+bored with|～に退屈している
+shut up|黙る
+eligible for|～の資格がある
+get down to|～に取りかかる
+keep pace with|～と歩調を合わせる
+set down|～を書き留める
+to the full|十分に、心ゆくまで
+break off|～を中断する
+exempt from|～を免除されている
+go out of business|廃業する
+look on A as|Aを…と見なす
+pass out|気を失う
+plug in|～のプラグを差し込む
+take note of|～に注意する
+bound for|～行きである
+in earnest|本格的に、真剣に
+jump at|～に飛びつく
+make oneself understood|自分の意思を伝える
+meet the demand|需要を満たす
+on schedule|予定どおりに
+run across|～に偶然出会う
+talk over|～について話し合う
+press for|～を強く要求する
+hold one's breath|息を止める、固唾をのむ
+make do with|～で間に合わせる
+make friends with|～と親しくなる
+send for|～を呼びにやる
+behind schedule|予定より遅れて
+catch one's eye|～の目を引く
+do over|～をやり直す
+eager for|～を切望している
+go after|～を追い求める
+if it were not for|もし～がなければ
+let down|～を失望させる
+lose track of|～を見失う
+on the move|移動中で、活発で
+pride oneself on|～を誇りに思う
+pull over|車を路肩に寄せる
+start over|やり直す
+talk A into|Aを説得して…させる
+think over|～をじっくり考える
+to a large extent|大部分は
+to say the least|控えめに言っても
+without doubt|疑いなく
+at full speed|全速力で
+be at a loss|途方に暮れている
+burn out|燃え尽きる
+congratulate A on|…のことでAを祝う
+die down|静まる
+do up|～を包む、ボタンを留める
+in keeping with|～と調和して
+in tears|泣いて
+look out for|～に気をつける
+lose face|面目を失う
+make off|逃げる
+none the less|それでもなお
+run errands|使い走りをする
+to a great extent|大いに
+to say nothing of|～は言うまでもなく
+under no circumstances|どんな状況でも～ない
+watch out for|～に気をつける
+play down|～を軽視する
+take root|根付く
+for the present|当分は
+keep from|～を控える
+leave a message|伝言を残す
+on condition that|～という条件で
+on duty|勤務中で
+sell off|～を売り払う
+stand to reason|道理にかなう
+stand up to|～に立ち向かう
+`;
 // 英熟語:15 = 早慶③(画面写真から全44語)
 WPS.VBOOK_DATA.idiom[15] = `
 by mistake|間違って
