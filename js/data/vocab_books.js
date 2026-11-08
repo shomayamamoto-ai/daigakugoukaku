@@ -4677,6 +4677,63 @@ physiology|生理学
 disperse|分散させる、散らばる
 attest|証明する、証言する
 `;
+// 英熟語:3 = 共通テスト③(画面写真から全54語)
+WPS.VBOOK_DATA.idiom[3] = `
+ever since|それ以来ずっと
+bring up|～を育てる、(話題を)持ち出す
+disagree with|～に反対する
+no matter how|どんなに～でも
+apart from|～は別として
+be said to do|～すると言われている
+essential to|～に不可欠である
+at the age of|～歳のときに
+get lost|道に迷う
+complain about|～について不平を言う
+have access to|～を利用できる
+specialize in|～を専門にする
+be about to do|まさに～しようとしている
+familiar with|～をよく知っている
+hang out|遊んで過ごす
+come down|下がる、落ちる
+get used to|～に慣れる
+move on|先へ進む
+even so|たとえそうでも
+now that S V|今や～なので
+faced with|～に直面している
+agree on|～について合意する
+struggle with|～に苦しむ、取り組む
+do one's best|全力を尽くす
+differ from|～と異なる
+go with|～に合う、～に伴う
+characteristic of|～に特有である
+go wrong|うまくいかない
+look into|～を調査する
+harmful to|～に有害である
+put off|～を延期する、気をそぐ
+prepared for|～の準備ができている
+turn away|～を追い返す
+in total|合計で
+on behalf of|～を代表して
+as usual|いつものように
+would rather A than B|BよりむしろAしたい
+change one's mind|考えを変える
+have difficulty -ing|～するのに苦労する
+grow into|成長して～になる
+in detail|詳細に
+in full|全額、全部
+fall on|(日付が)～に当たる
+in the course of|～の間に
+pleased with|～に満足している
+familiar to|(人に)よく知られている
+take A into consideration|～を考慮に入れる
+take a look at|～を見てみる
+in comparison with|～と比較して
+pull up|止まる
+submit to|～に服従する
+jealous of|～をねたんでいる
+try on|～を試着する
+go on with|～を続ける
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
