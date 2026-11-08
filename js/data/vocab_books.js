@@ -4677,6 +4677,53 @@ physiology|生理学
 disperse|分散させる、散らばる
 attest|証明する、証言する
 `;
+// 英熟語:15 = 早慶③(画面写真から全44語)
+WPS.VBOOK_DATA.idiom[15] = `
+by mistake|間違って
+come off|成功する、取れる
+come to mind|心に浮かぶ
+fed up with|～にうんざりしている
+in honor of|～に敬意を表して
+in order that|～するために
+keen on|～に熱中している
+keep away from|～に近づかない
+out of the blue|突然に
+pass over|～を見過ごす
+play a part in|～で役割を果たす
+take effect|効力を生じる
+under construction|建設中で
+wrap up|～を終える、包む
+at any cost|どんな犠牲を払っても
+by heart|暗記して
+certain of|～を確信している
+for nothing|無料で、無駄に
+from the viewpoint of|～の観点から
+it goes without saying|～は言うまでもない
+keep off|～に近づかない
+on the go|忙しく動き回って
+set fire to|～に火をつける
+step down|辞任する
+talk back|口答えする
+under the influence of|～の影響下で
+without question|疑いなく
+at the risk of|～の危険を冒して
+come into play|作用し始める
+come to life|生き返る、活気づく
+confident of|～を確信している
+count for|～の価値がある
+do harm to|～に害を与える
+dwell on|～をくよくよ考える
+hostile to|～に敵対的である
+in retrospect|振り返ってみると
+it is no use -ing|～しても無駄だ
+make much of|～を重視する
+set the stage for|～の下地を作る
+split up|分かれる
+stand a chance|見込みがある
+take charge of|～を担当する
+take the trouble to|わざわざ～する
+to make matters worse|さらに悪いことに
+`;
 // 英熟語:1 = 共通テスト①
 WPS.VBOOK_DATA.idiom[1] = `
 according to|～によれば、～に従って
