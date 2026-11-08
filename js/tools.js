@@ -67,6 +67,7 @@
   function close(kind) { var o = open[kind]; if (!o) return; o.el.remove(); delete open[kind]; dock(); save(); }
 
   function openTool(kind, startMin) {
+    if (document.body.classList.contains('no-tools')) return;
     if (!KINDS[kind]) return;
     if (open[kind]) { if (startMin) return; return restore(kind); }
     var el = document.createElement('section');
@@ -364,8 +365,12 @@
     var m = document.getElementById('tlMenu'); if (m) { m.remove(); return; }
     var k = Object.keys(open).filter(function (x) { return !open[x].min; })[0]; if (k) minimize(k);
   });
+  // 科目別テストの最中(body.no-tools)は、資料を開けない
+  function locked() { return document.body.classList.contains('no-tools'); }
+  function closeAll() { Object.keys(open).forEach(function (k) { close(k); }); var m = document.getElementById('tlMenu'); if (m) m.remove(); }
   document.addEventListener('click', function (ev) {
     var t = ev.target;
+    if (locked() && t.closest && t.closest('.tb-tools, [data-tlopen], [data-tlrestore]')) { ev.preventDefault(); ev.stopPropagation(); if (WPS.appToast) WPS.appToast('テスト中は資料を開けません'); return; }
     var c = t.closest && t.closest('[data-tlclose]'); if (c) { ev.stopPropagation(); close(c.getAttribute('data-tlclose')); return; }
     var r = t.closest && t.closest('[data-tlrestore]'); if (r) { restore(r.getAttribute('data-tlrestore')); return; }
     var o = t.closest && t.closest('[data-tlopen]'); if (o) {
@@ -377,5 +382,5 @@
   });
   // 前に開いていたパネルを、ページを読み直したあとも戻す
   try { var saved = JSON.parse(sessionStorage.getItem('wpsTools') || '{}'); Object.keys(saved).forEach(function (k) { openTool(k, true); }); Object.keys(saved).forEach(function (k) { if (!saved[k]) restore(k); }); } catch (e) { }
-  WPS.Tools = { open: openTool, minimize: minimize, restore: restore, close: close };
+  WPS.Tools = { open: openTool, minimize: minimize, restore: restore, close: close, closeAll: closeAll };
 })();

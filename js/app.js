@@ -146,12 +146,14 @@
     var more = document.querySelector('.nav .nav-more');
     if (more) more.classList.toggle('active', ['timer', 'tutor', 'search', 'settings'].indexOf(route) >= 0);
     navSheet(false);
+    // 科目別テストの最中は、どの画面でも「資料」を開けない
+    document.body.classList.toggle('no-tools', !!(CT && CT.inMode()));
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, map: renderMap, books: renderBooks, etrain: renderEtrain
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, ctest: renderCtest, map: renderMap, books: renderBooks, etrain: renderEtrain
     }[route] || renderHome;
-    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'etrain' && ET.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
+    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'ctest' && CT.inMode()) || (route === 'etrain' && ET.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
     var arg = route === 'books' ? parts.slice(1).join('/') : parts[1];
     view.innerHTML = noEmoji((route === 'books' && arg ? '' : band) + fn(arg));
     if (fn.after) fn.after(arg);
@@ -165,7 +167,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], mind: ['Mind', 'こころの部屋'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト'], etrain: ['English Training', '英語 リスニング・ライティング']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], ctest: ['Subject Test', '科目別テスト'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト'], etrain: ['English Training', '英語 リスニング・ライティング']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -762,7 +764,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#ctest">科目別テスト</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#jhq">日本史 一問一答</a><a href="#whq">世界史 一問一答</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -865,6 +867,7 @@
       Object.keys(WPS.SUBJECTS).map(function (k) { var on = chosen.indexOf(k) >= 0; return '<button type="button" class="seg-btn' + (on ? ' on' : '') + '" data-subj="' + k + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + WPS.SUBJECTS[k].name + '</button>'; }).join('') + '</div></section>';
     html += '<section class="card"><h2>🎯 おまかせ診断(約15問・10分)</h2><p class="muted">えらんだ教科から、きみの学年に合った問題を出すよ。</p>' +
       '<button class="btn primary big" data-start="all">診断をはじめる</button></section>';
+    html += '<section class="card"><h2>科目別テスト(科目を選んで本番形式)</h2><p class="muted small">数学Ⅰ・物理・日本史など、受けたい科目を選んで解きます。問題は教科ごとにまとまって出ます。テスト中は資料を開けません。</p><a class="btn big primary" href="#ctest">科目別テストへ</a></section>';
     html += '<section class="card"><h2>模試モード(時間を計って本番形式)</h2><p class="muted small">10〜30問を制限時間つきで解き、最後にまとめて採点。教科別・レベル別の得点率と時間配分がわかります。</p><a class="btn big" href="#mock">模試モードへ</a></section>';
     html += '<section class="card"><h2>英語 リスニング・ライティング</h2><div class="hist-links"><a href="#etrain/listen"><b>リスニング</b><small>音声を聞いて4択</small></a><a href="#etrain/write"><b>ライティング</b><small>英作文・和文英訳</small></a></div></section>';
     html += '<section class="card"><h2>暗記・論述(日本史・世界史)</h2><div class="hist-links"><a href="#jhq"><b>日本史</b><small>一問一答</small></a><a href="#whq"><b>世界史</b><small>一問一答</small></a><a href="#ronjutsu"><b>論述</b><small>カットイン</small></a></div></section>';
@@ -918,6 +921,9 @@
   function renderBooks(arg) { return BK.render(arg); }
   renderBooks.after = function (arg) { BK.after(arg); };
   var MK = WPS.makeMock({ h: h, toast: toast, shuffle: shuffle, render: render, levelPick: levelPick, diffOf: diffOf, confirm: function (msg, fn, lab) { ask(msg, lab, fn); } });
+  var CT = WPS.makeCtest({ h: h, toast: toast, shuffle: shuffle, render: render, confirm: function (msg, fn, lab) { ask(msg, lab, fn); } });
+  function renderCtest() { return CT.render(); }
+  renderCtest.after = function () { CT.after(); };
   function renderMock() { return MK.render(); }
   renderMock.after = function () { MK.after(); };
   /* ---------- 単元マップ:全単元の定着度を色で一覧(ヒートマップ)。忘れかけも見える ---------- */
@@ -3401,6 +3407,7 @@
     document.body.classList.toggle('sheet-open', !!open);
     if (open) { var f = sh.querySelector('a'); if (f) f.focus(); }
   }
+  WPS.appToast = function (m) { toast(m); };
   function bindNavSheet() {
     var sh = document.getElementById('navSheet'), btn = document.querySelector('.nav .nav-more');
     if (!sh || !btn) return;
