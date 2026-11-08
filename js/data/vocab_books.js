@@ -5130,7 +5130,7 @@ exemplify|例証する
 augment|増強する
 attest|証明する
 `;
-// 8 = 慶應 法学部(画面写真から入力・158語中143語。続きは受け取りしだい追加)
+// 8 = 慶應 法学部(画面写真から全158語)
 WPS.VBOOK_DATA.sokei[8] = `
 spite|悪意
 cascade|小滝
@@ -5275,6 +5275,21 @@ doctrine|教義
 intricate|複雑な
 plausible|もっともらしい
 amend|修正する
+affiliate|提携させる
+mitigate|緩和する
+harness|利用する
+implicit|暗黙の
+plight|窮状
+fabricate|でっち上げる
+facilitate|促進する
+threshold|始まり、しきい値／限界点
+stigma|汚名
+anecdote|逸話
+converge|集まる
+futile|無駄な
+homogeneous|均質の
+proportional|比例した
+humanitarian|人道的な
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
