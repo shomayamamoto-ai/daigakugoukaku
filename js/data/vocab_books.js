@@ -5279,6 +5279,109 @@ toilet|トイレ
 Mr.|～さん(男性)、～先生(男性)
 Ms.|～さん(女性)、～先生(女性)
 `;
+// 英熟語:2 = 共通テスト②(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[2] = `
+come up with|～を思いつく
+at the end of|～の終わりに
+these days|近頃
+regardless of|～に関係なく
+require A to|Aに～するよう要求する
+wait for|～を待つ
+as soon as|～するとすぐに
+belong to|～に属する
+provide A with|Aに…を提供する
+connect to|～につながる
+consist of|～から成る
+in addition to|～に加えて
+make sense|意味をなす、道理にかなう
+teach A to|Aに～することを教える
+benefit from|～から恩恵を受ける
+all the time|いつも、その間ずっと
+come out|出版される、明らかになる
+worried about|～を心配している
+go into|～を詳しく調べる、～に入る
+succeed in|～に成功する
+take up|～を始める、(時間・場所を)取る、(時間・場所を)占める
+concerned about|～を心配している
+interact with|～と交流する、相互作用する
+take part in|～に参加する
+begin with|～から始める
+on top of|～に加えて、～の上に
+in advance|前もって
+over the years|長年にわたって
+start with|～から始める
+afraid of|～を恐れている
+prefer A to|Aを…より好む
+ready for|～の準備ができている
+satisfied with|～に満足している
+appropriate for|～にふさわしい
+suitable for|～に適している
+proud of|～を誇りに思っている
+stick to|～に固執する、～を貫く
+at the beginning of|～の初めに
+hear from|～から便りがある
+by chance|偶然に
+fond of|～が好きである
+look out|気をつける
+in trouble|困って
+sell out|売り切れる
+A enough to do|…するほど～
+find out|～を突き止める
+in terms of|～の観点から
+the rest of|～の残り
+account for|(割合を)占める、説明する
+engage in|～に従事する、～を行う
+as to|～に関して
+regard A as|Aを…と見なす
+set up|～を設立する、設置する
+search for|～を探し求める
+over time|時とともに
+a series of|一連の
+on one's own|独力で、一人で
+good at|～が得意である
+carry out|～を実行する
+ask for|～を求める
+plenty of|たくさんの
+a couple of|2、3の
+expect A to|Aが～することを期待する
+think of A as|Aを…と見なす
+point to|～を指し示す、示唆する
+in particular|特に
+in turn|順番に、今度は逆に／その結果として
+far from|決して～ではない
+wish to|～したいと思う
+or so|～かそこら
+arrive at|(結論など)に達する
+as long as S V|～する限り
+slow down|速度を落とす
+get out|外に出る、広まる
+take over|～を引き継ぐ
+find oneself|気がつくと～にいる
+appeal to|～に訴える、～の心に響く
+go through|～を経験する、詳しく調べる
+exposed to|～にさらされている
+look up|(辞書で)調べる、見上げる
+take advantage of|～を利用する
+in the end|最終的に
+open to|～に開かれている、～を受け入れる
+not A until|～まで…しない、～して初めて…する
+put in|～を差し込む、(時間)を費やす
+by the end of|～の終わりまでには
+ahead of|～より先に
+in a way|ある意味で
+at risk|危険にさらされて
+for a while|しばらくの間
+known for|～で知られている
+on time|時間どおりに
+connect A with|AをBと結びつける
+concerned with|～に関係している
+look forward to|～を楽しみに待つ
+such A that|とても～なので…
+in common|共通して
+concentrate on|～に集中する
+put up|～を建てる、掲げる
+go down|下がる、沈む
+`;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
 ever since|それ以来ずっと
