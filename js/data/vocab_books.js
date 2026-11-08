@@ -10,8 +10,8 @@ WPS.VBOOKS = [
     parts: [[569, 0, '小学校の復習'], [275, 0, '中学1年'], [425, 0, '中学2年'], [388, 0, '中学3年']] },
   { id: 'base', name: 'Base', desc: '共通テスト〜中堅大学レベルの基本語。まずはこの1冊を固めます。', bank: 'en_h', total: 3141,
     parts: [[188, 112], [217, 83], [217, 83], [236, 64], [239, 61], [289, 11], [248, 52], [206, 94], [220, 80], [241, 59], [250, 50], [235, 65], [211, 46], [144, 0, '基礎・標準の補充']] },
-  { id: 'plus', name: 'Plus', total: 1518, bank: 'en_plus', named: 1, desc: 'Base の次に覚える、国公立2次・難関私大レベルの語。',
-    parts: [[195, 31, 'Section 1'], [204, 25, 'Section 2'], [256, 14, 'Section 3'], [286, 7, 'Section 4'], [210, 19, 'Section 5'], [204, 14, 'Section 6'], [163, 3, 'Section 7']] }, // 見出し1518語＋派生113語＝全1631語
+  { id: 'plus', name: 'Plus', total: 1631, bank: 'en_plus', desc: 'Base の次に覚える、国公立2次・難関私大レベルの語。',
+    parts: [[226, 31], [229, 25], [270, 14], [293, 7], [229, 19], [218, 14], [166, 3]] }, // Part 1〜7。見出し1631語＋派生113語
   { id: 'idiom', name: '英熟語', total: 1376, bank: 'en_idm', named: 1, desc: '共通テスト〜MARCH レベルでよく出る熟語。',
     parts: [[100, 0, '共通テスト①'], [100, 0, '共通テスト②'], [54, 0, '共通テスト③'], [100, 0, 'MARCH①'], [100, 0, 'MARCH②'], [100, 0, 'MARCH③'], [100, 0, 'MARCH④'], [100, 0, 'MARCH⑤'], [100, 0, 'MARCH⑥'], [100, 0, 'MARCH⑦'], [100, 0, 'MARCH⑧'], [78, 0, 'MARCH⑨'], [100, 0, '早慶①'], [100, 0, '早慶②'], [44, 0, '早慶③']] },
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
@@ -5670,6 +5670,153 @@ stand a chance|見込みがある
 take charge of|～を担当する
 take the trouble to|わざわざ～する
 to make matters worse|さらに悪いことに
+`;
+// Plus Part 7(画面写真から入力・169語中144語。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.plus[7] = `
+lenient|寛大な
+vertebrate|脊椎動物
+perilous|とても危険な
+abrupt|突然の
+abruptly|突然|派
+democratic|民主主義の
+revolt|暴動を起こす
+demote|降格する
+autograph|サイン
+eject|取り出す
+obstruct|ふさぐ
+pilgrim|巡礼者
+salvation|救済
+delegation|代表団
+vulgar|下品な
+recede|後退する
+scrape|こすり取る
+bait|餌
+petition|請願
+ransom|身代金
+fragrance|芳香
+conquest|征服
+tariff|関税
+outcast|見捨てられた人
+scandal|スキャンダル
+pillar|柱
+tentatively|暫定的に
+future-oriented|未来志向の
+coarse|粗い
+slack|たるんだ
+premature|早過ぎる
+attentive|注意深い
+persuasive|説得力のある
+perishable|腐りやすい
+delinquent|非行の
+sway|揺れる
+renovate|改修する
+opt|選ぶ
+outnumber|より数で勝る
+buzz|ざわつく
+disconnect|接続を切る
+gossip|うわさ話をする
+trespass|侵入する
+graze|牧草を食べる
+entrust|AにBを任せる
+meantime|その間
+chatter|くだらないおしゃべり
+bundle|束
+canyon|峡谷
+fountain|噴水
+grassland|草原
+needle|針
+rubber|ゴム
+detention|拘置
+ignition|点火装置
+sane|正気の
+insane|正気でない|派
+interpersonal|人間関係の
+tolerant|寛容な
+ironic|皮肉な
+ironically|皮肉なことに|派
+feasibility|実現可能性
+abridged|簡約された
+recurrent|繰り返される
+irresistible|抵抗できない
+dejected|落胆した
+fictitious|架空の
+gracious|親切な
+upcoming|今度の
+devise|考案する
+horrify|怖がらせる
+lodge|申し立てる
+mediation|調停
+mingle|交流する
+perspire|汗をかく
+waver|揺れ動く
+exhale|吐き出す
+rebound|跳ね返る
+gratify|喜ばせる
+relay|伝達する
+align|一直線に並べる
+deflate|しぼむ
+outburst|爆発
+swarm|大群
+sequel|続編
+clause|条項、節
+downfall|破滅
+fusion|融合
+fracture|骨折
+setback|妨げ
+tumble|転倒、暴落
+autopsy|検死
+blast|爆発
+aquatic|水生の
+frantic|大急ぎの
+deceptive|人を惑わすような
+mellow|円熟した
+cordial|心温まる
+admirable|賞賛に値する
+informative|有益な
+diverse|多様な
+intelligence|知能、諜報情報
+solution|解決策、溶液
+employee|従業員
+philosopher|哲学者
+pandemic|感染症の世界的流行
+dominant|支配的な
+judgment|判断
+employer|雇用主
+mathematical|数学的な
+restriction|制限
+destructive|破壊的な
+corporate|企業の
+essence|本質
+evolutionary|進化の
+chain|鎖
+comprehension|理解力
+noun|名詞
+optimism|楽観主義
+loyalty|忠誠心
+dominance|優位
+clarity|明快さ
+guilt|罪悪感
+voter|有権者
+migration|移住
+relief|安心、救済
+suspicion|疑い
+elegant|優雅な
+ceiling|天井、上限
+theoretical|理論的な
+flexibility|柔軟性
+cruelty|残酷さ
+elevate|高める
+revolutionary|革命的な
+generosity|寛大さ
+integration|統合
+pronunciation|発音
+advancement|進歩
+paraphrase|言い換える
+auditory|聴覚の
+warfare|戦争行為
+stimulus|刺激
+contradiction|矛盾
+separation|分離
 `;
 // 英熟語:1 = 共通テスト①
 WPS.VBOOK_DATA.idiom[1] = `
