@@ -5624,6 +5624,109 @@ knock out|～を打ち負かす
 pull off|～をやり遂げる
 a good deal of|多量の
 `;
+// 英熟語:14 = 早慶②(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[14] = `
+by virtue of|～のおかげで
+knock down|～を打ち倒す、取り壊す
+in recognition of|～を認めて
+with the aim of|～を目的として
+come of age|成年に達する
+in cash|現金で
+phase out|～を段階的に廃止する
+from now on|今後は
+set forth|～を述べる
+at any rate|とにかく
+dig up|～を掘り出す
+break through|～を突破する
+brush up|～を磨き直す
+mess up|～を台なしにする
+step up|～を強化する
+at stake|危機に瀕して
+bear A in mind|～を心に留める
+carry away|～を夢中にさせる
+crowded with|～で混雑している
+drop off|～を降ろす、減少する
+look back on|～を回想する
+on and off|断続的に
+or else|さもないと
+persist in|～に固執する
+put pressure on|～に圧力をかける
+seeing that|～であるから
+cry out|叫ぶ
+fall back on|～に頼る
+fit in with|～と調和する
+in one's favor|～に有利に
+oblivious to|～に気づいていない
+shut out|～を締め出す
+take responsibility for|～の責任を取る
+that is to say|すなわち
+come down with|(病気)にかかる
+find fault with|～のあら探しをする
+get hold of|～を手に入れる、つかむ
+indispensable to|～に不可欠である
+one after another|次々に
+put A into practice|～を実行に移す
+think through|～を考え抜く
+call up|～に電話する、思い出す
+on the air|放送中で
+opt out|手を引く
+out of place|場違いで
+put aside|～を脇に置く、蓄える
+within reach|手の届く範囲に
+abide by|～に従う
+beyond the reach of|～の手の届かない所に
+in the event of|～の場合には
+in the short run|短期的には
+in the wake of|～の直後に、～の結果として
+loyal to|～に忠実である
+nothing short of|まさに～同然で
+on the decline|減少中で
+parallel to|～と平行している
+pay the price|代償を払う
+that is because|それは～だからである
+tired from|～で疲れている
+as regards|～に関しては
+come to light|明るみに出る
+face up to|～に立ち向かう
+follow suit|先例にならう
+incompatible with|～と両立しない
+insensitive to|～に鈍感である
+notorious for|～で悪名高い
+cannot help -ing|～せずにいられない
+fight off|～を撃退する
+make a fortune|財を成す
+blessed with|～に恵まれている
+detrimental to|～に有害である
+hardly A when|～するかしないうちに…
+in all probability|おそらく
+indicative of|～を示している
+lead a life|生活を送る
+step by step|一歩ずつ
+in association with|～と共同で
+on one's part|～の側の
+tell a lie|嘘をつく
+wash away|～を洗い流す
+go a long way|大いに役立つ
+grateful to|～に感謝している
+on the point of|まさに～しようとして
+tear down|～を取り壊す
+a piece of cake|朝飯前
+amazed at|～に驚いている
+come around|意見を変える、回復する
+fall through|失敗に終わる
+fall victim to|～の犠牲になる
+get in the way of|～の邪魔になる
+if it had not been for|もし～がなかったなら
+in conclusion|結論として
+keep in touch with|～と連絡を保つ
+leave off|～をやめる
+lose one's temper|かっとなる
+on the grounds that|～という理由で
+settle for|～で妥協する
+at the earliest|早くても
+break even|損益なしになる
+bridge the gap|溝を埋める
+`;
 // 英熟語:15 = 早慶③(画面写真から全44語)
 WPS.VBOOK_DATA.idiom[15] = `
 by mistake|間違って
