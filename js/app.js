@@ -2600,7 +2600,7 @@
   /* ========== 単語・用語の一覧(教科別) ========== */
   // [教科, 一覧の名前, データ名, 単元ID, 種類]
   var WORD_LISTS = [
-    ['eng', '中学英単語', 'en_jhb', 'e_vocab_m', 'en'], ['eng', 'Base', 'en_h', 'e_h5', 'en'], ['eng', '早慶上理', 'en_sokei', null, 'en'], ['eng', '英熟語', 'en_idm', null, 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
+    ['eng', 'Base', 'en_h', 'e_h5', 'en'], ['eng', '中学英単語', 'en_jhb', null, 'en'], ['eng', '早慶上理', 'en_sokei', null, 'en'], ['eng', '英熟語', 'en_idm', null, 'en'], ['eng', '英単語(中学・仮)', 'en_m', 'e_vocab_m', 'en', 'jhOnly'], ['eng', '長文のつなぎ言葉', 'en_marker', 'e_h6', 'en'],
     ['jpn', '漢字の読み', 'kanji', 'j_kanji'], ['jpn', 'ことわざ・四字熟語・慣用句', 'goi', 'j_m1'], ['jpn', '品詞', 'hinshi', 'j_m2'], ['jpn', '敬語(現代)', 'keigo', 'j_keigo', 'keigo'], ['jpn', 'つなぎ言葉(接続語)', 'setsuzoku', 'j_h5'],
     ['jpn', '評論の重要語', 'hyoron', 'j_hyoron'], ['jpn', '歴史的仮名遣い', 'kana', 'j_h1'], ['jpn', '古典単語(共テ)', 'kobun_bk', null, 'kobun'], ['jpn', '難関私大 古文単語', 'kobun_nk', null, 'kobun'], ['jpn', '古典常識', 'kobun_jo', null, 'kobun'], ['jpn', '古文助動詞', 'jodoushi', 'j_h2', 'jodoushi'], ['jpn', '古文敬語', 'kokeigo', 'j_h3', 'kokeigo'],
     ['jpn', '漢文句法', 'kuho', 'j_h4', 'kuho'], ['jpn', '漢文の重要語', 'kanword', 'j_kanword', 'kanword'],
