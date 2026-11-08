@@ -6844,6 +6844,109 @@ vote for|～に賛成票を投じる
 to the point|要を得た
 make a decision|決定を下す
 `;
+// 英熟語:8 = MARCH⑤(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[8] = `
+miss out on|～を逃す
+approve of|～に賛成する
+come true|実現する
+composed of|～で構成されている
+accessible to|～が利用できる
+at risk of|～の危険があって
+laugh at|～を笑う
+by accident|偶然に
+inform A of|Aに…を知らせる
+make one's way|進む
+get along with|～とうまくやる
+each time S V|～するたびに
+have a hard time|苦労する
+head for|～へ向かう
+cut in|口をはさむ
+pass away|亡くなる
+before long|まもなく
+hang on|しがみつく、頑張る
+to one's surprise|驚いたことに
+warn A to|Aに～するよう警告する
+deprive A of|Aから…を奪う
+die out|絶滅する
+point at|～を指さす
+pass by|通り過ぎる
+fall behind|遅れをとる
+in line with|～に沿って
+at the heart of|～の核心に
+hand over|～を手渡す
+indifferent to|～に無関心である
+run over|(車が)～をひく
+run on|～で動く
+on sale|売りに出されて、特価で
+walk out|退場する、ストをする
+give way to|～に取って代わられる、屈する
+by means of|～によって
+bound to|きっと～する、～する義務がある
+occur to|(考えが)ふと浮かぶ
+come down to|結局～ということになる
+speak for|～を代弁する
+keep track of|～の経過を追う
+excuse A for|…のことでAを許す
+for the purpose of|～の目的で
+give away|～をただであげる、漏らす
+waste time|時間を無駄にする
+on business|仕事で
+send out|～を発信する
+turn around|好転する、向きを変える
+a bunch of|一束の、大勢の
+in case of|～の場合には
+at ease|くつろいで
+not more than|多くても
+for the sake of|～のために
+in need of|～を必要として
+rooted in|～に根ざしている
+argue for|～に賛成の主張をする
+if anything|どちらかと言えば
+make a mistake|間違える
+on board|(乗り物に)乗って
+attend to|～に対処する、世話をする
+apologize for|～のことで謝る
+conscious of|～を意識している
+at one time|かつて
+go against|～に反する
+owing to|～のおかげで、～のせいで
+put down|～を書き留める、置く
+every other|一つおきの
+lay out|～を配置する、設計する
+look over|～にざっと目を通す
+calm down|落ち着く
+have an effect on|～に影響を与える
+have no choice but to|～せざるを得ない
+make fun of|～をからかう
+come through|～を切り抜ける
+comparable to|～に匹敵する
+look up to|～を尊敬する
+side by side|並んで
+sit up|夜更かしする、上体を起こす
+hurry up|急ぐ
+stop by|立ち寄る
+build on|～を土台にする
+stem from|～から生じる
+resort to|(手段)に訴える
+go about|～に取り組む
+in the midst of|～の真っただ中に
+enter into|(交渉など)を始める
+rule out|～を排除する
+set aside|～を取っておく、脇に置く
+typical of|～に典型的である
+live up to|(期待)に応える
+out of control|制御不能で
+equipped with|～を備えている
+all at once|突然、一斉に
+not to say|～とまでは言わないが
+rich in|～が豊富である
+turn over|～をひっくり返す、引き渡す
+vital to|～に不可欠である
+date back to|～にさかのぼる
+major in|～を専攻する
+refrain from|～を控える
+sooner or later|遅かれ早かれ
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
