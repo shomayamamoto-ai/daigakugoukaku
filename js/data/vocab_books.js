@@ -4821,7 +4821,7 @@ nuance|微妙な違い
 augment|増強する
 affinity|親和性
 `;
-// 6 = 慶應 経済学部(画面写真から入力・176語中140語。写真と写真のあいだの語は受け取りしだい追加)
+// 6 = 慶應 経済学部(画面写真から全176語)
 WPS.VBOOK_DATA.sokei[6] = `
 slot|枠
 appreciation|感謝、理解
@@ -4963,6 +4963,42 @@ embark|着手する
 spur|駆り立てる
 curb|抑制する
 proclaim|宣言する
+ideology|イデオロギー
+rhetoric|修辞
+adverse|不利な
+integral|不可欠な
+susceptible|影響を受けやすい
+conspicuous|目立つ
+bureaucrat|官僚
+convict|有罪判決を下す
+administer|管理する、(薬を)投与する
+potent|強力な
+stance|立場
+proponent|支持者
+plausible|もっともらしい
+forge|築く、偽造する
+testament|あかし
+amend|修正する
+livelihood|生計
+synthesis|合成
+mitigate|緩和する
+evade|逃れる
+exemption|免除
+facilitate|促進する
+confer|授与する、相談する
+deterrent|抑止するもの
+stigma|汚名
+bilateral|二国間の
+detrimental|有害な
+robust|頑強な
+viable|実行可能な
+proportional|比例した
+legitimacy|正当性
+deter|思いとどまらせる
+magnitude|大きさ
+nuance|微妙な違い
+exemplify|例証する
+sovereignty|主権
 `;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
