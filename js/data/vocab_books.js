@@ -6115,6 +6115,109 @@ go for|～を選ぶ、～に当てはまる
 pay attention to|～に注意を払う
 make for|～に役立つ、～の方へ向かう
 `;
+// 英熟語:5 = MARCH②(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[5] = `
+in the case of|～の場合には
+what if|もし～ならどうなるか
+persuade A to|Aを説得して～させる
+experiment with|～で実験する
+engaged in|～に従事している
+cope with|～にうまく対処する
+opposed to|～に反対している
+get rid of|～を取り除く
+by the way|ところで
+get on|(乗り物に)乗る
+in place|所定の位置に、整って
+in the form of|～の形で
+believe in|～の存在(価値)を信じる
+dependent on|～に依存している
+intended to|～することを意図している
+no doubt|疑いなく
+on one's way|途中で
+hear of|～のことを耳にする
+more or less|多かれ少なかれ
+make use of|～を利用する
+be due to do|～する予定である
+take for|～と思い込む
+come across|～に偶然出会う、～を偶然見つける
+take in|～を理解する、だます、取り入れる
+by contrast|対照的に
+take away|～を取り去る
+have A in common|～を共通に持つ
+every time S V|～するたびに
+hope for|～を望む
+move in|引っ越してくる
+look after|～の世話をする
+late for|～に遅れる
+at last|ついに
+answer for|～の責任を負う
+in reality|実際は
+this is because|これは～だからである
+attached to|～に愛着がある、～に付属している
+in favor of|～に賛成して
+a great deal of|多量の
+a wide range of|幅広い
+seek to|～しようと努める
+set out|出発する、～し始める
+react to|～に反応する
+make up for|～を埋め合わせる
+fit in|なじむ、適合する
+claim to|～すると主張する
+essential for|～に不可欠である
+take A into account|～を考慮に入れる
+turn on|～をつける
+aim at|～を目指す
+take A for granted|～を当然と思う
+throw away|～を捨てる
+derive from|～に由来する
+give in|屈する
+leave behind|～を置き去りにする
+run into|～に偶然出会う、衝突する
+all but|ほとんど～、～以外すべて
+dozens of|何十もの
+go by|(時が)過ぎる
+no more than|たった～
+stop A from|Aが…するのを止める
+get married|結婚する
+lie in|～にある
+for free|無料で
+in response to|～に応えて
+have trouble -ing|～するのに苦労する
+drop in|立ち寄る
+over the course of|～の間に
+as of|～現在で、～以降
+go ahead|先へ進む
+allow for|～を考慮に入れる
+on the contrary|それどころか
+keep up with|～に遅れずについていく
+contrary to|～に反して
+distinguish A from|Aを…と区別する
+blame A for|…のことでAを責める
+at present|現在は
+set in|(悪い状態が)始まる
+stand for|～を表す
+short of|～が不足している
+compete with|～と競争する
+right away|すぐに
+keep on|～し続ける
+prior to|～より前に
+fall asleep|眠り込む
+as many as|～もの数の
+for good|永久に
+run out of|～を使い果たす
+meant to|～することになっている、～するつもりである
+impose A on|Aを…に課す
+turn off|～を消す
+at the top of|～の頂上に、～の先頭に
+recover from|～から回復する
+run away|逃げる
+carry on|～を続ける
+feel like -ing|～したい気がする
+reluctant to|～したがらない
+above all|とりわけ
+a handful of|一握りの
+be yet to do|まだ～していない
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
