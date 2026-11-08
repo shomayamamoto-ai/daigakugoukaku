@@ -5001,7 +5001,7 @@ nuance|微妙な違い
 exemplify|例証する
 sovereignty|主権
 `;
-// 中学英単語:2 = 中学1年(画面写真から入力・275語中222語。続きは受け取りしだい追加)
+// 中学英単語:2 = 中学1年(画面写真から全275語)
 WPS.VBOOK_DATA.jh[2] = `
 arrive|着く、到着する
 ask|～をたずねる、～に頼む
@@ -5225,6 +5225,59 @@ ours|私たちのもの
 theirs|彼らのもの
 myself|私自身
 yourself|あなた自身
+thousand|1000、千(の)
+road|道路、道
+magazine|雑誌
+match|試合
+coach|コーチ、監督
+player|選手、演奏者
+table|テーブル
+sofa|ソファー
+shower|シャワー
+towel|タオル
+clothes|服、衣服
+glasses|めがね
+cheese|チーズ
+leaf|葉
+grass|草、芝生
+restroom|トイレ、お手洗い
+noon|正午
+half|半分、半分の
+past|～を過ぎて、過去
+bad|悪い
+nickname|あだ名、ニックネーム
+tournament|トーナメント、大会
+bank|銀行
+basket|かご、バスケット
+bathroom|浴室、トイレ
+bell|ベル、鐘
+blackboard|黒板
+board|黒板、板
+bowl|おわん、ボウル
+butter|バター
+cafe|カフェ、喫茶店
+camp|キャンプ、キャンプする
+cartoon|漫画、アニメ
+castle|城
+chalk|チョーク
+chef|料理人、シェフ
+church|教会
+cream|クリーム
+far|遠い、遠くに
+hall|ホール、会館
+more|もっと多くの、もっと
+most|最も多くの、ほとんどの、最も
+note|メモ、短い手紙
+radio|ラジオ
+rose|バラ
+stadium|競技場、スタジアム
+stairs|階段
+telephone|電話
+television|テレビ
+theater|劇場、映画館
+toilet|トイレ
+Mr.|～さん(男性)、～先生(男性)
+Ms.|～さん(女性)、～先生(女性)
 `;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
