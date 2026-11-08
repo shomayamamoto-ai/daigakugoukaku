@@ -7766,6 +7766,109 @@ major in|～を専攻する
 refrain from|～を控える
 sooner or later|遅かれ早かれ
 `;
+// 英熟語:11 = MARCH⑧(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[11] = `
+on account of|～のために
+call off|～を中止する
+come by|～を手に入れる、立ち寄る
+ignorant of|～を知らない
+on the spot|その場で
+run down|～をけなす、衰える
+sit back|くつろぐ
+suspicious of|～を疑っている
+for ages|長い間
+get ahead|出世する
+set about|～に取りかかる
+stick out|突き出る、目立つ
+one way or another|何とかして
+push for|～を強く求める
+pass down|～を伝える
+sort out|～を整理する、解決する
+cure A of|Aの…を治す
+in half|半分に
+sympathize with|～に同情する、共感する
+register for|～に登録する
+at random|無作為に
+grateful for|～に感謝している
+more than ever|これまで以上に
+deal in|～を商う
+give in to|～に屈する
+give out|～を配る、尽きる
+improve on|～を改良する
+sick of|～にうんざりしている
+supply A with|Aに…を供給する
+come to an end|終わる
+get on with|～を続ける、～とうまくやる
+intended for|～向けの
+on end|立て続けに
+out of work|失業して
+put an end to|～を終わらせる
+take one's place|～に取って代わる、席に着く
+under way|進行中で
+as A as any|誰にも劣らず～
+at will|思いのままに
+check on|～を確認する
+come close to|もう少しで～しそうになる
+go too far|度を越す
+in progress|進行中で
+out of hand|手に負えなくなって
+out of reach|手の届かない所に
+remind A to|Aに～するよう念を押す
+see through|～を見抜く
+make room|場所を空ける
+as yet|今のところまだ
+be in the habit of|～する習慣がある
+earn a living|生計を立てる
+free of charge|無料で
+in no time|あっという間に
+on holiday|休暇中で
+run after|～を追いかける
+mind one's own business|他人のことに口出ししない
+year after year|毎年毎年
+shake hands|握手する
+throw up|吐く
+head off|～を防ぐ
+little by little|少しずつ
+not so much A as B|AというよりむしろB
+on the verge of|～の寸前で
+poor at|～が苦手である
+disappointed with|～に失望している
+for that matter|ついでに言えば
+in proportion to|～に比例して
+provided that|～という条件で
+read through|～を読み通す
+take after|～に似ている
+take pride in|～を誇りに思う
+under control|制御されて
+wash up|皿を洗う
+with ease|容易に
+for lack of|～の不足のため
+get in touch with|～と連絡を取る
+lay off|～を解雇する
+once upon a time|昔々
+scared of|～を怖がっている
+send in|～を送る、提出する
+skilled at|～に熟練している
+spell out|～を詳しく説明する
+cool down|冷静になる
+do A a favor|～の頼みを聞く
+pull down|～を取り壊す
+nothing less than|まさに～、～にほかならない
+side with|～の味方をする
+ups and downs|浮き沈み
+all in all|全体として見れば
+catch sight of|～を見つける
+cheer up|～を元気づける
+go round|行き渡る
+go so far as to|～しさえする
+stir up|～をかき立てる
+as a rule|概して
+come into being|生まれる、成立する
+come to terms with|～を受け入れる、折り合いをつける
+if possible|可能なら
+make room for|～のために場所を空ける
+put away|～を片付ける
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
