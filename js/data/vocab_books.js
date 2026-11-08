@@ -15,7 +15,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -24,7 +24,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {} };
@@ -4676,6 +4676,150 @@ devoid|(devoid ofで)～が欠けている
 physiology|生理学
 disperse|分散させる、散らばる
 attest|証明する、証言する
+`;
+// 5 = 早稲田 国際教養学部(画面写真から全141語)
+WPS.VBOOK_DATA.sokei[5] = `
+prevalence|普及
+rebellion|反乱
+abound|豊富にある
+advocacy|擁護
+analytic|分析的な
+appreciation|感謝、理解
+ardent|熱心な
+aristocrat|貴族
+ascertain|突き止める
+beet|ビート
+benevolent|慈悲深い
+bluntly|単刀直入に
+breadth|幅広さ
+caloric|カロリーの
+cognition|認知
+cohesion|結束
+conceptual|概念的な
+conceptualize|概念化する
+concur|同意する
+concussion|脳震盪
+condenser|凝縮器
+confluence|合流
+conviction|確信、有罪判決
+correlate|相関する
+corrosion|腐食
+coveted|切望される
+critique|批評
+customary|慣習的な
+demarcation|境界設定
+demise|消滅
+democrat|民主主義者
+downplay|軽く扱う
+elusive|捉えどころのない
+equity|公平、株式
+escalate|拡大する
+expenditure|支出
+flare|燃え上がる
+fractal|フラクタル
+habitually|習慣的に
+havoc|大混乱
+histological|組織学の
+hitherto|今まで
+hoax|でっち上げ
+humane|人道的な
+humility|謙虚さ
+inadvertently|うっかり
+institutional|制度の
+intuitively|直感的に
+jurisdiction|管轄権
+maize|トウモロコシ
+manifestation|現れ
+metaphysical|形而上の
+mindset|考え方
+mint|ミント、造幣局
+municipality|地方自治体
+myopia|近視
+mystify|当惑させる
+negligible|無視できるほどの
+notwithstanding|～にもかかわらず
+perseverance|忍耐
+pest|害虫
+philanthropic|慈善の
+phonetic|音声の
+physiologist|生理学者
+porcelain|磁器
+prominence|卓越
+proposition|提案、命題
+purification|浄化
+raucous|騒々しい
+reciprocal|相互の
+retrograde|後退する
+retrospective|回顧の
+rigorously|厳密に
+semantic|意味の
+sociolinguistic|社会言語学の
+spite|悪意
+staggering|途方もない
+strand|立ち往生させる、糸／一筋、(議論などの)要素
+successively|連続して
+supervise|監督する
+temporal|時間の、世俗の
+tenable|擁護できる
+theorist|理論家
+thereafter|その後
+toxin|毒素
+veterinary|獣医の
+wreak|引き起こす
+zoologist|動物学者
+inherent|固有の
+designate|指定する
+contradict|矛盾する、反論する
+advocate|提唱者、提唱する
+manifest|明らかな、明らかに示す
+obsolete|廃れた
+prescribe|処方する、規定する
+consensus|合意
+intuition|直感
+criteria|基準
+intervene|介入する
+subsequent|続いて起こる
+indigenous|固有の
+integrity|誠実、完全性
+legislation|法律
+disrupt|かき乱す
+entrepreneur|起業家
+unprecedented|前例のない
+conscientious|良心的な
+regime|政権
+tyranny|圧政
+irrigation|灌漑
+impair|損なう
+physiological|生理的な
+curb|抑制する
+discourse|話し合い
+ideology|イデオロギー
+apparatus|装置
+coherent|一貫している
+integral|不可欠な
+bureaucrat|官僚
+potent|強力な
+encompass|含む
+sinister|邪悪な
+eradicate|根絶する
+harness|利用する
+evade|逃れる
+holistic|全体的な
+facilitate|促進する
+threshold|始まり、しきい値／限界点
+stigma|汚名
+falsify|偽造する
+connotation|言外の意味
+complementary|相補的な
+converge|集まる
+methodology|方法論
+tangible|触れられる、明確な
+viable|実行可能な
+physiology|生理学
+humanitarian|人道的な
+nuance|微妙な違い
+augment|増強する
+affinity|親和性
 `;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
