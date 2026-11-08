@@ -15,7 +15,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -25,7 +25,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128], ['文学部', 264], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {} };
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -4820,6 +4820,149 @@ humanitarian|人道的な
 nuance|微妙な違い
 augment|増強する
 affinity|親和性
+`;
+// 6 = 慶應 経済学部(画面写真から入力・176語中140語。写真と写真のあいだの語は受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[6] = `
+slot|枠
+appreciation|感謝、理解
+diversify|多様化する
+foremost|第一の
+caregiver|介護者
+cornerstone|礎
+critique|批評
+enthusiast|熱心な人
+equitable|公平な
+fishery|漁業
+ravage|荒廃させる
+secrecy|秘密保持
+skepticism|懐疑論
+slowdown|減速
+spite|悪意
+virgin|手つかずの
+administrative|管理の
+administrator|管理者
+amidst|～の真っただ中に
+apparel|衣料品
+aristocrat|貴族
+arrogance|傲慢さ
+authoritarian|権威主義の
+autocratic|独裁的な
+automotive|自動車の
+beneficiary|受益者
+biodiversity|生物多様性
+captive|捕らわれた
+chaotic|混沌とした
+consolidation|統合
+constitutional|憲法の
+conundrum|難問
+cubic|立方の
+cult|カルト
+demographer|人口統計学者
+domination|支配
+downplay|軽く扱う
+erode|侵食する
+evaporation|蒸発
+expenditure|支出
+falsehood|虚偽
+fiscal|財政の
+formidable|手ごわい
+fort|砦
+fraud|詐欺
+geopolitical|地政学的な
+geothermal|地熱の
+grassroot|草の根の
+hack|切り刻む、不正侵入する
+hindsight|後知恵
+humane|人道的な
+hydroelectric|水力発電の
+idiomatic|慣用的な
+imperative|必須の、必須の課題、命令形の
+indicator|指標
+innovator|革新者
+instability|不安定
+intermittent|断続的な
+legislative|立法の
+lesbian|同性愛の女性
+lockdown|封鎖
+loom|迫る、織機
+minimalist|最小限主義の
+misconception|誤解
+patron|後援者、常連客
+proclamation|宣言
+proliferate|急増する
+quake|揺れる
+qualitatively|質的に
+referendum|国民投票
+reservoir|貯水池
+resonate|共鳴する
+sect|宗派
+secular|世俗的な
+seismic|地震の
+shareholder|株主
+shelve|棚上げにする
+skeptic|懐疑論者
+staggering|途方もない
+stagnation|停滞
+stakeholder|利害関係者
+supervise|監督する
+telecommunication|電気通信
+totalitarian|全体主義の
+turbine|タービン
+unpalatable|まずい、受け入れがたい
+upfront|率直な、前もって
+uranium|ウラン
+vicinity|近所
+viral|ウイルスの、急速に広まる
+zoologist|動物学者
+ascribe|(ascribe A to Bで)AをBに帰する
+designate|指定する
+notorious|悪名高い
+authentic|本物の
+skeptical|懐疑的な
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい
+advocate|提唱者、提唱する
+monetary|金銭的な
+obsolete|廃れた
+incorporate|取り入れる
+concise|簡潔な
+comprise|～から成る、占める
+consensus|合意
+undermine|弱める
+ambiguous|あいまいな
+mandatory|義務的な
+longevity|長寿
+comprehend|理解している
+compensate|補償する
+displace|取って代わる
+intervene|介入する
+subsequent|続いて起こる
+compatible|適合する、互換性がある
+render|～にする、(援助・奉仕を)提供する、翻訳する
+disparity|格差
+prevalent|広く行き渡っている
+legislation|法律
+spontaneous|自然発生的な
+nonetheless|それにもかかわらず
+accommodate|収容する、適応させる
+disrupt|かき乱す
+authorize|権限を与える
+patronage|ひいき
+demographic|人口統計上の
+entrepreneur|起業家
+controversy|論争
+unprecedented|前例のない
+synthetic|合成の
+tuberculosis|結核
+reconcile|調和させる、和解させる
+regime|政権
+irrigation|灌漑
+bureaucracy|官僚制度
+autonomous|自治の、自律的な
+embark|着手する
+spur|駆り立てる
+curb|抑制する
+proclaim|宣言する
 `;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
