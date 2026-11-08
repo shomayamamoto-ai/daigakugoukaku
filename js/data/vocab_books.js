@@ -2,7 +2,7 @@
  * 英単語帳(本ごと・Partごと)。
  * 書式:1行に1語「見出し|意味」。派生語は行末に「|派」をつけ、もとの語のすぐ後に置きます。
  * 意味は、一般的な辞書的意味をもとに、このアプリ用に書いたものです。
- * いまは Base(旧「大学受験 基礎」)Part 1〜11・13・14 を入力済み。Part 12 は300語中283語を入力済み。ほかは準備中(データを受け取りしだい追加)。
+ * いまは Base(旧「大学受験 基礎」)Part 1〜14 を入力済み。ほかは準備中(データを受け取りしだい追加)。
  */
 window.WPS = window.WPS || {};
 WPS.VBOOKS = [
@@ -3364,7 +3364,7 @@ scheme|計画、陰謀
 treaty|条約
 compel|強制する
 `;
-// Part 12:画面写真から入力(2回分・283語。続きは受け取りしだい追加)
+// Part 12:画面写真から全300語(見出し235・派生65)を入力
 WPS.VBOOK_DATA.base[12] = `
 compelling|説得力のある|派
 divert|そらす
@@ -3649,6 +3649,23 @@ emperor|皇帝|派
 accent|なまり、アクセント
 namely|すなわち
 lament|嘆く
+behalf|(on behalf ofで)〜のために／〜を代表して
+esteem|尊敬する、尊敬
+Arctic|北極の
+summit|首脳会議、頂上
+allege|主張する
+allegation|主張|派
+marine|海の
+ascend|上がる
+delete|削除する
+procedure|手続き
+aisle|通路
+radiation|放射線
+forth|前へ
+elite|エリート
+transplant|移植する
+transplantation|移植|派
+congress|議会
 `;
 // Part 13:画面写真から全257語(見出し211・派生46)を入力
 WPS.VBOOK_DATA.base[13] = `
