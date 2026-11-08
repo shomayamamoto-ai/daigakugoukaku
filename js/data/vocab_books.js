@@ -5671,7 +5671,7 @@ take charge of|～を担当する
 take the trouble to|わざわざ～する
 to make matters worse|さらに悪いことに
 `;
-// Plus Part 7(画面写真から入力・169語中144語。続きは受け取りしだい追加)
+// Plus Part 7(画面写真から全169語:見出し166・派生3)
 WPS.VBOOK_DATA.plus[7] = `
 lenient|寛大な
 vertebrate|脊椎動物
@@ -5817,6 +5817,31 @@ warfare|戦争行為
 stimulus|刺激
 contradiction|矛盾
 separation|分離
+upside|良い面
+compass|方位磁針
+aggression|攻撃性
+credibility|信頼性
+systematic|体系的な
+intuitive|直感的な
+publisher|出版社
+newcomer|新参者
+inclusive|包括的な
+miracle|奇跡
+spectacular|壮観な
+devotion|献身
+exaggeration|誇張
+halfway|中間の
+protagonist|主人公
+assessment|評価
+lavish|ぜいたくな
+legendary|伝説的な
+underneath|～の下に
+backdrop|背景
+chunk|塊
+counsel|助言
+eternity|永遠
+lease|賃貸借契約
+oversee|監督する
 `;
 // 英熟語:1 = 共通テスト①
 WPS.VBOOK_DATA.idiom[1] = `
