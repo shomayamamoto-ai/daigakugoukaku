@@ -6218,6 +6218,109 @@ above all|とりわけ
 a handful of|一握りの
 be yet to do|まだ～していない
 `;
+// 英熟語:6 = MARCH③(画面写真から全100語)
+WPS.VBOOK_DATA.idiom[6] = `
+for the rest of|～の残りの間
+all the way|はるばる、ずっと
+step in|介入する
+interfere with|～を妨げる
+inclined to|～する傾向がある
+stand out|目立つ
+equal to|～に等しい、～する力がある
+accustomed to|～に慣れている
+have nothing to do with|～と全く関係がない
+have yet to do|まだ～していない
+no matter what|何が～でも
+subject to|～を受けやすい、～に従う
+give rise to|～を引き起こす
+provide for|～を養う、～に備える
+drop out|中退する、脱落する
+get away|逃げる、離れる
+turn up|現れる、(音量を)上げる
+bear with|～を我慢する
+break out|(戦争・火事が)勃発する
+for sure|確かに
+find one's way|たどり着く
+once again|もう一度
+in charge of|～を担当して
+check out|～を調べる、チェックアウトする
+make out|～を理解する、見分ける
+tired of|～に飽きている
+at times|時々
+given that|～を考慮すると
+urge A to|Aに～するよう強く勧める
+accuse A of|Aを…のかどで非難する
+designed for|～向けに作られている
+amount to|(合計が)～になる、～に等しい
+advise A to|Aに～するよう助言する
+hold on|待つ、持ちこたえる
+compete for|～を求めて競う
+pretend to|～するふりをする
+break into|～に押し入る
+first of all|まず第一に
+go over|～を見直す
+back up|～を裏付ける、支援する
+come over|やって来る
+long for|～を切望する
+look in|立ち寄る
+put together|～を組み立てる
+come along|一緒に来る、進展する
+may well do|おそらく～だろう、～するのももっともだ
+in the first place|そもそも、第一に
+vulnerable to|～に弱い、傷つきやすい
+in the field of|～の分野で
+pass on|～を伝える、次へ回す
+take action|行動を起こす
+sensitive to|～に敏感である
+adjust to|～に順応する
+to date|今日まで
+get off|降りる
+be sure to do|必ず～する
+in that S V|～という点で
+build up|～を築き上げる、増強する
+free of|～がない
+by far|(比較・最上級強調)はるかに
+line up|並ぶ
+hesitate to|～するのをためらう
+the other day|先日
+turn down|～を断る、(音量を)下げる
+lose weight|体重が減る
+as such|それ自体としては、その資格で
+act on|～に従って行動する
+stare at|～をじっと見る
+derived from|～に由来している
+suited to|～に適している
+be worth -ing|～する価値がある
+as opposed to|～とは対照的に
+insist on|～を主張する
+add up|合計する、つじつまが合う
+in use|使用されて
+warn A of|Aに…を警告する
+hold up|～を持ち上げる、遅らせる
+nothing but|～にすぎない、～だけ
+stay up|起きている
+in the meantime|その間に
+sum up|～を要約する
+consistent with|～と一致している
+in the long run|長い目で見れば
+in the face of|～に直面して
+with regard to|～に関して
+in search of|～を探して
+turn in|～を提出する
+make sense of|～を理解する
+object to|～に反対する
+superior to|～より優れている
+unaware of|～に気づいていない
+let alone|～は言うまでもなく
+equivalent to|～に相当する
+for one thing|一つには
+put up with|～を我慢する
+in person|直接会って、本人が
+over and over|何度も
+strive to|～しようと努力する
+committed to|～に献身している
+pull out|引き抜く、撤退する
+`;
 // 英熟語:12 = MARCH⑨(画面写真から全78語)
 WPS.VBOOK_DATA.idiom[12] = `
 take the lead|先頭に立つ
