@@ -6803,7 +6803,7 @@ toothache|歯痛
 cough|せき、せきをする
 relaxed|くつろいだ、リラックスした
 `;
-// 中学英単語:4 = 中学3年(画面写真から入力。続きは受け取りしだい追加)
+// 中学英単語:4 = 中学3年(画面写真から全388語)
 WPS.VBOOK_DATA.jh[4] = `
 accept|～を受け入れる、～を受け取る
 achieve|～を達成する、～を成し遂げる
@@ -7127,6 +7127,72 @@ truth|真実、本当のこと
 variety|いろいろ、多様性、種類
 wisdom|知恵
 wheelchair|車いす
+worker|働く人、労働者
+active|活動的な、積極的な
+alive|生きている
+anxious|心配な、不安な
+available|利用できる、手に入る
+blind|目の不自由な
+certain|確かな、ある～
+confident|自信のある、確信して
+creative|創造的な、独創的な
+cruel|残酷な、ひどい
+curious|好奇心の強い、知りたがる
+effective|効果的な
+elderly|お年寄りの、年配の
+electric|電気の、電動の
+environmental|環境の
+grateful|感謝している
+historical|歴史的な、歴史の
+impossible|不可能な
+major|主要な、大きな
+native|母国の、その土地の
+negative|否定的な、消極的な
+normal|ふつうの、標準の
+positive|前向きな、肯定的な
+powerful|強力な、力強い
+precious|大切な、貴重な
+regular|定期的な、規則正しい、いつもの
+silent|静かな、無言の
+successful|成功した
+thankful|感謝している、ありがたく思う
+tough|きつい、難しい、たくましい
+typical|典型的な、よくある
+valuable|価値のある、貴重な
+worth|～の価値がある
+either|どちらか、～もまた
+else|ほかに、そのほかの
+neither|どちらも～ない
+unfortunately|残念ながら、不運にも
+luckily|幸運にも、運よく
+gradually|だんだん、徐々に
+immediately|すぐに、ただちに
+naturally|自然に、当然
+truly|本当に、心から
+among|～の間で、～の中で
+boss|上司、ボス
+branch|枝、支店
+case|場合、入れ物、事件
+countryside|いなか
+couple|夫婦、1組、(a couple ofで)2、3の
+final|最後の、決勝戦
+fit|～に合う、健康な
+ill|病気の
+less|より少ない、より少なく
+narrow|狭い、細い
+endangered|絶滅の危機にある
+extinct|絶滅した
+atomic|原子の、原子力の
+memorial|記念の、記念碑
+crane|ツル、クレーン
+sign language|手話
+universal design|ユニバーサルデザイン
+graph|グラフ
+percent|パーセント
+embarrassed|恥ずかしい、きまりが悪い
+disappointed|がっかりした
+moved|感動した
+impressed|感心した、感動した
 `;
 // 英熟語:3 = 共通テスト③(画面写真から全54語)
 WPS.VBOOK_DATA.idiom[3] = `
