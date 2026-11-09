@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工'], [295, 0, '早稲田 教育'], [211, 0, '慶應 医']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工'], [295, 0, '早稲田 教育'], [211, 0, '慶應 医'], [255, 0, '慶應 薬']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252, '早稲田 法'], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295, '早稲田 教育'], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211, '慶應 医'], ['薬学部', 255], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211, '慶應 医'], ['薬学部', 255, '慶應 薬'], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -8438,6 +8438,150 @@ proximity|近さ
 exemplify|例証する
 deplete|使い果たす
 rampant|蔓延した
+`;
+// 21 = 慶應 薬学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[21] = `
+academia|学界
+abnormal|異常な
+adjacent|隣接した
+ascertain|突き止める
+aura|雰囲気
+awe|畏敬の念
+caregiver|介護者
+celestial|天体の
+clinician|臨床医
+compassionate|思いやりのある
+conceptualize|概念化する
+conviction|確信、有罪判決
+explanatory|説明的な
+fraud|詐欺
+hormone|ホルモン
+kin|親族
+molecular|分子の
+optimal|最適な
+planetary|惑星の
+practitioner|実践者、開業医
+proposition|提案、命題
+receptor|受容体
+reproductive|生殖の
+rigorous|厳密な
+rite|儀式
+spite|悪意
+susceptibility|影響の受けやすさ
+temporal|時間の、世俗の
+theorist|理論家
+thereafter|その後
+ubiquity|どこにでもあること
+vie|競う
+abort|中止する
+abound|豊富にある
+advocacy|擁護
+ailment|軽い病気
+albeit|～ではあるが
+alchemy|錬金術
+altruistic|利他的な
+appraisal|評価
+appreciation|感謝、理解
+arsenal|兵器庫
+beet|ビート
+biodiversity|生物多様性
+bluff|はったり
+buffer|緩衝
+cacophony|不協和音
+caloric|カロリーの
+cerebral|脳の
+chaotic|混沌とした
+cognition|認知
+conceptual|概念的な
+conclusively|決定的に
+confluence|合流
+consequential|重大な
+consolidate|統合する
+consolidation|統合
+cornerstone|礎
+crank|クランク
+customary|慣習的な
+detection|検出
+dietary|食事の
+diffusion|拡散
+dire|悲惨な
+discriminatory|差別的な
+dopamine|ドーパミン
+downplay|軽く扱う
+dual|二重の
+duality|二重性
+eerie|不気味な
+efficacy|効能
+ego|自我、自尊心
+embryo|胚
+equity|公平、株式
+eventual|最終的な
+exacerbate|悪化させる
+expansive|広範な
+formidable|手ごわい
+fort|砦
+gel|ゲル状のもの
+groundbreaking|画期的な
+haul|引っ張る
+hitherto|今まで
+humility|謙虚さ
+incomprehensible|理解できない
+inconsistency|矛盾
+incremental|漸進的な
+institutional|制度の
+intuitively|直感的に
+lethal|致命的な
+manifestation|現れ
+manipulation|操作
+mercury|水銀
+mystic|神秘的な
+mystify|当惑させる
+negligible|無視できるほどの
+neurochemical|神経化学物質
+neuroscience|神経科学
+oblivious|気づかない
+optimize|最適化する
+optimum|最適の
+overt|あからさまな
+physiologist|生理学者
+progression|進行
+proliferate|急増する
+pulse|脈拍
+quantify|数量化する
+quarantine|隔離
+radiant|輝く
+rationale|論理的根拠
+ravage|荒廃させる
+reciprocal|相互の
+reciprocity|相互性
+recurring|繰り返し起こる
+repercussion|悪影響
+rodent|齧歯類
+ruthless|無慈悲な
+salient|顕著な
+scholastic|学業の
+scourge|惨害
+skeptic|懐疑論者
+socioeconomic|社会経済的な
+stark|明白な
+stimuli|刺激
+strand|立ち往生させる、糸／一筋、(議論などの)要素
+stressor|ストレス要因
+suite|ひと続きの部屋
+takeover|買収
+terrestrial|地球の
+tract|広い土地、(消化管などの)管
+unequivocal|明白な
+uplifting|高揚させる
+viral|ウイルスの、急速に広まる
+visionary|先見の明のある
+impede|邪魔する
+ascribe|(ascribe A to Bで)AをBに帰する
+inherent|固有の
+designate|指定する
+elaborate|手の込んだ、詳しく述べる
+penetrate|貫通する
+vulnerable|傷つきやすい
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
