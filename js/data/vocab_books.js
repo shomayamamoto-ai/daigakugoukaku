@@ -10838,6 +10838,150 @@ come after ~|～の後をつける
 come before ~|審議される
 come down to ~|要するに～ということになる
 `;
+// Plus Part 4(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.plus[4] = `
+come down with ~|～にかかる
+come into ~|～の状態になる
+come off|結局～になる
+come through|要求に応える
+comply with ~|～に従う
+contribute to ~|～の一因となる
+cope with ~|対処する
+count for ~|～の価値がある
+count on ~|当てにする
+cover for ~|～の代わりを務める
+cover up ~|隠す
+crack up|神経が参る
+cross out ~|線を引いて消す
+cut back (on ~)|削減する
+cut down (on ~)|減らす
+cut in (on ~)|割り込む
+deal in ~|商う
+deprive A of B|AからBを奪う
+die down|静まる
+dispose of ~|処分する
+do away with ~|廃止する
+drag on|長引く
+drag out ~|長引かせる
+draw on ~|～に頼る
+draw up ~|作成する
+dream up ~|思いつく
+drive off [away] ~|追い払う
+drive up ~|急速に上昇させる
+drop back (to ~)|後退する
+drop out (of ~)|中退する
+ease into ~|～に徐々に慣れる
+eat up ~|使い果たす
+embark on [upon] ~|～に乗り出す
+endear A to B|AをBに慕わせる
+even up ~|等しくする
+face off|対決する
+fall away|減少する
+fall back on ~|当てにする
+fall for ~|～に乗せられる
+fall off|減少する
+fall on ~|～に降りかかる
+fall through|駄目になる
+fall under ~|受ける
+feel for ~|同情する
+figure out ~|理解する
+fill out ~|～に必要事項を記入する
+fire up ~|始動させる
+fit into ~|溶け込む
+fix up ~|修理する
+for all ~|～にもかかわらず
+for the time being|当分の間
+force down ~|抑える
+free up ~|(時間・資金を)使えるようにする
+frown on [upon] ~|難色を示す
+gear up ~|準備をする
+get around (~)|あちこち動き回る
+get around to doing ~|する余裕ができる
+get away with ~|(悪事をしても)罰を受けずに済む
+get by ~|何とかやっていく
+get down to ~|本気で取りかかる
+get in on ~|参加する
+get into ~|～に夢中になる
+get on with ~|続ける
+give away ~|ただで与える、ばらす
+give in (to ~)|降参する
+give off ~|発する
+give A over to B|AをBに預ける
+give rise to ~|～の原因となる
+go back on ~|破る
+go for ~|選ぶ
+grow into ~|成長して～になる
+grow on ~|気にいるようになる
+grow out of ~|成長して～から脱する
+hand down ~|伝える
+hand off ~|任せる
+hand out A (to B)|Aを配る
+hang around (~)|ぶらつく
+hang on|待つ
+hang up ~|切る
+head off (~)|阻止する
+head out|出かける
+hold back ~|抑えておく
+hold off ~|引き延ばす
+hold out (~)|もちこたえる
+hold over ~|続映される
+in a row|連続で
+in favor of ~|賛成して
+in response to ~|～に応えて
+in terms of ~|～の観点から
+in the event of ~|～の場合には
+in vain|無駄に
+jump at ~|～にすぐ飛びつく
+keep track of ~|～に注意している
+keep up with ~|～に遅れずについていく
+kick around ~|あれこれ検討する
+kick in|効き始める
+kick off A (with B)|Aを開始する
+kick A out (of B)|Aを追い出す
+knock down ~|取り壊す
+lay into ~|厳しく非難する
+lay off ~|解雇する
+leave off (~)|やめる
+let alone ~|～は言うまでもなく
+let down ~|失望させる
+let out ~|出す
+let up|手を緩める
+level off [out]|横ばいになる
+lift off|離陸する
+live up to ~|～に応える
+lock in ~|固定する
+look down on ~|見下す
+make (both) ends meet|収入内で何とかやりくりする
+make do with ~|～で済ます
+make out (~)|理解する
+make over ~|作り変える
+mark down ~|値下げする
+mark out ~|区画する
+miss out on ~|逸する
+narrow down ~|絞り込む
+on a ~ basis|～の基準で
+on [in] behalf of A|Aを代表して
+on the contrary|それどころか
+on the spot|その場で
+on the verge of ~|～の間際で
+over the hump|難局を脱して
+owing to ~|～のために
+pack up|持ち物をまとめる
+pass for ~|～で通る
+pass off A (as B)|Aを偽る
+pass A on (to B)|Aを(Bに)伝える
+pass out|気絶する
+pay off ~|全部支払う、報われる
+phase out ~|段階的に廃止する
+pick over ~|念入りに調べて選ぶ
+pick through ~|～の中をくまなく探す
+pile up|どんどんたまる
+pin down ~|押さえつける
+play down ~|軽く見せようとする
+play out (~)|展開する
+play up ~|誇張する
+point to ~|示す
+`;
 // Plus Part 5(画面写真から全248語:見出し229・派生19)
 WPS.VBOOK_DATA.plus[5] = `
 jewelry|宝石
