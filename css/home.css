@@ -574,3 +574,4 @@ body.sv-open { overflow: hidden; }
 .hl-stats b { font-size: clamp(30px, 7vw, 40px); line-height: 1.05; font-weight: 700; letter-spacing: -.01em; background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--navy-800); font-variant-numeric: tabular-nums; }
 .hl-stats span { font-size: 15px; font-weight: 700; color: var(--blue-600); margin-left: 0; }
 .hl-stats small { margin-top: 2px; font-size: 12px; line-height: 1.6; color: var(--muted); }
+.cmp-logo { display: block; font-size: 28px; line-height: 1.1; padding: 0 .1em .12em 0; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
