@@ -579,3 +579,17 @@ body.sv-open { overflow: hidden; }
 .plan { display: flex; flex-direction: column; }
 .plan-detail { flex: 1 0 auto; }
 @media (max-width: 640px) { .plan-detail { flex: none; } }
+/* お支払い(カード決済ボタン・支払方法) */
+.plan-pay { margin-top: 16px; display: grid; gap: 6px; }
+.plan-pay .btn { justify-content: center; width: 100%; min-height: 48px; text-align: center; }
+.plan-pay small { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.paymethod { margin-top: 18px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; font-size: 14px; line-height: 1.8; }
+.paymethod b { margin-right: 10px; color: var(--navy-800); }
+.paymethod span { font-weight: 700; color: var(--blue-600); }
+.paymethod p { margin: 6px 0 0; font-size: 13px; color: var(--ink); }
+.plan-pay .btn { min-width: 0; padding: 10px 20px; }
+.plan-pay .btn > span { display: grid; line-height: 1.4; }
+.plan-pay .btn > span small { font-size: 11px; font-weight: 500; letter-spacing: .04em; opacity: .85; }
+.paymethod span { display: inline-block; }
+@media (max-width: 640px) { .paymethod b { display: block; } .paymethod p br { display: none; } }
+.plan-pay .btn > span small { color: inherit; opacity: .9; }
