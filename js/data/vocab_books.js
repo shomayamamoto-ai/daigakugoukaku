@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -33,7 +33,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -6834,6 +6834,150 @@ trajectory|軌道
 deplete|使い果たす
 suffice|十分である
 solidarity|連帯
+`;
+// 15 = 早稲田 社会科学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[15] = `
+spite|悪意
+indicator|指標
+administrative|管理の
+administrator|管理者
+authoritarian|権威主義の
+brew|醸造する
+communism|共産主義
+dire|悲惨な
+dosage|服用量
+entrenched|根強い
+instability|不安定
+linguist|言語学者
+nobility|高貴さ、貴族階級
+proxy|代理
+quantitative|量的な
+stark|明白な
+aberration|逸脱
+academia|学界
+affiliation|所属
+agonizing|苦しい
+airborne|空気で運ばれる
+allocation|割り当て
+apathetic|無関心な
+artifice|策略
+audit|監査
+autocratic|独裁的な
+biodiversity|生物多様性
+bolster|支える
+capitalist|資本主義の
+commentary|解説
+communal|共同の
+constitutional|憲法の
+contextual|文脈上の
+correlate|相関する
+critique|批評
+culinary|料理の
+cult|カルト
+cumbersome|扱いにくい
+custodian|管理人
+customary|慣習的な
+daunting|ひるませるような
+dent|へこみ
+dictatorship|独裁政治
+differentiate|区別する
+discriminatory|差別的な
+dual|二重の
+ego|自我、自尊心
+enthusiast|熱心な人
+erode|侵食する
+erratic|不規則な
+escalate|拡大する
+espionage|スパイ活動
+etiquette|礼儀作法
+eventual|最終的な
+expenditure|支出
+fable|寓話
+faction|派閥
+feminism|男女同権主義
+forefront|最前線
+formidable|手ごわい
+fret|やきもきする
+generalization|一般化
+geopolitical|地政学的な
+grievance|不満
+groundbreaking|画期的な
+hub|拠点
+humility|謙虚さ
+imperative|必須の、必須の課題、命令形の
+impoverished|貧困化した
+inconsequential|取るに足らない
+ingenuity|創意工夫
+institutional|制度の
+intensify|強める
+intrusive|押しつけがましい
+kin|親族
+logistic|物流の
+loom|迫る、織機
+lucrative|儲かる
+manifestation|現れ
+mindset|考え方
+mundane|ありふれた
+municipality|地方自治体
+mystic|神秘的な
+nationalist|国家主義者
+niche|ニッチ
+notwithstanding|～にもかかわらず
+offense|違反、攻撃、侮辱／気分を害すること
+onward|前へ
+palate|味覚
+populous|人口の多い
+prominence|卓越
+prophecy|予言
+prowess|卓越した技量
+rationale|論理的根拠
+relentlessly|容赦なく
+repel|撃退する
+republican|共和制の
+retention|保持
+retrospective|回顧の
+revelation|暴露
+segregation|分離
+selflessness|無私
+semantic|意味の
+skepticism|懐疑論
+slew|多数
+socioeconomic|社会経済的な
+staggering|途方もない
+stimuli|刺激
+strand|立ち往生させる、糸／一筋、(議論などの)要素
+telecom|電気通信
+textual|本文の
+theorist|理論家
+trauma|トラウマ
+trek|長旅
+upbeat|楽観的な
+wholesale|卸売の
+wrongdoing|不正行為
+ascribe|(ascribe A to Bで)AをBに帰する
+inherent|固有の
+designate|指定する
+penetrate|貫通する
+vulnerable|傷つきやすい
+monetary|金銭的な
+manifest|明らかな、明らかに示す
+incorporate|取り入れる
+presume|推定する
+dwindle|どんどん小さくなる
+comprise|～から成る、占める
+consensus|合意
+undermine|弱める
+aesthetic|美的な
+speculate|推測する、投機する
+illuminate|照らす、解明する
+comprehend|理解している
+criteria|基準
+compensate|補償する
+paradox|逆説
+render|～にする、(援助・奉仕を)提供する、翻訳する
+disparity|格差
+prevalent|広く行き渡っている
+formulate|まとめる
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
