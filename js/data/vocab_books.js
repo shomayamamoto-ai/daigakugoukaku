@@ -5967,7 +5967,7 @@ nuance|微妙な違い
 rampant|蔓延した
 sovereignty|主権
 `;
-// 12 = 慶應 商学部(画面写真から入力・276語中275語)
+// 12 = 慶應 商学部(画面写真から全276語)
 WPS.VBOOK_DATA.sokei[12] = `
 spite|悪意
 correlate|相関する
