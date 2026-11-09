@@ -10838,7 +10838,7 @@ come after ~|～の後をつける
 come before ~|審議される
 come down to ~|要するに～ということになる
 `;
-// Plus Part 4(画面写真から入力。続きは受け取りしだい追加)
+// Plus Part 4(画面写真から全300語:見出し293・派生7)
 WPS.VBOOK_DATA.plus[4] = `
 come down with ~|～にかかる
 come into ~|～の状態になる
@@ -11118,6 +11118,28 @@ articulate|はっきり述べる、明確に考えを述べられる
 spinal|脊椎の
 tactics|作戦
 genome|ゲノム
+bride|花嫁
+bug|虫
+absurd|ばかげた
+absurdity|不合理|派
+navy|海軍
+nutrient|栄養分
+aristocracy|貴族階級
+warehouse|倉庫
+pin|ピンで留める
+subsidy|補助金
+aircraft|航空機
+duplicate|複製する
+duplication|複製|派
+ward|病棟、行政区
+embassy|大使館
+solitary|単独の
+merge|合併する
+explicit|明確な
+excel|優れている
+static|静的な
+vocal|声の、意見をはっきり述べる
+inflammation|炎症
 `;
 // Plus Part 5(画面写真から全248語:見出し229・派生19)
 WPS.VBOOK_DATA.plus[5] = `
