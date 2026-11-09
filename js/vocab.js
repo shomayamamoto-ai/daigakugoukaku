@@ -1180,25 +1180,36 @@ WPS.makeVocab = function (ctx) {
 
   /* ========== 分析(日ごとのカレンダー) ========== */
   function statsHTML() {
-    var v = vt(), studied = Object.keys(v.w).length, unl = 0;
+    var v = vt(), keys = Object.keys(v.w), unl = 0, nOk = 0, nWeak = 0;
+    keys.forEach(function (k) { var t = statusOf(v.w[k]); if (t === 'ok') nOk++; else if (t === 'weak') nWeak++; });
     lists().forEach(function (o) { items(o.L).forEach(function (x) { if (!v.w[x.key]) unl++; }); });
-    var tab = st.stab || 'u', key = { u: 'u', ok: 'ok', weak: 'weak' }[tab], label = { u: '総単語数', ok: '覚えた単語', weak: '苦手な単語' };
+    var tab = st.stab || 'u', key = { u: 'u', ok: 'ok', weak: 'weak' }[tab];
+    var label = { u: '総単語数', ok: '覚えた単語', weak: '苦手な単語' };
+    var bigLabel = { u: '今まで解いた総単語数', ok: 'いま覚えている単語', weak: 'いま苦手な単語' }[tab];
+    var big = { u: keys.length, ok: nOk, weak: nWeak }[tab];
     var ym = st.smonth || D.today().slice(0, 7), y = +ym.slice(0, 4), m = +ym.slice(5, 7);
-    var first = new Date(y, m - 1, 1), nd = new Date(y, m, 0).getDate(), lead = (first.getDay() + 6) % 7, today = D.today(), max = 1, sum = 0;
+    var first = new Date(y, m - 1, 1), nd = new Date(y, m, 0).getDate(), lead = (first.getDay() + 6) % 7, today = D.today(), max = 1, sum = 0, days = 0;
     for (var d0 = 1; d0 <= nd; d0++) { var k0 = ym + '-' + (d0 < 10 ? '0' : '') + d0; max = Math.max(max, (v.daily[k0] || {})[key] || 0); }
-    var cells = '';
-    for (var i = 0; i < lead; i++) cells += '<span class="st-d empty"></span>';
+    var R = 17, C = 2 * Math.PI * R, cells = '';
+    for (var i = 0; i < lead; i++) cells += '<span class="st-d empty" aria-hidden="true"></span>';
     for (var d = 1; d <= nd; d++) {
-      var ds = ym + '-' + (d < 10 ? '0' : '') + d, n = (v.daily[ds] || {})[key] || 0, deg = Math.round(n / max * 360);
-      sum += n;
-      cells += '<span class="st-d' + (ds === today ? ' today' : '') + (ds > today ? ' future' : '') + '"><small>' + d + '</small><i class="tab-' + tab + '" style="--deg:' + deg + 'deg">' + (n || (ds <= today ? '' : '')) + '</i></span>';
+      var ds = ym + '-' + (d < 10 ? '0' : '') + d, rec = v.daily[ds], did = !!(rec && rec.a), n = did ? (rec[key] || 0) : 0;
+      var cls = ds === today ? ' today' : ds > today ? ' future' : did ? ' did' : ' rest';
+      if (did) { sum += n; days++; }
+      var len = n ? Math.max(C * 0.04, n / max * C) : 0;
+      var ring = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle class="bg" cx="20" cy="20" r="' + R + '"/>' + (len ? '<circle class="fg" cx="20" cy="20" r="' + R + '" stroke-dasharray="' + len.toFixed(1) + ' ' + C.toFixed(1) + '"/>' : '') + '</svg>';
+      var num = did ? n : (ds < today ? '–' : ds === today ? '0' : '');
+      var al = m + '月' + d + '日 ' + (did ? label[tab] + ' ' + n + '語' : ds < today ? '学習なし' : '');
+      cells += '<span class="st-d' + cls + '" aria-label="' + al + '"><small>' + d + '</small><i>' + ring + '<b>' + num + '</b></i></span>';
     }
     return '<div class="vt-qhead"><button type="button" class="vt-link" id="vaBack">戻る</button><b>分析</b><span></span></div>' +
-      '<section class="card"><div class="st-top"><div><span class="muted small">今まで解いた総単語数</span><b>' + studied.toLocaleString() + '<small>語</small></b></div><div><span class="muted small">未学習</span><b class="sm">' + unl.toLocaleString() + '<small>語</small></b></div></div>' +
-      '<div class="seg st-tabs">' + ['u', 'ok', 'weak'].map(function (t) { return '<button type="button" class="seg-btn' + (tab === t ? ' on' : '') + '" data-vstab="' + t + '">' + label[t] + '</button>'; }).join('') + '</div>' +
-      '<div class="vc-head"><button type="button" class="vc-nav" data-vsmon="-1" aria-label="前の月">‹</button><span>' + y + '年' + m + '月 <b>' + sum + '</b>語</span><button type="button" class="vc-nav" data-vsmon="1" aria-label="次の月">›</button></div>' +
+      '<section class="card st-card sc-' + tab + '"><div class="st-top"><div><span class="muted small">' + bigLabel + '</span><b>' + big.toLocaleString() + '<small>語</small></b></div><div><span class="muted small">未学習</span><b class="sm">' + unl.toLocaleString() + '<small>語</small></b></div></div>' +
+      '<div class="st-tabs" role="tablist">' + ['u', 'ok', 'weak'].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (tab === t) + '" class="st-tab st-tab-' + t + (tab === t ? ' on' : '') + '" data-vstab="' + t + '">' + label[t] + '</button>'; }).join('') + '</div>' +
+      '<div class="vc-head"><button type="button" class="vc-nav" data-vsmon="-1" aria-label="前の月">‹</button><span>' + y + '年 ' + m + '月</span><button type="button" class="vc-nav" data-vsmon="1" aria-label="次の月">›</button></div>' +
+      '<p class="st-sum">この月の' + label[tab] + ' <b>' + sum.toLocaleString() + '</b>語<span>学習した日 <b>' + days + '</b>日</span></p>' +
       '<div class="st-grid">' + ['月', '火', '水', '木', '金', '土', '日'].map(function (w) { return '<span class="vc-w">' + w + '</span>'; }).join('') + cells + '</div>' +
-      '<p class="hint">総単語数:その日に学習した語の数(同じ語は1日1回だけ数えます)。覚えた単語:2回続けて正解した語・苦手から卒業した語の数。苦手な単語:その日に新しく苦手になった語の数。円の長さは、その月でいちばん多い日を基準にしています。</p></section>';
+      '<p class="st-legend"><span><i class="lg did"></i>学習した日</span><span><i class="lg rest"></i>学習しなかった日</span></p>' +
+      '<details class="st-how"><summary>数え方</summary><p>総単語数:その日に学習した語の数(同じ語は1日1回だけ数えます)。<br>覚えた単語:2回続けて正解した語と、苦手から卒業した語の数。<br>苦手な単語:その日に新しく苦手になった語の数。<br>円の長さは、その月でいちばん多い日を基準にしています。</p></details></section>';
   }
   function statsAfter(view) {
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
