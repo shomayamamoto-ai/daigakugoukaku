@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -6434,6 +6434,153 @@ nuance|微妙な違い
 disperse|分散させる
 sovereignty|主権
 affinity|親和性
+`;
+// 14 = 慶應 総合政策学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[14] = `
+spite|悪意
+bolster|支える
+entrenched|根強い
+fraud|詐欺
+hub|拠点
+inadvertently|うっかり
+intensify|強める
+pragmatic|実際的な
+reciprocity|相互性
+spiral|らせん
+stakeholder|利害関係者
+adjacent|隣接した
+affiliation|所属
+altruistic|利他的な
+anomaly|異常
+apparel|衣料品
+appreciation|感謝、理解
+attribution|帰属
+authoritarian|権威主義の
+breach|違反、破れ目
+conceptual|概念的な
+congested|混雑した
+correlate|相関する
+critique|批評
+diffusion|拡散
+durability|耐久性
+dystopian|暗黒郷の
+fret|やきもきする
+gel|ゲル状のもの
+guise|見せかけ
+homogeneity|同質性
+imperative|必須の、必須の課題、命令形の
+indicator|指標
+laden|積んだ
+lineage|血統
+mainstay|大黒柱
+mindset|考え方
+mundane|ありふれた
+niche|ニッチ
+planetary|惑星の
+rigorous|厳密な
+runaway|手に負えない
+sovereign|主権を持つ、君主
+telecommunication|電気通信
+theorist|理論家
+tout|うるさく売り込む
+visionary|先見の明のある
+wrongdoing|不正行為
+academia|学界
+administrative|管理の
+adversary|敵
+advocacy|擁護
+affluence|裕福
+affront|侮辱
+aggregate|集計する、総計、総計の
+agile|機敏な
+agonizing|苦しい
+ailment|軽い病気
+alchemy|錬金術
+allocation|割り当て
+ancestral|先祖の
+antagonist|敵対者
+apathetic|無関心な
+archaic|古風な
+ardent|熱心な
+arsenal|兵器庫
+ascertain|突き止める
+aura|雰囲気
+awe|畏敬の念
+biodiversity|生物多様性
+bloc|陣営
+blockbuster|大ヒット作
+buzzword|流行語
+byproduct|副産物
+calculus|微積分
+calf|子牛、ふくらはぎ
+cascade|小滝
+champion|擁護者、擁護する、優勝者
+coercive|強制的な
+commoner|庶民
+communism|共産主義
+conceptualize|概念化する
+concession|譲歩、特許権／営業権
+conclusively|決定的に
+confide|打ち明ける
+consolidate|統合する
+contextual|文脈上の
+conviction|確信、有罪判決
+counterintuitive|直感に反する
+cult|カルト
+cumbersome|扱いにくい
+curator|学芸員
+delusion|妄想
+demise|消滅
+dent|へこみ
+depletion|枯渇
+deployment|配備
+detritus|残骸
+dichotomy|二分法
+dictatorship|独裁政治
+differentiate|区別する
+dire|悲惨な
+disband|解散する
+divisive|分裂を招く
+downplay|軽く扱う
+duality|二重性
+eccentricity|風変わりさ
+ego|自我、自尊心
+embryo|胚
+ensemble|合奏団
+epistemic|認識の
+equitable|公平な
+erode|侵食する
+erratic|不規則な
+escalation|段階的拡大
+ethicist|倫理学者
+etiquette|礼儀作法
+exacerbate|悪化させる
+expansive|広範な
+expenditure|支出
+fad|一時的流行
+falsehood|虚偽
+fishery|漁業
+flint|火打ち石
+flounder|もがく
+forebear|先祖
+foresight|先見の明
+fort|砦
+fringe|周縁
+generalization|一般化
+gig|単発の仕事
+glamorous|華やかな
+goodwill|善意
+hindsight|後知恵
+hormone|ホルモン
+humility|謙虚さ
+hydroelectric|水力発電の
+impasse|行き詰まり
+impoverished|貧困化した
+inadequacy|不十分さ
+inconsequential|取るに足らない
+inconsistency|矛盾
+inductive|帰納的な
+ineffectual|効果のない
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
