@@ -2820,3 +2820,12 @@ body.sheet-open { overflow: hidden; }
 body.no-tools .topbar .tb-tools { opacity: .35; cursor: not-allowed; }
 body.no-tools .tl-panel, body.no-tools .tl-dock { display: none !important; }
 @media (max-width: 760px) { .ct-picked li button { min-height: 40px; } .mk-cell { min-width: 40px; min-height: 40px; } }
+
+/* 資料を最小化したときのボタン:どのテーマ・背景でも目立つように(白いふち＋濃い影＋濃い色) */
+.tl-pill { background: #0b1f4d; color: #fff; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .35), 0 8px 22px rgba(0, 0, 0, .45); min-height: 44px; padding: 6px 6px 6px 14px; }
+.tl-pill span { width: 30px; height: 30px; background: rgba(255, 255, 255, .22); font-size: 15px; }
+.tl-pill:focus-visible { outline: 3px solid #ffd54a; outline-offset: 2px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tl-pill { background: #fff; color: #0b1f4d; border-color: #0b1f4d; box-shadow: 0 0 0 2px #fff, 0 8px 22px rgba(0, 0, 0, .6); } :root:not([data-theme="light"]) .tl-pill span { background: rgba(11, 31, 77, .12); } }
+:root[data-theme="dark"] .tl-pill { background: #fff; color: #0b1f4d; border-color: #0b1f4d; box-shadow: 0 0 0 2px #fff, 0 8px 22px rgba(0, 0, 0, .6); }
+:root[data-theme="dark"] .tl-pill span { background: rgba(11, 31, 77, .12); }
+.tl-dock { padding: 4px 6px 8px 4px; }
