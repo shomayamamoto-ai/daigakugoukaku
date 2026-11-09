@@ -10085,6 +10085,145 @@ pros and cons|長所と短所
 commonplace|当たり前の
 good-looking|見た目が良い
 prospective|見込みのある
+fiber|繊維
+tumor|腫瘍
+syndrome|症候群
+satisfactory|満足のいく
+unforgettable|忘れられない
+additionally|加えて
+old-fashioned|時代遅れの
+discriminating|目が利く
+well-informed|十分に情報を得た
+troublesome|面倒な
+mountainous|山地の
+breakthrough|飛躍的進歩
+patch|部分、当て布／眼帯
+doom|悪い運命を定める
+doomed|悪い運命にある|派
+landmine|地雷
+outbreak|発生
+lottery|宝くじ
+personal information|個人情報
+cyberbullying|ネット上でのいじめ
+electronically|電子的に
+internet access|インターネット接続
+living standard|生活水準
+self-confidence|自信
+multicultural|多文化の
+regenerative|再生力がある
+malnourished|栄養失調の
+osteoporosis|骨粗しょう症
+aging society|高齢化社会
+one-child policy|一人っ子政策
+around the clock|24時間休みなしで
+Paris Agreement|パリ協定
+paleontologist|古生物学者
+lingua franca|国際共通語
+multilingual|多言語の
+archaeology[archeology]|考古学
+theorize[theorise]|理論を立てる
+unconditionally|無条件に
+irreplaceable|取り替えられない
+one hundred percent|100パーセント
+inconvenience|不便
+the Self-Defense Forces|自衛隊
+the Northern Territories|北方領土
+the Sea of Japan|日本海
+national treasure|国宝
+thinly sliced|薄切りの
+self-sufficiency|自給自足
+the 2011 Tohoku Earthquake|2011年の東日本大震災
+population pyramid|人口ピラミッド
+proportionate|比例した
+increasingly|ますます
+intermission|休憩時間
+carbohydrate|炭水化物
+glass ceiling|ガラスの天井
+state-of-the-art|最新式の
+spokesperson|広報担当者
+scientifically|科学的に
+figuratively|比喩的に
+paradoxically|逆説的に言えば
+extracurricular|教科外の
+co-worker [coworker]|同僚
+environmentally|環境保護の点で
+championship|選手権
+enthusiastic|熱狂的な
+automatically|自動で
+affectionate|愛情がある
+presentation|発表
+chore|雑用
+spin|ぐるぐる回る
+spin-off|副産物|派
+respiratory|呼吸の
+slavery|奴隷制度
+commodity|商品
+legitimate|正当な
+singular|単数の、並外れた
+defy|逆らう
+blink|まばたきする
+limb|手足
+pronoun|代名詞
+nuisance|迷惑
+tablet|タブレット端末、錠剤
+pavement|歩道
+feat|偉業
+hierarchy|階層構造
+hierarchical|階層的な|派
+worm|虫
+aboriginal|アボリジニの
+cargo|積荷
+nephew|甥
+account for ~|占める、説明する
+accuse A of B|AをBの罪で告訴する
+act on ~|～に従って行動する
+act out ~|身振りで実演する
+add up to ~|～になる
+adhere to ~|順守する
+air out ~|換気する
+all but|ほとんど
+allow for ~|考慮に入れる
+answer for ~|～の責任を負う
+aspire to do ~|～することを熱望する
+attribute A to B|AをBのせいと考える
+back down|撤回する
+back off|手を引く
+back up ~|裏付ける、支援する
+bank on ~|当てにする
+be committed to ~|献身している
+be destined to do ~|～する運命である
+(be) free of ~|～がない
+be obsessed with ~|～に取りつかれている
+be subject to ~|～にかかりやすい
+blast off|打ち上げられる
+blow up|爆発する、怒る
+bounce back|回復する
+branch off|分岐する
+break away from ~|断つ
+break down|故障する、決裂する、分解する
+break off ~|中断する
+bring about ~|引き起こす
+bring down ~|倒す
+bring off ~|やってのける
+bring on ~|もたらす
+bring out ~|引き出す
+bump into ~|～にばったり出会う
+burn out ~|疲れ果てさせる
+by means of ~|～を用いて
+call for ~|必要とする、要求する
+call off ~|中止する
+call on ~|訪ねる、～に頼む
+carry away ~|持ち去る、夢中にさせる
+carry through ~|成し遂げる
+catch up on ~|～の遅れを取り戻す
+check off ~|～にチェックマークをつける
+chip in ~|出し合う
+clean out ~|～の中をきれいにする
+clear out ~|空にする
+clear up (~)|解決する
+close in (on ~)|包囲する
+come after ~|～の後をつける
+come before ~|審議される
 `;
 // Plus Part 7(画面写真から全169語:見出し166・派生3)
 WPS.VBOOK_DATA.plus[7] = `
