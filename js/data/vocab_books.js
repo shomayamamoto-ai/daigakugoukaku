@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252, '早稲田 法'], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -7643,6 +7643,153 @@ magnitude|大きさ
 nuance|微妙な違い
 exemplify|例証する
 trajectory|軌道
+`;
+// 18 = 慶應 理工学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[18] = `
+conceptual|概念的な
+gravitate|引き寄せられる
+intensify|強める
+momentary|瞬間の
+spite|悪意
+trauma|トラウマ
+abnormal|異常な
+buffer|緩衝
+credible|信頼できる
+daunting|ひるませるような
+elusive|捉えどころのない
+hike|引き上げ、ハイキング
+inadequacy|不十分さ
+instability|不安定
+molecular|分子の
+nasal|鼻の
+negligible|無視できるほどの
+planetary|惑星の
+quantum|量子
+reproductive|生殖の
+resonate|共鳴する
+spike|急増、とげ
+stimuli|刺激
+sync|同期
+temporal|時間の、世俗の
+terrestrial|地球の
+thereafter|その後
+administrative|管理の
+afterlife|死後の世界
+aftermath|余波
+aggregate|集計する、総計、総計の
+agonizing|苦しい
+airborne|空気で運ばれる
+albeit|～ではあるが
+amid|～の真っただ中で
+anomaly|異常
+antagonist|敵対者
+apnea|無呼吸
+aristocrat|貴族
+arrhythmia|不整脈
+atrial|心房の
+automaton|自動機械
+cacophony|不協和音
+calf|子牛、ふくらはぎ
+capitalist|資本主義の
+cardiac|心臓の
+celestial|天体の
+ceramic|陶磁器の
+cerebral|脳の
+champion|擁護者、擁護する、優勝者
+chancellor|首相、学長
+compassionate|思いやりのある
+conceptualize|概念化する
+conclusively|決定的に
+consensual|合意に基づく
+contextual|文脈上の
+conundrum|難問
+correlate|相関する
+counterintuitive|直感に反する
+crank|クランク
+cultivation|耕作
+deceleration|減速
+demise|消滅
+deployment|配備
+dichotomy|二分法
+differentiate|区別する
+dire|悲惨な
+disband|解散する
+discrete|別々の
+disdain|軽蔑
+domination|支配
+duality|二重性
+elasticity|弾力性
+equity|公平、株式
+evaporation|蒸発
+expansive|広範な
+feminist|男女同権論者
+fibrillation|細動
+fidelity|忠実さ
+fiscal|財政の
+flare|燃え上がる
+foremost|第一の
+genesis|起源
+grieve|深く悲しむ
+groundbreaking|画期的な
+haul|引っ張る
+hindsight|後知恵
+hippocampus|海馬
+hitherto|今まで
+hormone|ホルモン
+hospitable|もてなしのよい
+hydroelectric|水力発電の
+impeccable|非の打ちどころのない
+incessant|絶え間ない
+inconsequential|取るに足らない
+incremental|漸進的な
+indicator|指標
+inhospitable|住みにくい
+interstellar|星間の
+irritable|怒りっぽい
+kinship|親族関係
+landmass|陸塊
+lethal|致命的な
+lexical|語彙の
+longitudinal|縦断的な
+lucrative|儲かる
+lunar|月の
+manipulation|操作
+mantle|外套
+mercury|水銀
+metric|指標
+mint|ミント、造幣局
+missionary|宣教師
+mucus|粘液
+nanotechnology|ナノテクノロジー
+neurobiological|神経生物学の
+neurological|神経の
+niche|ニッチ
+nobility|高貴さ、貴族階級
+nostril|鼻孔
+nullify|無効にする
+objectionable|好ましくない
+observatory|天文台
+olfactory|嗅覚の
+omnipresent|遍在する
+oscillator|発振器
+overarching|包括的な
+pathology|病理学
+perpetuate|永続させる
+physiologist|生理学者
+practitioner|実践者、開業医
+prophecy|予言
+psychic|霊能の
+pulse|脈拍
+quarantine|隔離
+receptor|受容体
+recurring|繰り返し起こる
+renovation|改修
+repel|撃退する
+reservoir|貯水池
+righteous|正義の
+rigorous|厳密な
+rite|儀式
+rumble|とどろく
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
