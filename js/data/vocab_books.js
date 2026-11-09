@@ -21,6 +21,13 @@ WPS.VBOOKS = [
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
+  { id: 'eiken5', name: '英検®5級', grp: 'more', desc: '英検5級(中学初級程度)でよく出る語(準備中)。' },
+  { id: 'eiken4', name: '英検®4級', grp: 'more', desc: '英検4級(中学中級程度)でよく出る語(準備中)。' },
+  { id: 'eiken3', name: '英検®3級', grp: 'more', desc: '英検3級(中学卒業程度)でよく出る語(準備中)。' },
+  { id: 'eikenp2', name: '英検®準2級', grp: 'more', desc: '英検準2級(高校中級程度)でよく出る語(準備中)。' },
+  { id: 'eiken2', name: '英検®2級', grp: 'more', desc: '英検2級(高校卒業程度)でよく出る語(準備中)。' },
+  { id: 'eikenp1', name: '英検®準1級', grp: 'more', desc: '英検準1級(大学中級程度)でよく出る語(準備中)。' },
+  { id: 'eiken1', name: '英検®1級', grp: 'more', desc: '英検1級(大学上級程度)でよく出る語(準備中)。' },
   { id: 'toeic', name: 'TOEIC®頻出', grp: 'more', desc: 'TOEIC® L&R でよく出るビジネス・日常の語(準備中)。' },
   { id: 'igaku', name: '医学部頻出', grp: 'more', desc: '医学部の長文によく出る医療・生命科学の語(準備中)。' }
 ];
