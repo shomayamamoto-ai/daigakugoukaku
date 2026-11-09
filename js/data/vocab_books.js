@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -5966,6 +5966,153 @@ resilience|回復力
 nuance|微妙な違い
 rampant|蔓延した
 sovereignty|主権
+`;
+// 12 = 慶應 商学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[12] = `
+spite|悪意
+correlate|相関する
+indicator|指標
+manifestation|現れ
+proposition|提案、命題
+rationale|論理的根拠
+safeguard|守る
+shareholder|株主
+synonymous|同義の
+albeit|～ではあるが
+bizarre|奇妙な
+cultivation|耕作
+diffusion|拡散
+divisive|分裂を招く
+domination|支配
+equity|公平、株式
+err|誤る
+hike|引き上げ、ハイキング
+intensify|強める
+legislative|立法の
+mechanization|機械化
+planetary|惑星の
+populous|人口の多い
+recurring|繰り返し起こる
+ruthless|無慈悲な
+skepticism|懐疑論
+thrifty|倹約的な
+visionary|先見の明のある
+administrator|管理者
+advocacy|擁護
+afloat|浮かんで
+aftermath|余波
+aggregate|集計する、総計、総計の
+ailment|軽い病気
+amid|～の真っただ中で
+analytic|分析的な
+animosity|敵意
+appreciation|感謝、理解
+arrogance|傲慢さ
+arrowhead|矢じり
+atop|～の上に
+aura|雰囲気
+awe|畏敬の念
+barometer|気圧計
+binary|二元的な
+biotechnology|生命工学
+bluntly|単刀直入に
+botany|植物学
+breadth|幅広さ
+buyback|買い戻し
+buzzword|流行語
+capitalist|資本主義の
+champion|擁護者、擁護する、優勝者
+chaotic|混沌とした
+circuitry|回路
+cohesion|結束
+compassionate|思いやりのある
+composite|複合の
+confide|打ち明ける
+conviction|確信、有罪判決
+corrosion|腐食
+cosmopolitan|国際的な
+cult|カルト
+customary|慣習的な
+decree|命令
+democrat|民主主義者
+dictatorship|独裁政治
+diversify|多様化する
+dopamine|ドーパミン
+dubious|疑わしい
+eligibility|適格性
+equitable|公平な
+erode|侵食する
+eventual|最終的な
+expenditure|支出
+explanatory|説明的な
+fable|寓話
+faction|派閥
+foremost|第一の
+fort|砦
+fraud|詐欺
+genealogy|系譜
+generalization|一般化
+gravitate|引き寄せられる
+grieve|深く悲しむ
+humane|人道的な
+impoverished|貧困化した
+inadequacy|不十分さ
+inconsistency|矛盾
+incremental|漸進的な
+inflationary|インフレの
+inscription|碑文
+instability|不安定
+interrogation|尋問
+irritable|怒りっぽい
+kinship|親族関係
+liberation|解放
+lineage|血統
+lofty|高尚な
+logistic|物流の
+loom|迫る、織機
+mimicry|模倣
+misconception|誤解
+multiethnic|多民族の
+nationalist|国家主義者
+neurobiology|神経生物学
+newfound|新たに得た
+nostalgia|郷愁
+optimize|最適化する
+patron|後援者、常連客
+perseverance|忍耐
+populist|大衆迎合の
+proliferation|急増
+prominence|卓越
+propaganda|政治宣伝
+quantitative|量的な
+quantum|量子
+quarantine|隔離
+rebellion|反乱
+referendum|国民投票
+relentlessly|容赦なく
+renovation|改修
+reproach|非難
+republican|共和制の
+retention|保持
+rigorous|厳密な
+rigorously|厳密に
+seamless|継ぎ目のない
+shepherd|羊飼い
+stakeholder|利害関係者
+starkly|厳然と
+stride|大股で歩く
+supervise|監督する
+tar|タール
+telecommunication|電気通信
+tranquility|静けさ
+trek|長旅
+tyrant|暴君
+uranium|ウラン
+utopia|理想郷
+vibrant|活気のある
+whereby|それによって～する
+wholesale|卸売の
+wield|振るう
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
