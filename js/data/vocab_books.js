@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -33,7 +33,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -5695,6 +5695,153 @@ nuance|微妙な違い
 proximity|近さ
 solidarity|連帯
 attest|証明する
+`;
+// 11 = 早稲田 文化構想学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[11] = `
+communal|共同の
+nationalist|国家主義者
+oblivious|気づかない
+zoologist|動物学者
+affluence|裕福
+attribution|帰属
+awesome|畏敬の念を起こさせる
+capitalist|資本主義の
+champion|擁護者、擁護する、優勝者
+conceptualize|概念化する
+cultivation|耕作
+differentiate|区別する
+ecstasy|恍惚
+erode|侵食する
+eventual|最終的な
+fascist|ファシストの
+goodwill|善意
+homogeneity|同質性
+incomprehensible|理解できない
+indicator|指標
+instability|不安定
+institutional|制度の
+monstrous|途方もない
+mundane|ありふれた
+nostalgia|郷愁
+perpetuate|永続させる
+populous|人口の多い
+rebellion|反乱
+salient|顕著な
+spiral|らせん
+spite|悪意
+subdued|抑えられた
+supervise|監督する
+temporal|時間の、世俗の
+tyrant|暴君
+whereby|それによって～する
+achiever|成功者
+administrative|管理の
+afterlife|死後の世界
+ailment|軽い病気
+alchemy|錬金術
+alleviation|緩和
+amphitheater|円形劇場
+ancestral|先祖の
+anesthesia|麻酔
+appraisal|評価
+appreciation|感謝、理解
+authoritative|権威ある
+automotive|自動車の
+benefactor|後援者
+benevolent|慈悲深い
+bishop|司教
+bizarre|奇妙な
+blatant|露骨な
+bliss|至福
+breach|違反、破れ目
+brew|醸造する
+brisk|活発な
+buzzword|流行語
+ceramic|陶磁器の
+cerebral|脳の
+chant|唱える
+commoner|庶民
+constitutional|憲法の
+conviction|確信、有罪判決
+cosmopolitan|国際的な
+cradle|揺りかご、発祥地
+crook|詐欺師
+demise|消滅
+democrat|民主主義者
+dictatorship|独裁政治
+dietary|食事の
+discrete|別々の
+diversify|多様化する
+durability|耐久性
+enthusiast|熱心な人
+equity|公平、株式
+evaporation|蒸発
+exacerbate|悪化させる
+expansive|広範な
+foremost|第一の
+fraud|詐欺
+fringe|周縁
+gaslight|心理的に操る
+guise|見せかけ
+hack|切り刻む、不正侵入する
+hallmark|特徴
+hormone|ホルモン
+impeccable|非の打ちどころのない
+impoverished|貧困化した
+inaugural|就任の
+incessant|絶え間ない
+inextricably|密接に
+inhospitable|住みにくい
+intensify|強める
+invasive|侵略的な
+kin|親族
+lethal|致命的な
+leverage|影響力／てこの作用、活用する
+linguist|言語学者
+lofty|高尚な
+manifestation|現れ
+manipulation|操作
+mimicry|模倣
+mosaic|モザイク
+mystify|当惑させる
+nausea|吐き気
+neurological|神経の
+offense|違反、攻撃、侮辱／気分を害すること
+onward|前へ
+outgrowth|派生物
+pacifist|平和主義者
+patriotism|愛国心
+patron|後援者、常連客
+peripheral|周辺の
+pernicious|有害な
+physiologist|生理学者
+platonic|精神的な
+populist|大衆迎合の
+practitioner|実践者、開業医
+preposterous|ばかげた
+prominence|卓越
+psychic|霊能の
+puberty|思春期
+rationale|論理的根拠
+ravage|荒廃させる
+referendum|国民投票
+relentlessly|容赦なく
+reminiscence|回想
+remnant|残り
+repel|撃退する
+replica|複製
+republican|共和制の
+resonate|共鳴する
+retention|保持
+retrospect|回顧
+rigorous|厳密な
+rodent|齧歯類
+safeguard|守る
+scour|探し回る
+sexism|性差別
+shelve|棚上げにする
+siege|包囲
+slew|多数
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
