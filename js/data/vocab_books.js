@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -33,7 +33,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -6245,6 +6245,153 @@ nuance|微妙な違い
 disperse|分散させる
 propensity|傾向
 affinity|親和性
+`;
+// 13 = 早稲田 人間科学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[13] = `
+dietary|食事の
+administrator|管理者
+aviation|航空
+celestial|天体の
+correlate|相関する
+electrolyte|電解質
+formidable|手ごわい
+hack|切り刻む、不正侵入する
+indicator|指標
+mercury|水銀
+nausea|吐き気
+sedentary|座りがちの
+serial|連続的な
+slew|多数
+spike|急増、とげ
+stride|大股で歩く
+transit|通過
+veterinary|獣医の
+abnormal|異常な
+adversary|敵
+aerial|空中の
+aftermath|余波
+aggregate|集計する、総計、総計の
+ailment|軽い病気
+alphabetic|アルファベットの
+amphibian|両生類
+analytic|分析的な
+anomaly|異常
+arboreal|樹上の
+arcane|難解な
+arsenal|兵器庫
+atrial|心房の
+biotechnology|生命工学
+bolster|支える
+byproduct|副産物
+chloride|塩化物
+circuitry|回路
+conceptual|概念的な
+confide|打ち明ける
+congested|混雑した
+coronary|冠状動脈の
+cradle|揺りかご、発祥地
+culinary|料理の
+detection|検出
+dopamine|ドーパミン
+downplay|軽く扱う
+dual|二重の
+dubious|疑わしい
+eerie|不気味な
+elasticity|弾力性
+elusive|捉えどころのない
+embryo|胚
+enthusiast|熱心な人
+equinox|春分・秋分
+escalate|拡大する
+espionage|スパイ活動
+evaporation|蒸発
+fad|一時的流行
+fibrillation|細動
+fiscal|財政の
+forefront|最前線
+gel|ゲル状のもの
+gleaming|輝く
+havoc|大混乱
+hike|引き上げ、ハイキング
+hindsight|後知恵
+hormone|ホルモン
+hospitable|もてなしのよい
+hydration|水分補給
+impoverished|貧困化した
+inconsistency|矛盾
+ineffectual|効果のない
+innovator|革新者
+iteration|反復
+laden|積んだ
+legume|豆類
+lineage|血統
+linguist|言語学者
+lunar|月の
+manipulation|操作
+milestone|画期的出来事
+myopia|近視
+nanotechnology|ナノテクノロジー
+nasal|鼻の
+neurological|神経の
+neuroscience|神経科学
+newfound|新たに得た
+nostalgic|懐かしい
+observatory|天文台
+optimal|最適な
+optimize|最適化する
+optimum|最適の
+palate|味覚
+parameter|変数
+phonetic|音声の
+planetary|惑星の
+populous|人口の多い
+proxy|代理
+psychic|霊能の
+pulse|脈拍
+quantum|量子
+radiant|輝く
+rationale|論理的根拠
+repercussion|悪影響
+reservoir|貯水池
+resonance|共鳴
+retrospect|回顧
+ripple|さざ波
+scour|探し回る
+scribe|筆記者
+seizure|発作、押収
+shelve|棚上げにする
+sodium|ナトリウム
+spiky|とがった
+stimuli|刺激
+susceptibility|影響の受けやすさ
+swamp|沼地、圧倒する
+systematically|体系的に
+telecommunication|電気通信
+toxin|毒素
+turbine|タービン
+uranium|ウラン
+vent|通気口
+void|空虚、無効の
+whey|乳清
+wreak|引き起こす
+elaborate|手の込んだ、詳しく述べる
+withstand|耐える
+vulnerable|傷つきやすい
+advocate|提唱者、提唱する
+obsolete|廃れた
+incorporate|取り入れる
+dwindle|どんどん小さくなる
+concise|簡潔な
+comprise|～から成る、占める
+prescribe|処方する、規定する
+consensus|合意
+aesthetic|美的な
+speculate|推測する、投機する
+longevity|長寿
+illuminate|照らす、解明する
+compensate|補償する
+enshrine|祀る
+subsequent|続いて起こる
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
