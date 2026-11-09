@@ -7927,7 +7927,7 @@ disperse|分散させる
 rampant|蔓延した
 augment|増強する
 `;
-// 19 = 早稲田 教育学部(画面写真から入力。続きは受け取りしだい追加)
+// 19 = 早稲田 教育学部(画面写真から全295語)
 WPS.VBOOK_DATA.sokei[19] = `
 appreciation|感謝、理解
 biodiversity|生物多様性
@@ -8212,6 +8212,18 @@ adept|熟練した
 detrimental|有害な
 feasible|実現可能な
 viable|実行可能な
+mediate|調停する
+scrutiny|精査
+physiology|生理学
+equilibrium|均衡
+resilience|回復力
+magnitude|大きさ
+proximity|近さ
+exemplify|例証する
+deplete|使い果たす
+rampant|蔓延した
+suffice|十分である
+solidarity|連帯
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
