@@ -565,3 +565,12 @@ body.sv-open { overflow: hidden; }
 .gl-ttl { font-weight: 700; margin: 0 0 6px; }
 .guide-links ul { margin: 0; padding-left: 1.2em; line-height: 2; }
 .gl-more { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; font-weight: 700; }
+
+/* 数字で見る Aqualium(作り直し:数字は単色で読みやすく、上に分類ラベル) */
+.hl-stats li { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 12px 18px; border-radius: 18px; }
+.hl-stats li::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--grad); }
+.hl-stats em { font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: var(--blue-600); background: #eef3fd; padding: 3px 10px; border-radius: 999px; }
+.hl-stats p { margin: 0; display: flex; align-items: baseline; justify-content: center; gap: 3px; white-space: nowrap; }
+.hl-stats b { font-size: clamp(30px, 7vw, 40px); line-height: 1.05; font-weight: 700; letter-spacing: -.01em; background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.hl-stats span { font-size: 15px; font-weight: 700; color: var(--blue-600); margin-left: 0; }
+.hl-stats small { margin-top: 2px; font-size: 12px; line-height: 1.6; color: var(--muted); }
