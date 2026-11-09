@@ -593,3 +593,4 @@ body.sv-open { overflow: hidden; }
 .paymethod span { display: inline-block; }
 @media (max-width: 640px) { .paymethod b { display: block; } .paymethod p br { display: none; } }
 .plan-pay .btn > span small { color: inherit; opacity: .9; }
+.plan-pay .btn-line > span small { color: var(--muted); }
