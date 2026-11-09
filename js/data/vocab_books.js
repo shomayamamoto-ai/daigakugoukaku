@@ -7389,7 +7389,7 @@ solidarity|連帯
 propensity|傾向
 augment|増強する
 `;
-// 17 = 早稲田 法学部(画面写真から入力。続きは受け取りしだい追加)
+// 17 = 早稲田 法学部(画面写真から全252語)
 WPS.VBOOK_DATA.sokei[17] = `
 spike|急増、とげ
 champion|擁護者、擁護する、優勝者
@@ -7614,6 +7614,35 @@ proponent|支持者
 uphold|支持する
 incidence|発生
 amend|修正する
+pervasive|広く行き渡った
+encompass|含む
+herald|～の到来を告げる
+sinister|邪悪な
+heed|～に注意する
+implicit|暗黙の
+scrutinize|詳細に調べる
+gauge|判断する
+perplex|困惑させる
+facilitate|促進する
+upheaval|大変動
+threshold|始まり、しきい値／限界点
+stigma|汚名
+turmoil|混乱
+falsify|偽造する
+delegate|委譲する、代表者
+propel|推進する
+overhaul|総点検する
+pertinent|関連のある
+tentative|仮の
+redundant|不要な
+obstinate|頑固な
+detrimental|有害な
+homogeneous|均質の
+deter|思いとどまらせる
+magnitude|大きさ
+nuance|微妙な違い
+exemplify|例証する
+trajectory|軌道
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
