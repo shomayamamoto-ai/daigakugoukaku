@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -7046,6 +7046,134 @@ trajectory|軌道
 deplete|使い果たす
 suffice|十分である
 sovereignty|主権
+`;
+// 16 = 慶應 環境情報学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[16] = `
+deployment|配備
+cosmopolitan|国際的な
+hormone|ホルモン
+intensify|強める
+mindset|考え方
+onward|前へ
+ailment|軽い病気
+akin|似ている
+amid|～の真っただ中で
+authoritative|権威ある
+awesome|畏敬の念を起こさせる
+biblical|聖書の
+cognition|認知
+conceptual|概念的な
+contextual|文脈上の
+correlate|相関する
+discrete|別々の
+eventual|最終的な
+foresight|先見の明
+hack|切り刻む、不正侵入する
+hub|拠点
+inadvertently|うっかり
+ingenuity|創意工夫
+innocuous|無害な
+leverage|影響力／てこの作用、活用する
+liberation|解放
+lieu|代わり
+maneuver|巧みに動かす
+manipulation|操作
+metric|指標
+neuroscience|神経科学
+nexus|結びつき
+nostalgic|懐かしい
+offense|違反、攻撃、侮辱／気分を害すること
+operational|運用上の
+quantify|数量化する
+resonance|共鳴
+retention|保持
+rigorous|厳密な
+safeguard|守る
+sect|宗派
+slowdown|減速
+spike|急増、とげ
+spite|悪意
+stride|大股で歩く
+sustenance|栄養
+wholesale|卸売の
+abound|豊富にある
+academia|学界
+administrative|管理の
+adversary|敵
+affiliation|所属
+affluence|裕福
+afloat|浮かんで
+afterlife|死後の世界
+agile|機敏な
+albeit|～ではあるが
+alchemy|錬金術
+allocation|割り当て
+animosity|敵意
+antidote|解毒剤
+appraisal|評価
+approximation|近似
+arrogance|傲慢さ
+ascertain|突き止める
+attribution|帰属
+authoritarian|権威主義の
+aviation|航空
+beneficiary|受益者
+binary|二元的な
+biodiversity|生物多様性
+bolster|支える
+breach|違反、破れ目
+cacophony|不協和音
+centenarian|百歳の人
+cerebral|脳の
+champion|擁護者、擁護する、優勝者
+chemotherapy|化学療法
+churn|かき回す
+communal|共同の
+comprehensible|理解できる
+concur|同意する
+continuum|連続体
+crank|クランク
+crook|詐欺師
+cult|カルト
+cumbersome|扱いにくい
+deceleration|減速
+demise|消滅
+demographer|人口統計学者
+detection|検出
+dictatorship|独裁政治
+dire|悲惨な
+discriminatory|差別的な
+disdain|軽蔑
+downplay|軽く扱う
+dual|二重の
+durability|耐久性
+efficacy|効能
+enticing|心をそそる
+entrenched|根強い
+equity|公平、株式
+erode|侵食する
+erratic|不規則な
+escalate|拡大する
+espionage|スパイ活動
+exploratory|探査の
+facet|側面
+faction|派閥
+formidable|手ごわい
+fringe|周縁
+generalization|一般化
+grievance|不満
+grieve|深く悲しむ
+hallmark|特徴
+headgear|かぶり物
+hindsight|後知恵
+humane|人道的な
+humility|謙虚さ
+idiomatic|慣用的な
+idiosyncratic|特有の
+immediacy|即時性
+impediment|障害
+inconsistency|矛盾
+incremental|漸進的な
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
