@@ -2829,3 +2829,13 @@ body.no-tools .tl-panel, body.no-tools .tl-dock { display: none !important; }
 :root[data-theme="dark"] .tl-pill { background: #fff; color: #0b1f4d; border-color: #0b1f4d; box-shadow: 0 0 0 2px #fff, 0 8px 22px rgba(0, 0, 0, .6); }
 :root[data-theme="dark"] .tl-pill span { background: rgba(11, 31, 77, .12); }
 .tl-dock { padding: 4px 6px 8px 4px; }
+
+/* ログアウトボタン */
+.tb-logout { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; margin-left: 4px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.tb-logout:hover, .tb-logout:focus-visible { border-color: #d0342c; color: #d0342c; }
+body.locked .tb-logout { display: none !important; }
+.nav-sheet-in .nav-sheet-logout { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; width: 100%; min-height: 56px; margin-top: 6px; padding: 8px 12px; border: 0; border-top: 1px solid var(--line); border-radius: 12px; background: none; color: #d0342c; font: inherit; text-align: left; cursor: pointer; }
+.nav-sheet-in .nav-sheet-logout b { font-size: 1rem; }
+.nav-sheet-in .nav-sheet-logout small { font-size: .8rem; color: var(--muted); }
+.nav-sheet-in .nav-sheet-logout:hover, .nav-sheet-in .nav-sheet-logout:focus-visible { background: rgba(208, 52, 44, .08); }
+@media (max-width: 760px) { .tb-logout { display: none; } }

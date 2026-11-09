@@ -2462,7 +2462,7 @@
     return html;
   }
   renderSettings.after = function () {
-    var lo = document.getElementById('logoutBtn'); if (lo) lo.addEventListener('click', function () { ask('ログアウトしますか?(学習の記録は、この端末に残ります)', 'ログアウト', function () { WPS.Auth.logout(); go('#home'); }); });
+    var lo = document.getElementById('logoutBtn'); if (lo) lo.addEventListener('click', askLogout);
     var ri = document.getElementById('replayIntro'); if (ri) ri.addEventListener('click', function () {
       // オープニングムービーはWebサイト用。アプリでは、見たいときだけ読みこんで流す
       if (WPS.Intro) { WPS.Intro.play({ force: true }); return; }
@@ -3416,6 +3416,9 @@
     if (open) { var f = sh.querySelector('a'); if (f) f.focus(); }
   }
   WPS.appToast = function (m) { toast(m); };
+  // ログアウト(上のバー・「その他」・設定から)
+  function askLogout() { ask('ログアウトしますか?(学習の記録は、この端末に残ります)', 'ログアウト', function () { WPS.Auth.logout(); go('#home'); render(); toast('ログアウトしました'); }); }
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-logout]')) { e.preventDefault(); navSheet(false); askLogout(); } });
   function bindNavSheet() {
     var sh = document.getElementById('navSheet'), btn = document.querySelector('.nav .nav-more');
     if (!sh || !btn) return;
