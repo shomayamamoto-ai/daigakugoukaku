@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工'], [295, 0, '早稲田 教育']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工'], [295, 0, '早稲田 教育'], [211, 0, '慶應 医']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -34,7 +34,7 @@ WPS.VBOOKS = [
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
   { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252, '早稲田 法'], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295, '早稲田 教育'], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
-  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
+  { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211, '慶應 医'], ['薬学部', 255], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
 // 古文単語は3冊に分ける:古典単語(共テ 品詞別)/難関私大(MARCH早稲田)/古典常識(分野別)
@@ -8224,6 +8224,142 @@ deplete|使い果たす
 rampant|蔓延した
 suffice|十分である
 solidarity|連帯
+`;
+// 20 = 慶應 医学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[20] = `
+indicator|指標
+administrator|管理者
+clinician|臨床医
+dubious|疑わしい
+efficacy|効能
+gravitate|引き寄せられる
+neurological|神経の
+prevalence|普及
+telegraph|電信
+trauma|トラウマ
+wreak|引き起こす
+academia|学界
+affront|侮辱
+amid|～の真っただ中で
+appreciation|感謝、理解
+aquifer|帯水層
+arsenal|兵器庫
+atop|～の上に
+bandwidth|帯域幅
+biodiversity|生物多様性
+bizarre|奇妙な
+bluff|はったり
+brim|縁
+bustling|にぎわう
+carcinogenic|発がん性の
+caregiver|介護者
+chloride|塩化物
+cognition|認知
+compassionate|思いやりのある
+concur|同意する
+consolidate|統合する
+constitutional|憲法の
+conundrum|難問
+corrosive|腐食性の
+crank|クランク
+crook|詐欺師
+customary|慣習的な
+deployment|配備
+desalinate|淡水化する
+detection|検出
+dietary|食事の
+dopamine|ドーパミン
+dosage|服用量
+durability|耐久性
+elusive|捉えどころのない
+estuary|河口
+etiquette|礼儀作法
+flounder|もがく
+foremost|第一の
+fort|砦
+fraud|詐欺
+geopolitical|地政学的な
+gleaming|輝く
+hallucinate|幻覚を見る
+hallucination|幻覚
+havoc|大混乱
+humane|人道的な
+imperative|必須の、必須の課題、命令形の
+inaugural|就任の
+incomprehensible|理解できない
+inconsequential|取るに足らない
+instability|不安定
+institutional|制度の
+invasive|侵略的な
+irritable|怒りっぽい
+legume|豆類
+lethal|致命的な
+leverage|影響力／てこの作用、活用する
+linguist|言語学者
+mayhem|大混乱
+mindset|考え方
+momentary|瞬間の
+narcissistic|自己陶酔的な
+nausea|吐き気
+offense|違反、攻撃、侮辱／気分を害すること
+optimal|最適な
+optimize|最適化する
+overt|あからさまな
+palpable|明白な
+parameter|変数
+pernicious|有害な
+pest|害虫
+polemic|論争
+preconception|先入観
+prerogative|特権
+proliferate|急増する
+proposition|提案、命題
+prudent|思慮深い
+punitive|懲罰的な
+purification|浄化
+quantify|数量化する
+quarantine|隔離
+ramble|とりとめなく話す
+ranger|森林警備隊員
+repel|撃退する
+reproductive|生殖の
+reservoir|貯水池
+resonance|共鳴
+revelation|暴露
+ripple|さざ波
+runaway|手に負えない
+ruthless|無慈悲な
+socioeconomic|社会経済的な
+sodium|ナトリウム
+spiral|らせん
+spite|悪意
+staggering|途方もない
+stimuli|刺激
+supervise|監督する
+swamp|沼地、圧倒する
+synonymous|同義の
+telecom|電気通信
+telecommunication|電気通信
+thug|暴漢
+tract|広い土地、(消化管などの)管
+unequivocal|明白な
+utilitarian|功利主義の
+vicinity|近所
+viral|ウイルスの、急速に広まる
+void|空虚、無効の
+whereby|それによって～する
+impede|邪魔する
+inherent|固有の
+designate|指定する
+elaborate|手の込んだ、詳しく述べる
+contradict|矛盾する、反論する
+vulnerable|傷つきやすい
+advocate|提唱者、提唱する
+monetary|金銭的な
+comprise|～から成る、占める
+prescribe|処方する、規定する
+consensus|合意
+undermine|弱める
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
