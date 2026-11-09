@@ -6246,7 +6246,7 @@ disperse|分散させる
 propensity|傾向
 affinity|親和性
 `;
-// 13 = 早稲田 人間科学部(画面写真から入力。続きは受け取りしだい追加)
+// 13 = 早稲田 人間科学部(画面写真から全186語)
 WPS.VBOOK_DATA.sokei[13] = `
 dietary|食事の
 administrator|管理者
@@ -6392,6 +6392,48 @@ illuminate|照らす、解明する
 compensate|補償する
 enshrine|祀る
 subsequent|続いて起こる
+improvise|即興で作る
+disparity|格差
+prevalent|広く行き渡っている
+subsidize|補助金を支給する
+premise|前提、(premisesで)建物と敷地、～を前提とする
+nonetheless|それにもかかわらず
+ubiquitous|至る所にある
+acute|深刻な、鋭い、急性の
+disrupt|かき乱す
+unprecedented|前例のない
+sanction|制裁、認可
+irrigation|灌漑
+impair|損なう
+physiological|生理的な
+adverse|不利な
+entity|存在
+antioxidant|抗酸化物質
+susceptible|影響を受けやすい
+onset|始まり
+preliminary|予備的な
+acoustic|音響の
+predominantly|主に
+incidence|発生
+constrain|制約する
+affiliate|提携させる
+coalition|連立
+hamper|妨げる
+harness|利用する
+plight|窮状
+facilitate|促進する
+confer|授与する、相談する
+precipitation|降水
+delegate|委譲する、代表者
+tentative|仮の
+redundant|不要な
+methodology|方法論
+feasible|実現可能な
+scrutiny|精査
+nuance|微妙な違い
+disperse|分散させる
+sovereignty|主権
+affinity|親和性
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
