@@ -9939,7 +9939,7 @@ entrepreneurial|起業家精神のある
 indispensable|不可欠な
 comprehensive|包括的な
 `;
-// Plus Part 3(画面写真から入力。続きは受け取りしだい追加)
+// Plus Part 3(画面写真から全284語:見出し270・派生14)
 WPS.VBOOK_DATA.plus[3] = `
 province|州
 provincial|地方の|派
@@ -10224,6 +10224,7 @@ clear up (~)|解決する
 close in (on ~)|包囲する
 come after ~|～の後をつける
 come before ~|審議される
+come down to ~|要するに～ということになる
 `;
 // Plus Part 7(画面写真から全169語:見出し166・派生3)
 WPS.VBOOK_DATA.plus[7] = `
