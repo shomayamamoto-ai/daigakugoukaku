@@ -350,10 +350,8 @@ WPS.Mind = (function () {
   }
   function sosHTML() {
     return '<section class="card mind-sos" id="mindSos"><h2>相談できるところ</h2>' +
-      '<p>つらい気持ちが続くときや、ひとりで抱えきれないときは、身近な大人(家族・学校の先生・保健室の先生・塾の先生)か、次の窓口に相談してください。</p>' +
-      '<div class="sos-list"><a class="sos-item" href="tel:0120078310"><b>24時間子供SOSダイヤル</b><span>0120-0-78310(なやみ言おう)</span><small>文部科学省。24時間・通話無料。いじめや学校・家庭の悩みなど</small></a>' +
-      '<a class="sos-item" href="tel:0570064556"><b>こころの健康相談統一ダイヤル</b><span>0570-064-556</span><small>お住まいの都道府県の相談窓口につながります。受付時間は地域で異なり、通話料がかかります</small></a></div>' +
-      '<p class="hint">危険がせまっているときは、ためらわずに 110番・119番 へ。受付時間などは変わることがあるので、最新の情報は各窓口の公式の案内で確認してください。</p></section>';
+      '<p>つらい気持ちが続くときや、ひとりで抱えきれないときは、身近な大人(家族・学校の先生・保健室の先生・塾の先生)に相談してください。</p>' +
+      '</section>';
   }
   function page(arg) {
     var m = data(), today = D.today(), lg = m.logs[today] || {};
