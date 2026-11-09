@@ -10981,6 +10981,143 @@ play down ~|軽く見せようとする
 play out (~)|展開する
 play up ~|誇張する
 point to ~|示す
+pull back (~)|後退する
+pull in ~|引きつける
+pull off ~|やってのける
+pull through ~|切り抜ける
+push for ~|要求する
+push through ~|通す
+put down ~|書き留める
+put forth ~|発揮する
+put toward ~|～に(資金・労力を)充てる
+put in ~|備え付ける
+put A through (to B)|Aの電話をつなぐ
+read off ~|読み上げる
+refrain from doing ~|～するのを控える
+regardless of ~|～にかかわらず
+roll in (~)|たくさんある
+roll up ~|くるくると巻く
+round off ~|締めくくる
+round up ~|集める
+rule out ~|排除する
+run against ~|～に反する／～と選挙で争う
+run down ~|車でひく、悪く言う
+run through ~|ざっと～を読み上げる
+scoop up ~|抱き上げる
+scratch out ~|削除する
+see about ~|検討する
+see A off|Aを見送る
+see through ~|見抜く
+sell out|売り切れる、裏切る
+send for ~|呼ぶ
+send out for ~|出前を頼む
+set aside ~|とっておく
+set down ~|書き留める
+set in|始まる
+set off (~)|出発する、引き起こす
+set out to do ~|～することに着手する
+set up ~|準備する
+settle down|落ち着く
+settle up (with ~)|精算する
+shake up ~|刷新する
+show off (~)|見せびらかす
+sign up for ~|～に申し込む
+single out ~|選び出す
+sink in|十分に理解される
+sit back|何もしないでいる
+sit by|黙って見ている
+sit in|参加する
+skim over ~|ざっと見る
+slip by|いつの間にか過ぎる
+smooth over ~|丸く収める
+speak for ~|代表して意見を述べる
+split up (~)|別れる
+spring from ~|～から生じる
+spring up|急に生まれる
+stand down (as ~)|辞任する
+stand for ~|～の略である
+stand up to ~|抵抗する
+stay off ~|控える
+step down [aside]|辞任する
+stick around|そこらで待つ
+stick to [by] ~|堅持する
+stick up for ~|あくまでも擁護する
+stick with ~|最後までやり抜く
+stir in ~|入れてかき混ぜる
+stir up ~|引き起こす
+sum up ~|要約する
+take in ~|摂取する、理解する、だます
+take on ~|引き受ける
+take over ~|引き継ぐ
+take up ~|始める、取り上げる、(時間・場所を)占める
+talk down to A|Aを見下した調子で話す
+talk A into doing ~|Aを説得して～させる
+talk up ~|実際以上に興味深いもののように話す
+tear down ~|取り壊す
+tell on ~|～のことを告げ口する
+the other way around|逆に
+throw off ~|さっと脱ぐ
+throw up (~)|吐く
+tidy up ~|片付ける
+tie up ~|固く縛る
+tip over (~)|ひっくり返る
+touch up ~|手直しする
+track down ~|追跡して捕らえる
+trip up (A)|Aをつまずかせる
+try out ~|試してみる
+tune in (to ~)|テレビのチャンネルを合わせる
+tune up (~)|調律する
+turn around (~)|好転させる
+turn away ~|追い払う
+turn in (~)|提出する、寝る
+turn out|～だとわかる、集まる、生産する
+turn to ~|頼る
+walk off [away] with ~|盗む
+wander off|はぐれる
+want for ~|欠いている
+wash away ~|洗い流す
+wash down ~|流し込む
+watch over ~|～の世話をする
+wear off|しだいに弱まる
+wear out ~|疲れ果てさせる
+weigh on ~|重くのしかかる
+win over ~|説得する
+wipe out ~|消滅させる
+work out ~|解決する、運動する、うまくいく
+wrap up ~|滞りなく終える
+ship|出荷する、船
+shipping|発送|派
+odds|可能性
+vigorous|精力的な
+stake|賭け金、利害関係
+voluntary|自発的な
+voluntarily|自発的に|派
+coverage|報道、補償
+cortex|皮質
+whistle|笛
+chamber|部屋
+accustom|慣れさせる
+accustomed|慣れている|派
+metropolitan|大都市の
+surveillance|監視
+metabolism|代謝
+critic|批評家
+critical|重大な、批判的な|派
+criticism|批判|派
+clip|切り抜く
+choke|息が詰まる
+rigid|硬い、厳格な
+on behalf of ~|～を代表して
+dump|捨てる
+assault|襲撃
+lap|ひざ
+saint|聖人
+media|メディア
+refute|(誤りを示して)論駁する
+articulate|はっきり述べる、明確に考えを述べられる
+spinal|脊椎の
+tactics|作戦
+genome|ゲノム
 `;
 // Plus Part 5(画面写真から全248語:見出し229・派生19)
 WPS.VBOOK_DATA.plus[5] = `
