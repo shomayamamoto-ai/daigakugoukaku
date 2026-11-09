@@ -60,10 +60,15 @@ WPS.makeBooks = function (ctx) {
     html += '<div class="bk-bar"><div class="bk-lv" role="tablist" aria-label="中学・高校">' + [['jh', '中学'], ['hs', '高校']].map(function (o) { return '<button type="button" role="tab" class="bk-lv-btn' + (st.lv === o[0] ? ' on' : '') + '" aria-selected="' + (st.lv === o[0]) + '" data-bklv="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
       '<div class="bk-subj" role="group" aria-label="教科でしぼりこむ">' + [''].concat(subjs).map(function (k) { var c = k ? inLv.filter(function (b) { return b.subj === k; }).length : inLv.length; return '<button type="button" class="bk-subj-btn' + (st.subj === k ? ' on' : '') + '" aria-pressed="' + (st.subj === k) + '" data-bksubj="' + k + '"' + (k ? ' style="--c:' + ((WPS.SUBJECTS[k] || {}).color || '#1146d6') + '"' : '') + '>' + (k ? h(WPS.SUBJECTS[k].name) : 'すべて') + '<small>' + c + '</small></button>'; }).join('') + '</div>' +
       '<div class="bk-tools"><input id="bkq" type="search" value="' + h(st.q) + '" placeholder="本・単元を検索" aria-label="本・単元を検索"></div></div>';
-    html += '<section class="card bk-shelf' + (st.grid ? ' grid' : '') + '">' + (list.length ? list.map(function (b) {
-      var n = readCount(b);
-      return '<a class="bk-item" href="#books/' + b.id + '">' + cover(b) + '<div class="bk-meta"><b>' + h(b.name) + '</b><small>' + b.chapters.length + '章・' + b.units.length + '単元</small><span class="bk-prog"><i style="width:' + Math.round(n / b.units.length * 100) + '%"></i></span><small>読んだ ' + n + ' / ' + b.units.length + '</small></div></a>';
-    }).join('') : '<p class="muted">見つかりませんでした。</p>') + '</section>';
+    // 木の本棚:教科ごとに1段。段の上に教科名の帯、本は表紙を立てて並べる
+    var rowsB = SUBJ_ORDER.map(function (k) { return [k, list.filter(function (b) { return b.subj === k; })]; }).filter(function (r) { return r[1].length; });
+    html += '<section class="card ws-card bk-shelf">' + (list.length ? '<div class="wshelf">' + rowsB.map(function (r) {
+      return '<div class="ws-row"><h3 class="ws-h">' + h((WPS.SUBJECTS[r[0]] || {}).name || r[0]) + '<small>' + r[1].length + '冊</small></h3><div class="ws-board">' + r[1].map(function (b) {
+        var n = readCount(b), pc = Math.round(n / b.units.length * 100);
+        return '<a class="bk-item ws-book" href="#books/' + b.id + '" aria-label="' + h(b.name) + '(' + b.units.length + '単元・読んだ ' + n + ')"><p class="ws-t">' + h(b.short || b.name) + '</p>' + cover(b) +
+          '<span class="ws-prog" title="読んだ ' + n + ' / ' + b.units.length + '"><i style="width:' + pc + '%"></i></span><small class="ws-n">' + b.units.length + '単元' + (n ? '・' + pc + '%' : '') + '</small></a>';
+      }).join('') + '</div></div>';
+    }).join('') + '</div>' : '<p class="muted">見つかりませんでした。</p>') + '</section>';
     return html;
   }
 
