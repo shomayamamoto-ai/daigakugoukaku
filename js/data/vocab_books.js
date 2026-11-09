@@ -8439,7 +8439,7 @@ exemplify|例証する
 deplete|使い果たす
 rampant|蔓延した
 `;
-// 21 = 慶應 薬学部(画面写真から入力)
+// 21 = 慶應 薬学部(画面写真から全255語)
 WPS.VBOOK_DATA.sokei[21] = `
 academia|学界
 abnormal|異常な
