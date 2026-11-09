@@ -17,7 +17,7 @@ WPS.VBOOKS = [
   { id: 'gmarch', name: 'GMARCH', desc: 'GMARCH の入試でよく出る語(準備中)。' },
   { id: 'kankan', name: '関関同立', desc: '関関同立の入試でよく出る語(準備中)。' },
   { id: 'sokei', name: '早慶上理', note: '学部別に選べる', bank: 'en_sokei', named: 1, desc: '早稲田・慶應・上智・東京理科大の入試に出た語を、大学・学部ごとに選べます。',
-    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工']] },
+    parts: [[106, 0, '早稲田 政治経済'], [240, 0, '慶應 文'], [124, 0, '早稲田 理工'], [122, 0, '慶應 看護医療'], [141, 0, '早稲田 国際教養'], [176, 0, '慶應 経済'], [125, 0, '早稲田 スポーツ科学'], [158, 0, '慶應 法'], [128, 0, '早稲田 商'], [264, 0, '早稲田 文'], [268, 0, '早稲田 文化構想'], [276, 0, '慶應 商'], [186, 0, '早稲田 人間科学'], [397, 0, '慶應 総合政策'], [209, 0, '早稲田 社会科学'], [339, 0, '慶應 環境情報'], [252, 0, '早稲田 法'], [280, 0, '慶應 理工'], [295, 0, '早稲田 教育']] },
   { id: 'nankoku', name: '難関国立大学', desc: '難関国立大学の2次試験でよく出る語(準備中)。' },
   { id: 'kyutei', name: '旧帝国大学', desc: '旧帝国大学の入試でよく出る語(準備中)。' },
   { id: 'ikka', name: '東京一科', desc: '東京大・一橋大・東京科学大の入試でよく出る語(準備中)。' },
@@ -33,7 +33,7 @@ WPS.VBOOKS = [
 ];
 // 早慶上理:大学・学部ごとの予定語数(元の単語帳の画面で表示されていた数)。入力済みは parts の名前で判定
 WPS.SOKEI_PLAN = [
-  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252, '早稲田 法'], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
+  { univ: '早稲田', all: 898, fac: [['政治経済学部', 106, '早稲田 政治経済'], ['法学部', 252, '早稲田 法'], ['商学部', 128, '早稲田 商'], ['文学部', 264, '早稲田 文'], ['文化構想学部', 268, '早稲田 文化構想'], ['教育学部', 295, '早稲田 教育'], ['社会科学部', 209, '早稲田 社会科学'], ['国際教養学部', 141, '早稲田 国際教養'], ['人間科学部', 186, '早稲田 人間科学'], ['スポーツ科学部', 125, '早稲田 スポーツ科学'], ['理工(基幹・創造・先進)', 124, '早稲田 理工']] },
   { univ: '慶應', all: 921, fac: [['文学部', 240], ['経済学部', 176, '慶應 経済'], ['法学部', 158, '慶應 法'], ['商学部', 276, '慶應 商'], ['医学部', 211], ['薬学部', 255], ['理工学部', 280, '慶應 理工'], ['総合政策学部', 397, '慶應 総合政策'], ['環境情報学部', 339, '慶應 環境情報'], ['看護医療学部', 122, '慶應 看護医療']] }
 ];
 WPS.VBOOK_DATA = { base: {}, sokei: {}, idiom: {}, jh: {}, plus: {} }; // jh:1=小学校の復習 2=中学1年 3=中学2年 4=中学3年
@@ -7926,6 +7926,152 @@ magnitude|大きさ
 disperse|分散させる
 rampant|蔓延した
 augment|増強する
+`;
+// 19 = 早稲田 教育学部(画面写真から入力。続きは受け取りしだい追加)
+WPS.VBOOK_DATA.sokei[19] = `
+appreciation|感謝、理解
+biodiversity|生物多様性
+communal|共同の
+conceptual|概念的な
+consequential|重大な
+erode|侵食する
+onward|前へ
+abacus|そろばん
+abnormal|異常な
+adjacent|隣接した
+amphibian|両生類
+anemia|貧血
+arrogance|傲慢さ
+audit|監査
+ceramic|陶磁器の
+cerebral|脳の
+cocoon|繭
+cognition|認知
+colonist|入植者
+correlate|相関する
+cosmic|宇宙の
+custodian|管理人
+dire|悲惨な
+diversify|多様化する
+dysfunction|機能不全
+dystopian|暗黒郷の
+encroach|侵食する
+flounder|もがく
+gleaming|輝く
+grievance|不満
+hack|切り刻む、不正侵入する
+impeccable|非の打ちどころのない
+indicator|指標
+ingenuity|創意工夫
+invasive|侵略的な
+linguist|言語学者
+longitudinal|縦断的な
+longstanding|長年の
+loom|迫る、織機
+manifestation|現れ
+meltdown|崩壊
+nebulous|漠然とした
+nook|隅
+nostalgic|懐かしい
+perpetuity|永続
+progression|進行
+relentlessly|容赦なく
+replica|複製
+reproductive|生殖の
+scholastic|学業の
+shelve|棚上げにする
+spite|悪意
+spurt|噴出する
+stimuli|刺激
+stupendous|驚異的な
+synchronize|同期させる
+tedium|退屈
+ulterior|隠れた
+utopia|理想郷
+vernacular|日常語
+wilt|しおれる
+administrative|管理の
+afterlife|死後の世界
+akin|似ている
+allure|魅力
+altruistic|利他的な
+amid|～の真っただ中で
+ancestral|先祖の
+antidote|解毒剤
+approximation|近似
+ascertain|突き止める
+asphyxiation|窒息
+authoritarian|権威主義の
+authoritative|権威ある
+automotive|自動車の
+awe|畏敬の念
+bandwidth|帯域幅
+barbarian|野蛮人
+barbarous|野蛮な
+benevolent|慈悲深い
+blockbuster|大ヒット作
+bluff|はったり
+buffer|緩衝
+cacophony|不協和音
+captive|捕らわれた
+cardiac|心臓の
+caregiver|介護者
+charade|見え透いた芝居
+clinician|臨床医
+comatose|昏睡状態の
+comprehensible|理解できる
+consolidation|統合
+critique|批評
+cubic|立方の
+curator|学芸員
+daunting|ひるませるような
+demise|消滅
+democrat|民主主義者
+detection|検出
+discriminatory|差別的な
+downplay|軽く扱う
+elusive|捉えどころのない
+ensemble|合奏団
+enthusiast|熱心な人
+err|誤る
+eventual|最終的な
+exacerbate|悪化させる
+flicker|ちらつく
+forebear|先祖
+foremost|第一の
+generalization|一般化
+grieve|深く悲しむ
+gunpowder|火薬
+hallucination|幻覚
+havoc|大混乱
+homeostatic|恒常性の
+hospice|終末期医療施設
+hub|拠点
+humility|謙虚さ
+idiosyncratic|特有の
+impediment|障害
+incomprehensible|理解できない
+innocuous|無害な
+inscription|碑文
+instructional|教育用の
+intensify|強める
+intrusive|押しつけがましい
+intuitively|直感的に
+lucid|明快な
+lucidity|明晰さ
+lucrative|儲かる
+mainstay|大黒柱
+manipulation|操作
+mantle|外套
+molecular|分子の
+monstrous|途方もない
+nationalist|国家主義者
+negligible|無視できるほどの
+neurobiology|神経生物学
+nostalgia|郷愁
+notwithstanding|～にもかかわらず
+objectionable|好ましくない
+observatory|天文台
 `;
 // 中学英単語:1 = 小学校の復習(画面写真から全569語)
 WPS.VBOOK_DATA.jh[1] = `
