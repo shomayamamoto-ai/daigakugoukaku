@@ -991,7 +991,7 @@
     });
   };
   // 用語集のファイルを1回だけ読み込む(失敗しても、ほかの単語帳は使えるようにする)
-  var TERMS_V = '20261110i', termsSt = 0, termsCb = [];
+  var TERMS_V = '20261111a', termsSt = 0, termsCb = [];
   WPS.termsReady = function () { return termsSt === 2; };
   WPS.loadTerms = function (cb) {
     if (termsSt === 2) { if (cb) cb(); return; }
