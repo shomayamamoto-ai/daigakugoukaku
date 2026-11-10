@@ -69,7 +69,7 @@ WPS.makeVocab = function (ctx) {
   function isEn(L) { return L[4] === 'en'; }
   function items(L) {
     var raw = L[0] === 'my' ? (setOf(L) || { items: [] }).items : ctx.wordItems(L);
-    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, d: x.d, part: x.part, bk: x.bk, i: i, key: L[2] + '|' + x.t }; });
+    return raw.map(function (x, i) { return { t: x.t, m: x.m, h: x.h, p: x.p, d: x.d, part: x.part, bk: x.bk, e: x.e, r: x.r, i: i, key: L[2] + '|' + x.t }; });
   }
   // セクション:本の単語帳はPartごと、それ以外は50語ずつ
   function secsOf(all) {
@@ -204,6 +204,35 @@ WPS.makeVocab = function (ctx) {
   var IC = {'prev': '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>', 'next': '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>', 'play': '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>', 'pause': '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'};
   function spBtn(i, cls) { return canSpeak ? '<button type="button" class="vt-say ' + (cls || '') + '" data-vsay="' + i + '" aria-label="読み上げ"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>' : ''; }
 
+  /* ---------- 時代・地域(分野)で選ぶ(歴史の用語集) ---------- */
+  // 出題範囲 st.src = 'x<時代コード>-<地域コード>'(空なら「すべて」)
+  function axOf(src) { var p = String(src || '').slice(1).split('-'); return { e: p[0] || '', r: p.slice(1).join('-') || '' }; }
+  function axHit(x, e, r) { return (!e || String(x.e) === e) && (!r || x.r === r); }
+  function axName(a, code) { if (!a || !code) return ''; var o = a[1].filter(function (z) { return String(z[0]) === code; })[0]; return o ? o[1] : ''; }
+  function bookOfList(L) { var it = (WPS.BANK[L[2]] || [])[0]; return it && it.bk ? (WPS.VBOOKS || []).filter(function (b) { return b.id === it.bk; })[0] : null; }
+  function axCard(L, all) {
+    var bk = bookOfList(L), ax = bk && bk.ax; if (!ax) return '';
+    var w = vt().w, cur = /^x/.test(st.src) ? axOf(st.src) : { e: '', r: '' };
+    function group(key, a, other) {
+      var otherCode = key === 'e' ? cur.r : cur.e;
+      var opts = [['', 'すべて', '']].concat(a[1]);
+      return '<div class="vt-axg"><p class="vt-axl">' + h(a[0]) + '</p><div class="vt-chips" role="group" aria-label="' + h(a[0]) + '">' + opts.map(function (o) {
+        var code = String(o[0]), sel = cur[key] === code;
+        var hit = all.filter(function (x) { return key === 'e' ? axHit(x, code, otherCode) : axHit(x, otherCode, code); });
+        var okn = hit.filter(function (x) { return statusOf(w[x.key]) === 'ok'; }).length;
+        var pc = hit.length ? Math.round(okn / hit.length * 100) : 0;
+        return '<button type="button" class="vt-chip' + (sel ? ' on' : '') + '" data-vax="' + key + ':' + h(code) + '" aria-pressed="' + sel + '"' + (hit.length || sel || !code ? '' : ' disabled') + '>' +
+          '<b>' + h(o[1]) + '</b>' + (o[2] ? '<em>' + h(o[2]) + '</em>' : '') + '<small>' + hit.length + '語</small><span class="vt-chip-bar" aria-hidden="true"><i style="width:' + pc + '%"></i></span></button>';
+      }).join('') + '</div></div>';
+    }
+    var on = /^x/.test(st.src), n = on ? pool(L, all).length : all.length;
+    return '<section class="card vt-ax"><h2>' + h(ax.e[0]) + '・' + h(ax.r[0]) + 'で選ぶ <small class="muted">' + (on ? h(srcLabel(st.src, all.length)) + ' ' + n + '語' : '全' + all.length + '語') + '</small></h2>' +
+      '<p class="hint">' + h(ax.e[0]) + 'と' + h(ax.r[0]) + 'を組み合わせて、覚える範囲をしぼれます。下の線は「覚えた」の割合です。</p>' +
+      group('e', ax.e) + group('r', ax.r) +
+      (on ? '<div class="vt-axgo"><button type="button" class="btn primary" data-vmode="quiz">この範囲で4択テスト(' + n + '語)</button><button type="button" class="btn ghost" data-vmode="list">単語リストで見る</button><button type="button" class="btn ghost" data-vsrc="all">しぼりこみを解除</button></div>' : '') +
+      '</section>';
+  }
+
   /* ---------- 出題範囲 ---------- */
   function pool(L, all) {
     var w = vt().w, src = st.src;
@@ -211,6 +240,7 @@ WPS.makeVocab = function (ctx) {
     if (/^s\d+$/.test(src)) { var sc = secsOf(all)[+src.slice(1)]; return sc ? all.slice(sc.from, sc.to) : all; }
     if (/^r\d+-\d+$/.test(src)) { var ab = src.slice(1).split('-'); return all.slice(+ab[0] - 1, +ab[1]); }
     if (src === 'bm') return all.filter(isBm);
+    if (/^x/.test(src)) { var bkx = bookOfList(L); if (!bkx || !bkx.ax) return all; var xe = axOf(src); return all.filter(function (x) { return axHit(x, xe.e, xe.r); }); }
     return all.filter(function (x) { return statusOf(w[x.key]) === src; });
   }
   function ordered(arr) {
@@ -224,6 +254,7 @@ WPS.makeVocab = function (ctx) {
     if (/^s\d+$/.test(src)) { var sc = secsOf(items(curList()))[+src.slice(1)]; return sc ? sc.label + '(' + (sc.from + 1) + '〜' + sc.to + '番)' : 'すべて'; }
     if (/^r\d+-\d+$/.test(src)) { var ab = src.slice(1).split('-'); return 'No.' + ab[0] + '〜' + Math.min(n, +ab[1]); }
     if (src === 'bm') return 'しおり';
+    if (/^x/.test(src)) { var xe = axOf(src), bk = bookOfList(curList()), ax = bk && bk.ax; if (!ax) return 'すべて'; return [axName(ax.e, xe.e), axName(ax.r, xe.r)].filter(Boolean).join('・') || 'すべて'; }
     return STATUS[src];
   }
 
@@ -343,6 +374,7 @@ WPS.makeVocab = function (ctx) {
       (canSpeak ? '<button type="button" class="vt-weakl" data-vweak="listen"' + (cnt.weak ? '' : ' disabled') + '><i aria-hidden="true">' + IC.play + '</i><b>苦手の聞き流し</b></button>' : '') + '</div>' +
       '<p class="vt-today">今日 <b>' + td.a + '</b>回答 ・ <b>' + td.u + '</b>語</p>' +
       '<div class="vt-links"><a href="#cards">間隔反復の復習カード</a><a href="#words">単語・用語の一覧</a></div></section>';
+    html += axCard(L, all);
     // 出題範囲
     var SS = secsOf(all), secs = SS.length, isBook = !!(all[0] && all[0].part);
     html += '<section class="card"><h2>出題範囲 <small class="muted">' + h(srcLabel(st.src, n)) + '</small></h2><div class="seg">' +
@@ -1272,6 +1304,11 @@ WPS.makeVocab = function (ctx) {
     });
 view.querySelectorAll('[data-sk]').forEach(function (b) { b.addEventListener('click', function () { var v = b.getAttribute('data-skl'); st.list = /^my:/.test(v) ? v : +v; st.src = 's' + b.getAttribute('data-sk'); re(); }); });
         view.querySelectorAll('[data-vsrc]').forEach(function (b) { b.addEventListener('click', function () { st.src = b.getAttribute('data-vsrc'); re(); }); });
+        view.querySelectorAll('[data-vax]').forEach(function (b) { b.addEventListener('click', function () {
+          var kv = b.getAttribute('data-vax').split(':'), cur = /^x/.test(st.src) ? axOf(st.src) : { e: '', r: '' };
+          cur[kv[0]] = kv.slice(1).join(':');
+          st.src = cur.e || cur.r ? 'x' + cur.e + '-' + cur.r : 'all'; re();
+        }); });
     view.querySelectorAll('[data-vcfg]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-vcfg'), v = b.getAttribute('data-v');

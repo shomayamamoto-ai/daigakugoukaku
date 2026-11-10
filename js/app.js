@@ -2648,7 +2648,7 @@
       if (kind === 'kuho') return { t: x.f, m: x.m, h: '読み:' + x.r + '(' + x.k + ')' };
       if (kind === 'kanword') return { t: x.t, m: x.m, h: '読み:' + x.r };
       if (kind === 'year') { var y = +x.t; return { t: (y < 0 ? '紀元前' + (-y) : y) + '年', m: x.m, h: x.h + (L[2] === 'jhistory' ? '時代' : '') }; }
-      return { t: x.t, m: x.m, h: x.h, d: x.d, part: x.part, bk: x.bk };
+      return { t: x.t, m: x.m, h: x.h, d: x.d, part: x.part, bk: x.bk, e: x.e, r: x.r };
     });
   }
   var wordState = { subj: 'eng', list: 0, q: '' };
