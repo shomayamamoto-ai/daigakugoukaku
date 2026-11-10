@@ -52,10 +52,10 @@ WPS.makeBooks = function (ctx) {
     return (WPS.TB_META || []).map(function (m) {
       var pages = {}, units = [];
       m.chapters.forEach(function (c) { c.units.forEach(function (id) { pages[id] = { name: m.titles[id] }; units.push(id); }); });
-      return { id: m.id, name: m.name, short: m.short, subj: m.subj, stage: 'hs', chapters: m.chapters, units: units, extra: true, tb: true, pages: pages };
+      return { id: m.id, name: m.name, short: m.short, subj: m.subj, stage: m.stage || 'hs', chapters: m.chapters, units: units, extra: true, tb: true, pages: pages };
     });
   }
-  var TBV = '20261111i', tbLoading = {}, tbFail = {};
+  var TBV = '20261111j', tbLoading = {}, tbFail = {};
   function loadTb(bid, pid) {
     if (tbLoading[bid]) return; tbLoading[bid] = 1;
     var sc = document.createElement('script'); sc.src = 'js/books/' + bid + '.js?v=' + TBV;
