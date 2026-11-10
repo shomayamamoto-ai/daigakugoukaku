@@ -6,32 +6,32 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110h';
+  var VER = '20261110j';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     phys: { g: '理科', title: '物理の公式集', icon: '🧲', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     organic: { g: '理科', title: '有機化合物の官能基', icon: '⚛️', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
-    biocell: { g: '理科', title: '細胞のつくりとホルモン', icon: '🧬', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    biocell: { g: '理科', title: '細胞とホルモン', icon: '🧬', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     units: { g: '理科', title: '単位と定数', icon: '🔬', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     math: { g: '数学', title: '数学の公式集', icon: '📐', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     trig: { g: '数学', title: '三角比の表', icon: '📏', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     sqrt: { g: '数学', title: '平方・平方根の表', icon: '√', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     prime: { g: '数学', title: '素数表', icon: '🔢', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
-    tense: { g: '英語', title: '英語の時制のまとめ', icon: '⏳', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
+    tense: { g: '英語', title: '英語の時制', icon: '⏳', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     verbs: { g: '英語', title: '英語の不規則動詞', icon: '🔤', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     kogo: { g: '国語', title: '古文単語の一覧', icon: '🌸', ready: function () { return !!(WPS.BANK && WPS.BANK.kobun_bk); } },
     kobun: { g: '国語', title: '古文の助動詞', icon: '📖', file: 'refs', ready: function () { return !!(WPS.REFS && WPS.REFS.math); } },
     keigo: { g: '国語', title: '古文の敬語', icon: '🎎', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     kanbun: { g: '国語', title: '漢文の句形', icon: '📜', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     map: { g: '社会', title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
-    jmap: { g: '社会', title: '日本史の地図(旧国・政権・戦国)', icon: '🗾', file: 'jmap', ready: function () { return !!WPS.JMAP; } },
-    hmap: { g: '社会', title: '世界史の地図(領土の変遷)', icon: '🗺️', file: 'histmap/index', ready: function () { return !!WPS.HISTMAP; } },
+    jmap: { g: '社会', title: '日本史の地図', icon: '⛩️', file: 'jmap', ready: function () { return !!WPS.JMAP; } },
+    hmap: { g: '社会', title: '世界史の地図', icon: '🗺️', file: 'histmap/index', ready: function () { return !!WPS.HISTMAP; } },
     koppen: { g: '社会', title: 'ケッペンの気候区分', icon: '🌦️', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     pref: { g: '社会', title: '都道府県と所在地', icon: '🗾', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     chrono: { g: '社会', title: '日本史・世界史の年表', icon: '🗓️', ready: function () { return !!(WPS.BANK && WPS.BANK.jhistory); } },
-    era: { g: '社会', title: '時代区分と中国の王朝', icon: '🏯', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
-    kenpo: { g: '社会', title: '日本国憲法の主な条文', icon: '⚖️', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } }
+    era: { g: '社会', title: '時代区分と中国王朝', icon: '🏯', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
+    kenpo: { g: '社会', title: '日本国憲法', icon: '⚖️', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } }
   };
 
 
@@ -379,6 +379,9 @@
     var paths = JP.units.map(function (u, k) { var p = document.createElementNS(NS, 'path'); p.setAttribute('d', u[5]); p.setAttribute('data-k', k); gu.appendChild(p); return p; });
     var labels = [], W = 1000, H = JP.H, vb = { x: 0, y: 0, w: W, h: H }, frame = 'jp';
     function pvOf(k) { return META[JP.units[k][0]][0]; }
+    // 塗りと同じ色でふちを描いて、となりの形とのすき間(細い線)を消す
+    function paint(p, c) { p.setAttribute('fill', c); p.setAttribute('stroke', c); }
+    var line = svg.querySelector('.jm-line');
     function setFrame(f) {
       if (f === frame && svg.getAttribute('viewBox')) return; frame = f; gJ.style.display = f === 'jp' ? '' : 'none'; gE.style.display = f === 'ea' ? '' : 'none';
       H = f === 'jp' ? JP.H : EA.H; whole();
@@ -394,7 +397,8 @@
       if (mode === 'kuni') {
         setFrame('jp');
         ctl.innerHTML = '<label class="jm-chk"><input type="checkbox" id="jmHide"' + (hide ? ' checked' : '') + '> 国名をかくして覚える(押すと名前が出ます)</label>';
-        paths.forEach(function (p, k) { p.setAttribute('fill', GC[META[JP.units[k][0]][2]] || '#ddd'); });
+        line.setAttribute('d', JP.provLine);
+        paths.forEach(function (p, k) { paint(p, GC[META[JP.units[k][0]][2]] || '#ddd'); });
         makeLabels(hide ? [] : META.map(function (m, i) { var L = JP.provLab[i]; return L && !/小笠原/.test(m[0]) ? [L[0], L[1], m[0], L[2]] : null; }).filter(Boolean));
         legend(['畿内', '東海道', '東山道', '北陸道', '山陰道', '山陽道', '南海道', '西海道'].map(function (g) { return [GC[g], g]; }));
         info.innerHTML = '国を押すと、読み方と今の都道府県を表示します。色は五畿七道の区分です。';
@@ -405,20 +409,21 @@
           setFrame('ea'); terr.setAttribute('d', S.ea); makeLabels([]);
           legend([['#f0a35e', '日本の領土・勢力範囲'], ['#e3e0d6', 'そのほかの地域']]);
         } else {
-          setFrame('jp'); var used = {};
-          paths.forEach(function (p, k) { var c = S.f(pvOf(k), JP.units[k]); used[c] = 1; p.setAttribute('fill', C[c][0]); });
+          setFrame('jp'); var used = {}; line.setAttribute('d', JP.seiLines[si] || '');
+          paths.forEach(function (p, k) { var c = S.f(pvOf(k), JP.units[k]); used[c] = 1; paint(p, C[c][0]); });
           makeLabels([]); legend(Object.keys(C).filter(function (c) { return used[c]; }).map(function (c) { return C[c]; }));
         }
         info.innerHTML = '‹ › で時代を進めると、支配の広がりが変わります。';
       } else {
         setFrame('jp');
+        line.setAttribute('d', (JP.senLines || {})[sy] || '');
         var Y = SG.years[sy], SP = (SG.split || {})[sy] || {}, owners = {};
         ctl.innerHTML = '<div class="jm-years">' + SY.map(function (y) { return '<button type="button" data-jsy="' + y + '" class="' + (y === sy ? 'on' : '') + '" aria-pressed="' + (y === sy) + '">' + y + '年</button>'; }).join('') + '</div><p class="jm-note">' + h((SG.notes || {})[sy] || '') + '</p>';
         paths.forEach(function (p, k) {
           var pv = pvOf(k), c = Y[pv], u = JP.units[k];
           if (SP[pv] && u[1]) { var la = parseFloat(u[1]) + 0.125; SP[pv].forEach(function (b) { if (la >= b[1] && la <= b[2]) c = b[0]; }); }
-          if (!c) { p.setAttribute('fill', '#e3e0d6'); return; }
-          p.setAttribute('fill', clanCol(c)); p.setAttribute('data-c', c);
+          if (!c) { paint(p, '#e3e0d6'); return; }
+          paint(p, clanCol(c)); p.setAttribute('data-c', c);
           var a = u[4]; if (!owners[c] || a > owners[c][3]) owners[c] = [u[2], u[3], c, a];
         });
         makeLabels(Object.keys(owners).map(function (c) { return owners[c]; }));
@@ -450,7 +455,7 @@
     function apply() {
       svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
       var k = W / vb.w, scr = svg.clientWidth ? svg.clientWidth / W : 1, fs = 11 / (k * scr);
-      labels.forEach(function (L) { var side = Math.sqrt(L[1][3]) * k * scr, on = side > 11 * L[1][2].length * 0.5 || k >= 6; L[0].style.display = on ? '' : 'none'; if (on) L[0].setAttribute('font-size', fs.toFixed(2)); });
+      labels.forEach(function (L) { var side = Math.sqrt(L[1][3]) * k * scr, on = side > 11 * L[1][2].length * (mode === 'kuni' ? 0.85 : 0.5) || k >= 8; L[0].style.display = on ? '' : 'none'; if (on) L[0].setAttribute('font-size', fs.toFixed(2)); });
     }
     var mainBox = null;
     function whole() { if (frame === 'jp' && !mainBox) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; paths.forEach(function (p, k) { if (/琉球|奄美|小笠原/.test(pvOf(k))) return; var b = p.getBBox(); if (!b.width) return; x0 = Math.min(x0, b.x / 5); y0 = Math.min(y0, b.y / 5); x1 = Math.max(x1, (b.x + b.width) / 5); y1 = Math.max(y1, (b.y + b.height) / 5); }); if (x1 > x0) mainBox = [x0 - 15, y0 - 15, x1 - x0 + 30, y1 - y0 + 30]; }

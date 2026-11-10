@@ -3037,3 +3037,9 @@ details.hm-src[open] { max-height: 30vh; overflow: auto; }
 .tl-panel.full .tl-hd { cursor: default; }
 .tl-big[aria-pressed="true"] { background: var(--primary); color: #fff; }
 body.tl-full { overflow: hidden; }
+.jm .jm-u path { stroke-width: .8px; stroke-linejoin: round; }
+.jm .jm-u path.on { stroke: #b45309 !important; }
+.jm .jm-line { stroke: rgba(60, 60, 50, .75); stroke-width: .9px; }
+/* 資料メニュー:パソコンでは3列で一覧できるように */
+@media (min-width: 900px) { .tl-menu { width: 660px; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 4px; max-height: calc(100vh - 90px); } .tl-menu .tl-mg, .tl-menu .tl-ms, .tl-menu .tl-mres { grid-column: 1 / -1; } .tl-menu button { white-space: normal; line-height: 1.4; } }
+.tl-menu .tl-ms { min-height: 44px; }
