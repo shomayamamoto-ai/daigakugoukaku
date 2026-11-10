@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110n';
+  var VER = '20261110o';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -372,7 +372,7 @@
     // 大名ごとの色:治めた国の多い家から順に、ちがう色を割りあてる(どの年でも同じ家は同じ色)
     var CLP2 = ['#e57373', '#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4db6ac', '#f06292', '#a1887f', '#7986cb', '#c0ca33', '#ff8a65', '#4dd0e1', '#9ccc65', '#9575cd', '#ffd54f', '#90a4ae', '#d4a373', '#e6a5c8', '#6fbf9f', '#c97b84', '#8fb3e0', '#e0c068', '#b39ddb', '#80cbc4'];
     var CLI = {}; (function () { var cnt = {}; var YS = SG.yearly || SG.years; Object.keys(YS).forEach(function (y) { var Y = YS[y]; Object.keys(Y).forEach(function (pv) { cnt[Y[pv]] = (cnt[Y[pv]] || 0) + 1; }); }); Object.keys(cnt).filter(function (c) { return !/^(東軍|西軍|中立|諸勢力)$/.test(c); }).sort(function (a, b) { return cnt[b] - cnt[a]; }).forEach(function (c, i) { CLI[c] = CLP2[i % CLP2.length]; }); })();
-    function clanCol(c) { if (c === '東軍') return '#4f8ed6'; if (c === '西軍') return '#e0665a'; if (c === '中立' || c === '諸勢力') return '#cfcabb'; return CLI[c] || '#cfcabb'; }
+    function clanCol(c) { if (c === '東軍') return '#4f8ed6'; if (c === '西軍') return '#e0665a'; if (c === '中立' || c === '諸勢力') return '#cfcabb'; return CLI[c === '羽柴' ? '豊臣' : c] || CLI[c] || '#cfcabb'; }
     function bar(id, label) { return '<div class="hm-top"><button type="button" class="wm-b" data-jy="-1" aria-label="前へ">‹</button><div class="hm-year jm-year"><b id="' + id + 'Y"></b><small id="' + id + 'C"></small></div><button type="button" class="wm-b" data-jy="1" aria-label="次へ">›</button><button type="button" class="wm-b hm-play jm-play" aria-pressed="false">▶ 再生</button></div>'; }
     body.innerHTML = '<div class="jm-tabs" role="tablist">' + [['kuni', '旧国名'], ['sei', '政権と領土'], ['sen', '戦国大名']].map(function (t) { return '<button type="button" role="tab" data-jmode="' + t[0] + '" aria-selected="' + (mode === t[0]) + '" class="' + (mode === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
       '<div class="jm-ctl" id="jmCtl"></div>' +
