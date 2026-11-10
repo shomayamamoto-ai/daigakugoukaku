@@ -34,7 +34,7 @@ WPS.makeWhq = function (ctx, DS) {
     return YEARQ;
   }
   // 答えの年の地図を開くボタン(年号がない問題は、問題文の年を使う)
-  function mapBtn(q) { if (!WPS.Tools || !WPS.Tools.mapLinks) return ''; var y = q.y !== null && q.y !== undefined ? q.y : WPS.Tools.findYear(q.q + ' ' + q.a); return WPS.Tools.mapLinks(y, DS.rs === 'wh' ? 'w' : 'j'); }
+  function mapBtn(q) { if (!WPS.Tools || !WPS.Tools.mapLinks) return ''; var y = q.y !== null && q.y !== undefined ? q.y : WPS.Tools.findYear(q.q + ' ' + q.a); return DS.rs === 'wh' || DS.rs === 'jh' ? WPS.Tools.mapLinks(y, DS.rs === 'wh' ? 'w' : 'j') : ''; }
   function yStr(y) { return y < 0 ? '紀元前' + (-y) + '年' : y + '年'; }
 
   // 範囲でしぼった問題(モード・レベルの前)
@@ -63,7 +63,7 @@ WPS.makeWhq = function (ctx, DS) {
   function title() {
     var c = cfg();
     if (c.axis === 'tate') return 'タテ・' + GR[c.grp][1] + '・' + (c.ta === 'all' ? 'すべて' : TA[c.ta].name) + (c.ta !== 'all' && c.sub !== 'all' ? '・' + YK[c.sub] : '');
-    return (c.axis === 'year' ? '年号・' : 'ヨコ・') + (c.yo === 'all' ? 'すべて' : YK[c.yo]) + (c.axis === 'yoko' && c.yo !== 'all' && c.th && c.th !== 'all' ? '・' + c.th : '');
+    return (c.axis === 'year' ? '年号・' : DS.flat ? '' : 'ヨコ・') + (c.yo === 'all' ? 'すべて' : YK[c.yo]) + (c.axis === 'yoko' && c.yo !== 'all' && c.th && c.th !== 'all' ? '・' + c.th : '');
   }
   function chip(attr, val, label, n, on, color) {
     return '<button type="button" class="wq-chip' + (on ? ' on' : '') + '" ' + attr + '="' + val + '"' + (color ? ' style="--dot:' + color + '"' : '') + '>' + (color ? '<i></i>' : '') + h(label) + '<em>' + n + '</em></button>';
@@ -82,7 +82,7 @@ WPS.makeWhq = function (ctx, DS) {
       '<div class="wq-streak"><span>習得の条件</span>' + [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" class="wq-pill' + (+c.n === n ? ' on' : '') + '" data-wn="' + n + '">' + n + '連</button>'; }).join('') + '</div>' +
       '<p class="hint">「' + c.n + '連」= ' + c.n + '回続けて正解すると習得。まちがえると連続はリセットされます。</p></section>';
     // 出題軸
-    html += '<h3 class="wq-h">出題軸</h3><div class="wq-seg">' + [['yoko', 'ヨコ'], ['tate', 'タテ'], ['year', '年号'], ['ron', '論述']].map(function (o) { return '<button type="button" class="' + (c.axis === o[0] ? 'on' : '') + '" data-wa="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+    html += '<h3 class="wq-h">出題軸</h3><div class="wq-seg">' + (DS.flat ? [['yoko', '分野'], ['ron', '論述']] : [['yoko', 'ヨコ'], ['tate', 'タテ'], ['year', '年号'], ['ron', '論述']]).map(function (o) { return '<button type="button" class="' + (c.axis === o[0] ? 'on' : '') + '" data-wa="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
       '<p class="wq-axhint">' + (DS.key === 'jhq' ? { yoko: 'ヨコ:時代ごとに、政治・外交・社会・文化をまとめて。時代の流れで覚える', tate: 'タテ:政治・外交・社会・文化の分野ごとに、古い順に。テーマの流れで覚える', year: '年号:できごとの年を4択で', ron: '' } : { yoko: 'ヨコ:同じ時代の世界を地域ごとに。時代の流れで覚える', tate: 'タテ:一つの国・地域の歴史を古い順に。国ごとの流れで覚える', year: '年号:できごとの年を4択で', ron: '' })[c.axis] + '</p>';
     // 範囲
     html += '<h3 class="wq-h">範囲</h3>';
@@ -144,7 +144,7 @@ WPS.makeWhq = function (ctx, DS) {
   }
   function quizHTML() {
     var q = run.list[run.i], r = rec(q.id), done = !!run.ans;
-    var meta = q.yr ? '年号' : (YK[q.yo] || '') + '・' + (TA[q.ta] ? TA[q.ta].name : '');
+    var meta = q.yr ? '年号' : DS.flat ? (YK[q.yo] || '') : (YK[q.yo] || '') + '・' + (TA[q.ta] ? TA[q.ta].name : '');
     var html = '<div class="vt-qhead"><button type="button" class="vt-link" id="wqQuit">中断</button><b>' + DS.name + ' 一問一答<small> ' + (run.i + 1) + ' / ' + run.list.length + '</small></b><button type="button" class="vt-link" id="wqSelf">' + (run.self ? '4択にする' : '見て答える') + '</button></div>' +
       '<div class="progress"><i style="width:' + Math.round(run.i / run.list.length * 100) + '%"></i></div>' +
       '<section class="card wq-q"><div class="wq-qm"><span>' + h(meta) + '</span><span>Lv' + q.lv + '</span>' + (r ? '<span>' + (r.s >= +cfg().n ? '習得' : '連続 ' + r.s) + '</span>' : '<span>新規</span>') + '</div>' +

@@ -6,7 +6,7 @@
 window.WPS = window.WPS || {};
 WPS.makeRonjutsu = function (ctx) {
   var h = ctx.h, toast = ctx.toast, S = WPS.Store;
-  var SUBJ = { jh: '日本史', wh: '世界史' };
+  var SUBJ = { jh: '日本史', wh: '世界史', geo: '地理', seikei: '政経', rinri: '倫理', phys: '物理', chem: '化学', bio: '生物', earth: '地学' };
   var LV = { 1: 'Lv1 共通テスト向けの基礎', 2: 'Lv2 私大・国公立の標準', 3: 'Lv3 難関大の論述' };
   var st = { s: 'jh', lv: 0, run: null };
   function rec() { var s = S.get(); return s.ron || (s.ron = {}); }
@@ -19,7 +19,7 @@ WPS.makeRonjutsu = function (ctx) {
     var all = pool(), c = { ok: 0, try: 0, new: 0 };
     all.forEach(function (q) { c[stateOf(q)]++; });
     var html = '<section class="card"><h2>論述カットイン</h2><p class="muted small">問いに答えを考えてから模範解答を開き、書けたキーワードをタップして採点します。キーワードの7割以上が書けたら「定着」です。</p>' +
-      '<div class="filter-row"><span class="f-label">科目</span><div class="seg">' + Object.keys(SUBJ).map(function (k) { return '<button type="button" class="seg-btn' + (st.s === k ? ' on' : '') + '" data-rs="' + k + '">' + SUBJ[k] + '</button>'; }).join('') + '</div></div>' +
+      '<div class="filter-row"><span class="f-label">科目</span><div class="seg">' + Object.keys(SUBJ).filter(function (k) { return WPS.RONJUTSU.some(function (q) { return q.s === k; }); }).map(function (k) { return '<button type="button" class="seg-btn' + (st.s === k ? ' on' : '') + '" data-rs="' + k + '">' + SUBJ[k] + '</button>'; }).join('') + '</div></div>' +
       '<div class="filter-row"><span class="f-label">レベル</span><div class="seg">' + [[0, 'すべて']].concat([1, 2, 3].map(function (n) { return [n, 'Lv' + n]; })).map(function (o) { return '<button type="button" class="seg-btn' + (st.lv === o[0] ? ' on' : '') + '" data-rl="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div></div>' +
       '<div class="rj-sum"><span class="ok">定着 <b>' + c.ok + '</b></span><span class="try">練習中 <b>' + c.try + '</b></span><span>未挑戦 <b>' + c.new + '</b></span><span class="muted">全' + all.length + '問</span></div>' +
       '<button type="button" class="btn primary big" id="rjGo"' + (all.length ? '' : ' disabled') + '>10問はじめる</button>' +
