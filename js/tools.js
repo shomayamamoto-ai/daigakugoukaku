@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110c';
+  var VER = '20261110g';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -25,6 +25,7 @@
     keigo: { g: '国語', title: '古文の敬語', icon: '🎎', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     kanbun: { g: '国語', title: '漢文の句形', icon: '📜', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
     map: { g: '社会', title: '世界地図', icon: '🌏', file: 'worldmap', ready: function () { return !!WPS.WORLDMAP; } },
+    jmap: { g: '社会', title: '日本史の地図(旧国・政権・戦国)', icon: '🗾', file: 'jmap', ready: function () { return !!WPS.JMAP; } },
     hmap: { g: '社会', title: '世界史の地図(領土の変遷)', icon: '🗺️', file: 'histmap/index', ready: function () { return !!WPS.HISTMAP; } },
     koppen: { g: '社会', title: 'ケッペンの気候区分', icon: '🌦️', file: 'refs3', ready: function () { return !!(WPS.REFS && WPS.REFS.trig); } },
     pref: { g: '社会', title: '都道府県と所在地', icon: '🗾', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -63,7 +64,7 @@
   function restore(kind) {
     Object.keys(open).forEach(function (k) { if (k !== kind && !open[k].min) minimize(k); }); // 開くのは1つずつ
     var o = open[kind]; if (!o) return; o.min = false; o.el.hidden = false; dock(); save();
-    if ((kind === 'map' || kind === 'hmap') && o.fit) o.fit();
+    if ((kind === 'map' || kind === 'hmap' || kind === 'jmap') && o.fit) o.fit();
   }
   function close(kind) { var o = open[kind]; if (!o) return; o.el.remove(); delete open[kind]; dock(); save(); }
 
@@ -77,7 +78,7 @@
       '<button type="button" class="tl-big" aria-label="大きさを切りかえる" title="大きさを切りかえる">⤢</button>' +
       '<button type="button" class="tl-min" aria-label="最小化" title="最小化(下に小さくしまう)">—</button>' +
       '<button type="button" class="tl-x" aria-label="閉じる" title="閉じる">×</button></header><div class="tl-body"><p class="muted center" style="padding:24px">読み込み中…</p></div>';
-    if (kind === 'hmap') el.classList.add('tall'); // 地図は大きく開く
+    if (kind === 'hmap' || kind === 'jmap') el.classList.add('tall'); // 地図は大きく開く
     document.body.appendChild(el);
     open[kind] = { el: el, min: false };
     touchRecent(kind);
@@ -99,7 +100,7 @@
     load(kind, function (err) {
       var body = el.querySelector('.tl-body');
       if (err) { body.innerHTML = '<p class="muted center" style="padding:24px">読み込めませんでした。通信状態を確かめて、もう一度開いてください。</p>'; return; }
-      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'hmap') hmap(body, open[kind]); else if (kind === 'chrono') chrono(body); else if (kind === 'kogo') kogo(body); else refTable(body, (WPS.REFS || {})[kind], kind);
+      if (kind === 'ptable') ptable(body); else if (kind === 'map') map(body, open[kind]); else if (kind === 'hmap') hmap(body, open[kind]); else if (kind === 'jmap') jmap(body, open[kind]); else if (kind === 'chrono') chrono(body); else if (kind === 'kogo') kogo(body); else refTable(body, (WPS.REFS || {})[kind], kind);
     });
   }
 
@@ -333,6 +334,168 @@
     if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
   }
 
+  /* ---------- 日本史の地図(旧国名・政権の範囲と領土・戦国大名の勢力図) ---------- */
+  function jmap(body, st) {
+    var J = WPS.JMAP, NS = 'http://www.w3.org/2000/svg', P = pref('jmap'), JP = J.jp, EA = J.ea, SG = J.sengoku, META = JP.meta;
+    var mode = ['kuni', 'sei', 'sen'].indexOf(P.mode) >= 0 ? P.mode : 'kuni', hide = !!P.hide, sel = -1;
+    var GC = { '畿内': '#f2b5b5', '東海道': '#f6d38f', '東山道': '#b9dba3', '北陸道': '#a9cdea', '山陰道': '#c9b6e4', '山陽道': '#f3b996', '南海道': '#9fd6cf', '西海道': '#e5c3a0', '蝦夷地': '#e3e0d6', '琉球': '#d9d2ec', 'その他': '#e3e0d6' };
+    // 政権の範囲(前近代は旧国・緯度で判定、近代は領土の図)
+    var C = { core: ['#f0a35e', '中央の政権の支配'], out: ['#e3e0d6', '支配の外'], fuji: ['#86c5a4', '奥州藤原氏'], wajin: ['#e46d57', '和人の住む地域(松前氏)'], ryu: ['#b39ddb', '琉球王国'], ryuS: ['#cbb8ef', '琉球王国(薩摩藩の支配下)'], sat: ['#d98c6a', '薩摩藩の直接支配'], ainu: ['#d8e3c8', 'アイヌの人々の土地'] };
+    function band(u) { return u[1] ? parseFloat(u[1]) : 0; }
+    var SEI = [
+      { t: '5世紀ごろ ヤマト政権', n: '前方後円墳が北は岩手県南部、南は鹿児島県まで広がる。ヤマト政権の影響が及んだおおよその範囲。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 39.25 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 38.5 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
+      { t: '724年 多賀城を築く(奈良時代)', n: '陸奥国に多賀城、出羽国に出羽柵(のち秋田城)を置き、東北の蝦夷(えみし)と向き合った。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 38.5 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 39 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
+      { t: '802年 胆沢城・803年 志波城(平安時代)', n: '坂上田村麻呂がアテルイを降伏させ、支配を岩手県中部まで広げた。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 39.75 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 40 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
+      { t: '1100年ごろ 奥州藤原氏(平安時代後期)', n: '平泉を拠点に、奥州藤原氏が陸奥・出羽を支配した(1189年に源頼朝がほろぼす)。', f: function (pv) { if (pv === '陸奥' || pv === '出羽') return 'fuji'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
+      { t: '1192年ごろ 鎌倉幕府', n: '奥州藤原氏をほろぼし、本州から九州までが幕府と朝廷の支配下に入った。', f: function (pv) { return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
+      { t: '15世紀 室町時代(琉球王国・和人の進出)', n: '1429年に琉球王国が成立。蝦夷地の南部には和人の館がつくられ、1457年にコシャマインの戦いがおきた。', f: function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球' || pv === '奄美') return 'ryu'; return pv === '小笠原' ? 'out' : 'core'; } },
+      { t: '1609年〜 江戸時代(松前藩・薩摩藩の琉球支配)', n: '松前藩がアイヌとの交易を独占。薩摩藩が琉球王国を支配下に置き、奄美を直接治めた。', f: function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球') return 'ryuS'; if (pv === '奄美') return 'sat'; return pv === '小笠原' ? 'out' : 'core'; } },
+      { t: '1869年 蝦夷地を北海道に', n: '明治政府が蝦夷地を北海道と改め、開拓使を置いた。琉球は1872年に琉球藩とされた。', f: function (pv) { if (pv === '琉球') return 'ryuS'; return pv === '小笠原' ? 'out' : 'core'; } }
+    ].concat(EA.stages.map(function (s) { return { t: s[1], n: s[2], ea: s[3] }; }));
+    var si = typeof P.si === 'number' && P.si < SEI.length ? P.si : 0;
+    var SY = Object.keys(SG.years), sy = SY.indexOf(String(P.sy)) >= 0 ? String(P.sy) : SY[0];
+    // 大名ごとの色:治めた国の多い家から順に、ちがう色を割りあてる(どの年でも同じ家は同じ色)
+    var CLP2 = ['#e57373', '#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4db6ac', '#f06292', '#a1887f', '#7986cb', '#c0ca33', '#ff8a65', '#4dd0e1', '#9ccc65', '#9575cd', '#ffd54f', '#90a4ae', '#d4a373', '#e6a5c8', '#6fbf9f', '#c97b84', '#8fb3e0', '#e0c068', '#b39ddb', '#80cbc4'];
+    var CLI = {}; (function () { var cnt = {}; Object.keys(SG.years).forEach(function (y) { var Y = SG.years[y]; Object.keys(Y).forEach(function (pv) { cnt[Y[pv]] = (cnt[Y[pv]] || 0) + 1; }); Object.keys((SG.split || {})[y] || {}).forEach(function (pv) { SG.split[y][pv].forEach(function (b) { cnt[b[0]] = (cnt[b[0]] || 0) + 0.5; }); }); }); Object.keys(cnt).filter(function (c) { return !/^(東軍|西軍|中立|諸勢力)$/.test(c); }).sort(function (a, b) { return cnt[b] - cnt[a]; }).forEach(function (c, i) { CLI[c] = CLP2[i % CLP2.length]; }); })();
+    function clanCol(c) { if (c === '東軍') return '#4f8ed6'; if (c === '西軍') return '#e0665a'; if (c === '中立' || c === '諸勢力') return '#cfcabb'; return CLI[c] || '#cfcabb'; }
+    body.innerHTML = '<div class="jm-tabs" role="tablist">' + [['kuni', '旧国名'], ['sei', '政権と領土'], ['sen', '戦国大名']].map(function (t) { return '<button type="button" role="tab" data-jmode="' + t[0] + '" aria-selected="' + (mode === t[0]) + '" class="' + (mode === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="jm-ctl" id="jmCtl"></div>' +
+      '<div class="wm-bar"><input type="search" id="jmQ" placeholder="旧国名で探す(例:武蔵)" aria-label="旧国名で探す" list="jmList"><datalist id="jmList">' + META.map(function (m) { return '<option value="' + h(m[0]) + '">'; }).join('') + '</datalist>' +
+      '<button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
+      '<p class="wm-info" id="jmInfo"></p>' +
+      '<div class="wm-wrap hm-wrap jm-wrap"><svg class="wm hm jm" role="img" aria-label="日本史の地図"><rect class="wm-sea" x="-2000" y="-2000" width="6000" height="6000"/>' +
+      '<g class="jm-jp" transform="scale(.2)"><path class="jm-other" d="' + JP.landJ + '"/><g class="jm-u"></g><path class="jm-line" d="' + JP.provLine + '"/></g>' +
+      '<g class="jm-ea" transform="scale(.2)"><path class="jm-other" d="' + EA.land + '"/><path class="jm-terr" d=""/></g><g class="wm-lab jm-lab"></g></svg></div>' +
+      '<div class="jm-leg" id="jmLeg"></div>' +
+      '<details class="hm-src"><summary>出典・注意</summary>境界はおおよその目安です。旧国は、今の市区町村をそれぞれの大部分がふくまれる国に割りふって作ったため、国境が実際と少しずれる所があります。市区町村の形:国土地理院「地球地図日本」(jpn-atlas)。近代の領土:Cliopatria(Seshat Global History Databank, CC BY 4.0)。政権の範囲・戦国大名の勢力は、教科書の地図を参考にしたおおよその図です。</details>';
+    var wrap = body.querySelector('.jm-wrap'), svg = body.querySelector('svg'), gJ = svg.querySelector('.jm-jp'), gE = svg.querySelector('.jm-ea'), gu = svg.querySelector('.jm-u'), lab = svg.querySelector('.jm-lab'), info = body.querySelector('#jmInfo'), ctl = body.querySelector('#jmCtl'), leg = body.querySelector('#jmLeg'), terr = svg.querySelector('.jm-terr');
+    var paths = JP.units.map(function (u, k) { var p = document.createElementNS(NS, 'path'); p.setAttribute('d', u[5]); p.setAttribute('data-k', k); gu.appendChild(p); return p; });
+    var labels = [], W = 1000, H = JP.H, vb = { x: 0, y: 0, w: W, h: H }, frame = 'jp';
+    function pvOf(k) { return META[JP.units[k][0]][0]; }
+    function setFrame(f) {
+      if (f === frame && svg.getAttribute('viewBox')) return; frame = f; gJ.style.display = f === 'jp' ? '' : 'none'; gE.style.display = f === 'ea' ? '' : 'none';
+      H = f === 'jp' ? JP.H : EA.H; whole();
+    }
+    function makeLabels(list) { // list: [[x, y, text, area]]
+      lab.textContent = ''; labels = list.map(function (L) { var t = document.createElementNS(NS, 'text'); t.setAttribute('x', L[0]); t.setAttribute('y', L[1]); t.textContent = L[2]; lab.appendChild(t); return [t, L]; }); apply();
+    }
+    function legend(items) { leg.innerHTML = items.map(function (it) { return '<span><i style="background:' + it[0] + '"></i>' + h(it[1]) + '</span>'; }).join(''); }
+    function render() {
+      P.mode = mode; savePref(); sel = -1;
+      body.querySelectorAll('[data-jmode]').forEach(function (b) { var on = b.getAttribute('data-jmode') === mode; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+      paths.forEach(function (p) { p.classList.remove('on'); });
+      if (mode === 'kuni') {
+        setFrame('jp');
+        ctl.innerHTML = '<label class="jm-chk"><input type="checkbox" id="jmHide"' + (hide ? ' checked' : '') + '> 国名をかくして覚える(押すと名前が出ます)</label>';
+        paths.forEach(function (p, k) { p.setAttribute('fill', GC[META[JP.units[k][0]][2]] || '#ddd'); });
+        makeLabels(hide ? [] : META.map(function (m, i) { var L = JP.provLab[i]; return L && !/小笠原/.test(m[0]) ? [L[0], L[1], m[0], L[2]] : null; }).filter(Boolean));
+        legend(['畿内', '東海道', '東山道', '北陸道', '山陰道', '山陽道', '南海道', '西海道'].map(function (g) { return [GC[g], g]; }));
+        info.innerHTML = '国を押すと、読み方と今の都道府県を表示します。色は五畿七道の区分です。';
+      } else if (mode === 'sei') {
+        var S = SEI[si];
+        ctl.innerHTML = '<div class="hm-top"><button type="button" class="wm-b" data-js="-1" aria-label="前の時代">‹</button><select id="jmSei" aria-label="時代を選ぶ">' + SEI.map(function (x, i) { return '<option value="' + i + '"' + (i === si ? ' selected' : '') + '>' + h(x.t) + '</option>'; }).join('') + '</select><button type="button" class="wm-b" data-js="1" aria-label="次の時代">›</button></div><p class="jm-note">' + h(S.n) + '</p>';
+        if (S.ea) {
+          setFrame('ea'); terr.setAttribute('d', S.ea); makeLabels([]);
+          legend([['#f0a35e', '日本の領土・勢力範囲'], ['#e3e0d6', 'そのほかの地域']]);
+        } else {
+          setFrame('jp'); var used = {};
+          paths.forEach(function (p, k) { var c = S.f(pvOf(k), JP.units[k]); used[c] = 1; p.setAttribute('fill', C[c][0]); });
+          makeLabels([]); legend(Object.keys(C).filter(function (c) { return used[c]; }).map(function (c) { return C[c]; }));
+        }
+        info.innerHTML = '‹ › で時代を進めると、支配の広がりが変わります。';
+      } else {
+        setFrame('jp');
+        var Y = SG.years[sy], SP = (SG.split || {})[sy] || {}, owners = {};
+        ctl.innerHTML = '<div class="jm-years">' + SY.map(function (y) { return '<button type="button" data-jsy="' + y + '" class="' + (y === sy ? 'on' : '') + '" aria-pressed="' + (y === sy) + '">' + y + '年</button>'; }).join('') + '</div><p class="jm-note">' + h((SG.notes || {})[sy] || '') + '</p>';
+        paths.forEach(function (p, k) {
+          var pv = pvOf(k), c = Y[pv], u = JP.units[k];
+          if (SP[pv] && u[1]) { var la = parseFloat(u[1]) + 0.125; SP[pv].forEach(function (b) { if (la >= b[1] && la <= b[2]) c = b[0]; }); }
+          if (!c) { p.setAttribute('fill', '#e3e0d6'); return; }
+          p.setAttribute('fill', clanCol(c)); p.setAttribute('data-c', c);
+          var a = u[4]; if (!owners[c] || a > owners[c][3]) owners[c] = [u[2], u[3], c, a];
+        });
+        makeLabels(Object.keys(owners).map(function (c) { return owners[c]; }));
+        legend(Object.keys(owners).sort(function (a, b) { return owners[b][3] - owners[a][3]; }).slice(0, 18).map(function (c) { return [clanCol(c), c]; }));
+        info.innerHTML = '国を押すと、その国を治めていた大名を表示します。国ごとのおおよその図です。';
+      }
+      bindCtl();
+    }
+    function bindCtl() {
+      var hc = ctl.querySelector('#jmHide'); if (hc) hc.addEventListener('change', function () { hide = hc.checked; P.hide = hide ? 1 : 0; savePref(); render(); });
+      ctl.querySelectorAll('[data-js]').forEach(function (b) { b.addEventListener('click', function () { si = Math.max(0, Math.min(SEI.length - 1, si + +b.getAttribute('data-js'))); P.si = si; savePref(); render(); }); });
+      var se = ctl.querySelector('#jmSei'); if (se) se.addEventListener('change', function () { si = +se.value; P.si = si; savePref(); render(); });
+      ctl.querySelectorAll('[data-jsy]').forEach(function (b) { b.addEventListener('click', function () { sy = b.getAttribute('data-jsy'); P.sy = sy; savePref(); render(); }); });
+    }
+    function showProv(k, zoom) {
+      var mi = JP.units[k][0], m = META[mi];
+      paths.forEach(function (p, j) { p.classList.toggle('on', JP.units[j][0] === mi); });
+      var extra = '';
+      if (mode === 'sen') {
+        var c = paths[k].getAttribute('data-c'), cl = (SG.clans || {})[c], ps = ((SG.persons || {})[sy] || {})[c], ct = ((SG.contested || {})[sy] || []).filter(function (x) { return x.indexOf(m[0]) === 0; })[0], n16 = sy === '1600' ? (SG.notes1600 || {})[m[0]] : '';
+        extra = c ? ' <span class="jm-clan" style="background:' + clanCol(c) + '">' + h(c) + '</span>' + (n16 ? ' ' + h(n16) : (ps || (cl && cl.full)) ? ' ' + h(ps || cl.full) : '') + (ct ? ' <span class="muted small">(' + h(ct) + ')</span>' : '') : '';
+      }
+      info.innerHTML = '<b>' + h(m[0]) + '</b>(' + h(m[1]) + ')' + (m[2] !== m[0] && /道|畿内/.test(m[2]) ? ' <span class="small">' + h(m[2]) + '</span>' : '') + ' <span class="small muted">今の' + h(m[3]) + '</span>' + extra;
+      if (zoom) { var bb = paths[k].getBBox(), bx = bb.x / 5, by = bb.y / 5, bw = bb.width / 5, bh = bb.height / 5, w = Math.max(bw, bh / ar()) * 3; vb.w = Math.max(w, W / 30); vb.h = vb.w * ar(); vb.x = bx + bw / 2 - vb.w / 2; vb.y = by + bh / 2 - vb.h / 2; clamp(); apply(); }
+    }
+    function ar() { var w = wrap.clientWidth, hh = wrap.clientHeight; return w && hh ? hh / w : H / W; }
+    function maxW() { return Math.max(W, H / ar()); }
+    function clamp() { vb.w = Math.min(maxW(), Math.max(W / 30, vb.w)); vb.h = vb.w * ar(); var mx = Math.max(0, (vb.w - W) / 2), my = Math.max(0, (vb.h - H) / 2); vb.x = Math.min(W - vb.w + mx, Math.max(-mx, vb.x)); vb.y = Math.min(H - vb.h + my, Math.max(-my, vb.y)); }
+    function apply() {
+      svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+      var k = W / vb.w, scr = svg.clientWidth ? svg.clientWidth / W : 1, fs = 11 / (k * scr);
+      labels.forEach(function (L) { var side = Math.sqrt(L[1][3]) * k * scr, on = side > 11 * L[1][2].length * 0.5 || k >= 6; L[0].style.display = on ? '' : 'none'; if (on) L[0].setAttribute('font-size', fs.toFixed(2)); });
+    }
+    var mainBox = null;
+    function whole() { if (frame === 'jp' && !mainBox) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; paths.forEach(function (p, k) { if (/琉球|奄美|小笠原/.test(pvOf(k))) return; var b = p.getBBox(); if (!b.width) return; x0 = Math.min(x0, b.x / 5); y0 = Math.min(y0, b.y / 5); x1 = Math.max(x1, (b.x + b.width) / 5); y1 = Math.max(y1, (b.y + b.height) / 5); }); if (x1 > x0) mainBox = [x0 - 15, y0 - 15, x1 - x0 + 30, y1 - y0 + 30]; }
+      var a = ar(), F = frame === 'jp' ? (mainBox || [230, 0, 770, H]) : [0, 0, W, H]; vb.w = Math.max(F[2], F[3] / a); vb.h = vb.w * a; vb.x = F[0] + (F[2] - vb.w) / 2; vb.y = F[1] + (F[3] - vb.h) / 2; clamp(); apply(); } // 日本列島が画面いっぱいに入るように
+    function zoomAt(f, cx, cy) { var nw = vb.w / f; vb.x = cx - (cx - vb.x) * nw / vb.w; vb.y = cy - (cy - vb.y) * nw / vb.w; vb.w = nw; clamp(); apply(); }
+    function toSvg(ev) { var r = svg.getBoundingClientRect(); return [vb.x + (ev.clientX - r.left) / r.width * vb.w, vb.y + (ev.clientY - r.top) / r.height * vb.h]; }
+    st.fit = function () { setTimeout(whole, 30); };
+    body.querySelector('.jm-tabs').addEventListener('click', function (ev) { var b = ev.target.closest('[data-jmode]'); if (b) { mode = b.getAttribute('data-jmode'); render(); } });
+    body.querySelector('.wm-bar').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-z]'); if (!b) return;
+      var z = +b.getAttribute('data-z'); if (z === 0) { whole(); return; }
+      zoomAt(z > 0 ? 1.6 : 1 / 1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
+    });
+    body.querySelector('#jmQ').addEventListener('change', function (ev) {
+      var q = ev.target.value.trim(); if (!q) return;
+      if (frame !== 'jp') { mode = 'kuni'; render(); }
+      var mi = META.findIndex(function (m) { return m[0] === q || m[1] === q; }); if (mi < 0) mi = META.findIndex(function (m) { return m[0].indexOf(q) >= 0 || m[1].indexOf(q) >= 0 || m[3].indexOf(q) >= 0; });
+      var best = -1, ba = -1; JP.units.forEach(function (u, k) { if (u[0] === mi && u[4] > ba) { ba = u[4]; best = k; } });
+      if (best >= 0) showProv(best, true); else info.textContent = '「' + q + '」は見つかりませんでした。';
+    });
+    svg.addEventListener('wheel', function (ev) { ev.preventDefault(); var p = toSvg(ev); zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]); }, { passive: false });
+    var pts = {}, drag = null, moved = false;
+    svg.addEventListener('pointerdown', function (ev) { svg.setPointerCapture(ev.pointerId); pts[ev.pointerId] = [ev.clientX, ev.clientY]; drag = { x: ev.clientX, y: ev.clientY, vb: Object.assign({}, vb) }; moved = false; });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!pts[ev.pointerId]) return;
+      var ids = Object.keys(pts);
+      if (ids.length === 2) {
+        var o = pts[ids[0]], q = pts[ids[1]], d0 = Math.hypot(o[0] - q[0], o[1] - q[1]);
+        pts[ev.pointerId] = [ev.clientX, ev.clientY];
+        var o2 = pts[ids[0]], q2 = pts[ids[1]], d1 = Math.hypot(o2[0] - q2[0], o2[1] - q2[1]);
+        if (d0 > 0) { var mid = toSvg({ clientX: (o2[0] + q2[0]) / 2, clientY: (o2[1] + q2[1]) / 2 }); zoomAt(d1 / d0, mid[0], mid[1]); }
+        moved = true; return;
+      }
+      pts[ev.pointerId] = [ev.clientX, ev.clientY];
+      var r = svg.getBoundingClientRect(), dx = (ev.clientX - drag.x) / r.width * vb.w, dy = (ev.clientY - drag.y) / r.height * vb.h;
+      if (Math.abs(ev.clientX - drag.x) + Math.abs(ev.clientY - drag.y) > 4) moved = true;
+      if (moved) { vb.x = drag.vb.x - dx; vb.y = drag.vb.y - dy; clamp(); apply(); }
+    });
+    function up(ev) {
+      var wasTap = !moved && Object.keys(pts).length === 1;
+      delete pts[ev.pointerId];
+      if (Object.keys(pts).length === 1) { var id = Object.keys(pts)[0]; drag = { x: pts[id][0], y: pts[id][1], vb: Object.assign({}, vb) }; }
+      if (wasTap && ev.type === 'pointerup' && frame === 'jp') {
+        var el = document.elementFromPoint(ev.clientX, ev.clientY), k = el && el.getAttribute && el.getAttribute('data-k');
+        if (k !== null && k !== undefined) showProv(+k);
+      }
+    }
+    svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+    render(); whole();
+    if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
+  }
+
   /* ---------- 世界史の地図(前3400年〜2024年の領土の変遷。1年ごとに見られる) ---------- */
   function hmap(body, st) {
     var M = WPS.HISTMAP, NS = 'http://www.w3.org/2000/svg', P = pref('hmap');
@@ -359,7 +522,7 @@
       '<button type="button" class="wm-b hm-labb' + (labOn ? ' on' : '') + '" aria-pressed="' + labOn + '">国名</button><button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
       '<p class="wm-info" id="hmInfo"></p>' +
       '<div class="wm-wrap hm-wrap"><svg class="wm hm" viewBox="0 0 1000 520" role="img" aria-label="世界史の地図"><path class="wm-sea" d="' + M.sphere + '"/><path class="wm-grat" d="' + M.grat + '"/><g transform="scale(.2)"><path class="hm-land" d="' + M.land + '"/><g class="hm-pol"></g></g><g class="wm-lab hm-lab"></g></svg><p class="hm-load" hidden>読み込み中…</p><p class="hm-empty" hidden>この年の地図には、国のデータがありません</p></div>' +
-      '<p class="hm-src">国境はおおよその目安です。古い時代ほど、データのある国が少なくなります。同じ国は、どの年でも同じ色で表示します。' + h(M.src) + '。日本語名の「*」は、教科書に決まった呼び方がない国の仮の読みです。</p>';
+      '<details class="hm-src"><summary>出典・注意</summary>国境はおおよその目安です。古い時代ほど、データのある国が少なくなります。同じ国は、どの年でも同じ色で表示します。' + h(M.src) + '。日本語名の「*」は、教科書に決まった呼び方がない国の仮の読みです。</details>';
     var wrap = body.querySelector('.hm-wrap'), svg = body.querySelector('svg'), pol = svg.querySelector('.hm-pol'), lab = svg.querySelector('.hm-lab'), info = body.querySelector('#hmInfo'), rng = body.querySelector('#hmR'), ld = body.querySelector('.hm-load'), emp = body.querySelector('.hm-empty');
     var rows = [], paths = [], labels = [], sig = '', W = 1000, H = 520, vb = { x: 0, y: 0, w: W, h: H }, playT = null, loading = {};
     function chunkOf(y) { for (var i = M.starts.length - 1; i >= 0; i--) if (M.starts[i] <= y) return M.starts[i]; return M.starts[0]; }
