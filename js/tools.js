@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110g';
+  var VER = '20261110h';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -60,14 +60,20 @@
     document.body.classList.toggle('tl-hasdock', !!d.children.length);
     document.body.classList.toggle('tl-open', Object.keys(open).some(function (k) { return !open[k].min; }));
   }
-  function minimize(kind) { var o = open[kind]; if (!o) return; o.min = true; o.el.hidden = true; dock(); save(); }
+  function minimize(kind) { var o = open[kind]; if (!o) return; if (o.el.classList.contains('full')) setFull(o.el, kind, false); o.min = true; o.el.hidden = true; dock(); save(); }
   function restore(kind) {
     Object.keys(open).forEach(function (k) { if (k !== kind && !open[k].min) minimize(k); }); // 開くのは1つずつ
     var o = open[kind]; if (!o) return; o.min = false; o.el.hidden = false; dock(); save();
     if ((kind === 'map' || kind === 'hmap' || kind === 'jmap') && o.fit) o.fit();
   }
-  function close(kind) { var o = open[kind]; if (!o) return; o.el.remove(); delete open[kind]; dock(); save(); }
+  function close(kind) { var o = open[kind]; if (!o) return; o.el.remove(); delete open[kind]; document.body.classList.toggle('tl-full', !!document.querySelector('.tl-panel.full:not([hidden])')); dock(); save(); }
 
+  function setFull(el, kind, on) {
+    el.classList.toggle('full', on); document.body.classList.toggle('tl-full', !!document.querySelector('.tl-panel.full:not([hidden])'));
+    var b = el.querySelector('.tl-big'); b.textContent = on ? '⤡' : '⤢'; b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? '全画面をやめる' : '全画面で表示'); b.title = b.getAttribute('aria-label');
+    if (open[kind] && open[kind].fit) open[kind].fit();
+  }
+  document.addEventListener('keydown', function (ev) { if (ev.key !== 'Escape') return; var f = document.querySelector('.tl-panel.full:not([hidden])'); if (!f) return; var k = Object.keys(open).filter(function (x) { return open[x].el === f; })[0]; if (k) { ev.stopPropagation(); setFull(f, k, false); } }, true);
   function openTool(kind, startMin) {
     if (document.body.classList.contains('no-tools')) return;
     if (!KINDS[kind]) return;
@@ -75,7 +81,7 @@
     var el = document.createElement('section');
     el.className = 'tl-panel tl-' + kind; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', KINDS[kind].title);
     el.innerHTML = '<header class="tl-hd"><b>' + KINDS[kind].icon + ' ' + KINDS[kind].title + '</b>' +
-      '<button type="button" class="tl-big" aria-label="大きさを切りかえる" title="大きさを切りかえる">⤢</button>' +
+      '<button type="button" class="tl-big" aria-label="全画面で表示" title="全画面で表示" aria-pressed="false">⤢</button>' +
       '<button type="button" class="tl-min" aria-label="最小化" title="最小化(下に小さくしまう)">—</button>' +
       '<button type="button" class="tl-x" aria-label="閉じる" title="閉じる">×</button></header><div class="tl-body"><p class="muted center" style="padding:24px">読み込み中…</p></div>';
     if (kind === 'hmap' || kind === 'jmap') el.classList.add('tall'); // 地図は大きく開く
@@ -94,7 +100,8 @@
     });
     el.querySelector('.tl-min').onclick = function () { minimize(kind); };
     el.querySelector('.tl-x').onclick = function () { close(kind); };
-    el.querySelector('.tl-big').onclick = function () { el.classList.toggle('tall'); if (open[kind].fit) open[kind].fit(); };
+    // ⤢ で全画面表示、もう一度押すと元の大きさに戻る(Esc でも戻る)
+    el.querySelector('.tl-big').onclick = function () { setFull(el, kind, !el.classList.contains('full')); };
     if (startMin) { open[kind].min = true; el.hidden = true; } else Object.keys(open).forEach(function (k) { if (k !== kind && !open[k].min) minimize(k); });
     dock(); save();
     load(kind, function (err) {
