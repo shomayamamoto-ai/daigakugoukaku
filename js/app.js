@@ -532,7 +532,9 @@
       '<p class="hint">' + h(E.source) + '。年度ごとに変わるので、必ず大学入試センター・各大学の最新の発表で確認してください。</p></section>';
     return html;
   }
-  renderExam.after = function () {
+  renderExam.after = function (arg) {
+    // #exam/<見出しのid> で開いたときは、その見出しまで移動する
+    if (arg) { var t0 = document.getElementById(arg); if (t0) setTimeout(function () { window.scrollTo(0, t0.getBoundingClientRect().top + window.scrollY - 70); }, 50); }
     view.querySelectorAll('[data-jump]').forEach(function (a) {
       a.addEventListener('click', function (e) { e.preventDefault(); var t = document.getElementById(a.getAttribute('data-jump')); if (t) window.scrollTo(0, t.getBoundingClientRect().top + window.scrollY - 70); });
     });

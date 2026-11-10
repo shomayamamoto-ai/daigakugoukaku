@@ -8,7 +8,48 @@ window.WPS = window.WPS || {};
 WPS.makeBooks = function (ctx) {
   var h = ctx.h, S = WPS.Store;
   var st = { lv: null, q: '', sort: 'order', grid: false, subj: '' };
-  var SUBJ_ORDER = ['jpn', 'math', 'eng', 'sci', 'soc', 'info'];
+  var SUBJ_ORDER = ['jpn', 'math', 'eng', 'sci', 'soc', 'info', 'exam'];
+  // 教科ではない本(入試対策)の段
+  var EXTRA_SUBJ = { exam: { name: '入試対策', color: '#7c3aed' } };
+  function subjInfo(k) { return WPS.SUBJECTS[k] || EXTRA_SUBJ[k] || {}; }
+  // 面接対策の本:入試情報の面接データ(exam_info.js)から、章とページを組み立てる
+  function li(x) { return '<li>' + h(x) + '</li>'; }
+  function keyBox(title, rows) { return '<div class="guide-key"><b>' + h(title) + '</b><ol class="steps">' + rows.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>'; }
+  function secs(list) { return list.map(function (f) { return { t: f.name, body: '<ul class="bullets">' + f.steps.map(li).join('') + '</ul>' }; }); }
+  function extraBooks() {
+    var M = WPS.INTERVIEW_MANNER, I = WPS.EXAM_INFO && WPS.EXAM_INFO.interview;
+    if (!M || !I) return [];
+    var R = M.suisen || null, pages = {}, chapters = [];
+    function add(ch, id, name, lead, sections) {
+      pages[id] = { name: name, lead: lead, secs: sections };
+      var c = chapters.filter(function (x) { return x.name === ch; })[0]; if (!c) chapters.push(c = { name: ch, units: [] }); c.units.push(id);
+    }
+    add('面接の基本', 'iv_basic', '面接はどんな入試で課されるか・準備の進め方', '', [{ t: 'どんな入試で課されるか', body: '<ul class="bullets">' + I.when.map(li).join('') + '</ul>' }, { t: '面接の準備', body: '<ol class="steps">' + I.mensetsu.map(li).join('') + '</ol>' }]);
+    if (M.truth) add('面接の基本', 'iv_truth', '面接官の本音とよくある誤解', keyBox('好印象を与える4つのポイント', M.truthKey), secs(M.truth));
+    if (R) {
+      add('推薦入試(総合型選抜など)の面接', 'iv_brand', '本質的な勝ち方と「大学のブランドを上げる人」', '<p>' + h(R.lead) + '</p>' + keyBox('合格のための3つの要素', R.keys),
+        (R.brand ? [{ t: '大学のブランドを上げる人とは', body: '<p>' + h(R.brand.def) + '</p><p>具体的には、次の2つを兼ね備えた人が高く評価されます。</p><ul class="bullets">' + R.brand.elems.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ul><p>' + h(R.brand.investor) + '</p>' }] : [])
+          .concat([{ t: '結論', body: '<div class="guide-key"><p>' + h(R.conclusion) + '</p></div>' }]));
+      add('推薦入試(総合型選抜など)の面接', 'iv_suisen', '控え室・「良い子」・オタク戦略・意地悪な質問', '', secs(R.tips));
+    }
+    add('マナーと身だしなみ', 'iv_flow', '入室から退室までのマナー', '', secs(M.flow));
+    add('マナーと身だしなみ', 'iv_talk', '話し方・ふるまい', '', secs(M.tips));
+    add('マナーと身だしなみ', 'iv_dress', '服装・おじぎ・言葉づかい', '', M.dress.map(function (g) { return { t: g.name, body: '<ul class="bullets">' + g.items.map(li).join('') + '</ul>' }; }).concat([
+      { t: 'おじぎの使い分け', body: '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>おじぎ</th><th>使う場面</th></tr></thead><tbody>' + M.bow.map(function (b) { return '<tr><th>' + h(b[0]) + '</th><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' },
+      { t: '避けたい言い方と言いかえ', body: '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>避けたい言い方</th><th>言いかえ</th></tr></thead><tbody>' + M.words.map(function (b) { return '<tr><td>' + h(b[0]) + '</td><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' }]));
+    var units = []; chapters.forEach(function (c) { units = units.concat(c.units); });
+    return [{ id: 'mensetsu', name: '面接対策', short: '面接対策', subj: 'exam', stage: 'hs', chapters: chapters, units: units, extra: true, pages: pages }];
+  }
+  function extraPage(b, id) {
+    var pg = b.pages[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
+    var ch = b.chapters.filter(function (c) { return c.units.indexOf(id) >= 0; })[0];
+    var html = '<div class="bk-reader bk-fs-' + fontSize() + '"><div class="bk-tb"><a href="#books/' + b.id + '" aria-label="目次へ">‹ 目次</a><b>' + h(b.short) + '</b><span></span></div>' +
+      '<article class="bk-page"><p class="bk-crumb">' + h(ch ? ch.name : '') + '</p><h1>' + h(pg.name) + '</h1><p class="bk-sub">入試対策・面接</p>' + (pg.lead || '');
+    pg.secs.forEach(function (x, k) { html += '<section class="bk-sec" id="bks-' + (k + 1) + '"><h2><span>' + (k + 1) + '</span>' + h(x.t) + '</h2>' + x.body + '</section>'; });
+    html += '<div class="bk-act"><a class="btn" href="#exam/interview">入試情報の面接・小論文ページ</a></div>';
+    html += '</article><nav class="bk-pn"><a ' + (prev ? 'href="#books/' + b.id + '/' + prev + '"' : 'aria-disabled="true" class="off"') + '>‹ 前のページ</a><a href="#books/' + b.id + '">目次</a><a ' + (next ? 'href="#books/' + b.id + '/' + next + '"' : 'aria-disabled="true" class="off"') + '>次のページ ›</a></nav></div>';
+    return html;
+  }
   function B() { var s = S.get(); if (!s.books) s.books = { read: {}, bm: {}, last: null }; return s.books; }
   function allowed(u) { var p = S.get().profile; return WPS.unitVisible(u, p.grade); }
 
@@ -27,18 +68,18 @@ WPS.makeBooks = function (ctx) {
         out.push({ id: c.id, name: c.name, short: c.short, subj: g.subj, stage: c.stage, chapters: chapters, units: units });
       });
     });
-    return out;
+    return out.concat(extraBooks());
   }
   function bookOf(id) { return books().filter(function (b) { return b.id === id; })[0]; }
   function readCount(b) { var r = B().read; return b.units.filter(function (id) { return r[id]; }).length; }
 
   // 表紙(科目の色と、図形の模様)
   function cover(b, big) {
-    var col = (WPS.SUBJECTS[b.subj] || {}).color || '#1146d6';
+    var col = subjInfo(b.subj).color || '#1146d6';
     var seed = 0; for (var i = 0; i < b.id.length; i++) seed = (seed * 31 + b.id.charCodeAt(i)) % 997;
     var rot = seed % 4 * 90, shapes = '';
     for (var k = 0; k < 6; k++) { var x = 20 + (k % 3) * 22, y = 18 + Math.floor(k / 3) * 22 + (k % 2) * 8; shapes += '<rect x="' + x + '" y="' + y + '" width="20" height="20" rx="2" fill="' + (k % 2 ? col : '#e8a7a0') + '" opacity="' + (k % 2 ? .9 : .75) + '" transform="rotate(' + (25 + rot) + ' ' + (x + 10) + ' ' + (y + 10) + ')"/>'; }
-    return '<div class="bk-cover' + (big ? ' big' : '') + '" style="--c:' + col + '"><p class="bk-top">Aqualium テキスト</p><svg viewBox="0 0 110 80" aria-hidden="true">' + shapes + '</svg><b>' + h(b.name) + '</b><small>' + h(WPS.SUBJECTS[b.subj].name) + '</small></div>';
+    return '<div class="bk-cover' + (big ? ' big' : '') + '" style="--c:' + col + '"><p class="bk-top">Aqualium テキスト</p><svg viewBox="0 0 110 80" aria-hidden="true">' + shapes + '</svg><b>' + h(b.name) + '</b><small>' + h((subjInfo(b.subj).name || '')) + '</small></div>';
   }
 
   /* ---------- 本棚 ---------- */
@@ -52,21 +93,21 @@ WPS.makeBooks = function (ctx) {
     var inLv = bs.filter(function (b) { return st.lv === 'jh' ? isJH(b) : !isJH(b); });
     var subjs = SUBJ_ORDER.filter(function (k) { return inLv.some(function (b) { return b.subj === k; }); });
     if (st.subj && subjs.indexOf(st.subj) < 0) st.subj = '';
-    var list = bs.filter(function (b) { return (st.lv === 'jh' ? isJH(b) : !isJH(b)) && (!st.subj || b.subj === st.subj) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { return WPS.UNIT_MAP[id].name.indexOf(q) >= 0; })); });
+    var list = bs.filter(function (b) { return (st.lv === 'jh' ? isJH(b) : !isJH(b)) && (!st.subj || b.subj === st.subj) && (!q || (b.name + b.short).indexOf(q) >= 0 || b.units.some(function (id) { var u = b.extra ? b.pages[id] : WPS.UNIT_MAP[id]; return u && u.name.indexOf(q) >= 0; })); });
     if (st.sort === 'recent') { var t = B().t || {}; list.sort(function (a, c) { return (t[c.id] || 0) - (t[a.id] || 0); }); }
     var last = B().last && WPS.UNIT_MAP[B().last.u] ? B().last : null;
     var html = '';
     if (last) { var lb = bookOf(last.b); if (lb) html += '<section class="card bk-resume"><a href="#books/' + lb.id + '/' + last.u + '"><span>続きから読む</span><b>' + h(lb.name) + '・' + h(WPS.UNIT_MAP[last.u].name) + '</b></a></section>'; }
     html += '<div class="bk-bar"><div class="bk-lv" role="tablist" aria-label="中学・高校">' + [['jh', '中学'], ['hs', '高校']].map(function (o) { return '<button type="button" role="tab" class="bk-lv-btn' + (st.lv === o[0] ? ' on' : '') + '" aria-selected="' + (st.lv === o[0]) + '" data-bklv="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>' +
-      '<div class="bk-subj" role="group" aria-label="教科でしぼりこむ">' + [''].concat(subjs).map(function (k) { var c = k ? inLv.filter(function (b) { return b.subj === k; }).length : inLv.length; return '<button type="button" class="bk-subj-btn' + (st.subj === k ? ' on' : '') + '" aria-pressed="' + (st.subj === k) + '" data-bksubj="' + k + '"' + (k ? ' style="--c:' + ((WPS.SUBJECTS[k] || {}).color || '#1146d6') + '"' : '') + '>' + (k ? h(WPS.SUBJECTS[k].name) : 'すべて') + '<small>' + c + '</small></button>'; }).join('') + '</div>' +
+      '<div class="bk-subj" role="group" aria-label="教科でしぼりこむ">' + [''].concat(subjs).map(function (k) { var c = k ? inLv.filter(function (b) { return b.subj === k; }).length : inLv.length; return '<button type="button" class="bk-subj-btn' + (st.subj === k ? ' on' : '') + '" aria-pressed="' + (st.subj === k) + '" data-bksubj="' + k + '"' + (k ? ' style="--c:' + (subjInfo(k).color || '#1146d6') + '"' : '') + '>' + (k ? h(subjInfo(k).name) : 'すべて') + '<small>' + c + '</small></button>'; }).join('') + '</div>' +
       '<div class="bk-tools"><input id="bkq" type="search" value="' + h(st.q) + '" placeholder="本・単元を検索" aria-label="本・単元を検索"></div></div>';
     // 木の本棚:教科ごとに1段。段の上に教科名の帯、本は表紙を立てて並べる
     var rowsB = SUBJ_ORDER.map(function (k) { return [k, list.filter(function (b) { return b.subj === k; })]; }).filter(function (r) { return r[1].length; });
     html += '<section class="card ws-card bk-shelf">' + (list.length ? '<div class="wshelf">' + rowsB.map(function (r) {
-      return '<div class="ws-row"><h3 class="ws-h">' + h((WPS.SUBJECTS[r[0]] || {}).name || r[0]) + '<small>' + r[1].length + '冊</small></h3><div class="ws-board">' + r[1].map(function (b) {
+      return '<div class="ws-row"><h3 class="ws-h">' + h(subjInfo(r[0]).name || r[0]) + '<small>' + r[1].length + '冊</small></h3><div class="ws-board">' + r[1].map(function (b) {
         var n = readCount(b), pc = Math.round(n / b.units.length * 100);
         return '<a class="bk-item ws-book" href="#books/' + b.id + '" aria-label="' + h(b.name) + '(' + b.units.length + '単元・読んだ ' + n + ')"><p class="ws-t">' + h(b.short || b.name) + '</p>' + cover(b) +
-          '<span class="ws-prog" title="読んだ ' + n + ' / ' + b.units.length + '"><i style="width:' + pc + '%"></i></span><small class="ws-n">' + b.units.length + '単元' + (n ? '・' + pc + '%' : '') + '</small></a>';
+          '<span class="ws-prog" title="読んだ ' + n + ' / ' + b.units.length + '"><i style="width:' + pc + '%"></i></span><small class="ws-n">' + b.units.length + (b.extra ? 'ページ' : '単元') + (n ? '・' + pc + '%' : '') + '</small></a>';
       }).join('') + '</div></div>';
     }).join('') + '</div>' : '<p class="muted">見つかりませんでした。</p>') + '</section>';
     return html;
@@ -76,10 +117,10 @@ WPS.makeBooks = function (ctx) {
   function toc(b) {
     var r = B().read, bm = B().bm, stats = ctx.stats(), n = 1;
     var html = '<div class="bk-reader"><div class="bk-tb"><a href="#books" aria-label="本棚へ戻る">‹ 本棚</a><b>' + h(b.short) + '</b><span></span></div>' +
-      '<div class="bk-page bk-front">' + cover(b, true) + '<p class="muted small">' + b.chapters.length + '章・' + b.units.length + '単元。最後の方まで読んだページには✓がつきます。</p></div>' +
+      '<div class="bk-page bk-front">' + cover(b, true) + '<p class="muted small">' + b.chapters.length + '章・' + b.units.length + (b.extra ? 'ページ' : '単元') + '。最後の方まで読んだページには✓がつきます。</p></div>' +
       '<section class="card bk-toc"><h2>目次</h2>' + b.chapters.map(function (ch, ci) {
         return '<div class="bk-ch"><h3>第' + (ci + 1) + '章 ' + h(ch.name) + '</h3><ol start="' + n + '" style="--start:' + (n - 1) + '">' + ch.units.map(function (id) {
-          n++; var u = WPS.UNIT_MAP[id], ok = allowed(u), s = stats[id] ? stats[id].status : 'untested';
+          n++; var u = b.extra ? b.pages[id] : WPS.UNIT_MAP[id], ok = b.extra || allowed(u), s = stats[id] ? stats[id].status : 'untested';
           return '<li class="' + (ok ? '' : 'off') + '"><a href="#books/' + b.id + '/' + id + '"><span>' + h(u.name) + '</span>' + (bm[id] ? '<em class="bk-bm">しおり</em>' : '') + (r[id] ? '<em class="bk-ok">✓</em>' : '') + (s === 'weak' ? '<em class="bk-weak">苦手</em>' : '') + '</a></li>';
         }).join('') + '</ol></div>';
       }).join('') + '</section></div>';
@@ -255,6 +296,7 @@ WPS.makeBooks = function (ctx) {
   }
   function render(arg) {
     var p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
+    if (b && b.extra && p[1] && b.pages[p[1]]) return extraPage(b, p[1]);
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       if (!lessonReady(p[1])) { loadLesson(p[1]); return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>'; }
       var out = page(b, p[1]);
@@ -320,6 +362,7 @@ WPS.makeBooks = function (ctx) {
   function after(arg) {
     var view = document.getElementById('view'), p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
+    if (b && b.extra && p[1] && b.pages[p[1]]) { if (!S.isView()) { var eb = B(); eb.read[p[1]] = 1; eb.t = eb.t || {}; eb.t[b.id] = Date.now(); S.save(); } return; }
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       var id = p[1];
       if (!view.querySelector('#bkBm')) return; // 読み込み中
