@@ -3100,3 +3100,8 @@ body.tl-full { overflow: hidden; }
 .vw-body .jg-box { margin-top: 6px; }
 .lazy-slot { display: none; }
 .vw-list.hidem .jg-box { display: none; }
+/* 黒板(例題)の中の「別の解き方」は、黒板の色に合わせる */
+.bk-bb .alt-sol { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .55); }
+.bk-bb .alt-sol > summary { color: #ffe08a; }
+.bk-bb .alt-one { border-top-color: rgba(255, 255, 255, .25); }
+.bk-bb .alt-n { color: #fff; }
