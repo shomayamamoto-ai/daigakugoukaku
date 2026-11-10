@@ -474,6 +474,7 @@
           M.truth.map(function (f, i) { return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') : '') +
           (M.suisen ? (function (R) {
             return '<h3>推薦入試(総合型選抜など)の面接:本質的な勝ち方</h3><p>' + h(R.lead) + '</p>' +
+              (R.brand ? '<details class="guide-mini" open><summary>大学のブランドを上げる人とは</summary><p>' + h(R.brand.def) + '</p><p>具体的には、次の2つを兼ね備えた人が高く評価されます。</p><ul class="bullets">' + R.brand.elems.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ul><p>' + h(R.brand.investor) + '</p></details>' : '') +
               '<div class="guide-key"><b>合格のための3つの要素</b><ol class="steps">' + R.keys.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>' +
               R.tips.map(function (f) { return '<details class="guide-mini"><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') +
               '<div class="guide-key"><b>結論</b><p>' + h(R.conclusion) + '</p></div>';
