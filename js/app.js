@@ -470,7 +470,9 @@
     html += '<section class="card" id="interview"><h2>面接・小論文の対策</h2><h3>どんな入試で課されるか</h3><ul class="bullets">' + I.when.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
       '<h3>面接の準備</h3><ol class="steps">' + I.mensetsu.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
       (WPS.INTERVIEW_MANNER ? (function (M) {
-        return '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
+        return (M.truth ? '<h3>面接官の本音とよくある誤解</h3><div class="guide-key"><b>好印象を与える4つのポイント</b><ol class="steps">' + M.truthKey.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>' +
+          M.truth.map(function (f, i) { return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') : '') +
+          '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
           return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + (i + 1) + '. ' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
         }).join('') +
         '<h3>面接での話し方・ふるまい</h3>' + M.tips.map(function (f) {
