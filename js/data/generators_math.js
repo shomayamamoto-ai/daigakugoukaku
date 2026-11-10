@@ -96,6 +96,8 @@
       return Q(2, '点 P を通る2本の直線が円と A、B および C、D で交わる。PA＝' + pa + '、PB＝' + pb + '、PC＝' + pc + ' のとき、PD は?', numChoices(pd, [pa * pb + pc, pb - pa + pc, pd + 1]),
         '【方べきの定理】PA×PB＝PC×PD\n' + pa + '×' + pb + '＝' + pc + '×PD → PD＝' + (pa * pb) + '÷' + pc + '＝' + pd); }
     var a = ri(r, 1, 5), b = ri(r, 1, 5), c = ri(r, 1, 5), d = ri(r, 1, 5);
+    // メネラウス(D が辺 BC の延長上)では BD＝DC になれないので、c と d は別の数にする
+    if (t === 1 && c === d) d = c % 5 + 1;
     var ans = ratio(b * d, a * c);
     if (t === 0) return Q(3, '△ABC で、3本の線分 AD・BE・CF が1点で交わる。AF:FB＝' + a + ':' + b + '、BD:DC＝' + c + ':' + d + ' のとき、CE:EA は?', choices(ans, [ratio(a * c, b * d), ratio(a * d, b * c), ratio(b * c, a * d)]),
       '【チェバの定理】(AF/FB)×(BD/DC)×(CE/EA)＝1\n(' + a + '/' + b + ')×(' + c + '/' + d + ')×(CE/EA)＝1\n→ CE/EA＝' + (b * d) + '/' + (a * c) + ' → CE:EA＝' + ans);
