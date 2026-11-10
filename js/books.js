@@ -32,6 +32,13 @@ WPS.makeBooks = function (ctx) {
           .concat([{ t: '結論', body: '<div class="guide-key"><p>' + h(R.conclusion) + '</p></div>' }]));
       add('推薦入試(総合型選抜など)の面接', 'iv_suisen', '控え室・「良い子」・オタク戦略・意地悪な質問', '', secs(R.tips));
     }
+    if (WPS.INTERVIEW_WEB && WPS.ivWebHTML) {
+      var W = WPS.INTERVIEW_WEB, wsec = function (ids) { return ids.filter(function (i) { return W.sections[i]; }).map(function (i) { return { t: W.sections[i].name, body: WPS.ivWebHTML('sec', [i]).replace(/^<details class="guide-mini"><summary>[^<]*<\/summary>/, '').replace(/<\/details>$/, '') }; }); };
+      add('形式・評価・練習(公開情報より)', 'iv_types', '面接の形式と対策', WPS.ivWebHTML('note'), wsec([0, 1, 2]));
+      add('形式・評価・練習(公開情報より)', 'iv_eval', '面接の評価と志望理由・自己PR', '', wsec([3, 4, 5]));
+      add('形式・評価・練習(公開情報より)', 'iv_qa', 'よく聞かれる質問と答え方', '<p>タップすると、答え方のコツとNG例が開きます。</p>', [{ t: '質問と答え方', body: WPS.ivWebHTML('qa') }]);
+      add('形式・評価・練習(公開情報より)', 'iv_practice', '練習のやり方・オンライン面接・動画', '', wsec([6, 7, 8]).concat([{ t: '出典', body: WPS.ivWebHTML('sources') }]));
+    }
     add('マナーと身だしなみ', 'iv_flow', '入室から退室までのマナー', '', secs(M.flow));
     add('マナーと身だしなみ', 'iv_talk', '話し方・ふるまい', '', secs(M.tips));
     add('マナーと身だしなみ', 'iv_dress', '服装・おじぎ・言葉づかい', '', M.dress.map(function (g) { return { t: g.name, body: '<ul class="bullets">' + g.items.map(li).join('') + '</ul>' }; }).concat([

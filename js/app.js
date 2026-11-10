@@ -479,6 +479,8 @@
               R.tips.map(function (f) { return '<details class="guide-mini"><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') +
               '<div class="guide-key"><b>結論</b><p>' + h(R.conclusion) + '</p></div>';
           })(M.suisen) : '') +
+          (WPS.INTERVIEW_WEB ? '<h3>面接の形式・評価・練習(公開情報より)</h3>' + WPS.ivWebHTML('note') + WPS.ivWebHTML('sec') +
+            '<h3>よく聞かれる質問と答え方</h3>' + WPS.ivWebHTML('qa') + WPS.ivWebHTML('sources') : '') +
           '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
           return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + (i + 1) + '. ' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
         }).join('') +
