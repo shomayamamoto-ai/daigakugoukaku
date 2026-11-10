@@ -2484,7 +2484,8 @@
       '<p>通知の状態:' + permLabel + '</p>' +
       '<label class="switch"><input type="checkbox" id="notifyOn"' + (p.notify ? ' checked' : '') + '> 通知を受け取る</label>' +
       '<label>お知らせする時刻<input type="time" id="remindAt" value="' + h(p.reminder) + '"></label>' +
-      '<div class="btns"><button class="btn" id="testNotify">通知をテストする</button><button class="btn" id="icsBtn">📅 カレンダーに毎日のリマインドを登録</button></div>' +
+      '<div class="btns"><button class="btn" id="testNotify">通知をテストする</button><a class="btn" id="gcalBtn" href="' + h(WPS.Notify.gcal()) + '" target="_blank" rel="noopener">Googleカレンダーに登録</a><button class="btn" id="icsBtn">iPhone・Macのカレンダーに登録(.ics)</button></div>' +
+      '<p class="hint">カレンダーには「お知らせする時刻」に毎日くり返す予定として入ります。Googleカレンダーは、開いた画面で「保存」を押すと登録されます。時刻を変えたときは、カレンダー側の予定も変えてください。</p>' +
       '<p class="hint">・アプリを開いている間、またはホーム画面に追加した場合(対応ブラウザ)に通知が届きます。<br>・iPhoneはSafariの「共有 → ホーム画面に追加」をしてから通知を許可してください(iOS 16.4以降)。<br>・確実に届けたい場合は「カレンダーに登録」がおすすめです。スマホのカレンダーアプリが毎日お知らせしてくれます。</p></section>';
     html += '<section class="card"><h2>📤 先生にデータを共有する</h2>' +
       '<p class="muted">ボタンを押すとリンクができます。LINEやメールで先生や保護者の方に送ると、リンクを開くだけで分析レポート(先生用・保護者用)を見られます(その時点のデータです)。</p>' +
@@ -2545,6 +2546,7 @@
         if (!ok) toast('通知を送れませんでした。先に「通知を受け取る」をオンにしてね');
       });
     });
+    var rm0 = document.getElementById('remindAt'), gb = document.getElementById('gcalBtn'); if (rm0 && gb) rm0.addEventListener('change', function () { setTimeout(function () { gb.href = WPS.Notify.gcal(); }, 0); });
     document.getElementById('icsBtn').addEventListener('click', function () {
       download('aqualium-reminder.ics', WPS.Notify.ics(), 'text/calendar');
     });

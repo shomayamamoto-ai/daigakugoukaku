@@ -122,6 +122,17 @@ WPS.Notify = (function () {
     } catch (e) { /* 失敗しても通常機能には影響しない */ }
   }
 
+  // Googleカレンダーの予定作成ページを、時刻と「毎日くり返し」を入れた状態で開くURL
+  function gcal() {
+    var s = WPS.Store.get(), p = (s.profile.reminder || '20:00').split(':');
+    var st = new Date(); st.setHours(+p[0], +p[1] || 0, 0, 0);
+    var en = new Date(st.getTime() + 15 * 60000);
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function fmt(d) { return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00'; }
+    var app = location.href.split('#')[0].split('?')[0];
+    var q = { action: 'TEMPLATE', text: 'Aqualium 今日の勉強', dates: fmt(st) + '/' + fmt(en), details: '連続記録をつなごう! 単語帳5枚だけでもOK。\nアプリを開く: ' + app, recur: 'RRULE:FREQ=DAILY', ctz: 'Asia/Tokyo' };
+    return 'https://calendar.google.com/calendar/render?' + Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&');
+  }
   // カレンダー用の毎日リマインド(.ics)
   function ics() {
     var s = WPS.Store.get();
@@ -156,5 +167,5 @@ WPS.Notify = (function () {
     if (permission() === 'granted') registerPeriodic();
   }
 
-  return { supported: supported, permission: permission, request: request, show: show, tick: tick, syncToSW: syncToSW, ics: ics, start: start, messages: messages };
+  return { supported: supported, permission: permission, request: request, show: show, tick: tick, syncToSW: syncToSW, ics: ics, gcal: gcal, start: start, messages: messages };
 })();
