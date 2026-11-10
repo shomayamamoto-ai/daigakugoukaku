@@ -101,7 +101,7 @@ WPS.QDEEP = WPS.QDEEP || {};
   WPS.glossHTML = function (m) {
     var ks = WPS.glossTerms(m); if (!ks.length) return '';
     var G = WPS.JGLOSS;
-    return '<details class="jg-box"><summary>📖 日本語の意味を調べる(' + ks.map(h).join('・') + ')</summary><dl>' + ks.map(function (k) { var g = G[k]; return '<div><dt>' + h(k) + (g.r ? '<small>' + h(g.r) + '</small>' : '') + '</dt><dd>' + h(g.d) + (g.e ? '<span class="jg-e">例:' + h(g.e) + '</span>' : '') + '</dd></div>'; }).join('') + '</dl></details>';
+    return '<details class="jg-box"><summary>📖 ことばの意味:' + ks.map(h).join('・') + '</summary><dl>' + ks.map(function (k) { var g = G[k]; return '<div><dt>' + h(k) + (g.r ? '<small>' + h(g.r) + '</small>' : '') + '</dt><dd>' + h(g.d) + (g.e ? '<span class="jg-e">例:' + h(g.e) + '</span>' : '') + '</dd></div>'; }).join('') + '</dl></details>';
   };
 
 
@@ -117,7 +117,7 @@ WPS.QDEEP = WPS.QDEEP || {};
   WPS.glossSlot = function (m) { if (WPS.JGLOSS) return WPS.glossHTML(m); setTimeout(function () { WPS.loadGloss(WPS.fillLazy); }, 0); return '<span class="lazy-slot" data-jgm="' + h(m) + '"></span>'; };
   // 量の多いノートは、起動のあとで読み込む
   WPS.NOTE_FILES = ['qdeep_ejm', 'qdeep_sci', 'qdeep_soc', 'wordnote_jp2', 'wordnote_en_jh', 'wordnote_en_h1', 'wordnote_en_h2', 'wordnote_scisoc'];
-  var state = 0, VER = '20261110a';
+  var state = 0, VER = '20261110b';
   WPS.loadNotes = function () {
     if (state) return; state = 1;
     var files = WPS.NOTE_FILES.slice();

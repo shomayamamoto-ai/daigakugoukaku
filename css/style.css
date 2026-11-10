@@ -3105,3 +3105,6 @@ body.tl-full { overflow: hidden; }
 .bk-bb .alt-sol > summary { color: #ffe08a; }
 .bk-bb .alt-one { border-top-color: rgba(255, 255, 255, .25); }
 .bk-bb .alt-n { color: #fff; }
+.jg-box > summary, .alt-sol > summary { background: none !important; border: 0 !important; box-shadow: none !important; }
+.jg-box > summary::before, .alt-sol > summary::before { display: none !important; content: none !important; }
+.vw-body .jg-box > summary { padding: 6px 10px; min-height: 36px; font-size: 12.5px; }
