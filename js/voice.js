@@ -11,7 +11,7 @@ window.WPS = window.WPS || {};
     try { speechSynthesis.addEventListener('voiceschanged', load); } catch (e) { speechSynthesis.onvoiceschanged = load; }
   }
   // 自然に聞こえる声(ニューラル音声・高品質版)
-  var NATURAL = /(natural|neural|online|enhanced|premium|拡張|高品質|siri)/i;
+  var NATURAL = /(natural|neural|online|enhanced|premium|拡張|高品質|プレミアム|siri)/i;
   // 女性の声として知られている名前
   var FEMALE = /女性|google 日本語|\b(female|samantha|ava|allison|susan|zoe|serena|karen|moira|tessa|fiona|victoria|kate|stephanie|nicky|aria|jenny|michelle|emma|ana|sonia|libby|natasha|clara|zira|hazel|google us english|google uk english female|kyoko|o-ren|nanami|aoi|mayu|shiori|haruka|ayumi|sayaka)\b/i;
   var MALE = /男性|\b(male|alex|daniel|fred|tom|aaron|arthur|oliver|david|guy|mark|ryan|christopher|eric|roger|steffan|brian|andrew|george|james|otoya|hattori|keita|ichiro|daichi|naoki)\b/i;
@@ -30,6 +30,15 @@ window.WPS = window.WPS || {};
     if (v.default) s += 2;
     return s;
   }
+  // この端末で選んだ声(声は端末ごとに違うので、端末に保存する)
+  function saved(lang) { try { return localStorage.getItem('wpsVoice_' + lang) || ''; } catch (e) { return ''; } }
+  function setSaved(lang, name) { try { if (name) localStorage.setItem('wpsVoice_' + lang, name); else localStorage.removeItem('wpsVoice_' + lang); } catch (e) { /* 保存できなくても動く */ } }
+  function voices(lang) {
+    if (!list.length) load();
+    var re = lang === 'ja' ? /^ja/i : /^en/i;
+    return list.filter(function (v) { return re.test(v.lang) && !ROBOT.test(v.name || ''); })
+      .sort(function (a, b) { return score(b, 'female') - score(a, 'female'); });
+  }
   // lang: 'ja' / 'en'、gender: 'female'(ふつう) / 'male'
   function pick(lang, gender) {
     if (!ok) return null;
@@ -37,18 +46,48 @@ window.WPS = window.WPS || {};
     var re = lang === 'ja' ? /^ja/i : /^en/i, pre = lang === 'ja' ? /^ja[-_]JP/i : /^en[-_]US/i;
     var same = list.filter(function (v) { return re.test(v.lang); });
     if (!same.length) return null;
+    var sv = gender !== 'male' && saved(lang), hit = sv && same.filter(function (v) { return v.name === sv; })[0];
+    if (hit) return hit;
     var best = null, bs = -1e9;
     same.forEach(function (v) { var s = score(v, gender || 'female') + (pre.test(v.lang) ? 3 : 0); if (s > bs) { bs = s; best = v; } });
     return best;
   }
   // 読み上げ用の発話を作る(声・言語・速さをそろえる)。pitch は変えない(高さをいじると不自然になる)
+  // 読み上げる前に文を整える:読みがな〔 〕は読みを使い、記号は読まずに間(ま)にする
+  function clean(text, lang) {
+    var t = String(text || '');
+    if (lang === 'ja') {
+      t = t.replace(/[^\s〔〕()（）]+〔([^〕]+)〕/g, '$1')         // 漢字〔よみ〕 → よみ
+        .replace(/[〜～~]/g, '').replace(/[／/|]/g, '、').replace(/[・]/g, '、')
+        .replace(/[「」『』【】《》〈〉]/g, '').replace(/[()（）]/g, '、').replace(/[①-⑳]/g, '、')
+        .replace(/→|⇒|[;；]/g, '、').replace(/=|＝/g, '、');
+    } else {
+      t = t.replace(/[〜～~]/g, '').replace(/\bsb\b/g, 'somebody').replace(/\bsth\b/g, 'something')
+        .replace(/[\/|]/g, ', ').replace(/[()（）\[\]]/g, ', ');
+    }
+    return t.replace(/\s+([,、])/g, '$1').replace(/(、\s*){2,}/g, '、').replace(/(,\s*){2,}/g, ', ').replace(/^[、,\s]+|[、,\s]+$/g, '').replace(/\s{2,}/g, ' ');
+  }
   function utter(text, lang, opt) {
     opt = opt || {};
+    text = clean(text, lang);
     var u = new SpeechSynthesisUtterance(text);
     u.lang = lang === 'ja' ? 'ja-JP' : 'en-US';
     var v = pick(lang, opt.gender); if (v) { u.voice = v; u.lang = v.lang; }
     u.rate = opt.rate || 0.95; u.pitch = 1;
     return u;
   }
-  WPS.Voice = { ok: ok, pick: pick, utter: utter, list: function () { if (!list.length) load(); return list; } };
+  // 試し聞き
+  function preview(lang, name) {
+    if (!ok) return;
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(lang === 'ja' ? 'こんにちは。今日も一緒に、単語を覚えていきましょう。' : 'Hello. Let us learn some new words together today.');
+      var v = list.filter(function (x) { return x.name === name; })[0] || pick(lang);
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = lang === 'ja' ? 'ja-JP' : 'en-US';
+      u.rate = 0.95; speechSynthesis.speak(u);
+    } catch (e) { /* 読み上げできない端末 */ }
+  }
+  // 声の種類を、人が読める説明に(自然な声には印をつける)
+  function label(v) { var n = v.name || ''; return n.replace(/\s*\(.*?\)\s*$/, '').replace(/^Microsoft\s+/, '').replace(/\s+-\s+.*$/, '') + (NATURAL.test(n) || /google/i.test(n) ? '(自然な声)' : ''); }
+  WPS.Voice = { ok: ok, pick: pick, utter: utter, clean: clean, voices: voices, saved: saved, setSaved: setSaved, preview: preview, label: label, onChange: function (f) { try { speechSynthesis.addEventListener('voiceschanged', f); } catch (e) { /* 古い端末 */ } }, list: function () { if (!list.length) load(); return list; } };
 })();

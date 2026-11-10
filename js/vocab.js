@@ -424,7 +424,8 @@ WPS.makeVocab = function (ctx) {
         opt('lang', '読み上げ言語', [['both', '英語と日本語'], ['en', '英語のみ'], ['ja', '日本語のみ']]) +
         opt('rate', '読み上げスピード', [['fast', '早い'], ['normal', '普通'], ['slow', '遅い']]) +
         opt('voice', '読み上げ声色', [['female', '女性'], ['male', '男性']]) +
-        '<p class="hint">端末に入っている声の中から、機械っぽくない自然な声を優先して選びます(ふつうは女性の声)。もっと自然な声にしたいときは、iPhone・iPad なら「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」から、高品質な声(「拡張」「プレミアム」と付いたもの)をダウンロードしてください。パソコンでは Microsoft Edge で開くと自然な声が使えます。</p>' : '') +
+        '<div class="vt-vsel" id="vtVoiceSel" aria-live="polite"></div>' +
+        '<p class="hint">ふつうは、端末に入っている声の中から、機械っぽくない自然な女性の声を自動で選びます。上の「この端末の声を選ぶ」で、聞き比べて選ぶこともできます。声をもっと自然にしたいときは、高品質な声(「拡張」「プレミアム」と付いたもの)を端末にダウンロードしてください。iPhone・iPad:「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」。Mac:「システム設定」→「アクセシビリティ」→「読み上げコンテンツ」→「システムの声」→「声を管理」。パソコンでは Microsoft Edge で開くと自然な声が使えます。</p>' : '') +
       '</details></section>';
     html += recordCard() + WPS.Quest.card(h);
     return html;
@@ -1316,6 +1317,24 @@ view.querySelectorAll('[data-sk]').forEach(function (b) { b.addEventListener('cl
           cur[kv[0]] = kv.slice(1).join(':');
           st.src = cur.e || cur.r ? 'x' + cur.e + '-' + cur.r : 'all'; re();
         }); });
+    // この端末の声を聞き比べて選ぶ(声は端末ごとに違うので、端末に保存する)
+    var vsel = view.querySelector('#vtVoiceSel');
+    if (vsel && WPS.Voice) {
+      var fillV = function () {
+        if (!document.body.contains(vsel)) return;
+        vsel.innerHTML = '<p class="vt-vsel-h">この端末の声を選ぶ</p>' + ['ja', 'en'].map(function (lg) {
+          var vs = WPS.Voice.voices(lg), cur = WPS.Voice.saved(lg);
+          if (!vs.length) return '<p class="hint">' + (lg === 'ja' ? '日本語' : '英語') + 'の声が、この端末に見つかりません。</p>';
+          return '<div class="vt-vrow"><span>' + (lg === 'ja' ? '日本語' : '英語') + '</span><select data-vvoice="' + lg + '" aria-label="' + (lg === 'ja' ? '日本語' : '英語') + 'の声"><option value="">おまかせ(いちばん自然な声)</option>' +
+            vs.map(function (v) { return '<option value="' + h(v.name) + '"' + (cur === v.name ? ' selected' : '') + '>' + h(WPS.Voice.label(v)) + '</option>'; }).join('') +
+            '</select><button type="button" class="btn small" data-vtry="' + lg + '">試し聞き</button></div>';
+        }).join('') + '<p class="hint">「(自然な声)」が付いた声がおすすめです。聞き比べて、いちばん自然に聞こえる声を選んでください。</p>';
+        vsel.querySelectorAll('[data-vvoice]').forEach(function (sl) { sl.addEventListener('change', function () { var lg = sl.getAttribute('data-vvoice'); WPS.Voice.setSaved(lg, sl.value); WPS.Voice.preview(lg, sl.value); }); });
+        vsel.querySelectorAll('[data-vtry]').forEach(function (b) { b.addEventListener('click', function () { var lg = b.getAttribute('data-vtry'), sl = vsel.querySelector('[data-vvoice="' + lg + '"]'); WPS.Voice.preview(lg, sl ? sl.value : ''); }); });
+      };
+      fillV(); WPS.Voice._fill = fillV;
+      if (!WPS.Voice._bound) { WPS.Voice._bound = 1; WPS.Voice.onChange(function () { if (WPS.Voice._fill) WPS.Voice._fill(); }); }
+    }
     view.querySelectorAll('[data-vcfg]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-vcfg'), v = b.getAttribute('data-v');
