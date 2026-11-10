@@ -2935,3 +2935,32 @@ body.locked .tb-logout { display: none !important; }
 .st-how summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
 .st-how p { margin: 4px 0 0; line-height: 1.8; }
 @media (prefers-reduced-motion: reduce) { .st-d circle.fg { transition: none; } }
+/* ===== 世界史の地図(領土の変遷) ===== */
+.tl-hmap .tl-body { display: flex; flex-direction: column; gap: 6px; }
+.hm-top { display: flex; align-items: center; gap: 6px; flex: none; }
+.hm-top .wm-b { min-height: 40px; }
+.hm-year { flex: 1; min-width: 0; display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.hm-year b { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.hm-year small { font-size: .8rem; color: var(--muted); font-weight: 700; }
+.hm-play { padding: 0 12px !important; white-space: nowrap; }
+.hm-play.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.hm-range { flex: none; padding: 0 6px 14px; position: relative; }
+.hm-range input { width: 100%; margin: 4px 0 0; accent-color: var(--primary); height: 24px; }
+.hm-ticks { position: absolute; left: 14px; right: 14px; bottom: 0; height: 14px; font-size: 10.5px; color: var(--muted); }
+.hm-ticks span { position: absolute; transform: translateX(-50%); }
+.hm-labb.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.hm-land { fill: #ece8dc; stroke: none; }
+.hm-pol path { fill-opacity: .9; stroke: #fff; stroke-width: .5px; vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: pointer; transition: fill-opacity .2s; }
+.hm-pol path:hover { fill-opacity: 1; }
+.hm.hm-sel .hm-pol path { fill-opacity: .35; }
+.hm.hm-sel .hm-pol path.on { fill-opacity: 1; fill: #f59e0b; stroke: #7c2d12; stroke-width: 1.4px; }
+.hm-lab text { font-weight: 800; }
+.hm-load { position: absolute; top: 8px; right: 8px; margin: 0; padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, .9); font-size: 12px; color: #334; }
+.hm-src { margin: 0; flex: none; font-size: 10.5px; line-height: 1.5; color: var(--muted); }
+.hm-none { color: #b45309; font-weight: 700; }
+.hm-clear { margin-left: 6px; padding: 2px 10px; min-height: 28px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--text); font: inherit; font-size: 12px; cursor: pointer; }
+:root[data-theme="dark"] .hm-land { fill: #2b3346; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hm-land { fill: #2b3346; } }
+.hm-ticks span { white-space: nowrap; }
+.hm-ticks span:first-child { transform: none; }
+.hm-ticks span:last-child { transform: translateX(-100%); }
