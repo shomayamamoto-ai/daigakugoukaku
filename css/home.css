@@ -608,3 +608,5 @@ body.sv-open { overflow: hidden; }
 .bank-mail > span small { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .04em; }
 @media (max-width: 640px) { .bank > div { grid-template-columns: 6em minmax(0, 1fr); } .bank dt, .bank dd { padding: 8px 10px; } }
 .bank dd small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
+/* ハイライトの丸:パソコンでは6個ずつ2段にそろえる(1個だけ次の段に残らないように) */
+@media (min-width: 900px) { .hl-circles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); justify-items: center; max-width: 860px; gap: 20px 12px; } }
