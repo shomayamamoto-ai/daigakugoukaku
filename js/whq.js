@@ -33,6 +33,8 @@ WPS.makeWhq = function (ctx, DS) {
     });
     return YEARQ;
   }
+  // 答えの年の地図を開くボタン(年号がない問題は、問題文の年を使う)
+  function mapBtn(q) { if (!WPS.Tools || !WPS.Tools.mapLinks) return ''; var y = q.y !== null && q.y !== undefined ? q.y : WPS.Tools.findYear(q.q + ' ' + q.a); return WPS.Tools.mapLinks(y, DS.rs === 'wh' ? 'w' : 'j'); }
   function yStr(y) { return y < 0 ? '紀元前' + (-y) + '年' : y + '年'; }
 
   // 範囲でしぼった問題(モード・レベルの前)
@@ -148,12 +150,12 @@ WPS.makeWhq = function (ctx, DS) {
       '<section class="card wq-q"><div class="wq-qm"><span>' + h(meta) + '</span><span>Lv' + q.lv + '</span>' + (r ? '<span>' + (r.s >= +cfg().n ? '習得' : '連続 ' + r.s) + '</span>' : '<span>新規</span>') + '</div>' +
       (q.yr ? '<p class="wq-qt">' + (q.plain ? h(q.q) : h(q.a) + '<small>' + h(q.q) + '</small>') + '</p><p class="wq-ask">何年のできごと?</p>' : '<p class="wq-qt">' + h(q.q) + '</p>');
     if (run.self && !done) {
-      html += run.open ? '<p class="wq-ans">' + h(q.yr ? yStr(q.y) : q.a) + '</p><div class="wq-selfb"><button type="button" class="btn sw-no" data-wself="0">✕ まちがえた</button><button type="button" class="btn sw-yes" data-wself="1">○ 正解だった</button></div>'
+      html += run.open ? '<p class="wq-ans">' + h(q.yr ? yStr(q.y) : q.a) + '</p>' + mapBtn(q) + '<div class="wq-selfb"><button type="button" class="btn sw-no" data-wself="0">✕ まちがえた</button><button type="button" class="btn sw-yes" data-wself="1">○ 正解だった</button></div>'
         : '<button type="button" class="btn primary big" id="wqOpen">答えを見る</button>';
       html += '</section>';
       return html;
     }
-    html += (done ? '<p class="vt-reveal ' + (run.ans.ok ? 'ok' : 'ng') + '"><b>' + (run.ans.ok ? '○ 正解' : '✕ 不正解') + '</b>' + h(q.yr ? yStr(q.y) : q.a) + '</p>' : '') + '</section>';
+    html += (done ? '<p class="vt-reveal ' + (run.ans.ok ? 'ok' : 'ng') + '"><b>' + (run.ans.ok ? '○ 正解' : '✕ 不正解') + '</b>' + h(q.yr ? yStr(q.y) : q.a) + '</p>' + mapBtn(q) : '') + '</section>';
     if (!run.self) html += '<div class="vt-choices">' + run.ch.map(function (c, i) {
       var cls = done ? (c.ok ? ' right' : run.ans.pick === i ? ' wrong' : ' dim') : '';
       return '<button type="button" class="vt-ch' + cls + '" data-wch="' + i + '"' + (done ? ' disabled' : '') + '>' + h(c.t) + '</button>';

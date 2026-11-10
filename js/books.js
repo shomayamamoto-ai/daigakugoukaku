@@ -155,7 +155,8 @@ WPS.makeBooks = function (ctx) {
       html += sec('まずはイメージ', 'lz-intro') + paras(L.intro) + '</section>';
       if (L.pre) html += sec('まずは前提のおさらい', 'lz-pre') + paras(L.pre) + '</section>';
       L.secs.forEach(function (x) {
-        html += sec(x.h) + paras(x.t) + (x.key ? '<p class="lz-key"><b>ここが大事</b>' + rt(x.key) + '</p>' : '') + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
+        var hk = WPS.Tools && WPS.Tools.histOf ? WPS.Tools.histOf(u.id) : null, my = hk ? WPS.Tools.findYear(x.h) : null; if (hk && my === null) my = WPS.Tools.findYear(x.t);
+        html += sec(x.h) + paras(x.t) + (hk ? WPS.Tools.mapLinks(my, hk) : '') + (x.key ? '<p class="lz-key"><b>ここが大事</b>' + rt(x.key) + '</p>' : '') + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
           return '<div class="bk-board lz-ex"><div class="bk-bh"><b>やってみよう' + (x.ex.length > 1 ? (k + 1) : '') + '</b><em>例題</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' +
             (e.hint ? '<p class="lz-hint">ヒント:' + rt(e.hint) + '</p>' : '') + '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p>' + (e.check ? '<p class="lz-check">確かめ:' + rt(e.check) + '</p>' : '') + '</div></div>';
         }).join('') + '</section>';

@@ -3076,3 +3076,7 @@ body.tl-full { overflow: hidden; }
 .jm .jm-terr { fill: #f0a35e; stroke: #b4561e; stroke-width: .8px; vector-effect: non-scaling-stroke; }
 @media (min-width: 900px) { .tl-panel.full.tl-jmap .tl-body { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr) minmax(280px, 380px); } }
 .jm-wrap ~ .jm-leg { } .tl-jmap .wm-info:empty { display: none; }
+/* 歴史の「地図で見る」ボタン */
+.map-links { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.map-link { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 6px 12px; border: 1.5px solid var(--primary); border-radius: 999px; background: var(--card); color: var(--primary); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.map-link:hover, .map-link:focus-visible { background: var(--primary); color: #fff; }

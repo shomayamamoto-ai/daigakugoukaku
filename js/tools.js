@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110o';
+  var VER = '20261110p';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -784,5 +784,45 @@
   });
   // 前に開いていたパネルを、ページを読み直したあとも戻す
   try { var saved = JSON.parse(sessionStorage.getItem('wpsTools') || '{}'); Object.keys(saved).forEach(function (k) { openTool(k, true); }); Object.keys(saved).forEach(function (k) { if (!saved[k]) restore(k); }); } catch (e) { }
-  WPS.Tools = { open: openTool, minimize: minimize, restore: restore, close: close, closeAll: closeAll };
+  // 指定した年・モードで地図を開く(教科書・問題の「地図で見る」ボタンから使う)
+  function openAt(kind, o) {
+    var P = pref(kind); o = o || {};
+    if (kind === 'hmap' && typeof o.y === 'number') { P.y = o.y; delete P.sel; }
+    if (kind === 'jmap') { if (o.mode) P.mode = o.mode; if (o.yy) P.yy = o.yy; if (o.sy) { P.sy = o.sy; P.seki = 0; } }
+    savePref(); if (open[kind]) close(kind); openTool(kind);
+  }
+  // 年から、開く地図を決める(日本:250年以降。1560〜1600年は戦国大名)
+  function mapFor(y, where) {
+    if (where === 'jp') { if (y >= 1560 && y <= 1600) return ['jmap', { mode: 'sen', sy: y }, '戦国大名の地図']; if (y >= 250 && y <= 2024) return ['jmap', { mode: 'sei', yy: y }, '日本の地図']; return null; }
+    if (y >= -3400 && y <= 2024 && y !== 0) return ['hmap', { y: y }, '世界の地図'];
+    return null;
+  }
+  function yLabel(y) { return y < 0 ? '前' + (-y) + '年' : y + '年'; }
+  // 文から最初の年を取り出す(「前221年」「1192年」など。「〜年間」「〜年生」は除く)
+  function findYear(t) {
+    var m = String(t || '').match(/(紀元前|前)?\s?(\d{1,4})\s?年(?!間|生|目|後|前|ぶり|以上|以内|ごと)/);
+    if (!m) return null; var y = +m[2]; if (!y) return null; return m[1] ? -y : y;
+  }
+  // 単元が日本史・世界史のどちらか(歴史総合・中学歴史は両方)
+  var UNIT_HIST = null;
+  function histOf(uid) {
+    if (!UNIT_HIST) { UNIT_HIST = {}; var K = { soc_wh: 'w', soc_jh: 'j', soc_hsogo: 'b', soc_jhis: 'b' }; (WPS.CURRICULUM || []).forEach(function (g) { (g.courses || []).forEach(function (c) { var k = K[c.id]; if (!k) return; var add = function (id) { UNIT_HIST[id] = UNIT_HIST[id] && UNIT_HIST[id] !== k ? 'b' : k; }; (c.units || []).forEach(add); (c.areas || []).forEach(function (a) { (a.units || []).forEach(add); }); }); }); }
+    return UNIT_HIST[uid] || null;
+  }
+  // 「地図で見る」ボタンのHTML。where: 'w'(世界)・'j'(日本)・'b'(両方)
+  function mapLinks(y, where) {
+    if (y === null || y === undefined || !where) return '';
+    var list = [];
+    if (where === 'j' || where === 'b') { var a = mapFor(y, 'jp'); if (a) list.push(a); }
+    if (where === 'w' || where === 'b') { var b = mapFor(y, 'w'); if (b) list.push(b); }
+    return list.length ? '<span class="map-links">' + list.map(function (m) { return '<button type="button" class="map-link" data-mapk="' + m[0] + '" data-mapo="' + h(JSON.stringify(m[1])) + '">🗺️ ' + yLabel(y) + 'の' + m[2] + '</button>'; }).join('') + '</span>' : '';
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-mapk]'); if (!b) return;
+    ev.preventDefault(); ev.stopPropagation();
+    if (locked()) { if (WPS.appToast) WPS.appToast('テスト中は資料を開けません'); return; }
+    var o = {}; try { o = JSON.parse(b.getAttribute('data-mapo') || '{}'); } catch (e) { }
+    openAt(b.getAttribute('data-mapk'), o);
+  });
+  WPS.Tools = { open: openTool, openAt: openAt, minimize: minimize, restore: restore, close: close, closeAll: closeAll, findYear: findYear, histOf: histOf, mapLinks: mapLinks };
 })();

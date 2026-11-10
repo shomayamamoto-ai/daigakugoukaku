@@ -1306,6 +1306,9 @@
       html += '<div class="fb-why"><small>あなたの答え「' + h(chosen) + '」が違う理由</small><p>' + h(why) + '</p></div>';
     }
     html += '<div class="fb-exp"><small>' + (ok ? 'なぜ正解なの?' : 'くわしい解説') + '</small><p>' + h(q.exp) + '</p></div>';
+    // 日本史・世界史の問題は、その年の地図をすぐ開けるようにする
+    var hk = WPS.Tools && WPS.Tools.histOf ? WPS.Tools.histOf(q.unit) : null;
+    if (hk) { var F = WPS.Tools.findYear, yy = F(q.answer); if (yy === null) yy = F(q.text); if (yy === null) yy = F(q.exp); html += WPS.Tools.mapLinks(yy, hk); }
     // 問題ごとのくわしい解説と、ことばの問題のノート(ほかの意味・使い方・例文・類義語・対義語)
     html += WPS.deepHTML(q.id);
     html += WPS.wordNoteHTML(WPS.noteTerm(q.text), !!(WPS.QDEEP[q.id] && WPS.QDEEP[q.id].alt));
