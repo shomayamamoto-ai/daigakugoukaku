@@ -191,7 +191,7 @@ WPS.makeWhq = function (ctx, DS) {
     var list = shuffle(QS.filter(nigate)), i = 0, g = ++lg;
     if (!list.length) return;
     toast('苦手の聞き流しを始めます(画面を移ると止まります)');
-    function say(t, cb) { try { var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = 1; u.onend = cb; u.onerror = cb; speechSynthesis.speak(u); } catch (e) { cb(); } }
+    function say(t, cb) { try { var u = WPS.Voice.utter(t, 'ja', { rate: 1 }); u.onend = cb; u.onerror = cb; speechSynthesis.speak(u); } catch (e) { cb(); } }
     (function step() {
       if (g !== lg || i >= list.length || location.hash !== DS.route) return;
       var q = list[i++];

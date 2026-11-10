@@ -2108,10 +2108,7 @@
   function speak(text) {
     try {
       speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US'; u.rate = 0.9;
-      var v = speechSynthesis.getVoices().filter(function (x) { return /^en(-|_)/i.test(x.lang); })[0];
-      if (v) u.voice = v;
+      var u = WPS.Voice.utter(text, 'en', { rate: 0.9 });
       speechSynthesis.speak(u);
     } catch (e) { toast('この端末では読み上げが使えません'); }
   }

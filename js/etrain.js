@@ -24,20 +24,18 @@ WPS.makeEtrain = function (ctx) {
 
   /* ---------- 読み上げ ---------- */
   var playing = false;
-  function voices() { try { return speechSynthesis.getVoices().filter(function (v) { return /^en(-|_)(US|GB)/i.test(v.lang); }); } catch (e) { return []; } }
   function play(script, onDone) {
     if (!('speechSynthesis' in window)) { ctx.toast('この端末では読み上げが使えません'); return; }
     try { speechSynthesis.cancel(); } catch (e) { }
-    var vs = voices(), who = {}, n = 0;
+    var who = {}, n = 0;
     playing = true;
     script.forEach(function (line, i) {
       var sp = line[0]; if (!(sp in who)) who[sp] = n++;
-      var u = new SpeechSynthesisUtterance(line[1]);
-      u.lang = 'en-US'; u.rate = 0.92 * st.rate;
-      // 話し手ごとに声(または声の高さ)を変える
-      var k = who[sp];
-      if (vs.length > 1) u.voice = vs[k % vs.length]; else if (vs[0]) u.voice = vs[0];
-      var PIT = { M: 0.8, W: 1.35, A: 0.9, B: 1.3, N: 1 }; u.pitch = sp in PIT ? PIT[sp] : (k % 2 ? 1.3 : 0.9); // 男性は低め・女性は高め
+      // 話し手ごとに声を変える(M・A は男性、W・B・ナレーションは女性。自然な声を優先)
+      var k = who[sp], male = sp === 'M' || sp === 'A' || (!/^[WBN]$/.test(sp) && k % 2 === 1);
+      var u = WPS.Voice.utter(line[1], 'en', { rate: 0.92 * st.rate, gender: male ? 'male' : 'female' });
+      // 男性の声が端末になく、女性と同じ声になったときだけ、少し低くして区別する
+      if (male && u.voice && u.voice === WPS.Voice.pick('en', 'female')) u.pitch = 0.85;
       if (i === script.length - 1) u.onend = u.onerror = function () { playing = false; if (onDone) onDone(); };
       speechSynthesis.speak(u);
     });

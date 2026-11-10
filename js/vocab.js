@@ -175,18 +175,8 @@ WPS.makeVocab = function (ctx) {
   }
 
   /* ---------- 読み上げ ---------- */
-  var VOICE = {
-    female: /(female|samantha|karen|victoria|moira|tessa|fiona|allison|ava|susan|zira|aria|jenny|kyoko|o-ren|nanami|haruka|ayumi|sayaka|google us english|google 日本語)/i,
-    male: /(male|alex|daniel|fred|tom|aaron|arthur|oliver|david|guy|mark|otoya|hattori|keita|ichiro|google uk english male)/i
-  };
-  function pickVoice(lang, pref) {
-    var vs = [];
-    try { vs = speechSynthesis.getVoices(); } catch (e) { return null; }
-    var re = lang === 'ja' ? /^ja/i : /^en/i;
-    var same = vs.filter(function (v) { return re.test(v.lang); });
-    var want = same.filter(function (v) { return VOICE[pref].test(v.name) && !(pref === 'female' && /\bmale\b/i.test(v.name)); });
-    return want[0] || same[0] || null;
-  }
+  // 声えらびは js/voice.js(自然な声を優先。ふつうは女性の声)
+  function pickVoice(lang, pref) { return WPS.Voice ? WPS.Voice.pick(lang, pref === 'male' ? 'male' : 'female') : null; }
   function say1(text, lang, done) {
     if (!('speechSynthesis' in window) || !text) { if (done) setTimeout(done, 300); return; }
     try {
@@ -194,7 +184,7 @@ WPS.makeVocab = function (ctx) {
       u.lang = lang === 'ja' ? 'ja-JP' : 'en-US';
       u.rate = { fast: 1.25, normal: 0.95, slow: 0.7 }[c.rate] * (st.listenRate || 1);
       var pref = c['voice_' + lang]; if (!pref || pref === 'auto') pref = c.voice;
-      var v = pickVoice(lang, pref); if (v) u.voice = v;
+      var v = pickVoice(lang, pref); if (v) { u.voice = v; u.lang = v.lang; }
       if (done) { u.onend = done; u.onerror = done; }
       speechSynthesis.speak(u);
     } catch (e) { if (done) done(); }
@@ -402,7 +392,7 @@ WPS.makeVocab = function (ctx) {
         opt('lang', '読み上げ言語', [['both', '英語と日本語'], ['en', '英語のみ'], ['ja', '日本語のみ']]) +
         opt('rate', '読み上げスピード', [['fast', '早い'], ['normal', '普通'], ['slow', '遅い']]) +
         opt('voice', '読み上げ声色', [['female', '女性'], ['male', '男性']]) +
-        '<p class="hint">声色は、端末に入っている声から近いものを選びます。端末によっては変わらないことがあります。</p>' : '') +
+        '<p class="hint">端末に入っている声の中から、機械っぽくない自然な声を優先して選びます(ふつうは女性の声)。もっと自然な声にしたいときは、iPhone・iPad なら「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」から、高品質な声(「拡張」「プレミアム」と付いたもの)をダウンロードしてください。パソコンでは Microsoft Edge で開くと自然な声が使えます。</p>' : '') +
       '</details></section>';
     html += recordCard() + WPS.Quest.card(h);
     return html;
