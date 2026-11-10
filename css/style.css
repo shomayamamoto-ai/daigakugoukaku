@@ -3018,7 +3018,7 @@ body.locked .tb-logout { display: none !important; }
 .jm-years { display: flex; flex-wrap: wrap; gap: 4px; }
 .jm-years button { flex: 1 1 auto; min-height: 38px; min-width: 64px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
 .jm-years button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
-.jm .jm-u path { stroke: rgba(255, 255, 255, .0); stroke-width: .3px; vector-effect: non-scaling-stroke; cursor: pointer; }
+.jm .jm-u path { stroke-width: 1.5px; vector-effect: non-scaling-stroke; cursor: pointer; }
 .jm .jm-u path.on { fill: #fbbf24 !important; }
 .jm .jm-line { fill: none; stroke: #6b6b5f; stroke-width: .7px; vector-effect: non-scaling-stroke; stroke-linejoin: round; pointer-events: none; }
 .jm .jm-other { fill: #ece8dc; stroke: #bdb7a6; stroke-width: .5px; vector-effect: non-scaling-stroke; }
@@ -3043,3 +3043,30 @@ body.tl-full { overflow: hidden; }
 /* 資料メニュー:パソコンでは3列で一覧できるように */
 @media (min-width: 900px) { .tl-menu { width: 660px; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 4px; max-height: calc(100vh - 90px); } .tl-menu .tl-mg, .tl-menu .tl-ms, .tl-menu .tl-mres { grid-column: 1 / -1; } .tl-menu button { white-space: normal; line-height: 1.4; } }
 .tl-menu .tl-ms { min-height: 44px; }
+/* ===== 地図の全画面表示(広い画面):操作は上の2段にまとめ、地図を大きく ===== */
+@media (min-width: 900px) {
+  .tl-panel.full.tl-hmap .tl-body { display: grid; grid-template-columns: minmax(360px, 440px) auto minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr) auto; grid-template-areas: "top ctl bar" "jump jump jump" "range range range" "info info info" "map map map" "src src src"; column-gap: 12px; row-gap: 6px; align-items: center; }
+  .tl-panel.full.tl-hmap .hm-top { grid-area: top; }
+  .tl-panel.full.tl-hmap .hm-ctl { grid-area: ctl; }
+  .tl-panel.full.tl-hmap .hm-ctl select { width: 230px; flex: none; }
+  .tl-panel.full.tl-hmap .wm-bar { grid-area: bar; }
+  .tl-panel.full.tl-hmap .hm-jump { grid-area: jump; justify-self: start; }
+  .tl-panel.full.tl-hmap .hm-range { grid-area: range; }
+  .tl-panel.full.tl-hmap .wm-info { grid-area: info; }
+  .tl-panel.full.tl-hmap .hm-wrap { grid-area: map; height: 100%; min-height: 0; }
+  .tl-panel.full.tl-hmap .hm-src { grid-area: src; }
+  .tl-panel.full.tl-jmap .tl-body { display: grid; grid-template-columns: minmax(320px, 400px) minmax(0, 1fr) minmax(300px, 420px); grid-template-rows: auto auto minmax(0, 1fr) auto auto; grid-template-areas: "tabs ctl bar" "info info info" "map map map" "leg leg leg" "src src src"; column-gap: 12px; row-gap: 6px; align-items: center; }
+  .tl-panel.full.tl-jmap .jm-tabs { grid-area: tabs; }
+  .tl-panel.full.tl-jmap .jm-ctl { grid-area: ctl; }
+  .tl-panel.full.tl-jmap .wm-bar { grid-area: bar; }
+  .tl-panel.full.tl-jmap .wm-info { grid-area: info; }
+  .tl-panel.full.tl-jmap .jm-wrap { grid-area: map; height: 100%; min-height: 0; }
+  .tl-panel.full.tl-jmap .jm-leg { grid-area: leg; max-height: none; }
+  .tl-panel.full.tl-jmap .hm-src { grid-area: src; }
+  .tl-panel.full .tl-body { padding: 10px 16px; }
+}
+/* 年の入力欄は必要な幅だけに */
+.hm-jump select { width: auto; flex: none; }
+.hm-jump input { flex: none; }
+.jm .jm-u path { stroke-width: 1.5px; }
+.jm .jm-u path.on { fill: #fbbf24 !important; stroke: #fbbf24 !important; }

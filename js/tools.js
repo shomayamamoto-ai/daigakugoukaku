@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110j';
+  var VER = '20261110l';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -380,7 +380,7 @@
     var labels = [], W = 1000, H = JP.H, vb = { x: 0, y: 0, w: W, h: H }, frame = 'jp';
     function pvOf(k) { return META[JP.units[k][0]][0]; }
     // 塗りと同じ色でふちを描いて、となりの形とのすき間(細い線)を消す
-    function paint(p, c) { p.setAttribute('fill', c); p.setAttribute('stroke', c); }
+    function paint(p, c) { p.setAttribute('fill', c); p.style.stroke = c; }
     var line = svg.querySelector('.jm-line');
     function setFrame(f) {
       if (f === frame && svg.getAttribute('viewBox')) return; frame = f; gJ.style.display = f === 'jp' ? '' : 'none'; gE.style.display = f === 'ea' ? '' : 'none';
