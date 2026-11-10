@@ -445,9 +445,16 @@ WPS.makeVocab = function (ctx) {
   function prepQ() {
     var x = qz.items[qz.i], c = vt().cfg, L = qz.L, p = posOf(L, x);
     var others = qz.all.filter(function (y) { return y.t !== x.t && y.m !== x.m; });
-    var same = shuffle(others.filter(function (y) { return posOf(L, y) === p; }));
-    var picks = same.slice(0, 3);
-    if (picks.length < 3) picks = picks.concat(shuffle(others).filter(function (y) { return picks.indexOf(y) < 0; }).slice(0, 3 - picks.length));
+    // 誤答の選択肢:歴史の用語集は「同じ時代・同じ地域(分野)」→「同じ時代」→「同じ地域(分野)」の順に選ぶ。
+    // ほかの単語帳は品詞が同じ語を優先する。足りないときは単語帳全体から補う。
+    var tiers = [];
+    if (x.e && x.r) tiers.push(function (y) { return y.e === x.e && y.r === x.r; });
+    if (x.e) tiers.push(function (y) { return y.e === x.e; });
+    if (x.r) tiers.push(function (y) { return y.r === x.r; });
+    tiers.push(function (y) { return posOf(L, y) === p; });
+    tiers.push(function () { return true; });
+    var picks = [];
+    tiers.forEach(function (f) { if (picks.length < 3) picks = picks.concat(shuffle(others.filter(function (y) { return f(y) && picks.indexOf(y) < 0; })).slice(0, 3 - picks.length)); });
     qz.ch = shuffle([x].concat(picks));
     qz.dir = c.dir; qz.ans = null; qz.start = Date.now();
   }
