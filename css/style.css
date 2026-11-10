@@ -3147,7 +3147,6 @@ body.tl-full { overflow: hidden; }
 .tb-flow li { position: relative; margin: 0 0 18px; padding: 10px 12px 10px 40px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); line-height: 1.7; overflow-wrap: anywhere; }
 .tb-flow li::before { counter-increment: tf; content: counter(tf); position: absolute; left: 10px; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: .75rem; font-weight: 800; display: grid; place-items: center; }
 .tb-flow li:not(:last-child)::after { content: ''; position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%); border: 7px solid transparent; border-top: 8px solid var(--primary); opacity: .55; }
-.tb-sync th { white-space: nowrap; }
 .tb-check { padding-left: 1.4em; }
 .tb-check li { margin: 0 0 8px; }
 .tb-check summary { cursor: pointer; line-height: 1.6; }
@@ -3176,3 +3175,9 @@ body.tl-full { overflow: hidden; }
 .iv-srcs li { margin-bottom: 4px; }
 .iv-ng { color: var(--ng); }
 .iv-qa .guide-mini summary { line-height: 1.5; }
+.tb-sync { margin: 0; display: grid; gap: 0; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+.tb-sync > div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); border-top: 1px solid var(--line); }
+.tb-sync > div:first-child { border-top: 0; }
+.tb-sync dt { padding: 10px 12px; background: var(--primary-weak); color: var(--primary); font-weight: 800; font-size: .85rem; line-height: 1.5; overflow-wrap: anywhere; }
+.tb-sync dd { margin: 0; padding: 10px 12px; line-height: 1.7; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .tb-sync > div { grid-template-columns: 1fr; } .tb-sync dt { padding: 6px 12px; } }

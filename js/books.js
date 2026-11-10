@@ -77,7 +77,7 @@ WPS.makeBooks = function (ctx) {
       (typeof pg.year === 'number' && WPS.Tools && WPS.Tools.mapLinks ? '<p class="tb-map">' + WPS.Tools.mapLinks(pg.year, where) + '</p>' : '') +
       (pg.lead ? '<div class="guide-key"><b>このページのまとめ</b><p>' + rt(pg.lead) + '</p></div>' : '');
     if (pg.flow && pg.flow.length) html += sec('流れの図') + '<ol class="tb-flow">' + pg.flow.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ol></section>';
-    if (pg.sync && pg.sync.length) html += sec('同じころの世界') + '<div class="table-scroll"><table class="grid cmp tb-sync"><thead><tr><th>地域</th><th>おもなできごと</th></tr></thead><tbody>' + pg.sync.map(function (r) { return '<tr><th>' + h(r[0]) + '</th><td>' + rt(r[1]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+    if (pg.sync && pg.sync.length) html += sec('同じころの世界') + '<dl class="tb-sync">' + pg.sync.map(function (r) { return '<div><dt>' + h(r[0]) + '</dt><dd>' + rt(r[1]) + '</dd></div>'; }).join('') + '</dl></section>';
     pg.secs.forEach(function (x) { html += sec(x.t) + x.p.map(function (t) { return '<p>' + rt(t) + '</p>'; }).join('') + '</section>'; });
     if (pg.points && pg.points.length) html += sec('入試で問われるポイント', 'tb-pts') + '<ul class="bullets">' + pg.points.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ul></section>';
     if (pg.check && pg.check.length) html += sec('確認テスト') + '<p class="muted small">問いを読んで答えを考えてから、タップして確かめましょう。</p><ol class="tb-check">' + pg.check.map(function (q) { return '<li><details><summary>' + rt(q[0]) + '</summary><p>答え:<b>' + h(q[1]) + '</b></p></details></li>'; }).join('') + '</ol></section>';
