@@ -38,7 +38,46 @@ WPS.makeBooks = function (ctx) {
       { t: 'おじぎの使い分け', body: '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>おじぎ</th><th>使う場面</th></tr></thead><tbody>' + M.bow.map(function (b) { return '<tr><th>' + h(b[0]) + '</th><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' },
       { t: '避けたい言い方と言いかえ', body: '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>避けたい言い方</th><th>言いかえ</th></tr></thead><tbody>' + M.words.map(function (b) { return '<tr><td>' + h(b[0]) + '</td><td>' + h(b[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' }]));
     var units = []; chapters.forEach(function (c) { units = units.concat(c.units); });
-    return [{ id: 'mensetsu', name: '面接対策', short: '面接対策', subj: 'exam', stage: 'hs', chapters: chapters, units: units, extra: true, pages: pages }];
+    return tbBooks().concat([{ id: 'mensetsu', name: '面接対策', short: '面接対策', subj: 'exam', stage: 'hs', chapters: chapters, units: units, extra: true, pages: pages }]);
+  }
+  // 歴史の教科書(世界史 世紀別・国別、日本史 通史)。目次は tb_meta.js、本文は開いたときに js/books/<本ID>.js を読み込む
+  function tbBooks() {
+    return (WPS.TB_META || []).map(function (m) {
+      var pages = {}, units = [];
+      m.chapters.forEach(function (c) { c.units.forEach(function (id) { pages[id] = { name: m.titles[id] }; units.push(id); }); });
+      return { id: m.id, name: m.name, short: m.short, subj: m.subj, stage: 'hs', chapters: m.chapters, units: units, extra: true, tb: true, pages: pages };
+    });
+  }
+  var TBV = '20261110a', tbLoading = {}, tbFail = {};
+  function loadTb(bid, pid) {
+    if (tbLoading[bid]) return; tbLoading[bid] = 1;
+    var sc = document.createElement('script'); sc.src = 'js/books/' + bid + '.js?v=' + TBV;
+    function done() { if (location.hash.indexOf('/' + pid) >= 0) ctx.render(); }
+    sc.onload = done; sc.onerror = function () { tbFail[bid] = 1; tbLoading[bid] = 0; done(); };
+    document.head.appendChild(sc);
+  }
+  function tbLink(id) {
+    var bk = tbBooks().filter(function (x) { return x.pages[id]; })[0];
+    return bk ? '<a class="tb-rel" href="#books/' + bk.id + '/' + id + '"><small>' + h(bk.short) + '</small>' + h(bk.pages[id].name) + '</a>' : '';
+  }
+  function tbPage(b, id) {
+    var pg = WPS.TB_PAGES[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
+    var ch = b.chapters.filter(function (c) { return c.units.indexOf(id) >= 0; })[0], n = 0;
+    function sec(t, cls) { n++; return '<section class="bk-sec' + (cls ? ' ' + cls : '') + '" id="bks-' + n + '"><h2><span>' + n + '</span>' + h(t) + '</h2>'; }
+    var where = b.id === 'jh_flow' ? 'j' : 'w';
+    var html = '<div class="bk-reader bk-fs-' + fontSize() + '"><div class="bk-tb"><a href="#books/' + b.id + '" aria-label="目次へ">‹ 目次</a><b>' + h(b.short) + '</b><span></span></div>' +
+      '<article class="bk-page tb-page"><p class="bk-crumb">' + h(ch ? ch.name : '') + '</p><h1>' + h(pg.title) + '</h1><p class="bk-sub">' + h(pg.span || '') + '</p>' +
+      (typeof pg.year === 'number' && WPS.Tools && WPS.Tools.mapLinks ? '<p class="tb-map">' + WPS.Tools.mapLinks(pg.year, where) + '</p>' : '') +
+      (pg.lead ? '<div class="guide-key"><b>このページのまとめ</b><p>' + rt(pg.lead) + '</p></div>' : '');
+    if (pg.flow && pg.flow.length) html += sec('流れの図') + '<ol class="tb-flow">' + pg.flow.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ol></section>';
+    if (pg.sync && pg.sync.length) html += sec('同じころの世界') + '<div class="table-scroll"><table class="grid cmp tb-sync"><thead><tr><th>地域</th><th>おもなできごと</th></tr></thead><tbody>' + pg.sync.map(function (r) { return '<tr><th>' + h(r[0]) + '</th><td>' + rt(r[1]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+    pg.secs.forEach(function (x) { html += sec(x.t) + x.p.map(function (t) { return '<p>' + rt(t) + '</p>'; }).join('') + '</section>'; });
+    if (pg.points && pg.points.length) html += sec('入試で問われるポイント', 'tb-pts') + '<ul class="bullets">' + pg.points.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ul></section>';
+    if (pg.check && pg.check.length) html += sec('確認テスト') + '<p class="muted small">問いを読んで答えを考えてから、タップして確かめましょう。</p><ol class="tb-check">' + pg.check.map(function (q) { return '<li><details><summary>' + rt(q[0]) + '</summary><p>答え:<b>' + h(q[1]) + '</b></p></details></li>'; }).join('') + '</ol></section>';
+    var rel = (pg.related || []).map(tbLink).filter(Boolean);
+    if (rel.length) html += sec('あわせて読む') + '<div class="tb-rels">' + rel.join('') + '</div></section>';
+    html += '</article><nav class="bk-pn"><a ' + (prev ? 'href="#books/' + b.id + '/' + prev + '"' : 'aria-disabled="true" class="off"') + '>‹ 前のページ</a><a href="#books/' + b.id + '">目次</a><a ' + (next ? 'href="#books/' + b.id + '/' + next + '"' : 'aria-disabled="true" class="off"') + '>次のページ ›</a></nav></div>';
+    return html;
   }
   function extraPage(b, id) {
     var pg = b.pages[id], i = b.units.indexOf(id), prev = b.units[i - 1], next = b.units[i + 1];
@@ -296,6 +335,11 @@ WPS.makeBooks = function (ctx) {
   }
   function render(arg) {
     var p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
+    if (b && b.tb && p[1] && b.pages[p[1]]) {
+      if ((WPS.TB_PAGES || {})[p[1]]) return tbPage(b, p[1]);
+      if (tbFail[b.id]) { tbFail[b.id] = 0; return '<p class="card muted small">本文を読み込めませんでした。通信の状態を確かめて、ページを開き直してください。</p>'; }
+      loadTb(b.id, p[1]); return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>';
+    }
     if (b && b.extra && p[1] && b.pages[p[1]]) return extraPage(b, p[1]);
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       if (!lessonReady(p[1])) { loadLesson(p[1]); return '<section class="card bk-loading" aria-busy="true"><p>テキストを読み込んでいます…</p></section>'; }
@@ -362,7 +406,7 @@ WPS.makeBooks = function (ctx) {
   function after(arg) {
     var view = document.getElementById('view'), p = (arg || '').split('/'), b = p[0] ? bookOf(p[0]) : null;
     function re() { var y = window.scrollY; ctx.render(); window.scrollTo(0, y); }
-    if (b && b.extra && p[1] && b.pages[p[1]]) { if (!S.isView()) { var eb = B(); eb.read[p[1]] = 1; eb.t = eb.t || {}; eb.t[b.id] = Date.now(); S.save(); } return; }
+    if (b && b.extra && p[1] && b.pages[p[1]]) { if (b.tb && !(WPS.TB_PAGES || {})[p[1]]) return; if (!S.isView()) { var eb = B(); eb.read[p[1]] = 1; eb.t = eb.t || {}; eb.t[b.id] = Date.now(); S.save(); } return; }
     if (b && p[1] && WPS.UNIT_MAP[p[1]]) {
       var id = p[1];
       if (!view.querySelector('#bkBm')) return; // 読み込み中

@@ -3140,3 +3140,20 @@ body.tl-full { overflow: hidden; }
 .guide-key > b { display: block; margin-bottom: 4px; color: var(--primary); }
 .guide-key ol { margin: 0; }
 .guide-key p { margin: 0; }
+
+/* 歴史の教科書(世紀別・国別・通史) */
+.tb-map { margin: 4px 0 10px; }
+.tb-flow { list-style: none; margin: 0; padding: 0; counter-reset: tf; }
+.tb-flow li { position: relative; margin: 0 0 18px; padding: 10px 12px 10px 40px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); line-height: 1.7; overflow-wrap: anywhere; }
+.tb-flow li::before { counter-increment: tf; content: counter(tf); position: absolute; left: 10px; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: .75rem; font-weight: 800; display: grid; place-items: center; }
+.tb-flow li:not(:last-child)::after { content: ''; position: absolute; left: 50%; bottom: -15px; transform: translateX(-50%); border: 7px solid transparent; border-top: 8px solid var(--primary); opacity: .55; }
+.tb-sync th { white-space: nowrap; }
+.tb-check { padding-left: 1.4em; }
+.tb-check li { margin: 0 0 8px; }
+.tb-check summary { cursor: pointer; line-height: 1.6; }
+.tb-check details[open] summary { color: var(--primary); }
+.tb-check details p { margin: 4px 0 0; }
+.tb-rels { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.tb-rel { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
+.tb-rel small { color: var(--muted); font-weight: 600; font-size: .72rem; }
+.tb-rel:hover { border-color: var(--primary); }
