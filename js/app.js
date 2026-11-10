@@ -1311,6 +1311,8 @@
     if (hk) { var F = WPS.Tools.findYear, yy = F(q.answer); if (yy === null) yy = F(q.text); if (yy === null) yy = F(q.exp); html += WPS.Tools.mapLinks(yy, hk); }
     // 問題ごとのくわしい解説と、ことばの問題のノート(ほかの意味・使い方・例文・類義語・対義語)
     html += WPS.deepHTML(q.id);
+    // 数学は「別の解き方」をトグルで(問題ごと。なければ単元ごとの考え方)
+    if (u && u.subj === 'math') { var slot = WPS.altSlot('data-altq="' + h(q.id) + '" data-altu="' + h(q.unit) + '"'); html += slot !== null ? slot : WPS.altHTML(WPS.QALT[q.id], WPS.QALT['unit:' + q.unit]); }
     html += WPS.wordNoteHTML(WPS.noteTerm(q.text), !!(WPS.QDEEP[q.id] && WPS.QDEEP[q.id].alt));
     html += WPS.Fig.draw(q.fig);
     if (q.say && 'speechSynthesis' in window) html += '<button class="btn small say-btn" type="button" onclick="WPS.speak(' + h(JSON.stringify(q.say)) + ')">🔊 正しい英文を聞く</button>';

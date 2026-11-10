@@ -104,6 +104,8 @@ WPS.makeBooks = function (ctx) {
     return Object.keys(last).filter(function (id) { return !last[id].ok; }).slice(-3).map(function (id) { return { q: WPS.Q(id), a: last[id] }; }).filter(function (x) { return x.q; });
   }
   // 【 】を太字にして表示(先にエスケープする)
+  // 数学の例題の「別の解き方」
+  function altEx(key) { var slot = WPS.altSlot('data-altk="' + key + '"'); return slot !== null ? slot : WPS.altHTML(WPS.QALT[key]); }
   function rt(t) { return h(t || '').replace(/【([^】]*)】/g, '<b>$1</b>'); }
   function paras(t) { return (t || '').split('\n').map(function (x) { return '<p>' + rt(x) + '</p>'; }).join(''); }
   function preLinks(u) {
@@ -154,11 +156,11 @@ WPS.makeBooks = function (ctx) {
       html += '<nav class="lz-map" aria-label="この単元の流れ"><b>この単元の流れ</b><ol>' + L.secs.map(function (x) { return '<li>' + h(x.h) + '</li>'; }).join('') + '</ol></nav>';
       html += sec('まずはイメージ', 'lz-intro') + paras(L.intro) + '</section>';
       if (L.pre) html += sec('まずは前提のおさらい', 'lz-pre') + paras(L.pre) + '</section>';
-      L.secs.forEach(function (x) {
+      L.secs.forEach(function (x, si) {
         var hk = WPS.Tools && WPS.Tools.histOf ? WPS.Tools.histOf(u.id) : null, my = hk ? WPS.Tools.findYear(x.h) : null; if (hk && my === null) my = WPS.Tools.findYear(x.t);
         html += sec(x.h) + paras(x.t) + (hk ? WPS.Tools.mapLinks(my, hk) : '') + (x.key ? '<p class="lz-key"><b>ここが大事</b>' + rt(x.key) + '</p>' : '') + (x.fig ? '<figure class="lz-figw">' + x.fig + '</figure>' : '') + zukai(x) + (x.ex || []).map(function (e, k) {
           return '<div class="bk-board lz-ex"><div class="bk-bh"><b>やってみよう' + (x.ex.length > 1 ? (k + 1) : '') + '</b><em>例題</em></div><div class="bk-bb"><p class="bk-q">' + rt(e.q) + '</p>' +
-            (e.hint ? '<p class="lz-hint">ヒント:' + rt(e.hint) + '</p>' : '') + '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p>' + (e.check ? '<p class="lz-check">確かめ:' + rt(e.check) + '</p>' : '') + '</div></div>';
+            (e.hint ? '<p class="lz-hint">ヒント:' + rt(e.hint) + '</p>' : '') + '<ol class="lz-steps">' + e.steps.map(function (st) { return '<li>' + rt(st) + '</li>'; }).join('') + '</ol><p class="bk-ans">答え:<b>' + rt(e.a) + '</b></p>' + (e.check ? '<p class="lz-check">確かめ:' + rt(e.check) + '</p>' : '') + (u.subj === 'math' ? altEx(u.id + ':' + si + ':' + k) : '') + '</div></div>';
         }).join('') + '</section>';
       });
       // つまずきの処方箋:よくあるまちがい → なぜ → 直し方 → 確認問題

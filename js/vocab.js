@@ -435,7 +435,7 @@ WPS.makeVocab = function (ctx) {
       (+c.timer && !done ? '<div class="vt-timebar"><i id="vqTime" style="animation-duration:' + c.timer + 's"></i></div>' : '') +
       '<section class="card vt-qcard">' + (retry ? '<span class="vt-again">もう一度やってみましょう</span>' : '') + bmBtn('q', isBm(x)) + (isEn(L) || canSpeak ? spBtn('q', 'vt-say-q') : '') +
       '<p class="vt-prompt' + (e2j && isEn(L) ? ' en' : '') + '">' + h(prompt) + '</p>' + (x.h && !e2j ? '' : '') +
-      (done ? '<p class="vt-reveal ' + (qz.ans.ok ? 'ok' : 'ng') + '"><b>' + (qz.ans.ok ? '○ 正解' : qz.ans.kind === 'pass' ? 'パス' : qz.ans.kind === 'idk' ? 'わからない' : qz.ans.kind === 'time' ? '時間切れ' : '✕ 不正解') + '</b>' + h(x.t) + (meanings(x.m).length > 1 ? '' : ' ＝ ' + h(x.m)) + (x.h ? '<small>' + h(x.h) + '</small>' : '') + '</p>' + (meanings(x.m).length > 1 ? meaningsHTML(x, 'in-reveal') : '') : '') +
+      (done ? '<p class="vt-reveal ' + (qz.ans.ok ? 'ok' : 'ng') + '"><b>' + (qz.ans.ok ? '○ 正解' : qz.ans.kind === 'pass' ? 'パス' : qz.ans.kind === 'idk' ? 'わからない' : qz.ans.kind === 'time' ? '時間切れ' : '✕ 不正解') + '</b>' + h(x.t) + (meanings(x.m).length > 1 ? '' : ' ＝ ' + h(x.m)) + (x.h ? '<small>' + h(x.h) + '</small>' : '') + '</p>' + (meanings(x.m).length > 1 ? meaningsHTML(x, 'in-reveal') : '') + (isEn(L) ? WPS.glossSlot(x.m) : '') : '') +
       (cut.length ? '<div class="vt-cut"><p><span class="vt-cut-tag">熟語</span><em>' + h(x.t) + ' を含む熟語</em></p><ul>' + cut.map(function (it) { return '<li><b>' + h(it.t) + '</b><span>' + h(it.m) + '</span></li>'; }).join('') + '</ul></div>' : '') +
       '</section><div class="vt-choices">' + qz.ch.map(function (y, i) {
         var cls = '';
@@ -807,7 +807,7 @@ WPS.makeVocab = function (ctx) {
       (st.filt !== 'all' && shown.length ? '<button type="button" class="btn primary" id="vwQuiz">この' + shown.length + '語で4択テスト</button>' : '') + '</section>';
     html += '<section class="card"><ul class="vw-list' + (st.hideW ? ' hidem' : '') + '">' + shown.slice(0, st.limit).map(function (x) {
       var r = w[x.key], s = statusOf(r), m = memOf(r);
-      return '<li>' + spBtn(x.i) + '<div class="vw-body"><b>' + h(x.t) + '</b><span>' + derTag(x) + '<em class="vt-pos-tag">' + (x.p || posOf(L, x)) + '</em><i class="vw-m">' + h(x.m) + '</i></span>' + (r && r.mm ? '<small class="vw-mm">まちがえた意味:' + h(r.mm.join('、')) + '</small>' : '') + '</div>' +
+      return '<li>' + spBtn(x.i) + '<div class="vw-body"><b>' + h(x.t) + '</b><span>' + derTag(x) + '<em class="vt-pos-tag">' + (x.p || posOf(L, x)) + '</em><i class="vw-m">' + h(x.m) + '</i></span>' + (isEn(L) ? WPS.glossSlot(x.m) : '') + (r && r.mm ? '<small class="vw-mm">まちがえた意味:' + h(r.mm.join('、')) + '</small>' : '') + '</div>' +
         '<div class="vw-st"><em class="st-' + s + '">' + STATUS[s] + '</em>' + (m === null ? '' : '<small>記憶度 ' + m + '%</small>') + '</div>' + bmBtn(x.i, isBm(x)) + '</li>';
     }).join('') + '</ul>' + (shown.length > st.limit ? '<button type="button" class="btn big" id="vwMore">続きを表示(あと' + (shown.length - st.limit) + '語)</button>' : '') +
       (shown.length ? '' : '<p class="muted">この条件の単語はありません。</p>') +
@@ -1061,7 +1061,7 @@ WPS.makeVocab = function (ctx) {
     }
     var ms = meanings(x.m), yes = sw.phase === 'yes';
     return head + '<section class="card sw-ans">' + bmBtn('s', isBm(x)) + (canSpeak ? spBtn('s', 'vt-say-q') : '') +
-      '<p class="sw-word sm' + (isEn(L) ? ' en' : '') + '">' + h(x.t) + '</p>' + meaningsHTML(x) +
+      '<p class="sw-word sm' + (isEn(L) ? ' en' : '') + '">' + h(x.t) + '</p>' + meaningsHTML(x) + (isEn(L) ? WPS.glossSlot(x.m) : '') +
       (yes ? '<p class="muted small">合っていたら「次へ」。思っていた意味とちがったら「実はちがった」。</p><div class="sw-btns"><button type="button" class="btn" id="swWrong">実はちがった</button><button type="button" class="btn primary" id="swNext">次へ</button></div>'
         : (ms.length > 1 ? '<div class="sw-miss"><p class="muted small">どの意味を間違えた?(複数選べます)</p>' + ms.map(function (m, i) { return '<button type="button" class="sw-mi' + (sw.miss[i] ? ' on' : '') + '" data-swm="' + i + '"><span>' + h(m) + '</span><i aria-hidden="true"></i></button>'; }).join('') + '</div>' : '') +
           '<button type="button" class="btn primary big vt-next" id="swNext">次へ</button>') + '</section>';

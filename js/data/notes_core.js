@@ -56,6 +56,65 @@ WPS.QDEEP = WPS.QDEEP || {};
       (d.tip ? '<p class="fd-tip"><b>覚え方・関連</b>' + h(d.tip) + '</p>' : '') + '</div>';
   };
 
+  // ---- 数学の「別の解き方」(js/data/qalt_math.js) ----
+  // WPS.QALT[問題ID] / [単元ID:節:例題] = [{ n:名前, steps:[...], a:答え }]、['unit:単元ID'] = [{ n, d:使いどころ, ex:計算例 }]
+  WPS.QALT = WPS.QALT || null;
+  var altCbs = null;
+  WPS.loadAlt = function (cb) {
+    if (WPS.QALT) return cb && cb();
+    if (altCbs) { if (cb) altCbs.push(cb); return; }
+    altCbs = cb ? [cb] : [];
+    var s = document.createElement('script'); s.src = 'js/data/qalt_math.js?v=' + VER;
+    s.onload = s.onerror = function () { var q = altCbs; altCbs = null; WPS.QALT = WPS.QALT || {}; q.forEach(function (f) { f(); }); };
+    document.head.appendChild(s);
+  };
+  function rt2(t) { return h(t || '').replace(/【([^】]*)】/g, '<b>$1</b>').replace(/\n/g, '<br>'); }
+  WPS.altHTML = function (list, unitList) {
+    var L = list && list.length ? list : null, UL = !L && unitList && unitList.length ? unitList : null;
+    if (!L && !UL) return '';
+    var body = L ? L.map(function (x, i) { return '<div class="alt-one"><p class="alt-n">別解' + (L.length > 1 ? (i + 1) : '') + ':' + h(x.n) + '</p><ol class="lz-steps">' + (x.steps || []).map(function (st) { return '<li>' + rt2(st) + '</li>'; }).join('') + '</ol>' + (x.a ? '<p class="bk-ans">答え:<b>' + rt2(x.a) + '</b></p>' : '') + '</div>'; }).join('')
+      : UL.map(function (x) { return '<div class="alt-one"><p class="alt-n">' + h(x.n) + '</p>' + (x.d ? '<p>' + rt2(x.d) + '</p>' : '') + (x.ex ? '<p class="alt-ex">' + rt2(x.ex) + '</p>' : '') + '</div>'; }).join('');
+    return '<details class="alt-sol"><summary>💡 ' + (L ? '別の解き方' + (L.length > 1 ? '(' + L.length + 'つ)' : '') : 'この型の問題の、別の考え方') + '</summary>' + body + '</details>';
+  };
+  // ---- 単語帳:むずかしい日本語訳の国語辞典ふう説明(js/data/jgloss.js) ----
+  WPS.JGLOSS = WPS.JGLOSS || null;
+  var jgCbs = null;
+  WPS.loadGloss = function (cb) {
+    if (WPS.JGLOSS) return cb && cb();
+    if (jgCbs) { if (cb) jgCbs.push(cb); return; }
+    jgCbs = cb ? [cb] : [];
+    var s = document.createElement('script'); s.src = 'js/data/jgloss.js?v=' + VER;
+    s.onload = s.onerror = function () { var q = jgCbs; jgCbs = null; WPS.JGLOSS = WPS.JGLOSS || {}; q.forEach(function (f) { f(); }); };
+    document.head.appendChild(s);
+  };
+  // 訳語を1つずつに分け、辞典にある語を探す(「促進する」→「促進」のように語尾を落としても探す)
+  WPS.glossTerms = function (m) {
+    var G = WPS.JGLOSS || {}, out = [], seen = {};
+    String(m || '').split(/[、,;；／/]/).forEach(function (t) {
+      t = t.replace(/[(（][^)）]*[)）]/g, '').replace(/[〜~…]/g, '').trim(); if (!t) return;
+      var b = t.replace(/(する|させる|される|な|の|に|と|だ|である)$/, '');
+      var k = G[b] ? b : G[t] ? t : null;
+      if (k && !seen[k]) { seen[k] = 1; out.push(k); }
+    });
+    return out;
+  };
+  WPS.glossHTML = function (m) {
+    var ks = WPS.glossTerms(m); if (!ks.length) return '';
+    var G = WPS.JGLOSS;
+    return '<details class="jg-box"><summary>📖 日本語の意味を調べる(' + ks.map(h).join('・') + ')</summary><dl>' + ks.map(function (k) { var g = G[k]; return '<div><dt>' + h(k) + (g.r ? '<small>' + h(g.r) + '</small>' : '') + '</dt><dd>' + h(g.d) + (g.e ? '<span class="jg-e">例:' + h(g.e) + '</span>' : '') + '</dd></div>'; }).join('') + '</dl></details>';
+  };
+
+
+  // 画面に置いた「あとで埋める場所」を埋める
+  WPS.fillLazy = function () {
+    if (WPS.QALT) document.querySelectorAll('[data-altq],[data-altk]').forEach(function (el) {
+      var A = WPS.QALT, k = el.getAttribute('data-altk'), q = el.getAttribute('data-altq'), u = el.getAttribute('data-altu');
+      el.outerHTML = k ? WPS.altHTML(A[k]) : WPS.altHTML(A[q], A['unit:' + u]);
+    });
+    if (WPS.JGLOSS) document.querySelectorAll('[data-jgm]').forEach(function (el) { el.outerHTML = WPS.glossHTML(el.getAttribute('data-jgm')); });
+  };
+  WPS.altSlot = function (attrs) { if (WPS.QALT) return null; setTimeout(function () { WPS.loadAlt(WPS.fillLazy); }, 0); return '<span class="lazy-slot" ' + attrs + '></span>'; };
+  WPS.glossSlot = function (m) { if (WPS.JGLOSS) return WPS.glossHTML(m); setTimeout(function () { WPS.loadGloss(WPS.fillLazy); }, 0); return '<span class="lazy-slot" data-jgm="' + h(m) + '"></span>'; };
   // 量の多いノートは、起動のあとで読み込む
   WPS.NOTE_FILES = ['qdeep_ejm', 'qdeep_sci', 'qdeep_soc', 'wordnote_jp2', 'wordnote_en_jh', 'wordnote_en_h1', 'wordnote_en_h2', 'wordnote_scisoc'];
   var state = 0, VER = '20261110a';

@@ -3080,3 +3080,23 @@ body.tl-full { overflow: hidden; }
 .map-links { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .map-link { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 6px 12px; border: 1.5px solid var(--primary); border-radius: 999px; background: var(--card); color: var(--primary); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
 .map-link:hover, .map-link:focus-visible { background: var(--primary); color: #fff; }
+/* 数学の「別の解き方」・単語帳の「日本語の意味」トグル */
+.alt-sol, .jg-box { margin: 10px 0 4px; border: 1.5px dashed var(--primary); border-radius: 12px; background: var(--card); }
+.alt-sol > summary, .jg-box > summary { cursor: pointer; padding: 10px 12px; min-height: 44px; display: flex; align-items: center; font-weight: 800; font-size: 14px; color: var(--primary); list-style: none; }
+.alt-sol > summary::-webkit-details-marker, .jg-box > summary::-webkit-details-marker { display: none; }
+.alt-sol > summary::after, .jg-box > summary::after { content: "＋"; margin-left: auto; font-weight: 900; }
+.alt-sol[open] > summary::after, .jg-box[open] > summary::after { content: "−"; }
+.alt-one { padding: 4px 14px 12px; border-top: 1px solid var(--line); }
+.alt-n { margin: 8px 0 4px; font-weight: 800; color: var(--text); }
+.alt-ex { margin: 4px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--primary-weak); font-size: 13.5px; line-height: 1.7; }
+.jg-box { border-color: #c2620f; }
+.jg-box > summary { color: #b45309; font-size: 13px; min-height: 40px; }
+.jg-box dl { margin: 0; padding: 0 14px 10px; }
+.jg-box dl > div { padding: 8px 0; border-top: 1px solid var(--line); }
+.jg-box dt { font-weight: 800; }
+.jg-box dt small { margin-left: 8px; font-weight: 500; color: var(--muted); }
+.jg-box dd { margin: 2px 0 0; font-size: 13.5px; line-height: 1.7; }
+.jg-e { display: block; margin-top: 2px; color: var(--muted); font-size: 12.5px; }
+.vw-body .jg-box { margin-top: 6px; }
+.lazy-slot { display: none; }
+.vw-list.hidem .jg-box { display: none; }
