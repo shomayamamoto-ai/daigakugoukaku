@@ -16,9 +16,11 @@ const S = {
   books: books.length,
   jhq: (WPS.JHQ || []).length,
   whq: (WPS.WHQ || []).length,
-  ron: (WPS.RONJUTSU || []).length
+  ron: (WPS.RONJUTSU || []).length,
+  iq: Object.keys(WPS.IQ || {}).reduce((a, k) => a + WPS.IQ[k].length, 0),
+  iqn: Object.keys(WPS.IQ || {}).length
 };
-S.hq = S.jhq + S.whq;
+S.hq = S.jhq + S.whq + S.iq;
 const fmt = n => n.toLocaleString('en-US');
 
 // home.html:data-stat の付いた数字を書きかえる
@@ -30,8 +32,8 @@ fs.writeFileSync(path.join(ROOT, 'home.html'), home);
 let full = fs.readFileSync(path.join(ROOT, 'llms-full.txt'), 'utf8');
 full = full.replace(/- [\d,]+単元すべてに/, '- ' + S.units + '単元すべてに')
   .replace(/- [\d,]+語 英単語・英熟語・古文の単語帳\(\d+冊\)/, '- ' + fmt(S.words) + '語 英単語・英熟語・古文の単語帳(' + S.books + '冊)')
-  .replace(/- [\d,]+問日本史・世界史の一問一答/, '- ' + S.hq + '問日本史・世界史の一問一答')
-  .replace(/- [\d,]+題歴史の論述/, '- ' + S.ron + '題歴史の論述')
+  .replace(/- [\d,]+問(日本史・世界史|全教科)の一問一答/, '- ' + S.hq + '問全教科の一問一答')
+  .replace(/- [\d,]+題(歴史|全教科)の論述/, '- ' + S.ron + '題全教科の論述')
   .replace(/全[\d,]+単元に/g, '全' + S.units + '単元に');
 fs.writeFileSync(path.join(ROOT, 'llms-full.txt'), full);
 let lite = fs.readFileSync(path.join(ROOT, 'llms.txt'), 'utf8');
