@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110b';
+  var VER = '20261110c';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -333,61 +333,82 @@
     if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
   }
 
-  /* ---------- 世界史の地図(1年〜2000年の領土の変遷) ---------- */
+  /* ---------- 世界史の地図(前3400年〜2024年の領土の変遷。1年ごとに見られる) ---------- */
   function hmap(body, st) {
-    var M = WPS.HISTMAP, NS = 'http://www.w3.org/2000/svg', Y = M.years, P = pref('hmap');
-    var yi = typeof P.yi === 'number' && P.yi < Y.length ? P.yi : 0, selName = typeof P.sel === 'string' ? P.sel : '', labOn = P.lab !== 0;
+    var M = WPS.HISTMAP, NS = 'http://www.w3.org/2000/svg', P = pref('hmap');
+    var Y0 = -3400, Y1 = 2024;
+    var EV = [[-3000, 'エジプト古王国のころ'], [-1300, 'ヒッタイト・新王国'], [-500, 'アケメネス朝の最大領域'], [-323, 'アレクサンドロス大王の死'], [-221, '秦の中国統一'], [-27, 'ローマ帝政の始まり'], [1, '紀元1年'], [117, 'ローマ帝国の最大領域'], [395, 'ローマ帝国の東西分裂'], [618, '唐の成立'], [750, 'アッバース朝の成立'], [1096, '第1回十字軍'], [1206, 'チンギス・ハンの即位'], [1279, '元が南宋をほろぼす'], [1453, 'ビザンツ帝国の滅亡'], [1492, 'コロンブスの到達'], [1648, 'ウェストファリア条約'], [1815, 'ウィーン会議'], [1914, '第一次世界大戦'], [1939, '第二次世界大戦'], [1991, 'ソ連の解体']];
+    var year = typeof P.y === 'number' && P.y >= Y0 && P.y <= Y1 && P.y !== 0 ? P.y : 1, stepN = [1, 10, 100].indexOf(P.step) >= 0 ? P.step : 10;
+    var selName = typeof P.sel === 'string' ? P.sel : '', labOn = P.lab !== 0;
     function nm(i) { return M.ja[i] ? M.ja[i].replace(/\*$/, '') : M.n[i]; }
-    function phase(y) { var c = Math.ceil(y / 100) || 1, r = y % 100; return c + '世紀' + (r === 1 || (r > 0 && r <= 20) ? 'のはじめ' : r === 0 ? 'の終わり' : r >= 40 && r <= 60 ? 'の半ば' : r < 40 ? 'の前半' : 'の後半'); }
-    // 国ごとに決まった色(年を変えても同じ国は同じ色になる)
+    function yr(y) { return y < 0 ? '前' + (-y) + '年' : y + '年'; }
+    function phase(y) {
+      var a = Math.abs(y), c = Math.ceil(a / 100) || 1, pos = y < 0 ? (c * 100 - a) / 99 : (a - (c - 1) * 100 - 1) / 99;
+      return (y < 0 ? '前' : '') + c + '世紀' + (pos < 0.2 ? 'のはじめ' : pos < 0.4 ? 'の前半' : pos < 0.6 ? 'の半ば' : pos < 0.8 ? 'の後半' : 'の終わり');
+    }
     var PAL = ['#e8a3a3', '#a3c4e8', '#b5dba0', '#f0cf8a', '#c9b0e3', '#95d4cc', '#f2b48c', '#c2c98c', '#e7aecf', '#9fb7d9', '#d9c19f', '#a8d8b0', '#e0a98f', '#b7b0dc'];
     function col(i) { var s = M.n[i], x = 7; for (var k = 0; k < s.length; k++) x = (x * 31 + s.charCodeAt(k)) % 100003; return PAL[x % PAL.length]; }
-    var ticks = [0, 5, 10, 15, Y.length - 1].map(function (i) { return '<span style="left:' + (i / (Y.length - 1) * 100).toFixed(2) + '%">' + Y[i] + '</span>'; }).join('');
-    body.innerHTML = '<div class="hm-top"><button type="button" class="wm-b" data-hy="-1" aria-label="前の年">‹</button><div class="hm-year" aria-live="polite"><b id="hmY"></b><small id="hmC"></small></div><button type="button" class="wm-b" data-hy="1" aria-label="次の年">›</button><button type="button" class="wm-b hm-play" aria-pressed="false">▶ 再生</button></div>' +
-      '<div class="hm-range"><input type="range" id="hmR" min="0" max="' + (Y.length - 1) + '" step="1" value="' + yi + '" aria-label="年を選ぶ"><div class="hm-ticks" aria-hidden="true">' + ticks + '</div></div>' +
+    function pct(v) { return ((v - Y0) / (Y1 - Y0) * 100).toFixed(2); }
+    var ticks = [[-3000, '前3000'], [-2000, '前2000'], [-1000, '前1000'], [1, '1'], [1000, '1000'], [2000, '2000']].map(function (t) { return '<span style="left:' + pct(t[0]) + '%">' + t[1] + '</span>'; }).join('');
+    body.innerHTML = '<div class="hm-top"><button type="button" class="wm-b" data-hy="-1" aria-label="前へ">‹</button><button type="button" class="hm-year" id="hmYb" aria-label="年を入力する"><b id="hmY"></b><small id="hmC"></small></button><button type="button" class="wm-b" data-hy="1" aria-label="次へ">›</button><button type="button" class="wm-b hm-play" aria-pressed="false">▶ 再生</button></div>' +
+      '<form class="hm-jump" id="hmJump" hidden><select id="hmEra" aria-label="紀元前か紀元後か"><option value="-1">紀元前</option><option value="1">西暦</option></select><input type="number" id="hmYin" min="1" max="3400" inputmode="numeric" aria-label="年"><span>年</span><button type="submit" class="wm-b">移動</button></form>' +
+      '<div class="hm-range"><input type="range" id="hmR" min="' + Y0 + '" max="' + Y1 + '" step="1" aria-label="年を選ぶ"><div class="hm-ticks" aria-hidden="true">' + ticks + '</div></div>' +
+      '<div class="hm-ctl"><div class="hm-step" role="group" aria-label="1回で進む年数">' + [1, 10, 100].map(function (n) { return '<button type="button" data-hstep="' + n + '" class="' + (n === stepN ? 'on' : '') + '" aria-pressed="' + (n === stepN) + '">' + n + '年</button>'; }).join('') + '</div>' +
+      '<select id="hmEv" aria-label="できごとから選ぶ"><option value="">できごとから選ぶ</option>' + EV.map(function (e) { return '<option value="' + e[0] + '">' + yr(e[0]) + ' ' + e[1] + '</option>'; }).join('') + '</select></div>' +
       '<div class="wm-bar"><input type="search" id="hmQ" placeholder="国名で探す(例:ローマ帝国)" aria-label="この年の国を名前で探す" list="hmList"><datalist id="hmList"></datalist>' +
       '<button type="button" class="wm-b hm-labb' + (labOn ? ' on' : '') + '" aria-pressed="' + labOn + '">国名</button><button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
       '<p class="wm-info" id="hmInfo"></p>' +
-      '<div class="wm-wrap hm-wrap"><svg class="wm hm" viewBox="0 0 1000 520" role="img" aria-label="世界史の地図"><path class="wm-sea" d="' + M.sphere + '"/><path class="wm-grat" d="' + M.grat + '"/><g transform="scale(.2)"><path class="hm-land" d="' + M.land + '"/><g class="hm-pol"></g></g><g class="wm-lab hm-lab"></g></svg><p class="hm-load" hidden>読み込み中…</p></div>' +
-      '<p class="hm-src">国境はおおよその目安です。同じ国は、どの年でも同じ色で表示します。' + h(M.src) + '。日本語名の「*」は、教科書に決まった呼び方がない国の仮の読みです。</p>';
-    var wrap = body.querySelector('.hm-wrap'), svg = body.querySelector('svg'), pol = svg.querySelector('.hm-pol'), lab = svg.querySelector('.hm-lab'), info = body.querySelector('#hmInfo'), rng = body.querySelector('#hmR'), ld = body.querySelector('.hm-load');
-    var rows = [], paths = [], labels = [], W = 1000, H = 520, vb = { x: 0, y: 0, w: W, h: H }, playT = null;
-    function loadYear(y, cb) {
-      WPS.HISTMAP_Y = WPS.HISTMAP_Y || {};
-      if (WPS.HISTMAP_Y[y]) return cb();
-      ld.hidden = false;
-      var s = document.createElement('script'); s.src = 'js/data/histmap/y' + y + '.js?v=' + VER;
-      s.onload = function () { ld.hidden = true; cb(); }; s.onerror = function () { ld.hidden = true; info.textContent = '地図を読み込めませんでした。通信状態を確かめてください。'; stop(); };
+      '<div class="wm-wrap hm-wrap"><svg class="wm hm" viewBox="0 0 1000 520" role="img" aria-label="世界史の地図"><path class="wm-sea" d="' + M.sphere + '"/><path class="wm-grat" d="' + M.grat + '"/><g transform="scale(.2)"><path class="hm-land" d="' + M.land + '"/><g class="hm-pol"></g></g><g class="wm-lab hm-lab"></g></svg><p class="hm-load" hidden>読み込み中…</p><p class="hm-empty" hidden>この年の地図には、国のデータがありません</p></div>' +
+      '<p class="hm-src">国境はおおよその目安です。古い時代ほど、データのある国が少なくなります。同じ国は、どの年でも同じ色で表示します。' + h(M.src) + '。日本語名の「*」は、教科書に決まった呼び方がない国の仮の読みです。</p>';
+    var wrap = body.querySelector('.hm-wrap'), svg = body.querySelector('svg'), pol = svg.querySelector('.hm-pol'), lab = svg.querySelector('.hm-lab'), info = body.querySelector('#hmInfo'), rng = body.querySelector('#hmR'), ld = body.querySelector('.hm-load'), emp = body.querySelector('.hm-empty');
+    var rows = [], paths = [], labels = [], sig = '', W = 1000, H = 520, vb = { x: 0, y: 0, w: W, h: H }, playT = null, loading = {};
+    function chunkOf(y) { for (var i = M.starts.length - 1; i >= 0; i--) if (M.starts[i] <= y) return M.starts[i]; return M.starts[0]; }
+    function loadChunk(c, cb) {
+      WPS.HISTMAP_C = WPS.HISTMAP_C || {};
+      if (WPS.HISTMAP_C[c]) return cb && cb();
+      if (loading[c]) { if (cb) loading[c].push(cb); return; }
+      loading[c] = cb ? [cb] : [];
+      var s = document.createElement('script'); s.src = 'js/data/histmap/c' + c + '.js?v=' + VER;
+      s.onload = function () { var q = loading[c]; delete loading[c]; q.forEach(function (f) { f(); }); };
+      s.onerror = function () { delete loading[c]; ld.hidden = true; info.textContent = '地図を読み込めませんでした。通信状態を確かめてください。'; stop(); };
       document.head.appendChild(s);
     }
-    function show(i) {
-      yi = Math.max(0, Math.min(Y.length - 1, i)); P.yi = yi; savePref(); rng.value = yi;
-      var y = Y[yi];
-      body.querySelector('#hmY').textContent = y + '年'; body.querySelector('#hmC').textContent = phase(y);
-      loadYear(y, function () {
-        if (Y[yi] !== y) return;
-        rows = WPS.HISTMAP_Y[y] || [];
-        pol.textContent = ''; lab.textContent = ''; paths = []; labels = [];
-        rows.forEach(function (r, k) {
-          var p = document.createElementNS(NS, 'path'); p.setAttribute('d', r[7]); p.setAttribute('data-k', k); p.setAttribute('fill', col(r[0])); pol.appendChild(p); paths.push(p);
-          var t = document.createElementNS(NS, 'text'); t.setAttribute('x', r[4]); t.setAttribute('y', r[5]); t.textContent = nm(r[0]); lab.appendChild(t); labels.push([t, r]);
-        });
-        body.querySelector('#hmList').innerHTML = rows.map(function (r) { return '<option value="' + h(nm(r[0])) + '">'; }).join('');
-        mark(); apply();
+    function show(y) {
+      y = Math.max(Y0, Math.min(Y1, Math.round(y))); if (y === 0) y = year < 0 ? 1 : -1;
+      year = y; P.y = y; savePref(); rng.value = y;
+      body.querySelector('#hmY').textContent = yr(y); body.querySelector('#hmC').textContent = phase(y);
+      var c = chunkOf(y);
+      if (!(WPS.HISTMAP_C && WPS.HISTMAP_C[c])) ld.hidden = false;
+      loadChunk(c, function () {
+        if (year !== y) return; ld.hidden = true;
+        var all = WPS.HISTMAP_C[c], R = [], ks = [];
+        all.forEach(function (r, k) { if (r[1] <= y && r[2] >= y) { R.push(r); ks.push(k); } });
+        var ns = c + ':' + ks.join(','); if (ns !== sig) { sig = ns; rows = R; draw(); }
+        // 先の時代を前もって読みこんでおく(再生がとぎれないように)
+        var i = M.starts.indexOf(c); if (i >= 0 && i + 1 < M.starts.length) loadChunk(M.starts[i + 1]);
       });
+    }
+    function draw() {
+      pol.textContent = ''; lab.textContent = ''; paths = []; labels = [];
+      rows.forEach(function (r, k) {
+        var p = document.createElementNS(NS, 'path'); p.setAttribute('d', r[7]); p.setAttribute('data-k', k); p.setAttribute('fill', col(r[0])); pol.appendChild(p); paths.push(p);
+        var t = document.createElementNS(NS, 'text'); t.setAttribute('x', r[4]); t.setAttribute('y', r[5]); t.textContent = nm(r[0]); lab.appendChild(t); labels.push([t, r]);
+      });
+      emp.hidden = !!rows.length;
+      body.querySelector('#hmList').innerHTML = rows.map(function (r) { return '<option value="' + h(nm(r[0])) + '">'; }).join('');
+      mark(); apply();
     }
     // 選んだ国を、どの年でも目立たせる(領土の変化を追える)
     function mark() {
       var hit = -1;
       paths.forEach(function (p, k) { var on = !!selName && nm(rows[k][0]) === selName; p.classList.toggle('on', on); if (on && hit < 0) hit = k; });
       svg.classList.toggle('hm-sel', !!selName);
-      if (!selName) { info.innerHTML = '国を押すと名前と年代を表示し、年を変えても色をつけたまま追いかけます。指でつまむ・ホイールで拡大、ドラッグで移動。'; return; }
+      if (!selName) { info.innerHTML = '国を押すと名前と年代を表示し、年を変えても色をつけたまま追いかけます。'; return; }
       var r = rows[hit];
       info.innerHTML = '<b>' + h(selName) + '</b>' + (r && M.ja[r[0]] ? ' <span class="muted small">' + h(M.n[r[0]]) + '</span>' : '') +
         (r ? ' <span class="small">この形:' + yr(r[1]) + '〜' + yr(r[2]) + '・面積 約' + area(r[3]) + '</span>' : ' <span class="small hm-none">この年の地図にはありません</span>') +
         ' <button type="button" class="hm-clear">選択を解除</button>';
     }
-    function yr(y) { return y < 0 ? '前' + (-y) + '年' : y + '年'; }
     function area(k) { return k >= 10 ? Math.round(k / 10) + '万km²' : (k * 1000).toLocaleString() + 'km²'; }
     function ar() { var w = wrap.clientWidth, hh = wrap.clientHeight; return w && hh ? hh / w : H / W; }
     function maxW() { return Math.min(W, H / ar()); }
@@ -406,23 +427,36 @@
     function stop() { if (playT) { clearInterval(playT); playT = null; } var b = body.querySelector('.hm-play'); b.textContent = '▶ 再生'; b.setAttribute('aria-pressed', 'false'); b.classList.remove('on'); }
     function play() {
       if (playT) return stop();
-      if (yi >= Y.length - 1) show(0);
+      if (year >= Y1) show(Y0);
       var b = body.querySelector('.hm-play'); b.textContent = '❚❚ 停止'; b.setAttribute('aria-pressed', 'true'); b.classList.add('on');
-      playT = setInterval(function () { if (!document.body.contains(body)) return stop(); if (yi >= Y.length - 1) return stop(); show(yi + 1); }, 1700);
+      playT = setInterval(function () { if (!document.body.contains(body)) return stop(); if (year >= Y1) return stop(); if (!ld.hidden) return; show(year + stepN); }, stepN === 1 ? 220 : stepN === 10 ? 500 : 1100);
     }
     st.fit = function () { setTimeout(whole, 30); };
     body.querySelector('.hm-top').addEventListener('click', function (ev) {
-      var b = ev.target.closest('[data-hy]'); if (b) { stop(); show(yi + +b.getAttribute('data-hy')); return; }
-      if (ev.target.closest('.hm-play')) play();
+      var b = ev.target.closest('[data-hy]'); if (b) { stop(); show(year + stepN * +b.getAttribute('data-hy')); return; }
+      if (ev.target.closest('.hm-play')) return play();
+      if (ev.target.closest('#hmYb')) { var f = body.querySelector('#hmJump'); f.hidden = !f.hidden; if (!f.hidden) { body.querySelector('#hmEra').value = year < 0 ? '-1' : '1'; var yi = body.querySelector('#hmYin'); yi.value = Math.abs(year); yi.focus(); yi.select(); } }
+    });
+    body.querySelector('#hmJump').addEventListener('submit', function (ev) {
+      ev.preventDefault(); var v = parseInt(body.querySelector('#hmYin').value, 10); if (!v) return;
+      stop(); show(v * +body.querySelector('#hmEra').value); this.hidden = true;
     });
     rng.addEventListener('input', function () { stop(); show(+rng.value); });
+    body.querySelector('.hm-step').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-hstep]'); if (!b) return;
+      stepN = +b.getAttribute('data-hstep'); P.step = stepN; savePref();
+      body.querySelectorAll('[data-hstep]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+      if (playT) { stop(); play(); }
+    });
+    body.querySelector('#hmEv').addEventListener('change', function (ev) { var v = +ev.target.value; if (v) { stop(); show(v); } ev.target.value = ''; });
     body.querySelector('.wm-bar').addEventListener('click', function (ev) {
       if (ev.target.closest('.hm-labb')) { labOn = !labOn; P.lab = labOn ? 1 : 0; savePref(); var lb = ev.target.closest('.hm-labb'); lb.classList.toggle('on', labOn); lb.setAttribute('aria-pressed', labOn); apply(); return; }
       var b = ev.target.closest('[data-z]'); if (!b) return;
       var z = +b.getAttribute('data-z'); if (z === 0) { whole(); return; }
       zoomAt(z > 0 ? 1.6 : 1 / 1.6, vb.x + vb.w / 2, vb.y + vb.h / 2);
     });
-    info.addEventListener('click', function (ev) { if (ev.target.closest('.hm-clear')) { selName = ''; delete P.sel; savePref(); mark(); apply(); } });
+    function unsel() { selName = ''; delete P.sel; savePref(); mark(); apply(); }
+    info.addEventListener('click', function (ev) { if (ev.target.closest('.hm-clear')) unsel(); });
     function select(k, zoom) {
       selName = nm(rows[k][0]); P.sel = selName; savePref(); mark(); apply();
       if (zoom) { var bb = paths[k].getBBox(), bx = bb.x / 5, by = bb.y / 5, bw = bb.width / 5, bh = bb.height / 5, w = Math.max(bw, bh / ar()) * 1.8; vb.w = Math.max(w, W / 40); vb.h = vb.w * ar(); vb.x = bx + bw / 2 - vb.w / 2; vb.y = by + bh / 2 - vb.h / 2; clamp(); apply(); }
@@ -457,11 +491,16 @@
       if (Object.keys(pts).length === 1) { var id = Object.keys(pts)[0]; drag = { x: pts[id][0], y: pts[id][1], vb: Object.assign({}, vb) }; }
       if (wasTap && ev.type === 'pointerup') {
         var el = document.elementFromPoint(ev.clientX, ev.clientY), k = el && el.getAttribute && el.getAttribute('data-k');
-        if (k !== null && k !== undefined) select(+k); else if (selName) { selName = ''; delete P.sel; savePref(); mark(); apply(); }
+        if (k !== null && k !== undefined) select(+k); else if (selName) unsel();
       }
     }
     svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
-    whole(); show(yi);
+    // キーボード:← → で前後、スペースで再生
+    body.addEventListener('keydown', function (ev) {
+      if (/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName)) return;
+      if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { ev.preventDefault(); stop(); show(year + stepN * (ev.key === 'ArrowRight' ? 1 : -1)); }
+    });
+    whole(); show(year);
     if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
   }
 

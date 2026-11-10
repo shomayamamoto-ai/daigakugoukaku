@@ -2989,3 +2989,19 @@ body.locked .tb-logout { display: none !important; }
 :root[data-theme="dark"] .mp-msg { color: #4ade80; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mp-dostep { background: rgba(246, 173, 85, .14); } :root:not([data-theme="light"]) .mp-msg { color: #4ade80; } }
 .mp-msg .link { display: inline-block; border: 0; background: none; padding: 6px 4px; color: var(--muted); text-decoration: underline; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+/* 世界史の地図:1年ごと */
+.hm-year { border: 0; background: none; color: var(--text); font: inherit; cursor: pointer; padding: 4px 6px; border-radius: 10px; }
+.hm-year:hover, .hm-year:focus-visible { background: var(--primary-weak); }
+.hm-year b { text-decoration: underline dotted; text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+.hm-jump { display: flex; align-items: center; gap: 6px; flex: none; }
+.hm-jump select, .hm-jump input, .hm-ctl select { min-height: 40px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 14px; }
+.hm-jump input { width: 6.5em; }
+.hm-ctl { display: flex; gap: 6px; align-items: center; flex: none; }
+.hm-ctl select { flex: 1; min-width: 0; }
+.hm-step { display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.hm-step button { min-height: 40px; min-width: 52px; border: 0; border-left: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.hm-step button:first-child { border-left: 0; }
+.hm-step button.on { background: var(--primary); color: #fff; }
+.hm-ticks span:first-child, .hm-ticks span:last-child { transform: translateX(-50%); }
+.hm-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0; padding: 8px 14px; border-radius: 10px; background: rgba(255, 255, 255, .92); color: #334; font-size: 13px; font-weight: 700; text-align: center; max-width: 80%; }
+.hm-jump[hidden], .hm-empty[hidden], .hm-load[hidden] { display: none !important; }

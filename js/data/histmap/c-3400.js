@@ -1,0 +1,2 @@
+window.WPS = window.WPS || {}; WPS.HISTMAP_C = WPS.HISTMAP_C || {};
+WPS.HISTMAP_C[-3400] = [[0,-3400,-3201,22,567.8,160.3,16,"M2840 798l6 7 10 1 0 8-7 1-1 4-8-4-12-24-9-6 1-5 13 7z"]];
