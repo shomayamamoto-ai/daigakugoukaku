@@ -426,15 +426,15 @@
     var md = function (d) { return (+d.slice(5, 7)) + '月' + (+d.slice(8)) + '日'; };
     var kd = WPS.EXAM_DATES.kyotsu.date;
     var html = '<section class="card focal"><span class="pb-en">Next</span><h2>共通テスト本試験まで あと ' + Math.max(0, D.diff(today, kd)) + '日</h2>' +
-      '<p class="muted">2027年1月16日・17日 ／ 出願期間は2026年9月15日(10時)〜10月2日(17時)のWeb出願</p></section>' +
-      '<nav class="toc card"><b>このページの内容</b><ol class="steps">' + [['sched', 'スケジュール'], ['types', '入試方式の比較'], ['subjects', '受験科目の目安'], ['advice', '方式ごとの対策'], ['interview', '面接・小論文'], ['faculty', '学部・学科の選び方'], ['apply', '出願チェックリスト'], ['fees', '検定料・傾向']].map(function (x) {
-        return '<li><a href="#exam" data-jump="' + x[0] + '">' + x[1] + '</a></li>';
-      }).join('') + '</ol></nav>';
+      '<p class="muted">試験日:2027年1月16日・17日<br>出願:2026年9月15日(10時)〜10月2日(17時)のWeb出願</p></section>' +
+      '<nav class="card ex-toc" aria-label="このページの内容"><h2 class="ex-toc-h">このページでわかること</h2><div class="ex-toc-g">' + [['sched', 'スケジュール', '試験と出願の日程'], ['types', '入試方式の比較', '一般・推薦・総合型'], ['subjects', '受験科目の目安', '国公立・私立の科目'], ['advice', '方式ごとの対策', 'いつ・何をするか'], ['interview', '面接・小論文', 'マナーと勝ち方'], ['faculty', '学部・学科選び', '学べること・進路'], ['apply', '出願チェック', '書類・支払いの確認'], ['fees', '検定料・傾向', '受験料と費用']].map(function (x, i) {
+        return '<a href="#exam" data-jump="' + x[0] + '"><i>' + (i + 1) + '</i><b>' + x[1] + '</b><small>' + x[2] + '</small></a>';
+      }).join('') + '</div></nav>';
     // ロードマップ型のスケジュール(9月〜3月)
     var months = ['2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
     var pos = function (d) { var i = months.indexOf(d.slice(0, 7)); return i < 0 ? null : (i + (+d.slice(8) - 1) / 31) / months.length * 100; };
     var nowPos = pos(today);
-    html += '<section class="card" id="sched"><h2>2027年度入試のスケジュール</h2><div class="gantt">' +
+    html += '<section class="card" id="sched"><h2 data-toc="スケジュール">2027年度入試のスケジュール</h2><div class="gantt">' +
       '<div class="g-row g-head"><span></span><div class="g-track">' + months.map(function (m) { return '<i>' + (+m.slice(5)) + '月</i>'; }).join('') + '</div></div>' +
       E.schedule.map(function (r) {
         return '<div class="g-row"><span class="g-name">' + h(r.name) + '</span><div class="g-track">' + (nowPos !== null ? '<b class="g-now" style="left:' + nowPos.toFixed(1) + '%"></b>' : '') +
@@ -447,13 +447,13 @@
         }).join('') + '</ul>' + (r.note ? '<p class="hint">' + h(r.note) + '</p>' : '');
       }).join('') + '</section>';
     // 入試方式の比較
-    html += '<section class="card" id="types"><h2>入試方式の比較</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>方式</th><th>特徴</th><th>共通テスト</th><th>選考方法</th><th>個別試験の時期</th></tr></thead><tbody>' +
+    html += '<section class="card" id="types"><h2 data-toc="入試方式">入試方式の比較</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>方式</th><th>特徴</th><th>共通テスト</th><th>選考方法</th><th>個別試験の時期</th></tr></thead><tbody>' +
       E.types.map(function (t) { return '<tr><th>' + h(t.name) + '</th><td>' + h(t.feature) + '</td><td>' + h(t.kyotsu) + '</td><td>' + h(t.method) + '</td><td>' + h(t.when) + '</td></tr>'; }).join('') +
       '</tbody></table></div>' + E.details.map(function (d) { return '<details class="guide-mini"><summary>' + h(d.name) + 'のくわしい特徴</summary><ul class="bullets">' + d.points.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') + '</section>';
     // 受験科目の目安
     var ES = WPS.EXAM_SUBJECTS;
     if (ES) {
-      html += '<section class="card" id="subjects"><h2>一般選抜の受験科目の目安</h2>' +
+      html += '<section class="card" id="subjects"><h2 data-toc="受験科目">一般選抜の受験科目の目安</h2>' +
         '<div class="table-scroll"><table class="grid cmp"><thead><tr><th>入試方式</th><th>試験の時期</th></tr></thead><tbody>' + ES.periods.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         ES.groups.map(function (g) {
           return '<h3>' + h(g.name) + '</h3>' + (g.kyotsu.length ? '<b class="small">共通テスト(6教科8科目の例)</b><ul class="bullets">' + g.kyotsu.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : '') +
@@ -462,12 +462,12 @@
         '<p class="hint">科目の組み合わせは大学・学部・方式で違います。必ず志望校の募集要項で確認してください。</p></section>';
     }
     // 対策
-    html += '<section class="card" id="advice"><h2>方式ごとの対策</h2>' + E.advice.map(function (a) {
+    html += '<section class="card" id="advice"><h2 data-toc="方式別の対策">方式ごとの対策</h2>' + E.advice.map(function (a) {
       return '<h3>' + h(a.name) + '</h3><ol class="steps">' + a.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>';
     }).join('') + '</section>';
     // 面接・小論文
     var I = E.interview;
-    html += '<section class="card" id="interview"><h2>面接・小論文の対策</h2><h3>どんな入試で課されるか</h3><ul class="bullets">' + I.when.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
+    html += '<section class="card" id="interview"><h2 data-toc="面接・小論文">面接・小論文の対策</h2><h3>どんな入試で課されるか</h3><ul class="bullets">' + I.when.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
       '<h3>面接の準備</h3><ol class="steps">' + I.mensetsu.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
       (WPS.INTERVIEW_MANNER ? (function (M) {
         return (M.truth ? '<h3>面接官の本音とよくある誤解</h3><div class="guide-key"><b>好印象を与える4つのポイント</b><ol class="steps">' + M.truthKey.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>' +
@@ -501,7 +501,7 @@
     // 学部・学科の選び方
     var F = WPS.FACULTY_GUIDE;
     if (F) {
-      html += '<section class="card" id="faculty"><h2>学部・学科の選び方</h2><ol class="steps">' + F.howTo.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
+      html += '<section class="card" id="faculty"><h2 data-toc="学部選び">学部・学科の選び方</h2><ol class="steps">' + F.howTo.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' +
         '<h3>学部の5つの系統</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.systems.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         '<h3>分野と主な学部・学科</h3><div class="table-scroll"><table class="grid cmp"><tbody>' + F.fields.map(function (x) { return '<tr><th>' + h(x[0]) + '</th><td>' + h(x[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
         '<h3>学部・学科で学ぶこと(要約)</h3><div class="table-scroll"><table class="grid cmp"><thead><tr><th>学部・学科</th><th>学ぶこと</th><th>関係する主な資格・進路</th></tr></thead><tbody>' + F.details.map(function (d) {
@@ -520,11 +520,11 @@
           return '<li><label><input type="checkbox" data-apck="' + k + '"' + (done[k] ? ' checked' : '') + '> <span>' + h(it) + '</span></label></li>';
         }).join('') + '</ul>';
       }).join('');
-      html += '<section class="card" id="apply"><div class="row-between"><h2>出願(願書)チェックリスト</h2><span class="time-pill" id="apCount">' + cnt + ' / ' + total + '</span></div>' + body +
+      html += '<section class="card" id="apply"><div class="row-between"><h2 data-toc="出願チェック">出願(願書)チェックリスト</h2><span class="time-pill" id="apCount">' + cnt + ' / ' + total + '</span></div>' + body +
         '<p class="hint">細かいルールは大学によって違うので、必ず募集要項に従ってください。チェックはこの端末に保存されます。</p></section>';
     }
     // 検定料
-    html += '<section class="card" id="fees"><h2>検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
+    html += '<section class="card" id="fees"><h2 data-toc="検定料">検定料(受験料)の目安</h2><div class="table-scroll"><table class="grid cmp"><thead><tr><th>試験</th><th>金額</th><th>補足</th></tr></thead><tbody>' +
       E.fees.map(function (f) { return '<tr><th>' + h(f[0]) + '</th><td class="num">' + h(f[1]) + '</td><td>' + h(f[2]) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
     // 傾向・共テとセンターの違い
     html += '<section class="card"><h2>最近の傾向</h2><ul class="bullets">' + E.trends.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' +
@@ -2885,7 +2885,7 @@
     var nav = document.createElement('nav'); nav.className = 'page-toc'; nav.setAttribute('aria-label', 'このページの目次');
     hs.forEach(function (x, i) {
       var id = 'sec-' + i; x.id = x.id || id;
-      var a = document.createElement('a'); a.href = '#'; a.textContent = x.textContent.replace(/[(（].*$/, '').trim().slice(0, 14);
+      var a = document.createElement('a'); a.href = '#'; a.textContent = x.getAttribute('data-toc') || x.textContent.replace(/[(（].*$/, '').trim().slice(0, 14);
       a.addEventListener('click', function (e) { e.preventDefault(); var y = x.getBoundingClientRect().top + window.scrollY - nav.getBoundingClientRect().bottom - 8; window.scrollTo({ top: y, behavior: 'smooth' }); });
       nav.appendChild(a);
     });

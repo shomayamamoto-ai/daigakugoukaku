@@ -3157,3 +3157,14 @@ body.tl-full { overflow: hidden; }
 .tb-rel { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
 .tb-rel small { color: var(--muted); font-weight: 600; font-size: .72rem; }
 .tb-rel:hover { border-color: var(--primary); }
+
+/* 入試のしくみ:このページでわかること */
+.ex-toc .ex-toc-h { font-size: 1rem; margin: 0 0 10px; }
+.ex-toc-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 720px) { .ex-toc-g { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.ex-toc-g a { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; align-items: center; align-content: start; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--text); background: var(--card); min-width: 0; }
+.ex-toc-g a:hover { border-color: var(--primary); background: var(--primary-weak); }
+.ex-toc-g i { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; font-style: normal; font-size: .78rem; font-weight: 800; display: grid; place-items: center; }
+.ex-toc-g b { font-size: .9rem; line-height: 1.35; overflow-wrap: anywhere; }
+.ex-toc-g small { grid-column: 1 / -1; color: var(--muted); font-size: .72rem; line-height: 1.4; overflow-wrap: anywhere; }
+.page-toc { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); padding-right: 28px; }
