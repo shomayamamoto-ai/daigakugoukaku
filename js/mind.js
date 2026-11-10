@@ -368,6 +368,28 @@ WPS.Mind = (function () {
       '<p>つらい気持ちが続くときや、ひとりで抱えきれないときは、身近な大人(家族・学校の先生・保健室の先生・塾の先生)に相談してください。</p>' +
       '</section>';
   }
+  /* ---------- こころの学び(カウンセリング・コーチングの考え方。出典つき) ---------- */
+  function learnSrc(ids) {
+    var L = WPS.MIND_LEARN, a = (ids || []).map(function (i) { var s = L.sources[i]; return s ? '<a href="' + h(s.url) + '" target="_blank" rel="noopener">' + h(s.name) + '</a>' : ''; }).filter(Boolean);
+    return a.length ? '<p class="iv-src">出典:' + a.join('、') + '</p>' : '';
+  }
+  function learnPage(arg) {
+    var L = WPS.MIND_LEARN; if (!L) return '<a class="btn" href="#mind">もどる</a>';
+    var back = '<a class="btn" href="#mind">こころのページにもどる</a>';
+    if (/^l_/.test(arg)) {
+      var l = L.lessons.filter(function (x) { return 'l_' + x.id === arg; })[0]; if (!l) return back;
+      var i = L.lessons.indexOf(l), nx = L.lessons[i + 1];
+      return '<section class="card mind-learn"><p class="muted small">こころの学び</p><h1>' + h(l.title) + '</h1><p>' + h(l.lead) + '</p>' + (l.when ? '<div class="guide-key"><b>こんなときに</b><p>' + h(l.when) + '</p></div>' : '') +
+        '<h2>やってみよう</h2><ol class="steps">' + l.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' + learnSrc(l.src) +
+        '<p class="hint">つらさが強いとき・長く続くときは、ひとりで抱えずに<a href="#mind/sos">相談できるところ</a>や身近な大人に話してください。</p>' +
+        '<div class="btns">' + (nx ? '<a class="btn primary" href="#mind/l_' + h(nx.id) + '">次:' + h(nx.title) + '</a>' : '') + '<a class="btn" href="#mind/learn">質問・聞き方・動画</a>' + back + '</div></section>';
+    }
+    return '<section class="card mind-learn"><h1>コーチの質問</h1><p class="muted">迷ったとき、自分に問いかけてみましょう。答えはノートやメモに書くと整理しやすくなります。</p><ol class="steps">' +
+      L.coach.map(function (c) { return '<li><b>' + h(c.q) + '</b><br><small class="muted">' + h(c.why) + '</small></li>'; }).join('') + '</ol></section>' +
+      (L.listen ? '<section class="card mind-learn"><h2>' + h(L.listen.title) + '</h2><ol class="steps">' + L.listen.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ol>' + learnSrc(L.listen.src) + '</section>' : '') +
+      (L.videos.length ? '<section class="card mind-learn"><h2>動画で学ぶ</h2><ul class="tb-vids">' + L.videos.map(function (v) { return '<li><a href="' + h(v.url) + '" target="_blank" rel="noopener"><b>' + h(v.title) + '</b><small>' + h(v.channel) + (v.topic ? '・' + h(v.topic) : '') + '</small>' + (v.note ? '<span>' + h(v.note) + '</span>' : '') + '</a></li>'; }).join('') + '</ul><p class="hint">YouTube が開きます。公的機関・大学などの動画を中心に選んでいます。</p></section>' : '') +
+      '<section class="card"><details class="guide-mini"><summary>出典の一覧(' + L.sources.length + '件)</summary><ol class="iv-srcs">' + L.sources.map(function (s) { return '<li><a href="' + h(s.url) + '" target="_blank" rel="noopener">' + h(s.name) + '</a></li>'; }).join('') + '</ol></details></section>' + back;
+  }
   function page(arg) {
     var m = data(), today = D.today(), lg = m.logs[today] || {};
     if (arg === 'breath') return '<section class="card mind-breath"><h1>1分の呼吸</h1><p class="muted">円が大きくなる間に鼻から吸って、小さくなる間に口からゆっくり吐きます(4秒吸う・6秒吐く×6回)。</p>' +
@@ -440,6 +462,7 @@ WPS.Mind = (function () {
     }
     if (arg === 'wins') return '<section class="card"><h1>これまでにできたこと</h1>' + wins() + '<p class="hint">他の人とではなく、少し前の自分と比べましょう。続けてきたこと自体が、いちばんの力です。</p><a class="btn" href="#mind">もどる</a></section>';
     if (arg === 'sos') return sosHTML() + '<a class="btn" href="#mind">もどる</a>';
+    if (arg === 'learn' || /^l_/.test(arg || '')) return learnPage(arg);
     var html = (C ? C.say('ここは、こころを整える場所だよ。勉強のことも、それ以外のことも、気軽に記録してね。', 'normal', 56) : '');
     html += '<a class="talk-cta" href="#mind/talk"><b>ピンポと話す</b><small>いまの気持ちを、質問に答えながら整理しよう(3分)</small></a>';
     html += '<section class="card mind-form"><h2>今日のこころのチェック</h2><form id="mindForm">' +
@@ -461,6 +484,9 @@ WPS.Mind = (function () {
       '<a href="#mind/exam"><b>本番の心の準備</b><small>試験が近いとき</small></a><a href="#mind/week"><b>今週のふり返り</b><small>週末に5分</small></a>' +
       '<a href="#mind/ground"><b>5・4・3・2・1</b><small>パニックになりそうなとき</small></a><a href="#mind/kind"><b>自分にやさしく</b><small>自分を責めてしまうとき</small></a>' +
       '<a href="#mind/sleep"><b>睡眠の目標</b><small>寝る時間を決める</small></a></div></section>';
+    if (WPS.MIND_LEARN) html += '<section class="card"><h2>こころの学び(カウンセリング・コーチングの考え方)</h2><p class="muted">学生相談室や文部科学省の資料などから、自分でできる方法をまとめました。</p><div class="mind-tools">' +
+      WPS.MIND_LEARN.lessons.map(function (l) { return '<a href="#mind/l_' + h(l.id) + '"><b>' + h(l.title) + '</b><small>' + h(l.when || '') + '</small></a>'; }).join('') +
+      '<a href="#mind/learn"><b>コーチの質問・話の聞き方・動画</b><small>自分に問いかけたいとき、友だちの話を聞くとき</small></a></div></section>';
     html += sosHTML();
     html += '<p class="hint">このコーチは、勉強を続けるための声かけをするもので、医療や専門のカウンセリングの代わりではありません。</p>';
     return html;
