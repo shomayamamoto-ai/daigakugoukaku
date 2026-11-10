@@ -314,7 +314,11 @@ WPS.makeVocab = function (ctx) {
     }
     var main = books.filter(function (b) { return !b.grp; }), more = books.filter(function (b) { return b.grp === 'more'; });
     // 本棚の段:英語は「基本」「大学別」「英検・そのほか」、ほかの教科は1段
-    var CORE = ['jh', 'base', 'plus', 'idiom', 'gram'], rows = L[0] === 'eng' ? [['基本の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) >= 0; })], ['大学別の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) < 0; })], ['英検・そのほかの単語帳', more]] : [['単語帳', main.concat(more)]];
+    var CORE = ['jh', 'base', 'plus', 'idiom', 'gram'], rows = L[0] === 'eng' ? [['基本の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) >= 0; })], ['大学別の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) < 0; })], ['英検・そのほかの単語帳', more]] : L[0] === 'jpn' ? (function () {
+      // 国語は「現代文」「古文」「漢文」の3段に分ける
+      var all = main.concat(more), kd = function (b) { return b.kind || '古文'; };
+      return [['現代文', all.filter(function (b) { return kd(b) === '現代文'; })], ['古文', all.filter(function (b) { return kd(b) === '古文'; })], ['漢文', all.filter(function (b) { return kd(b) === '漢文'; })], ['そのほか', all.filter(function (b) { return ['現代文', '古文', '漢文'].indexOf(kd(b)) < 0; })]];
+    })() : [['単語帳', main.concat(more)]];
     function row(r) { return r[1].length ? '<div class="ws-row"><h3 class="ws-h">' + h(r[0]) + '<small>' + r[1].length + '冊</small></h3><div class="ws-board vb-shelf">' + r[1].map(card).join('') + '</div></div>' : ''; }
     var sel = books.filter(function (b) { return b.id === st.vbinfo; })[0];
     return '<section class="card ws-card"><h2>' + (L[0] === 'eng' ? '英単語帳をえらぶ' : '単語帳') + '</h2><div class="wshelf">' + rows.map(row).join('') + '</div>' +
