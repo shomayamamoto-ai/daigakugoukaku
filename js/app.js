@@ -472,6 +472,12 @@
       (WPS.INTERVIEW_MANNER ? (function (M) {
         return (M.truth ? '<h3>面接官の本音とよくある誤解</h3><div class="guide-key"><b>好印象を与える4つのポイント</b><ol class="steps">' + M.truthKey.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>' +
           M.truth.map(function (f, i) { return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') : '') +
+          (M.suisen ? (function (R) {
+            return '<h3>推薦入試(総合型選抜など)の面接:本質的な勝ち方</h3><p>' + h(R.lead) + '</p>' +
+              '<div class="guide-key"><b>合格のための3つの要素</b><ol class="steps">' + R.keys.map(function (k) { return '<li><b>' + h(k[0]) + '</b>:' + h(k[1]) + '</li>'; }).join('') + '</ol></div>' +
+              R.tips.map(function (f) { return '<details class="guide-mini"><summary>' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>'; }).join('') +
+              '<div class="guide-key"><b>結論</b><p>' + h(R.conclusion) + '</p></div>';
+          })(M.suisen) : '') +
           '<h3>面接のマナー(入室から退室まで)</h3>' + M.flow.map(function (f, i) {
           return '<details class="guide-mini"' + (i === 0 ? ' open' : '') + '><summary>' + (i + 1) + '. ' + h(f.name) + '</summary><ul class="bullets">' + f.steps.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>';
         }).join('') +

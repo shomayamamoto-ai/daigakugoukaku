@@ -3139,3 +3139,4 @@ body.tl-full { overflow: hidden; }
 .guide-key { background: var(--primary-weak); border-radius: 10px; padding: 10px 12px; margin: 8px 0 10px; font-size: .9rem; }
 .guide-key > b { display: block; margin-bottom: 4px; color: var(--primary); }
 .guide-key ol { margin: 0; }
+.guide-key p { margin: 0; }
