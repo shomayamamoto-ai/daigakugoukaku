@@ -55,7 +55,7 @@ WPS.makeBooks = function (ctx) {
       return { id: m.id, name: m.name, short: m.short, subj: m.subj, stage: 'hs', chapters: m.chapters, units: units, extra: true, tb: true, pages: pages };
     });
   }
-  var TBV = '20261111g', tbLoading = {}, tbFail = {};
+  var TBV = '20261111h', tbLoading = {}, tbFail = {};
   function loadTb(bid, pid) {
     if (tbLoading[bid]) return; tbLoading[bid] = 1;
     var sc = document.createElement('script'); sc.src = 'js/books/' + bid + '.js?v=' + TBV;
