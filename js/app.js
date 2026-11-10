@@ -645,6 +645,60 @@
       '<div class="rd-note"><b>読み方</b>形が大きく、まるいほど、どの科目もバランスよく解けています。「—」はまだ直近30日に解いていない科目です。' + (top && low && top !== low ? '<br>いちばん強いのは<b>' + nm(top) + '(' + pc(cur, top) + '%)</b>、のびしろが大きいのは<b>' + nm(low) + '(' + pc(cur, low) + '%)</b>です。' : '') +
       (up && up[1] > 0 ? '<br>1か月前より<b>' + nm(up[0]) + 'が' + up[1] + 'pt</b>上がりました。' : '') + '<br><small>アプリで解いた問題(日本史・世界史は一問一答もふくむ)の正答率です。問題の難しさは科目ごとにちがうため、模試の偏差値とは一致しません。</small></div></div>';
   }
+  /* ---------- 合格戦略ボード:分析(弱み・強み)→ 成長 → 今日の計画 → 改善 を1枚に ---------- */
+  var ADV = { eng: '長文は時間を計って解き、読めなかった文を音読で復習しましょう。', m1: '基本問題を繰り返して、解法パターンを定着させましょう。', m2: '公式の導き方を確認し、典型問題を繰り返しましょう。', m3: '計算の流れを手で再現できるまで、例題を解き直しましょう。',
+    gen: '設問の根拠を本文で線を引いて確かめる練習をしましょう。', ko: '単語と助動詞を毎日少しずつ、短い文章で確認しましょう。', kan: '句形を例文ごと覚え、書き下しを声に出しましょう。',
+    hs: '流れ(原因→結果)を説明できるか、一問一答で確かめましょう。', jh: '時代の流れを通史の教科書で確認してから、一問一答で定着させましょう。', wh: '同じ時代の各地域を「横」に比べて整理しましょう。', geo: '統計や地図の読み取りを、理由とセットで覚えましょう。', civ: '用語の意味を、身近な例や時事と結びつけて覚えましょう。',
+    phy: '公式を使う前に、図と力・エネルギーを書き出す習慣をつけましょう。', chem: '計算問題は単位をそろえて、手順を毎回同じにしましょう。', bio: '図やグラフの読み取りを、用語の説明とあわせて練習しましょう。', earth: '図表の読み取りと、計算問題の型を押さえましょう。', info: 'プログラム表記の読み取りを、手で値を追って練習しましょう。' };
+  function axisStats(s, from, to) {
+    var o = {}; RD_AX.forEach(function (x) { o[x[0]] = [0, 0]; });
+    s.attempts.forEach(function (a) { if (a.src === 'school' || a.t < from || a.t >= to) return; var k = rdAxisOf(a.u, a.s); if (!k || !o[k]) return; o[k][1]++; if (a.ok) o[k][0]++; });
+    return o;
+  }
+  function strategyBoard(s, rm, tt) {
+    var now = Date.now(), DAY = 864e5, nm = function (k) { return RD_AX.filter(function (x) { return x[0] === k; })[0][2]; };
+    var cur = axisStats(s, now - 30 * DAY, now + DAY), pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
+    var axes = RD_AX.map(function (x) { return x[0]; }).filter(function (k) { return cur[k][1] >= 5; });
+    if (axes.length < 2) return '';
+    var sorted = axes.slice().sort(function (a, b) { return pc(cur, a) - pc(cur, b); });
+    var weak = sorted.slice(0, Math.min(3, Math.ceil(sorted.length / 2))), strong = sorted.slice().reverse().filter(function (k) { return weak.indexOf(k) < 0; }).slice(0, 3);
+    function rank(list, cls) { return '<ol class="sb-rank ' + cls + '">' + list.map(function (k, i) { var v = pc(cur, k); return '<li><span class="sb-n">' + (i + 1) + '</span><b>' + h(nm(k)) + '</b><small>正答率 ' + v + '%</small><i class="sb-bar"><em style="width:' + v + '%"></em></i></li>'; }).join('') + '</ol>'; }
+    // 成長の記録:解いた数が多い2科目の、週ごとの正答率(8週)
+    var WK = 8, wkStart = function (i) { return now - (WK - i) * 7 * DAY; };
+    var series = axes.slice().sort(function (a, b) { return cur[b][1] - cur[a][1]; }).slice(0, 2).map(function (k) {
+      var pts = []; for (var i = 0; i < WK; i++) { var o = axisStats(s, wkStart(i), wkStart(i) + 7 * DAY); pts.push(pc(o, k)); } return { k: k, pts: pts };
+    });
+    var COL = ['#e05a6b', '#2e9d63'], W = 320, H = 130, L = 30, B = 18, xw = (W - L - 6) / (WK - 1);
+    var y = function (v) { return (H - B) - (v / 100) * (H - B - 8); };
+    var g = [0, 25, 50, 75, 100].map(function (v) { return '<line class="sb-grid" x1="' + L + '" x2="' + (W - 4) + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '"/><text class="sb-tick" x="' + (L - 4) + '" y="' + (y(v) + 3).toFixed(1) + '" text-anchor="end">' + v + '%</text>'; }).join('');
+    for (var i = 0; i < WK; i += 2) { var d0 = new Date(wkStart(i)); g += '<text class="sb-tick" x="' + (L + i * xw).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle">' + (d0.getMonth() + 1) + '/' + d0.getDate() + '</text>'; }
+    series.forEach(function (sr, si) {
+      var pts = sr.pts.map(function (v, i) { return v === null ? null : [L + i * xw, y(v)]; }).filter(Boolean);
+      if (pts.length > 1) g += '<polyline class="sb-line" stroke="' + COL[si] + '" points="' + pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + '"/>';
+      pts.forEach(function (p) { g += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3" fill="' + COL[si] + '"/>'; });
+    });
+    var grow = series.map(function (sr, si) {
+      var a = sr.pts[WK - 1], b = null; for (var j = WK - 2; j >= 0; j--) if (sr.pts[j] !== null) { b = sr.pts[j]; break; }
+      var d = a !== null && b !== null ? a - b : null;
+      return '<li><span style="color:' + COL[si] + '">' + h(nm(sr.k)) + '</span><b class="' + (d === null ? '' : d >= 0 ? 'up' : 'down') + '">' + (d === null ? '—' : (d >= 0 ? '+' : '') + d + 'pt') + '</b></li>';
+    }).join('');
+    // 今日の学習プラン(今日のやる事に、ねらいの札をつける)
+    var stats = rm.stats || {};
+    var tag = function (t) {
+      if (/^unit:/.test(t.key)) { var st = (stats[t.key.slice(5)] || {}).status; return st === 'good' ? ['強み伸長', 'up'] : st === 'weak' || st === 'untested' ? ['弱点克服', 'weak'] : ['定着', 'fix']; }
+      if (t.key === 'cards' || t.key === 'memo') return ['定着', 'fix']; return ['実践', 'go'];
+    };
+    var plan = '<ul class="sb-plan">' + tt.tasks.slice(0, 5).map(function (t) { var tg = tag(t);
+      return '<li class="' + (t.done ? 'done' : '') + '"><a href="' + h(t.action || '#home') + '"><span class="sb-chk" aria-hidden="true">' + (t.done ? '✓' : '') + '</span><span class="sb-t">' + h(t.title) + '</span><em class="sb-tag ' + tg[1] + '">' + tg[0] + '</em></a></li>'; }).join('') + '</ul>';
+    var adv = '<ul class="sb-adv">' + weak.map(function (k) { return '<li><b>' + h(nm(k)) + '</b>:' + h(ADV[k] || '基本問題から解き直しましょう。') + '</li>'; }).join('') +
+      (strong[0] ? '<li><b>' + h(nm(strong[0])) + '</b>:正答率' + pc(cur, strong[0]) + '%。得点源として、難しめの問題にも挑戦しましょう。</li>' : '') + '</ul>';
+    var cyc = [['分析', '弱み・強みを見える化', '#home'], ['計画', '毎日のやる事を明確に', '#roadmap'], ['実行', '迷わず取り組む', (tt.tasks.filter(function (t) { return !t.done; })[0] || {}).action || '#home'], ['改善', '振り返りで伸ばし続ける', '#mind/week']];
+    return '<section class="card sboard"><p class="sb-kicker">分析 → 計画 → 実行 → 改善</p><h2 class="sb-h" data-toc="合格戦略ボード">分析で<span class="sb-w">弱み</span>を見える化。<br>最適な学習で<span class="sb-s">強み</span>に変える。</h2>' +
+      '<div class="sb-blk"><h3>分析<small>直近30日の正答率(5問以上解いた科目)</small></h3><div class="sb-two"><div class="sb-col weak"><p class="sb-lab">弱み TOP' + weak.length + '</p>' + rank(weak, 'weak') + '</div><div class="sb-col strong"><p class="sb-lab">強み TOP' + strong.length + '</p>' + rank(strong, 'strong') + '</div></div></div>' +
+      '<div class="sb-blk"><h3>成長の記録<small>週ごとの正答率</small></h3><div class="sb-grow"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="週ごとの正答率の推移">' + g + '</svg><div class="sb-wk"><p>今週の成長<small>前に解いた週との差</small></p><ul>' + grow + '</ul></div></div></div>' +
+      '<div class="sb-blk"><h3>今日の学習プラン<small>やる事にねらいの札がつきます</small></h3><div class="sb-two"><div>' + plan + '</div><div class="sb-advbox"><p class="sb-lab">アドバイス</p>' + adv + '<a class="btn small" href="#roadmap">計画を調整する</a></div></div></div>' +
+      '<ol class="sb-cycle">' + cyc.map(function (c, i) { return '<li><a href="' + h(c[2]) + '"><i>' + (i + 1) + '</i><b>' + c[0] + '</b><small>' + c[1] + '</small></a></li>'; }).join('') + '</ol></section>';
+  }
   function dashboard(s, stats, opt) {
     opt = opt || {};
     var d = dashData(s, stats);
@@ -755,6 +809,7 @@
       }).join('') + '</div></section>';
     html += WPS.Quest.card(h);
 
+    if (s.attempts.length) html += strategyBoard(s, rm, tt);
     if (s.attempts.length) html += dashboard(s, rm.stats);
     html += levelCard();
     // カウントダウン
