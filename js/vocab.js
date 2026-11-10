@@ -308,13 +308,13 @@ WPS.makeVocab = function (ctx) {
       var PAL = ['#1146d6', '#0f8a6a', '#b5361f', '#6d3fc0', '#c27a12', '#0b6e8f', '#9c2457', '#3c5a14'], hs = 0;
       for (var k = 0; k < b.id.length; k++) hs = (hs * 31 + b.id.charCodeAt(k)) % 997;
       var col = b.subj === 'jpn' ? ['#7a2e1f', '#4d3a7a', '#1f5e4a'][hs % 3] : PAL[hs % PAL.length];
-      var kind = b.subj === 'jpn' ? '古文' : /idiom/.test(b.id) ? '英熟語' : /eiken/.test(b.id) ? '英検' : '英単語';
+      var kind = b.kind ? b.kind : b.subj === 'jpn' ? '古文' : /idiom/.test(b.id) ? '英熟語' : /eiken/.test(b.id) ? '英検' : '英単語';
       return '<div class="vb-cell ws-book' + (on ? ' on' : '') + (id ? '' : ' off') + '"><p class="ws-t">' + h(b.name) + '</p><button type="button" class="vb-book ws-cover"' + (id ? ' data-vlist="' + id.i + '"' : ' disabled') + ' aria-pressed="' + !!on + '" aria-label="' + h(b.name) + '(' + sub.replace(/&nbsp;›/, '') + ')" style="--c:' + col + '">' +
         '<span class="ws-kind">' + kind + '</span><b>' + h(b.name) + '</b><span class="ws-line"></span><small>' + sub + '</small>' + (on ? '<em class="vb-now">使用中</em>' : '') + (id ? '' : '<em class="ws-soon">準備中</em>') + '</button>' + info + '</div>';
     }
     var main = books.filter(function (b) { return !b.grp; }), more = books.filter(function (b) { return b.grp === 'more'; });
     // 本棚の段:英語は「基本」「大学別」「英検・そのほか」、ほかの教科は1段
-    var CORE = ['jh', 'base', 'plus', 'idiom'], rows = L[0] === 'eng' ? [['基本の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) >= 0; })], ['大学別の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) < 0; })], ['英検・そのほかの単語帳', more]] : [['単語帳', main.concat(more)]];
+    var CORE = ['jh', 'base', 'plus', 'idiom', 'gram'], rows = L[0] === 'eng' ? [['基本の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) >= 0; })], ['大学別の単語帳', main.filter(function (b) { return CORE.indexOf(b.id) < 0; })], ['英検・そのほかの単語帳', more]] : [['単語帳', main.concat(more)]];
     function row(r) { return r[1].length ? '<div class="ws-row"><h3 class="ws-h">' + h(r[0]) + '<small>' + r[1].length + '冊</small></h3><div class="ws-board vb-shelf">' + r[1].map(card).join('') + '</div></div>' : ''; }
     var sel = books.filter(function (b) { return b.id === st.vbinfo; })[0];
     return '<section class="card ws-card"><h2>' + (L[0] === 'eng' ? '英単語帳をえらぶ' : '単語帳') + '</h2><div class="wshelf">' + rows.map(row).join('') + '</div>' +
