@@ -6,7 +6,7 @@
  */
 (function () {
   window.WPS = window.WPS || {};
-  var VER = '20261110l';
+  var VER = '20261110n';
   var KINDS = {
     ptable: { g: '理科', title: '元素の周期表', icon: '⚗️', file: 'elements', ready: function () { return !!WPS.ELEMENTS; } },
     chem: { g: '理科', title: '化学の基本データ', icon: '🧪', file: 'refs2', ready: function () { return !!(WPS.REFS && WPS.REFS.phys); } },
@@ -341,129 +341,184 @@
     if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
   }
 
-  /* ---------- 日本史の地図(旧国名・政権の範囲と領土・戦国大名の勢力図) ---------- */
+  /* ---------- 日本史の地図(旧国名・政権と領土・戦国大名。政権と戦国は1年ごと) ---------- */
   function jmap(body, st) {
-    var J = WPS.JMAP, NS = 'http://www.w3.org/2000/svg', P = pref('jmap'), JP = J.jp, EA = J.ea, SG = J.sengoku, META = JP.meta;
-    var mode = ['kuni', 'sei', 'sen'].indexOf(P.mode) >= 0 ? P.mode : 'kuni', hide = !!P.hide, sel = -1;
+    var J = WPS.JMAP, NS = 'http://www.w3.org/2000/svg', P = pref('jmap'), JP = J.jp, T = J.terr, SG = J.sengoku, META = JP.meta;
+    var mode = ['kuni', 'sei', 'sen'].indexOf(P.mode) >= 0 ? P.mode : 'kuni', hide = !!P.hide;
     var GC = { '畿内': '#f2b5b5', '東海道': '#f6d38f', '東山道': '#b9dba3', '北陸道': '#a9cdea', '山陰道': '#c9b6e4', '山陽道': '#f3b996', '南海道': '#9fd6cf', '西海道': '#e5c3a0', '蝦夷地': '#e3e0d6', '琉球': '#d9d2ec', 'その他': '#e3e0d6' };
-    // 政権の範囲(前近代は旧国・緯度で判定、近代は領土の図)
-    var C = { core: ['#f0a35e', '中央の政権の支配'], out: ['#e3e0d6', '支配の外'], fuji: ['#86c5a4', '奥州藤原氏'], wajin: ['#e46d57', '和人の住む地域(松前氏)'], ryu: ['#b39ddb', '琉球王国'], ryuS: ['#cbb8ef', '琉球王国(薩摩藩の支配下)'], sat: ['#d98c6a', '薩摩藩の直接支配'], ainu: ['#d8e3c8', 'アイヌの人々の土地'] };
+    var C = { core: ['#f0a35e', '中央の政権の支配・日本の領土'], out: ['#e3e0d6', '支配の外'], fuji: ['#86c5a4', '奥州藤原氏'], wajin: ['#e46d57', '和人の住む地域(松前氏)'], ryu: ['#b39ddb', '琉球王国'], ryuS: ['#cbb8ef', '琉球(薩摩藩の支配下・琉球藩)'], sat: ['#d98c6a', '薩摩藩の直接支配'], ainu: ['#d8e3c8', 'アイヌの人々の土地'], us: ['#9ec5e8', 'アメリカの統治下'], occ: ['#c9c3d6', 'ソ連(ロシア)が占拠'] };
     function band(u) { return u[1] ? parseFloat(u[1]) : 0; }
-    var SEI = [
-      { t: '5世紀ごろ ヤマト政権', n: '前方後円墳が北は岩手県南部、南は鹿児島県まで広がる。ヤマト政権の影響が及んだおおよその範囲。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 39.25 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 38.5 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
-      { t: '724年 多賀城を築く(奈良時代)', n: '陸奥国に多賀城、出羽国に出羽柵(のち秋田城)を置き、東北の蝦夷(えみし)と向き合った。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 38.5 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 39 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
-      { t: '802年 胆沢城・803年 志波城(平安時代)', n: '坂上田村麻呂がアテルイを降伏させ、支配を岩手県中部まで広げた。', f: function (pv, u) { if (pv === '陸奥') return band(u) < 39.75 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 40 ? 'core' : 'out'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
-      { t: '1100年ごろ 奥州藤原氏(平安時代後期)', n: '平泉を拠点に、奥州藤原氏が陸奥・出羽を支配した(1189年に源頼朝がほろぼす)。', f: function (pv) { if (pv === '陸奥' || pv === '出羽') return 'fuji'; return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
-      { t: '1192年ごろ 鎌倉幕府', n: '奥州藤原氏をほろぼし、本州から九州までが幕府と朝廷の支配下に入った。', f: function (pv) { return /蝦夷地|琉球|奄美|小笠原/.test(pv) ? 'out' : 'core'; } },
-      { t: '15世紀 室町時代(琉球王国・和人の進出)', n: '1429年に琉球王国が成立。蝦夷地の南部には和人の館がつくられ、1457年にコシャマインの戦いがおきた。', f: function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球' || pv === '奄美') return 'ryu'; return pv === '小笠原' ? 'out' : 'core'; } },
-      { t: '1609年〜 江戸時代(松前藩・薩摩藩の琉球支配)', n: '松前藩がアイヌとの交易を独占。薩摩藩が琉球王国を支配下に置き、奄美を直接治めた。', f: function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球') return 'ryuS'; if (pv === '奄美') return 'sat'; return pv === '小笠原' ? 'out' : 'core'; } },
-      { t: '1869年 蝦夷地を北海道に', n: '明治政府が蝦夷地を北海道と改め、開拓使を置いた。琉球は1872年に琉球藩とされた。', f: function (pv) { if (pv === '琉球') return 'ryuS'; return pv === '小笠原' ? 'out' : 'core'; } }
-    ].concat(EA.stages.map(function (s) { return { t: s[1], n: s[2], ea: s[3] }; }));
-    var si = typeof P.si === 'number' && P.si < SEI.length ? P.si : 0;
-    var SY = Object.keys(SG.years), sy = SY.indexOf(String(P.sy)) >= 0 ? String(P.sy) : SY[0];
+    var OUT = /蝦夷地|琉球|奄美|小笠原/;
+    // 政権の範囲:年ごとの区分(前近代は旧国・緯度で判定)
+    var ERA = [
+      [250, 699, '古墳〜飛鳥時代 ヤマト政権', '前方後円墳が北は岩手県南部、南は鹿児島県まで広がる。ヤマト政権の影響が及んだおおよその範囲。', function (pv, u) { if (pv === '陸奥') return band(u) < 39.25 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 38.5 ? 'core' : 'out'; return OUT.test(pv) ? 'out' : 'core'; }],
+      [700, 801, '奈良時代 多賀城・秋田城', '712年に出羽国、724年に多賀城、733年に秋田城。東北の蝦夷(えみし)と向き合った。', function (pv, u) { if (pv === '陸奥') return band(u) < 38.5 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 39 ? 'core' : 'out'; return OUT.test(pv) ? 'out' : 'core'; }],
+      [802, 1086, '平安時代 胆沢城・志波城', '802年に坂上田村麻呂がアテルイを降伏させ、支配を岩手県中部まで広げた。', function (pv, u) { if (pv === '陸奥') return band(u) < 39.75 ? 'core' : 'out'; if (pv === '出羽') return band(u) < 40 ? 'core' : 'out'; return OUT.test(pv) ? 'out' : 'core'; }],
+      [1087, 1188, '平安時代後期 奥州藤原氏', '後三年合戦ののち、平泉を拠点に奥州藤原氏が陸奥・出羽を支配した(1189年に源頼朝がほろぼす)。', function (pv) { if (pv === '陸奥' || pv === '出羽') return 'fuji'; return OUT.test(pv) ? 'out' : 'core'; }],
+      [1189, 1428, '鎌倉・室町時代', '奥州藤原氏がほろび、本州から九州までが幕府と朝廷の支配下に入った。', function (pv) { return OUT.test(pv) ? 'out' : 'core'; }],
+      [1429, 1608, '室町・戦国時代 琉球王国と和人の進出', '1429年に琉球王国が成立。蝦夷地の南部には和人の館がつくられ、1457年にコシャマインの戦いがおきた。', function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球' || pv === '奄美') return 'ryu'; return pv === '小笠原' ? 'out' : 'core'; }],
+      [1609, 1868, '江戸時代 松前藩・薩摩藩の琉球支配', '松前藩がアイヌとの交易を独占。1609年から薩摩藩が琉球王国を支配下に置き、奄美を直接治めた。', function (pv, u) { if (pv === '蝦夷地') return u[1] === '和人地' ? 'wajin' : 'ainu'; if (pv === '琉球') return 'ryuS'; if (pv === '奄美') return 'sat'; return pv === '小笠原' ? 'out' : 'core'; }],
+      [1869, 2024, '明治時代から現在', '', function (pv, u, y) {
+        if (pv === '琉球') return y < 1879 ? 'ryuS' : y >= 1946 && y < 1972 ? 'us' : 'core';
+        if (pv === '奄美') return y >= 1946 && y < 1953 ? 'us' : 'core';
+        if (pv === '小笠原') return y < 1876 ? 'out' : y >= 1946 && y < 1968 ? 'us' : 'core';
+        if (pv === '蝦夷地' && u[1] === '千島南部') return y >= 1945 ? 'occ' : 'core';
+        return 'core'; }]
+    ];
+    var MOD = [[1869, '蝦夷地を北海道と改め、開拓使を置いた。'], [1872, '琉球王国を琉球藩とした。'], [1875, '樺太・千島交換条約:樺太をロシア領、千島列島すべてを日本領とした。'], [1876, '小笠原諸島を日本の領土とした。'], [1879, '琉球藩を廃して沖縄県を置いた(琉球処分)。'], [1895, '下関条約:日清戦争に勝ち、台湾・澎湖諸島を得た。'], [1905, 'ポーツマス条約:北緯50度以南の樺太、旅順・大連(関東州)を得た。'], [1910, '韓国併合:朝鮮を植民地とし、朝鮮総督府を置いた。'], [1914, '第一次世界大戦:ドイツ領の山東半島・南洋諸島を占領した。'], [1920, '旧ドイツ領の南洋諸島を委任統治した。'], [1922, '山東半島の旧ドイツ権益を中国に返した。'], [1932, '満州国の建国(日本が実権をにぎる)。地図は日本の勢力範囲として表示。'], [1937, '日中戦争が始まり、中国の各地を占領した。'], [1941, '太平洋戦争が始まった。'], [1942, '東南アジア・太平洋の島々を占領し、最大の範囲になった(占領地をふくむ)。'], [1945, 'ポツダム宣言を受け入れて降伏。領土は本州・北海道・九州・四国と周辺の島々に。千島列島はソ連が占拠した。'], [1946, '連合国(GHQ)による占領の時代。沖縄・奄美・小笠原はアメリカの統治下に置かれた。'], [1952, 'サンフランシスコ平和条約が発効し、主権を回復した。'], [1953, '奄美群島が返還された。'], [1968, '小笠原諸島が返還された。'], [1972, '沖縄が返還された。北方領土はロシアが占拠を続けている。']];
+    var SEV = [[300, '古墳の広がり'], [724, '多賀城'], [802, '胆沢城'], [1100, '奥州藤原氏'], [1192, '鎌倉幕府'], [1429, '琉球王国の成立'], [1609, '薩摩の琉球支配'], [1869, '北海道'], [1879, '沖縄県'], [1895, '台湾'], [1905, '南樺太'], [1910, '韓国併合'], [1932, '満州国'], [1942, '最大の範囲'], [1945, '敗戦'], [1952, '主権の回復'], [1972, '沖縄返還']];
+    var SY0 = 1560, SY1 = 1600, hasY = !!SG.yearly;
+    var sy = +P.sy >= SY0 && +P.sy <= SY1 ? +P.sy : 1560, seki = !!P.seki, yy = +P.yy >= 250 && +P.yy <= 2024 ? +P.yy : 300, stepN = [1, 10, 100].indexOf(P.jstep) >= 0 ? P.jstep : 10, playT = null;
     // 大名ごとの色:治めた国の多い家から順に、ちがう色を割りあてる(どの年でも同じ家は同じ色)
     var CLP2 = ['#e57373', '#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4db6ac', '#f06292', '#a1887f', '#7986cb', '#c0ca33', '#ff8a65', '#4dd0e1', '#9ccc65', '#9575cd', '#ffd54f', '#90a4ae', '#d4a373', '#e6a5c8', '#6fbf9f', '#c97b84', '#8fb3e0', '#e0c068', '#b39ddb', '#80cbc4'];
-    var CLI = {}; (function () { var cnt = {}; Object.keys(SG.years).forEach(function (y) { var Y = SG.years[y]; Object.keys(Y).forEach(function (pv) { cnt[Y[pv]] = (cnt[Y[pv]] || 0) + 1; }); Object.keys((SG.split || {})[y] || {}).forEach(function (pv) { SG.split[y][pv].forEach(function (b) { cnt[b[0]] = (cnt[b[0]] || 0) + 0.5; }); }); }); Object.keys(cnt).filter(function (c) { return !/^(東軍|西軍|中立|諸勢力)$/.test(c); }).sort(function (a, b) { return cnt[b] - cnt[a]; }).forEach(function (c, i) { CLI[c] = CLP2[i % CLP2.length]; }); })();
+    var CLI = {}; (function () { var cnt = {}; var YS = SG.yearly || SG.years; Object.keys(YS).forEach(function (y) { var Y = YS[y]; Object.keys(Y).forEach(function (pv) { cnt[Y[pv]] = (cnt[Y[pv]] || 0) + 1; }); }); Object.keys(cnt).filter(function (c) { return !/^(東軍|西軍|中立|諸勢力)$/.test(c); }).sort(function (a, b) { return cnt[b] - cnt[a]; }).forEach(function (c, i) { CLI[c] = CLP2[i % CLP2.length]; }); })();
     function clanCol(c) { if (c === '東軍') return '#4f8ed6'; if (c === '西軍') return '#e0665a'; if (c === '中立' || c === '諸勢力') return '#cfcabb'; return CLI[c] || '#cfcabb'; }
+    function bar(id, label) { return '<div class="hm-top"><button type="button" class="wm-b" data-jy="-1" aria-label="前へ">‹</button><div class="hm-year jm-year"><b id="' + id + 'Y"></b><small id="' + id + 'C"></small></div><button type="button" class="wm-b" data-jy="1" aria-label="次へ">›</button><button type="button" class="wm-b hm-play jm-play" aria-pressed="false">▶ 再生</button></div>'; }
     body.innerHTML = '<div class="jm-tabs" role="tablist">' + [['kuni', '旧国名'], ['sei', '政権と領土'], ['sen', '戦国大名']].map(function (t) { return '<button type="button" role="tab" data-jmode="' + t[0] + '" aria-selected="' + (mode === t[0]) + '" class="' + (mode === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
       '<div class="jm-ctl" id="jmCtl"></div>' +
       '<div class="wm-bar"><input type="search" id="jmQ" placeholder="旧国名で探す(例:武蔵)" aria-label="旧国名で探す" list="jmList"><datalist id="jmList">' + META.map(function (m) { return '<option value="' + h(m[0]) + '">'; }).join('') + '</datalist>' +
       '<button type="button" class="wm-b" data-z="1" aria-label="拡大">＋</button><button type="button" class="wm-b" data-z="-1" aria-label="縮小">−</button><button type="button" class="wm-b" data-z="0" aria-label="全体を表示">全体</button></div>' +
       '<p class="wm-info" id="jmInfo"></p>' +
-      '<div class="wm-wrap hm-wrap jm-wrap"><svg class="wm hm jm" role="img" aria-label="日本史の地図"><rect class="wm-sea" x="-2000" y="-2000" width="6000" height="6000"/>' +
-      '<g class="jm-jp" transform="scale(.2)"><path class="jm-other" d="' + JP.landJ + '"/><g class="jm-u"></g><path class="jm-line" d="' + JP.provLine + '"/></g>' +
-      '<g class="jm-ea" transform="scale(.2)"><path class="jm-other" d="' + EA.land + '"/><path class="jm-terr" d=""/></g><g class="wm-lab jm-lab"></g></svg></div>' +
+      '<div class="wm-wrap hm-wrap jm-wrap"><svg class="wm hm jm" role="img" aria-label="日本史の地図"><rect class="wm-sea" x="-20000" y="-20000" width="60000" height="60000"/>' +
+      '<g transform="scale(.2)"><path class="jm-other" d="' + T.landW + '"/><path class="jm-terr" d=""/><g class="jm-u"></g><path class="jm-line" d=""/></g><g class="wm-lab jm-lab"></g></svg></div>' +
       '<div class="jm-leg" id="jmLeg"></div>' +
-      '<details class="hm-src"><summary>出典・注意</summary>境界はおおよその目安です。旧国は、今の市区町村をそれぞれの大部分がふくまれる国に割りふって作ったため、国境が実際と少しずれる所があります。市区町村の形:国土地理院「地球地図日本」(jpn-atlas)。近代の領土:Cliopatria(Seshat Global History Databank, CC BY 4.0)。政権の範囲・戦国大名の勢力は、教科書の地図を参考にしたおおよその図です。</details>';
-    var wrap = body.querySelector('.jm-wrap'), svg = body.querySelector('svg'), gJ = svg.querySelector('.jm-jp'), gE = svg.querySelector('.jm-ea'), gu = svg.querySelector('.jm-u'), lab = svg.querySelector('.jm-lab'), info = body.querySelector('#jmInfo'), ctl = body.querySelector('#jmCtl'), leg = body.querySelector('#jmLeg'), terr = svg.querySelector('.jm-terr');
+      '<details class="hm-src"><summary>使い方・出典</summary>国を押すと、名前・読み方・今の都道府県(戦国大名では大名)を表示します。「政権と領土」と「戦国大名」は、‹ › や再生で1年ずつ進められます。海外の領土がある年は、地図を自動で縮小します。<br>境界はおおよその目安です。旧国は、今の市区町村をそれぞれの大部分がふくまれる国に割りふって作ったため、国境が実際と少しずれる所があります。市区町村の形:国土地理院「地球地図日本」(jpn-atlas)。近代の領土:Cliopatria(Seshat Global History Databank, CC BY 4.0)。周りの陸地:Natural Earth。政権の範囲・戦国大名の勢力は、教科書の地図を参考にしたおおよその図です。</details>';
+    var wrap = body.querySelector('.jm-wrap'), svg = body.querySelector('svg'), gu = svg.querySelector('.jm-u'), lab = svg.querySelector('.jm-lab'), info = body.querySelector('#jmInfo'), ctl = body.querySelector('#jmCtl'), leg = body.querySelector('#jmLeg'), terr = svg.querySelector('.jm-terr'), line = svg.querySelector('.jm-line');
     var paths = JP.units.map(function (u, k) { var p = document.createElementNS(NS, 'path'); p.setAttribute('d', u[5]); p.setAttribute('data-k', k); gu.appendChild(p); return p; });
-    var labels = [], W = 1000, H = JP.H, vb = { x: 0, y: 0, w: W, h: H }, frame = 'jp';
+    var labels = [], W = 1000, H = JP.H, vb = { x: 0, y: 0, w: W, h: H }, ext = null, terrBox = null, unitVal = [];
     function pvOf(k) { return META[JP.units[k][0]][0]; }
     // 塗りと同じ色でふちを描いて、となりの形とのすき間(細い線)を消す
     function paint(p, c) { p.setAttribute('fill', c); p.style.stroke = c; }
-    var line = svg.querySelector('.jm-line');
-    function setFrame(f) {
-      if (f === frame && svg.getAttribute('viewBox')) return; frame = f; gJ.style.display = f === 'jp' ? '' : 'none'; gE.style.display = f === 'ea' ? '' : 'none';
-      H = f === 'jp' ? JP.H : EA.H; whole();
-    }
-    function makeLabels(list) { // list: [[x, y, text, area]]
-      lab.textContent = ''; labels = list.map(function (L) { var t = document.createElementNS(NS, 'text'); t.setAttribute('x', L[0]); t.setAttribute('y', L[1]); t.textContent = L[2]; lab.appendChild(t); return [t, L]; }); apply();
-    }
+    // 色がちがう「となりどうし」の境目だけに線を引く
+    function drawLines() { line.setAttribute('d', JP.pairs.filter(function (r) { return unitVal[r[0]] !== unitVal[r[1]]; }).map(function (r) { return r[2]; }).join('')); }
+    function makeLabels(list) { lab.textContent = ''; labels = list.map(function (L) { var t = document.createElementNS(NS, 'text'); t.setAttribute('x', L[0]); t.setAttribute('y', L[1]); t.textContent = L[2]; lab.appendChild(t); return [t, L]; }); apply(); }
     function legend(items) { leg.innerHTML = items.map(function (it) { return '<span><i style="background:' + it[0] + '"></i>' + h(it[1]) + '</span>'; }).join(''); }
+    function yr(y) { return y + '年'; }
+    function stop() { if (playT) { clearInterval(playT); playT = null; } var b = ctl.querySelector('.jm-play'); if (b) { b.textContent = '▶ 再生'; b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); } }
+    function play(lo, hi, step, fn) {
+      if (playT) return stop();
+      var b = ctl.querySelector('.jm-play'); b.textContent = '❚❚ 停止'; b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+      playT = setInterval(function () { if (!document.body.contains(body)) return stop(); var r = fn(step()); if (!r) stop(); }, 700);
+    }
     function render() {
-      P.mode = mode; savePref(); sel = -1;
+      stop(); P.mode = mode; savePref();
       body.querySelectorAll('[data-jmode]').forEach(function (b) { var on = b.getAttribute('data-jmode') === mode; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
       paths.forEach(function (p) { p.classList.remove('on'); });
       if (mode === 'kuni') {
-        setFrame('jp');
         ctl.innerHTML = '<label class="jm-chk"><input type="checkbox" id="jmHide"' + (hide ? ' checked' : '') + '> 国名をかくして覚える(押すと名前が出ます)</label>';
-        line.setAttribute('d', JP.provLine);
+        terr.setAttribute('d', ''); terrBox = null;
+        unitVal = JP.units.map(function (u) { return u[0]; });
         paths.forEach(function (p, k) { paint(p, GC[META[JP.units[k][0]][2]] || '#ddd'); });
+        drawLines();
         makeLabels(hide ? [] : META.map(function (m, i) { var L = JP.provLab[i]; return L && !/小笠原/.test(m[0]) ? [L[0], L[1], m[0], L[2]] : null; }).filter(Boolean));
         legend(['畿内', '東海道', '東山道', '北陸道', '山陰道', '山陽道', '南海道', '西海道'].map(function (g) { return [GC[g], g]; }));
-        info.innerHTML = '国を押すと、読み方と今の都道府県を表示します。色は五畿七道の区分です。';
-      } else if (mode === 'sei') {
-        var S = SEI[si];
-        ctl.innerHTML = '<div class="hm-top"><button type="button" class="wm-b" data-js="-1" aria-label="前の時代">‹</button><select id="jmSei" aria-label="時代を選ぶ">' + SEI.map(function (x, i) { return '<option value="' + i + '"' + (i === si ? ' selected' : '') + '>' + h(x.t) + '</option>'; }).join('') + '</select><button type="button" class="wm-b" data-js="1" aria-label="次の時代">›</button></div><p class="jm-note">' + h(S.n) + '</p>';
-        if (S.ea) {
-          setFrame('ea'); terr.setAttribute('d', S.ea); makeLabels([]);
-          legend([['#f0a35e', '日本の領土・勢力範囲'], ['#e3e0d6', 'そのほかの地域']]);
-        } else {
-          setFrame('jp'); var used = {}; line.setAttribute('d', JP.seiLines[si] || '');
-          paths.forEach(function (p, k) { var c = S.f(pvOf(k), JP.units[k]); used[c] = 1; paint(p, C[c][0]); });
-          makeLabels([]); legend(Object.keys(C).filter(function (c) { return used[c]; }).map(function (c) { return C[c]; }));
-        }
-        info.innerHTML = '‹ › で時代を進めると、支配の広がりが変わります。';
-      } else {
-        setFrame('jp');
-        line.setAttribute('d', (JP.senLines || {})[sy] || '');
-        var Y = SG.years[sy], SP = (SG.split || {})[sy] || {}, owners = {};
-        ctl.innerHTML = '<div class="jm-years">' + SY.map(function (y) { return '<button type="button" data-jsy="' + y + '" class="' + (y === sy ? 'on' : '') + '" aria-pressed="' + (y === sy) + '">' + y + '年</button>'; }).join('') + '</div><p class="jm-note">' + h((SG.notes || {})[sy] || '') + '</p>';
-        paths.forEach(function (p, k) {
-          var pv = pvOf(k), c = Y[pv], u = JP.units[k];
-          if (SP[pv] && u[1]) { var la = parseFloat(u[1]) + 0.125; SP[pv].forEach(function (b) { if (la >= b[1] && la <= b[2]) c = b[0]; }); }
-          if (!c) { paint(p, '#e3e0d6'); return; }
-          paint(p, clanCol(c)); p.setAttribute('data-c', c);
-          var a = u[4]; if (!owners[c] || a > owners[c][3]) owners[c] = [u[2], u[3], c, a];
-        });
-        makeLabels(Object.keys(owners).map(function (c) { return owners[c]; }));
-        legend(Object.keys(owners).sort(function (a, b) { return owners[b][3] - owners[a][3]; }).slice(0, 18).map(function (c) { return [clanCol(c), c]; }));
-        info.innerHTML = '国を押すと、その国を治めていた大名を表示します。国ごとのおおよその図です。';
+        info.innerHTML = '';
+        bindCtl(); whole(); return;
       }
-      bindCtl();
+      if (mode === 'sei') {
+        ctl.innerHTML = bar('jmS') + '<div class="hm-range"><input type="range" id="jmR" min="250" max="2024" step="1" aria-label="年を選ぶ"><div class="hm-ticks" aria-hidden="true">' + [[300, '300'], [800, '800'], [1200, '1200'], [1600, '1600'], [2000, '2000']].map(function (t) { return '<span style="left:' + ((t[0] - 250) / (2024 - 250) * 100).toFixed(2) + '%">' + t[1] + '</span>'; }).join('') + '</div></div>' +
+          '<div class="hm-ctl"><div class="hm-step" role="group" aria-label="1回で進む年数">' + [1, 10, 100].map(function (n) { return '<button type="button" data-jstep="' + n + '" class="' + (n === stepN ? 'on' : '') + '" aria-pressed="' + (n === stepN) + '">' + n + '年</button>'; }).join('') + '</div><select id="jmEv" aria-label="できごとから選ぶ"><option value="">できごとから選ぶ</option>' + SEV.map(function (e) { return '<option value="' + e[0] + '">' + e[0] + '年 ' + e[1] + '</option>'; }).join('') + '</select></div><p class="jm-note" id="jmNote"></p>';
+        bindCtl(); showSei(yy, true); return;
+      }
+      ctl.innerHTML = bar('jmG') + (hasY ? '<div class="hm-range"><input type="range" id="jmR" min="' + SY0 + '" max="' + SY1 + '" step="1" aria-label="年を選ぶ"><div class="hm-ticks" aria-hidden="true">' + [1560, 1570, 1580, 1590, 1600].map(function (y) { return '<span style="left:' + ((y - SY0) / (SY1 - SY0) * 100).toFixed(2) + '%">' + y + '</span>'; }).join('') + '</div></div>' : '') +
+        '<label class="jm-chk"><input type="checkbox" id="jmSeki"' + (seki ? ' checked' : '') + '> 関ヶ原の戦い(1600年)の東軍・西軍で色分けする</label><p class="jm-note" id="jmNote"></p>';
+      bindCtl(); showSen(sy);
+    }
+    function showSei(y, refit) {
+      y = Math.max(250, Math.min(2024, y)); yy = y; P.yy = y; savePref();
+      var e = ERA.filter(function (x) { return x[0] <= y && y <= x[1]; })[0] || ERA[0], R = ctl.querySelector('#jmR'); if (R) R.value = y;
+      ctl.querySelector('#jmSY').textContent = yr(y); ctl.querySelector('#jmSC').textContent = e[2];
+      var note = e[3]; if (y >= 1869) { var m = MOD.filter(function (x) { return x[0] <= y; }).pop(); note = m ? m[0] + '年:' + m[1] : ''; }
+      ctl.querySelector('#jmNote').textContent = note;
+      var used = {};
+      unitVal = JP.units.map(function (u, k) { var c = e[4](pvOf(k), u, y); used[c] = 1; return c; });
+      paths.forEach(function (p, k) { paint(p, C[unitVal[k]][0]); });
+      drawLines(); makeLabels([]);
+      // 近代の領土(台湾・朝鮮など)は、その年の形を重ねる
+      var tr = null; if (y >= 1868) { var yq = y >= 1946 && y <= 1952 ? 1953 : y; tr = T.rows.filter(function (r) { return r[0] <= yq && yq <= r[1]; })[0] || null; }
+      terr.setAttribute('d', tr ? tr[3] : ''); if (tr) used.core = 1;
+      legend(Object.keys(C).filter(function (c) { return used[c]; }).map(function (c) { return C[c]; }));
+      info.innerHTML = '';
+      // 海外の領土がある年だけ縮小して全体を見せる
+      var box = tr ? tr[2] : null, wide = box && (box[0] < -20 || box[1] < -20 || box[2] > W + 20 || box[3] > H + 20);
+      var key = wide ? box.join(',') : 'jp';
+      if (refit || key !== terrBox) { terrBox = key; if (wide) { ext = [Math.min(0, box[0]) - 40, Math.min(0, box[1]) - 40, Math.max(W, box[2]) + 40, Math.max(H, box[3]) + 40]; fitBox([box[0] - 30, box[1] - 30, box[2] - box[0] + 60, box[3] - box[1] + 60]); } else { ext = null; whole(); } }
+      return y < 2024;
+    }
+    function senState(y) {
+      if (seki && y === 1600) return { Y: SG.years['1600'], SP: (SG.split || {})['1600'] || {} };
+      if (hasY) return { Y: SG.yearly[y], SP: (SG.splitYearly || {})[y] || {} };
+      var ks = Object.keys(SG.years).map(Number).filter(function (k) { return k <= y && k < 1600; }); var k = ks.length ? Math.max.apply(null, ks) : 1560; return { Y: SG.years[k], SP: (SG.split || {})[k] || {} };
+    }
+    function showSen(y) {
+      y = Math.max(SY0, Math.min(SY1, y)); if (!hasY) { var ks = Object.keys(SG.years).map(Number); y = ks.reduce(function (a, b) { return Math.abs(b - y) < Math.abs(a - y) ? b : a; }); }
+      if (seki) y = 1600;
+      sy = y; P.sy = y; savePref(); var R = ctl.querySelector('#jmR'); if (R) R.value = y;
+      ctl.querySelector('#jmGY').textContent = yr(y); ctl.querySelector('#jmGC').textContent = seki ? '関ヶ原の戦い(東軍・西軍)' : '戦国大名の勢力';
+      ctl.querySelector('#jmNote').textContent = seki ? ((SG.notes || {})['1600'] || '') : (((SG.notesYearly || {})[y]) || (SG.notes || {})[y] || '');
+      var S = senState(y), owners = {};
+      terr.setAttribute('d', ''); ext = null;
+      unitVal = JP.units.map(function (u, k) {
+        var pv = pvOf(k), c = S.Y[pv];
+        if (S.SP[pv] && u[1]) { var la = parseFloat(u[1]) + 0.125; S.SP[pv].forEach(function (b) { if (la >= b[1] && la <= b[2]) c = b[0]; }); }
+        return c || '';
+      });
+      paths.forEach(function (p, k) {
+        var c = unitVal[k], u = JP.units[k];
+        if (!c) { paint(p, '#e3e0d6'); p.removeAttribute('data-c'); return; }
+        paint(p, clanCol(c)); p.setAttribute('data-c', c);
+        if (!owners[c] || u[4] > owners[c][3]) owners[c] = [u[2], u[3], c, u[4]];
+      });
+      drawLines();
+      makeLabels(Object.keys(owners).map(function (c) { return owners[c]; }));
+      legend(Object.keys(owners).sort(function (a, b) { return owners[b][3] - owners[a][3]; }).map(function (c) { return [clanCol(c), c]; }));
+      info.innerHTML = '';
+      if (terrBox !== 'jp') { terrBox = 'jp'; whole(); }
+      return y < SY1 && !seki;
     }
     function bindCtl() {
       var hc = ctl.querySelector('#jmHide'); if (hc) hc.addEventListener('change', function () { hide = hc.checked; P.hide = hide ? 1 : 0; savePref(); render(); });
-      ctl.querySelectorAll('[data-js]').forEach(function (b) { b.addEventListener('click', function () { si = Math.max(0, Math.min(SEI.length - 1, si + +b.getAttribute('data-js'))); P.si = si; savePref(); render(); }); });
-      var se = ctl.querySelector('#jmSei'); if (se) se.addEventListener('change', function () { si = +se.value; P.si = si; savePref(); render(); });
-      ctl.querySelectorAll('[data-jsy]').forEach(function (b) { b.addEventListener('click', function () { sy = b.getAttribute('data-jsy'); P.sy = sy; savePref(); render(); }); });
+      var sk = ctl.querySelector('#jmSeki'); if (sk) sk.addEventListener('change', function () { seki = sk.checked; P.seki = seki ? 1 : 0; savePref(); stop(); showSen(seki ? 1600 : sy); });
+      var R = ctl.querySelector('#jmR'); if (R) R.addEventListener('input', function () { stop(); if (mode === 'sei') showSei(+R.value); else { if (seki) { seki = false; P.seki = 0; ctl.querySelector('#jmSeki').checked = false; } showSen(+R.value); } });
+      ctl.querySelectorAll('[data-jy]').forEach(function (b) { b.addEventListener('click', function () { stop(); var d = +b.getAttribute('data-jy'); if (mode === 'sei') showSei(yy + d * stepN); else { if (seki) { seki = false; P.seki = 0; ctl.querySelector('#jmSeki').checked = false; } showSen(hasY ? sy + d : nextSnap(sy, d)); } }); });
+      var pb = ctl.querySelector('.jm-play'); if (pb) pb.addEventListener('click', function () {
+        if (mode === 'sei') { if (yy >= 2024) showSei(250); play(0, 0, function () { return yy + stepN; }, function (v) { return showSei(v); }); }
+        else { if (seki) { seki = false; P.seki = 0; ctl.querySelector('#jmSeki').checked = false; } if (sy >= SY1) showSen(SY0); play(0, 0, function () { return hasY ? sy + 1 : nextSnap(sy, 1); }, function (v) { return showSen(v); }); }
+      });
+      ctl.querySelectorAll('[data-jstep]').forEach(function (b) { b.addEventListener('click', function () { stepN = +b.getAttribute('data-jstep'); P.jstep = stepN; savePref(); ctl.querySelectorAll('[data-jstep]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); }); }); });
+      var ev = ctl.querySelector('#jmEv'); if (ev) ev.addEventListener('change', function () { var v = +ev.value; if (v) { stop(); showSei(v); } ev.value = ''; });
     }
+    function nextSnap(y, d) { var ks = Object.keys(SG.years).map(Number).filter(function (k) { return k < 1600 || d > 0; }).sort(function (a, b) { return a - b; }); var i = ks.indexOf(y); return ks[Math.max(0, Math.min(ks.length - 1, i + d))]; }
     function showProv(k, zoom) {
       var mi = JP.units[k][0], m = META[mi];
       paths.forEach(function (p, j) { p.classList.toggle('on', JP.units[j][0] === mi); });
       var extra = '';
       if (mode === 'sen') {
-        var c = paths[k].getAttribute('data-c'), cl = (SG.clans || {})[c], ps = ((SG.persons || {})[sy] || {})[c], ct = ((SG.contested || {})[sy] || []).filter(function (x) { return x.indexOf(m[0]) === 0; })[0], n16 = sy === '1600' ? (SG.notes1600 || {})[m[0]] : '';
-        extra = c ? ' <span class="jm-clan" style="background:' + clanCol(c) + '">' + h(c) + '</span>' + (n16 ? ' ' + h(n16) : (ps || (cl && cl.full)) ? ' ' + h(ps || cl.full) : '') + (ct ? ' <span class="muted small">(' + h(ct) + ')</span>' : '') : '';
-      }
-      info.innerHTML = '<b>' + h(m[0]) + '</b>(' + h(m[1]) + ')' + (m[2] !== m[0] && /道|畿内/.test(m[2]) ? ' <span class="small">' + h(m[2]) + '</span>' : '') + ' <span class="small muted">今の' + h(m[3]) + '</span>' + extra;
-      if (zoom) { var bb = paths[k].getBBox(), bx = bb.x / 5, by = bb.y / 5, bw = bb.width / 5, bh = bb.height / 5, w = Math.max(bw, bh / ar()) * 3; vb.w = Math.max(w, W / 30); vb.h = vb.w * ar(); vb.x = bx + bw / 2 - vb.w / 2; vb.y = by + bh / 2 - vb.h / 2; clamp(); apply(); }
+        var c = paths[k].getAttribute('data-c'), cl = (SG.clans || {})[c], ps = ((SG.persons || {})[sy] || {})[c], n16 = seki ? (SG.notes1600 || {})[m[0]] : '';
+        extra = c ? ' <span class="jm-clan" style="background:' + clanCol(c) + '">' + h(c) + '</span>' + (n16 ? ' ' + h(n16) : (ps || (cl && cl.full)) ? ' ' + h(ps || cl.full) : '') : '';
+      } else if (mode === 'sei') { extra = ' <span class="jm-clan" style="background:' + C[unitVal[k]][0] + '">' + h(C[unitVal[k]][1]) + '</span>'; }
+      info.innerHTML = '<b>' + h(m[0]) + '</b>(' + h(m[1]) + ')' + (/道|畿内/.test(m[2]) ? ' <span class="small">' + h(m[2]) + '</span>' : '') + ' <span class="small muted">今の' + h(m[3]) + '</span>' + extra;
+      if (zoom) { var bb = paths[k].getBBox(); fitBox([bb.x / 5, bb.y / 5, bb.width / 5, bb.height / 5], 3); }
     }
     function ar() { var w = wrap.clientWidth, hh = wrap.clientHeight; return w && hh ? hh / w : H / W; }
-    function maxW() { return Math.max(W, H / ar()); }
-    function clamp() { vb.w = Math.min(maxW(), Math.max(W / 30, vb.w)); vb.h = vb.w * ar(); var mx = Math.max(0, (vb.w - W) / 2), my = Math.max(0, (vb.h - H) / 2); vb.x = Math.min(W - vb.w + mx, Math.max(-mx, vb.x)); vb.y = Math.min(H - vb.h + my, Math.max(-my, vb.y)); }
+    function bounds() { return ext || [0, 0, W, H]; }
+    function clamp() { var B = bounds(), bw = B[2] - B[0], bh = B[3] - B[1]; vb.w = Math.min(Math.max(bw, bh / ar()), Math.max(W / 30, vb.w)); vb.h = vb.w * ar(); var mx = Math.max(0, (vb.w - bw) / 2), my = Math.max(0, (vb.h - bh) / 2); vb.x = Math.min(B[2] - vb.w + mx, Math.max(B[0] - mx, vb.x)); vb.y = Math.min(B[3] - vb.h + my, Math.max(B[1] - my, vb.y)); }
     function apply() {
       svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
       var k = W / vb.w, scr = svg.clientWidth ? svg.clientWidth / W : 1, fs = 11 / (k * scr);
       labels.forEach(function (L) { var side = Math.sqrt(L[1][3]) * k * scr, on = side > 11 * L[1][2].length * (mode === 'kuni' ? 0.85 : 0.5) || k >= 8; L[0].style.display = on ? '' : 'none'; if (on) L[0].setAttribute('font-size', fs.toFixed(2)); });
     }
+    function fitBox(F, mul) { var a = ar(); mul = mul || 1; var w = Math.max(F[2], F[3] / a) * mul; vb.w = Math.max(w, W / 30); vb.h = vb.w * a; vb.x = F[0] + F[2] / 2 - vb.w / 2; vb.y = F[1] + F[3] / 2 - vb.h / 2; clamp(); apply(); }
     var mainBox = null;
-    function whole() { if (frame === 'jp' && !mainBox) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; paths.forEach(function (p, k) { if (/琉球|奄美|小笠原/.test(pvOf(k))) return; var b = p.getBBox(); if (!b.width) return; x0 = Math.min(x0, b.x / 5); y0 = Math.min(y0, b.y / 5); x1 = Math.max(x1, (b.x + b.width) / 5); y1 = Math.max(y1, (b.y + b.height) / 5); }); if (x1 > x0) mainBox = [x0 - 15, y0 - 15, x1 - x0 + 30, y1 - y0 + 30]; }
-      var a = ar(), F = frame === 'jp' ? (mainBox || [230, 0, 770, H]) : [0, 0, W, H]; vb.w = Math.max(F[2], F[3] / a); vb.h = vb.w * a; vb.x = F[0] + (F[2] - vb.w) / 2; vb.y = F[1] + (F[3] - vb.h) / 2; clamp(); apply(); } // 日本列島が画面いっぱいに入るように
+    function whole() {
+      if (!mainBox) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; paths.forEach(function (p, k) { if (/琉球|奄美|小笠原/.test(pvOf(k))) return; var b = p.getBBox(); if (!b.width) return; x0 = Math.min(x0, b.x / 5); y0 = Math.min(y0, b.y / 5); x1 = Math.max(x1, (b.x + b.width) / 5); y1 = Math.max(y1, (b.y + b.height) / 5); }); if (x1 > x0) mainBox = [x0 - 15, y0 - 15, x1 - x0 + 30, y1 - y0 + 30]; }
+      if (ext) { fitBox([ext[0], ext[1], ext[2] - ext[0], ext[3] - ext[1]]); return; }
+      fitBox(mainBox || [230, 0, 770, H]);
+    }
     function zoomAt(f, cx, cy) { var nw = vb.w / f; vb.x = cx - (cx - vb.x) * nw / vb.w; vb.y = cy - (cy - vb.y) * nw / vb.w; vb.w = nw; clamp(); apply(); }
     function toSvg(ev) { var r = svg.getBoundingClientRect(); return [vb.x + (ev.clientX - r.left) / r.width * vb.w, vb.y + (ev.clientY - r.top) / r.height * vb.h]; }
     st.fit = function () { setTimeout(whole, 30); };
-    body.querySelector('.jm-tabs').addEventListener('click', function (ev) { var b = ev.target.closest('[data-jmode]'); if (b) { mode = b.getAttribute('data-jmode'); render(); } });
+    body.querySelector('.jm-tabs').addEventListener('click', function (ev) { var b = ev.target.closest('[data-jmode]'); if (b) { mode = b.getAttribute('data-jmode'); terrBox = null; render(); } });
     body.querySelector('.wm-bar').addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]'); if (!b) return;
       var z = +b.getAttribute('data-z'); if (z === 0) { whole(); return; }
@@ -471,7 +526,6 @@
     });
     body.querySelector('#jmQ').addEventListener('change', function (ev) {
       var q = ev.target.value.trim(); if (!q) return;
-      if (frame !== 'jp') { mode = 'kuni'; render(); }
       var mi = META.findIndex(function (m) { return m[0] === q || m[1] === q; }); if (mi < 0) mi = META.findIndex(function (m) { return m[0].indexOf(q) >= 0 || m[1].indexOf(q) >= 0 || m[3].indexOf(q) >= 0; });
       var best = -1, ba = -1; JP.units.forEach(function (u, k) { if (u[0] === mi && u[4] > ba) { ba = u[4]; best = k; } });
       if (best >= 0) showProv(best, true); else info.textContent = '「' + q + '」は見つかりませんでした。';
@@ -498,13 +552,13 @@
       var wasTap = !moved && Object.keys(pts).length === 1;
       delete pts[ev.pointerId];
       if (Object.keys(pts).length === 1) { var id = Object.keys(pts)[0]; drag = { x: pts[id][0], y: pts[id][1], vb: Object.assign({}, vb) }; }
-      if (wasTap && ev.type === 'pointerup' && frame === 'jp') {
+      if (wasTap && ev.type === 'pointerup') {
         var el = document.elementFromPoint(ev.clientX, ev.clientY), k = el && el.getAttribute && el.getAttribute('data-k');
         if (k !== null && k !== undefined) showProv(+k);
       }
     }
     svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
-    render(); whole();
+    render();
     if (window.ResizeObserver) new ResizeObserver(function () { if (!st.min) { clamp(); apply(); } }).observe(wrap);
   }
 

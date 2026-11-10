@@ -3070,3 +3070,9 @@ body.tl-full { overflow: hidden; }
 .hm-jump input { flex: none; }
 .jm .jm-u path { stroke-width: 1.5px; }
 .jm .jm-u path.on { fill: #fbbf24 !important; stroke: #fbbf24 !important; }
+.jm-ctl .hm-top { margin: 0; }
+.jm-year { cursor: default; }
+.jm-ctl .hm-range { padding-bottom: 14px; }
+.jm .jm-terr { fill: #f0a35e; stroke: #b4561e; stroke-width: .8px; vector-effect: non-scaling-stroke; }
+@media (min-width: 900px) { .tl-panel.full.tl-jmap .tl-body { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr) minmax(280px, 380px); } }
+.jm-wrap ~ .jm-leg { } .tl-jmap .wm-info:empty { display: none; }
