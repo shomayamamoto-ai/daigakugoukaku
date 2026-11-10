@@ -3188,3 +3188,13 @@ body.tl-full { overflow: hidden; }
 .vt-vrow { display: grid; grid-template-columns: 4em minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-bottom: 8px; }
 .vt-vrow span { font-size: .85rem; font-weight: 700; color: var(--muted); }
 .vt-vrow select { min-width: 0; width: 100%; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: .85rem; }
+
+/* 教科書:動画で学ぶ */
+.tb-vids { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tb-vids a { display: grid; gap: 2px; padding: 10px 12px 10px 40px; position: relative; border: 1.5px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--text); overflow-wrap: anywhere; }
+.tb-vids a::before { content: ''; position: absolute; left: 12px; top: 12px; width: 18px; height: 13px; border-radius: 4px; background: #e62117; }
+.tb-vids a::after { content: ''; position: absolute; left: 19px; top: 15.5px; border: 3.5px solid transparent; border-left: 5px solid #fff; }
+.tb-vids a:hover { border-color: var(--primary); }
+.tb-vids b { font-size: .92rem; line-height: 1.5; }
+.tb-vids small { color: var(--muted); font-size: .74rem; }
+.tb-vids span { font-size: .82rem; line-height: 1.6; }

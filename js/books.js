@@ -78,9 +78,15 @@ WPS.makeBooks = function (ctx) {
       (pg.lead ? '<div class="guide-key"><b>このページのまとめ</b><p>' + rt(pg.lead) + '</p></div>' : '');
     if (pg.flow && pg.flow.length) html += sec('流れの図') + '<ol class="tb-flow">' + pg.flow.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ol></section>';
     if (pg.sync && pg.sync.length) html += sec('同じころの世界') + '<dl class="tb-sync">' + pg.sync.map(function (r) { return '<div><dt>' + h(r[0]) + '</dt><dd>' + rt(r[1]) + '</dd></div>'; }).join('') + '</dl></section>';
-    pg.secs.forEach(function (x) { html += sec(x.t) + x.p.map(function (t) { return '<p>' + rt(t) + '</p>'; }).join('') + '</section>'; });
+    var SRC = pg.sources || [];
+    function srcLine(ids) { var a = (ids || []).map(function (i) { var s = SRC[i]; return s ? '<a href="' + h(s.url) + '" target="_blank" rel="noopener">' + h(s.name) + '</a>' : ''; }).filter(Boolean); return a.length ? '<p class="iv-src">出典:' + a.join('、') + '</p>' : ''; }
+    pg.secs.forEach(function (x) { html += sec(x.t) + x.p.map(function (t) { return '<p>' + rt(t) + '</p>'; }).join('') + srcLine(x.src) + '</section>'; });
+    if (pg.videos && pg.videos.length) html += sec('動画で学ぶ') + '<ul class="tb-vids">' + pg.videos.map(function (v) {
+      return '<li><a href="' + h(v.url) + '" target="_blank" rel="noopener"><b>' + h(v.title) + '</b><small>' + h(v.channel || 'YouTube') + (v.topic ? '・' + h(v.topic) : '') + '</small>' + (v.note ? '<span>' + h(v.note) + '</span>' : '') + '</a></li>';
+    }).join('') + '</ul><p class="hint">YouTube が開きます。動画は各チャンネルの見解なので、教科書や志望校の情報と合わせて使いましょう。</p></section>';
     if (pg.points && pg.points.length) html += sec('入試で問われるポイント', 'tb-pts') + '<ul class="bullets">' + pg.points.map(function (x) { return '<li>' + rt(x) + '</li>'; }).join('') + '</ul></section>';
     if (pg.check && pg.check.length) html += sec('確認テスト') + '<p class="muted small">問いを読んで答えを考えてから、タップして確かめましょう。</p><ol class="tb-check">' + pg.check.map(function (q) { return '<li><details><summary>' + rt(q[0]) + '</summary><p>答え:<b>' + h(q[1]) + '</b></p></details></li>'; }).join('') + '</ol></section>';
+    if (SRC.length) html += sec('出典') + '<ol class="iv-srcs">' + SRC.map(function (x) { return '<li><a href="' + h(x.url) + '" target="_blank" rel="noopener">' + h(x.name) + '</a></li>'; }).join('') + '</ol></section>';
     var rel = (pg.related || []).map(tbLink).filter(Boolean);
     if (rel.length) html += sec('あわせて読む') + '<div class="tb-rels">' + rel.join('') + '</div></section>';
     html += '</article><nav class="bk-pn"><a ' + (prev ? 'href="#books/' + b.id + '/' + prev + '"' : 'aria-disabled="true" class="off"') + '>‹ 前のページ</a><a href="#books/' + b.id + '">目次</a><a ' + (next ? 'href="#books/' + b.id + '/' + next + '"' : 'aria-disabled="true" class="off"') + '>次のページ ›</a></nav></div>';
