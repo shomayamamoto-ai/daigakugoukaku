@@ -8,6 +8,7 @@ const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 for (const m of html.matchAll(/<script (?:defer )?src="(js\/data\/[^"?]+)/g)) { try { require(path.join(ROOT, m[1])); } catch (e) { /* 画面用のファイルは飛ばす */ } }
+require(path.join(ROOT, 'js/data/vocab_terms.js')); // 単語帳を開いたときだけ読み込むファイル
 
 const books = WPS.VBOOKS.filter(b => b.done > 0);
 const S = {

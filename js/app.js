@@ -148,6 +148,12 @@
     navSheet(false);
     // 科目別テストの最中は、どの画面でも「資料」を開けない
     document.body.classList.toggle('no-tools', !!(CT && CT.inMode()));
+    // 用語集(単語帳)のデータは大きいので、単語帳・用語一覧・検索を開いたときだけ読み込む
+    if (['vocab', 'words', 'search'].indexOf(route) >= 0 && !WPS.termsReady()) {
+      WPS.loadTerms(function () { srchIndex.c = null; if (['vocab', 'words', 'search'].indexOf(((location.hash || '').slice(1).split('/')[0])) >= 0) render(); });
+      view.innerHTML = '<section class="card bk-loading" aria-busy="true"><p>単語帳を読み込んでいます…</p></section>';
+      return;
+    }
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
@@ -970,6 +976,18 @@
       if (!ids.length) { toast('問題が見つかりませんでした'); return; }
       startQuiz(ids, 'study', '忘れかけの確認');
     });
+  };
+  // 用語集のファイルを1回だけ読み込む(失敗しても、ほかの単語帳は使えるようにする)
+  var TERMS_V = '20261110i', termsSt = 0, termsCb = [];
+  WPS.termsReady = function () { return termsSt === 2; };
+  WPS.loadTerms = function (cb) {
+    if (termsSt === 2) { if (cb) cb(); return; }
+    if (cb) termsCb.push(cb);
+    if (termsSt === 1) return; termsSt = 1;
+    var sc = document.createElement('script'); sc.src = 'js/data/vocab_terms.js?v=' + TERMS_V;
+    function done(ok) { termsSt = 2; if (!ok) toast('用語集を読み込めませんでした。通信の状態を確かめてください'); var l = termsCb; termsCb = []; l.forEach(function (f) { f(); }); }
+    sc.onload = function () { done(true); }; sc.onerror = function () { done(false); };
+    document.head.appendChild(sc);
   };
   // アプリ内検索:単元・英単語・古文単語・用語・一問一答・論述をまとめて探す
   var srchQ = '';
