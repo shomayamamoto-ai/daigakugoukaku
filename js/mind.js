@@ -281,7 +281,7 @@ WPS.Mind = (function () {
     var wd = new Date().getDay(), wkv = (m.weeks || {})[weekKey()];
     if ((wd === 0 || wd === 6) && !wkv) html += '<section class="info">週末だね。<a href="#mind/week">今週のふり返り</a>(5分)で、できたことを確かめよう。</section>';
     var lastWk = (function () { var ks = Object.keys(m.weeks || {}).sort(); return ks.length ? m.weeks[ks[ks.length - 1]] : null; })();
-    if (lastWk && lastWk.goal) html += '<section class="info mind-plan">今週の目標:<b>' + h(lastWk.goal) + '</b></section>';
+    if (lastWk && lastWk.goal) html += '<section class="mind-promise mp-week" aria-label="今週の目標"><p class="mp-hd"><span class="mp-ic" aria-hidden="true">◎</span>今週の目標<a href="#mind/week" class="mp-edit">ふり返る</a></p><p class="mp-goal">' + h(lastWk.goal) + '</p></section>';
     var sg = m.sleep;
     if (sg && sg.on && sg.bed) { var bm = toMin(sg.bed), nm = new Date().getHours() * 60 + new Date().getMinutes(), dd = (bm - nm + 1440) % 1440; if (dd <= 60) html += '<section class="info">そろそろ寝る準備の時間だよ(目標 ' + h(sg.bed) + ')。今日の分は、ここまでで十分。おやすみ前に、覚えた単語を1回だけ見直そう。</section>'; }
     var ed = examDays();
@@ -289,10 +289,25 @@ WPS.Mind = (function () {
     if (lite()) html += '<section class="info">今週は軽めモードです(' + lite().until.slice(5).replace('-', '/') + 'まで)。今日のやることを少なめにしています。<button type="button" class="link" data-mlite="0">ふつうに戻す</button></section>';
     // もし〜なら計画(今日の分)
     var pl = (m.plans || []).filter(function (p) { return p.on; })[0];
-    if (pl) html += '<section class="info mind-plan">今日の約束:もし<b>' + h(pl.when) + '</b>なら、<b>' + h(pl.what) + '</b>をやる。</section>';
+    if (pl) {
+      var done = (pl.done || {})[today];
+      html += '<section class="mind-promise' + (done ? ' is-done' : '') + '" aria-label="今日の約束"><p class="mp-hd"><span class="mp-ic" aria-hidden="true">' + (done ? '✓' : '!') + '</span>今日の約束' + (done ? '<em class="mp-badge">達成</em>' : '') + '<a href="#mind/plan" class="mp-edit">変える</a></p>' +
+        '<div class="mp-flow"><div class="mp-step"><span class="mp-tag">もし</span><b>' + h(pl.when) + '</b></div><span class="mp-arrow" aria-hidden="true">↓ なら</span>' +
+        '<div class="mp-step mp-dostep"><span class="mp-tag mp-do">やること</span><b>' + h(pl.what) + '</b></div></div>' +
+        (done ? '<p class="mp-msg">約束を守れたね。この積み重ねが自信になるよ。<button type="button" class="link" data-mpdone="0">取り消す</button></p>'
+          : '<button type="button" class="btn primary mp-btn" data-mpdone="1">できた！</button>') + '</section>';
+    }
     return html;
   }
   function bindHome(view, rerender) {
+    view.querySelectorAll('[data-mpdone]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var m = data(), pl = (m.plans || []).filter(function (p) { return p.on; })[0]; if (!pl) return;
+        pl.done = pl.done || {};
+        if (b.getAttribute('data-mpdone') === '1') { pl.done[D.today()] = 1; if (C) C.toast('約束を守れたね。すばらしい！'); } else delete pl.done[D.today()];
+        save(); if (rerender) rerender();
+      });
+    });
     view.querySelectorAll('[data-mface]').forEach(function (b) {
       b.addEventListener('click', function () {
         var m = data(); m.logs[D.today()] = { m: +b.getAttribute('data-mface'), t: Date.now() }; save();

@@ -2964,3 +2964,28 @@ body.locked .tb-logout { display: none !important; }
 .hm-ticks span { white-space: nowrap; }
 .hm-ticks span:first-child { transform: none; }
 .hm-ticks span:last-child { transform: translateX(-100%); }
+/* ===== 今日の約束(もし〜なら)・今週の目標 ===== */
+.mind-promise { --mp: var(--primary); margin: 12px 0; padding: 14px 16px 16px 20px; border-radius: 16px; background: var(--card); border: 2px solid var(--mp); box-shadow: 0 4px 14px rgba(0, 0, 0, .08); position: relative; overflow: hidden; }
+.mind-promise::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--mp); }
+.mp-hd { margin: 0 0 10px; display: flex; align-items: center; gap: 8px; font-size: 1.02rem; font-weight: 900; color: var(--mp); letter-spacing: .04em; }
+.mp-ic { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--mp); color: #fff; font-size: .9rem; font-weight: 900; line-height: 1; }
+.mp-badge { font-style: normal; padding: 2px 10px; border-radius: 999px; background: #16a34a; color: #fff; font-size: .78rem; }
+.mp-edit { margin-left: auto; font-size: .84rem; font-weight: 700; color: var(--muted); text-decoration: underline; padding: 8px 4px; }
+.mp-flow { display: grid; gap: 4px; }
+.mp-step { display: grid; gap: 4px; padding: 10px 12px; border-radius: 12px; background: var(--primary-weak); }
+.mp-step b { font-size: 1.2rem; font-weight: 900; line-height: 1.5; color: var(--text); overflow-wrap: anywhere; }
+.mp-tag { justify-self: start; padding: 2px 10px; border-radius: 999px; background: var(--mp); color: #fff; font-size: .78rem; font-weight: 800; letter-spacing: .06em; }
+.mp-dostep { background: rgba(224, 121, 31, .12); }
+.mp-tag.mp-do { background: #c2620f; }
+.mp-arrow { justify-self: center; font-size: .85rem; font-weight: 800; color: var(--muted); }
+.mp-btn { margin-top: 12px; width: 100%; min-height: 48px; font-size: 1.05rem; font-weight: 900; }
+.mp-msg { margin: 12px 0 0; font-size: .92rem; font-weight: 700; color: #15803d; }
+.mp-msg .link { margin-left: 8px; font-size: .8rem; font-weight: 500; }
+.mind-promise.is-done { --mp: #16a34a; }
+.mind-promise.is-done .mp-step b { color: var(--muted); }
+.mp-week { --mp: #c2620f; }
+.mp-week .mp-goal { margin: 0; font-size: 1.2rem; font-weight: 900; line-height: 1.5; overflow-wrap: anywhere; }
+:root[data-theme="dark"] .mp-dostep { background: rgba(246, 173, 85, .14); }
+:root[data-theme="dark"] .mp-msg { color: #4ade80; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mp-dostep { background: rgba(246, 173, 85, .14); } :root:not([data-theme="light"]) .mp-msg { color: #4ade80; } }
+.mp-msg .link { display: inline-block; border: 0; background: none; padding: 6px 4px; color: var(--muted); text-decoration: underline; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
