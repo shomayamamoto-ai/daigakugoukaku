@@ -610,3 +610,6 @@ body.sv-open { overflow: hidden; }
 .bank dd small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
 /* ハイライトの丸:パソコンでは6個ずつ2段にそろえる(1個だけ次の段に残らないように) */
 @media (min-width: 900px) { .hl-circles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); justify-items: center; max-width: 860px; gap: 20px 12px; } }
+
+/* 数字のカード:語のまとまりの途中で改行しない */
+.nw { white-space: nowrap; display: inline-block; }
