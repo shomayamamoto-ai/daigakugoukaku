@@ -4,7 +4,7 @@
  * 記録:S.get().eng = { L: { 問題ID: { ok, n, t } }, W: { 問題ID: { sc, t, x } } }
  */
 WPS.makeEtrain = function (ctx) {
-  var S = WPS.Store, h = ctx.h, VER = '20261107b';
+  var S = WPS.Store, h = ctx.h, VER = '20261111a';
   var LV = { 1: '中学・高校入試', 2: '共通テスト', 3: '難関大' };
   var TY = { short: '短い対話', dialog: '会話', talk: '説明・講義', announce: 'アナウンス', trans: '和文英訳', free: '自由英作文', email: 'メール', graph: '図表の説明', summary: '要約' };
   var st = { tab: 'listen', lv: 0, run: null, wid: null, rate: 1, showJa: false };
