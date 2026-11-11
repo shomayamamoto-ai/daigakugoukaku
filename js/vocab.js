@@ -360,9 +360,15 @@ WPS.makeVocab = function (ctx) {
     var html = '';
     html += '<section class="card"><h2>覚える単語帳</h2>' +
       '<div class="filter-row"><span class="f-label">教科</span><div class="seg">' + subs.map(function (k) { return '<button type="button" class="seg-btn' + (k === st.subj ? ' on' : '') + '" data-vsubj="' + k + '">' + subjName(k) + '</button>'; }).join('') + '</div></div>' +
-      '<div class="filter-row"><span class="f-label">種類</span><div class="seg">' + ls.filter(function (x) { return x.L[0] === st.subj; }).map(function (x) {
-        return '<button type="button" class="seg-btn' + (x.i === st.list ? ' on' : '') + '" data-vlist="' + x.i + '">' + h(x.L[1]) + '<small> ' + countOf(x.L) + '</small></button>';
-      }).join('') + '</div></div>' +
+      (function () {
+        // 本棚にある単語帳は、下の本棚から選ぶ。本棚にない一覧(つなぎ言葉など)だけをここに出す
+        var shelfBanks = (WPS.VBOOKS || []).filter(function (b) { return (b.subj || 'eng') === st.subj && b.bank; }).map(function (b) { return b.bank; });
+        var rest = ls.filter(function (x) { return x.L[0] === st.subj && shelfBanks.indexOf(x.L[2]) < 0; });
+        return '<p class="vt-cur">使用中:<b>' + h(L[1]) + '</b><small>下の本棚から本を選んで切りかえられます</small></p>' +
+          (rest.length ? '<div class="filter-row"><span class="f-label">そのほか</span><div class="seg">' + rest.map(function (x) {
+            return '<button type="button" class="seg-btn' + (x.i === st.list ? ' on' : '') + '" data-vlist="' + x.i + '">' + h(x.L[1]) + '<small> ' + countOf(x.L) + '</small></button>';
+          }).join('') + '</div></div>' : '');
+      })() +
       '<div class="vt-sum"><span class="vt-n">' + n + '語</span>' +
       '<div class="vt-bar" aria-hidden="true"><i class="ok" style="width:' + pc('ok') + '%"></i><i class="fade" style="width:' + pc('fade') + '%"></i><i class="weak" style="width:' + pc('weak') + '%"></i></div>' +
       '<p class="vt-legend"><span class="ok">覚えた ' + pc('ok') + '%</span><span class="fade">忘れかけ ' + cnt.fade + '語</span><span class="weak">苦手 ' + cnt.weak + '語</span><span>未学習 ' + cnt.new + '語</span></p></div>' + diagLast(L) +
