@@ -658,7 +658,9 @@
   function strategyBoard(s, rm, tt) {
     var now = Date.now(), DAY = 864e5, nm = function (k) { return RD_AX.filter(function (x) { return x[0] === k; })[0][2]; };
     var cur = axisStats(s, now - 30 * DAY, now + DAY), pc = function (o, k) { return o[k][1] ? Math.round(o[k][0] / o[k][1] * 100) : null; };
-    var axes = RD_AX.map(function (x) { return x[0]; }).filter(function (k) { return cur[k][1] >= 5; });
+    // 「科目バランス」のチェックリストと同じ科目だけを使う(受験で使う教科のうち、グラフに入れた科目)
+    var tgt = R.target(), subs = Object.keys(WPS.SUBJECTS).filter(function (k) { return tgt.weights[k] > 0; }), sel = Array.isArray(s.radarSel) ? s.radarSel : null;
+    var axes = RD_AX.filter(function (x) { return subs.indexOf(x[1]) >= 0 && (!sel || sel.indexOf(x[0]) >= 0); }).map(function (x) { return x[0]; }).filter(function (k) { return cur[k][1] >= 5; });
     if (axes.length < 2) return '';
     var sorted = axes.slice().sort(function (a, b) { return pc(cur, a) - pc(cur, b); });
     var weak = sorted.slice(0, Math.min(3, Math.ceil(sorted.length / 2))), strong = sorted.slice().reverse().filter(function (k) { return weak.indexOf(k) < 0; }).slice(0, 3);
@@ -694,7 +696,7 @@
       (strong[0] ? '<li><b>' + h(nm(strong[0])) + '</b>:正答率' + pc(cur, strong[0]) + '%。得点源として、難しめの問題にも挑戦しましょう。</li>' : '') + '</ul>';
     var cyc = [['分析', '弱み・強みを見える化', '#home'], ['計画', '毎日のやる事を明確に', '#roadmap'], ['実行', '迷わず取り組む', (tt.tasks.filter(function (t) { return !t.done; })[0] || {}).action || '#home'], ['改善', '振り返りで伸ばし続ける', '#mind/week']];
     return '<section class="card sboard"><p class="sb-kicker">分析 → 計画 → 実行 → 改善</p><h2 class="sb-h" data-toc="合格戦略ボード">分析で<span class="sb-w">弱み</span>を見える化。<br>最適な学習で<span class="sb-s">強み</span>に変える。</h2>' +
-      '<div class="sb-blk"><h3>分析<small>直近30日の正答率(5問以上解いた科目)</small></h3><div class="sb-two"><div class="sb-col weak"><p class="sb-lab">弱み TOP' + weak.length + '</p>' + rank(weak, 'weak') + '</div><div class="sb-col strong"><p class="sb-lab">強み TOP' + strong.length + '</p>' + rank(strong, 'strong') + '</div></div></div>' +
+      '<div class="sb-blk"><h3>分析<small>直近30日の正答率(5問以上解いた科目)' + (sel ? '・「科目バランス」で選んだ科目だけ' : '') + '</small></h3><div class="sb-two"><div class="sb-col weak"><p class="sb-lab">弱み TOP' + weak.length + '</p>' + rank(weak, 'weak') + '</div><div class="sb-col strong"><p class="sb-lab">強み TOP' + strong.length + '</p>' + rank(strong, 'strong') + '</div></div></div>' +
       '<div class="sb-blk"><h3>成長の記録<small>週ごとの正答率</small></h3><div class="sb-grow"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="週ごとの正答率の推移">' + g + '</svg><div class="sb-wk"><p>今週の成長<small>前に解いた週との差</small></p><ul>' + grow + '</ul></div></div></div>' +
       '<div class="sb-blk"><h3>今日の学習プラン<small>やる事にねらいの札がつきます</small></h3><div class="sb-two"><div>' + plan + '</div><div class="sb-advbox"><p class="sb-lab">アドバイス</p>' + adv + '<a class="btn small" href="#roadmap">計画を調整する</a></div></div></div>' +
       '<ol class="sb-cycle">' + cyc.map(function (c, i) { return '<li><a href="' + h(c[2]) + '"><i>' + (i + 1) + '</i><b>' + c[0] + '</b><small>' + c[1] + '</small></a></li>'; }).join('') + '</ol></section>';
