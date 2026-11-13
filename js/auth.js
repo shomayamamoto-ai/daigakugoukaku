@@ -23,6 +23,12 @@ window.WPS = window.WPS || {};
   function unb64(s) { var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
   function get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function set(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+  // 共用の端末では、ログインの印をタブを閉じると消える場所(sessionStorage)に置く
+  function sget() { try { return JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function sset(v) { try { if (v === null) sessionStorage.removeItem(KEY); else sessionStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { } }
+  function sess() { return sget() || get(KEY); }
+  function store(v) { if (v && v.shared) { sset(v); set(KEY, null); } else { set(KEY, v); sset(null); } }
+  var IDLE = 7 * 864e5, IDLE_SHARED = 30 * 6e4; // 使わない期間がこれを超えたらログアウト(ふつう7日・共用の端末30分)
   // 同期で使える SHA-256(16進)。起動時のログイン確認に使う
   function sha256(str) {
     var K = [], H = [], i, j, isP = function (n) { for (var f = 2; f * f <= n; f++) if (n % f === 0) return false; return true; }, fr = function (x) { return ((x - (x | 0)) * 4294967296) | 0; };
@@ -57,13 +63,18 @@ window.WPS = window.WPS || {};
     // 保存した鍵から確認用の値を計算し、ソースの値と一致するか・期限の署名が正しいかを確かめる
     ok: function () {
       if (okCache !== null) return okCache;
-      var s = get(KEY), u = s && USERS.filter(function (x) { return x.id === s.id; })[0];
-      okCache = !!(u && s.k && s.exp > Date.now() && s.exp - Date.now() <= DAYS * 864e5 + 6e4 && sha256(s.k) === u.v && sha256(s.k + ':' + s.id + ':' + s.exp) === s.sig);
-      if (!okCache && s) set(KEY, null);
+      var s = sess(), u = s && USERS.filter(function (x) { return x.id === s.id; })[0], now = Date.now();
+      var idle = s && s.last && now - s.last > (s.shared ? IDLE_SHARED : IDLE);
+      okCache = !!(u && s.k && !idle && s.exp > now && s.exp - now <= DAYS * 864e5 + 6e4 && sha256(s.k) === u.v && sha256(s.k + ':' + s.id + ':' + s.exp) === s.sig);
+      if (!okCache && s) { set(KEY, null); sset(null); if (idle) Auth.idleOut = true; }
       return okCache;
     },
-    user: function () { var s = get(KEY); return Auth.ok() && s ? s.id : ''; },
-    login: function (id, pw) {
+    user: function () { var s = sess(); return Auth.ok() && s ? s.id : ''; },
+    // 操作があったときに「最後に使った時刻」を更新する(1分に1回まで)
+    touch: function () { if (!Auth.ok()) return; var s = sess(); if (s && (!s.last || Date.now() - s.last > 6e4)) { s.last = Date.now(); store(s); } },
+    shared: function () { var s = sess(); return !!(s && s.shared); },
+    okCacheReset: function () { okCache = null; },
+    login: function (id, pw, shared) {
       var lk = get(LOCK) || { n: 0, until: 0 };
       if (lk.until > Date.now()) return Promise.reject({ wait: Math.ceil((lk.until - Date.now()) / 1000) });
       id = norm(id).toLowerCase(); pw = norm(pw);
@@ -74,19 +85,21 @@ window.WPS = window.WPS || {};
       return derive(u, pw).then(function (k) {
         if (sha256(k) !== u.v) return fail();
         var exp = Date.now() + DAYS * 864e5;
-        set(KEY, { id: id, k: k, exp: exp, sig: sha256(k + ':' + id + ':' + exp) }); set(LOCK, null); okCache = true; return id;
+        store({ id: id, k: k, exp: exp, sig: sha256(k + ':' + id + ':' + exp), last: Date.now(), shared: !!shared }); set(LOCK, null); okCache = true; return id;
       });
     },
-    logout: function () { set(KEY, null); okCache = false; },
+    logout: function () { set(KEY, null); sset(null); okCache = false; },
     screen: function () {
       return '<section class="login-wrap"><div class="login-card">' +
         '<p class="brand brand-lg"><b class="brand-word">Aqualium</b><small class="brand-sub">個別最適化オンライン家庭教師</small></p><h1>ログイン</h1><p class="muted small">IDとパスワードを入力してください。<br>パスワードは大文字・小文字を区別します。</p>' +
         '<form id="loginForm" autocomplete="on" novalidate>' +
         '<label>ID<input name="id" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>' +
         '<label>パスワード<span class="pw-row"><input name="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required><button type="button" class="pw-eye" aria-label="パスワードを表示" aria-pressed="false">表示</button></span></label>' +
+        '<label class="login-shared"><input type="checkbox" name="shared"> 共用の端末(学校・塾のパソコンなど)で使う<small>タブを閉じるか、30分操作しないとログアウトします</small></label>' +
         '<p class="login-err" role="alert" aria-live="assertive"></p>' +
         '<button type="submit" class="btn primary big">ログイン</button></form>' +
-        '<p class="login-note small muted">ログインは、この端末で' + DAYS + '日間保たれます。<br><a href="home.html">サービス紹介</a>・<a href="manual.html">使い方マニュアル</a></p></div></section>';
+        (Auth.idleOut ? '<p class="login-note small" role="status">しばらく使われていなかったため、安全のためログアウトしました。</p>' : '') +
+        '<p class="login-note small muted">ログインは、この端末で最長' + DAYS + '日間保たれます(7日間使わないとログアウト)。<br><a href="home.html">サービス紹介</a>・<a href="manual.html">使い方マニュアル</a></p></div></section>';
     },
     bind: function (done) {
       var f = document.getElementById('loginForm'); if (!f) return;
@@ -97,7 +110,7 @@ window.WPS = window.WPS || {};
         e.preventDefault(); err.textContent = '';
         if (!f.id.value.trim() || !f.pw.value) { err.textContent = 'IDとパスワードを入力してください。'; return; }
         btn.disabled = true; btn.textContent = '確認しています…';
-        Auth.login(f.id.value, f.pw.value).then(function () { done(); }, function (x) {
+        Auth.login(f.id.value, f.pw.value, f.shared && f.shared.checked).then(function () { done(); }, function (x) {
           btn.disabled = false; btn.textContent = 'ログイン';
           err.textContent = x && x.wait ? '何度もまちがえたため、' + (x.wait >= 120 ? Math.ceil(x.wait / 60) + '分' : x.wait + '秒') + 'ほど待ってからお試しください。' : 'IDかパスワードがちがいます。' + (x && x.left && x.left <= 2 ? '(あと' + x.left + '回まちがえると、しばらく入力できなくなります)' : '') + 'パスワードは大文字・小文字を区別します。';
           f.pw.select();

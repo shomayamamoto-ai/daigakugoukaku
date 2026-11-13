@@ -121,6 +121,9 @@
   };
 
   /* ---------- 画面の切り替え ---------- */
+  // ログイン中の操作で「最後に使った時刻」を更新し、使わない時間が長くなったらログイン画面に戻す
+  ['click', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, function () { if (WPS.Auth && WPS.Auth.touch) WPS.Auth.touch(); }, { passive: true }); });
+  setInterval(function () { if (WPS.Auth && WPS.Auth.shared && !document.body.classList.contains('locked')) { WPS.Auth.okCacheReset && WPS.Auth.okCacheReset(); if (!WPS.Auth.ok()) render(); } }, 60000);
   function render() {
     var hash = (location.hash || '#home').slice(1);
     var parts = hash.split('/');
@@ -128,6 +131,7 @@
     // 共有リンクの閲覧中以外は、自分のデータに戻す
     if (['share', 'cloud', 'tutor', 'parent'].indexOf(route) < 0 && S.isView()) S.setView(null);
     // ログインしていないときは、ログイン画面だけを出す(保護者・先生向けの共有リンクは見られる)
+    if (WPS.Auth && WPS.Auth.ok()) WPS.Auth.touch();
     if (WPS.Auth && !WPS.Auth.ok() && ['share', 'cloud', 'parent'].indexOf(route) < 0) {
       document.body.classList.add('locked');
       view.innerHTML = WPS.Auth.screen();

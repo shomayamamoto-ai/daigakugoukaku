@@ -3256,3 +3256,8 @@ body.tl-full { overflow: hidden; }
 .vt-cur b { margin-left: 4px; color: var(--primary); }
 .vt-cur small { display: block; color: var(--muted); font-size: .74rem; margin-top: 2px; }
 .filter-row .f-label { white-space: nowrap; }
+
+/* ログイン:共用の端末 */
+.login-shared { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; align-items: start; margin: 10px 0 4px; font-size: .88rem; font-weight: 600; text-align: left; }
+.login-shared input { margin-top: 3px; }
+.login-shared small { grid-column: 2; color: var(--muted); font-weight: 400; font-size: .74rem; }
