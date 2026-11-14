@@ -3266,3 +3266,33 @@ body.tl-full { overflow: hidden; }
 .vt-img { display: block; border-radius: 14px; background: #fff; object-fit: cover; }
 .vt-img.reveal, .vt-img.swipe { width: 120px; height: 120px; margin: 10px auto 0; box-shadow: 0 2px 10px rgba(15, 23, 42, .08); }
 .vt-img.thumb { width: 44px; height: 44px; border-radius: 10px; flex: none; }
+
+/* ===== 塾のしくみ(クリアテスト・週サイクル・振り返りノート・努力ポイント・定期テスト対策) ===== */
+.jk-badge{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.78rem;font-weight:700;background:var(--line);color:var(--muted);white-space:nowrap}
+.jk-badge.ok{background:var(--ok-weak);color:var(--ok)}
+.jk-badge.ng{background:var(--warn-weak);color:var(--warn)}
+.jk-cycle{margin:.6rem 0;padding:.6rem .8rem;border-radius:12px;background:var(--primary-weak);font-size:.86rem;line-height:1.6;overflow-wrap:anywhere}
+.jk-cycle b{margin-right:.4rem;color:var(--primary)}
+.jk-cycle span{margin-right:.4rem;color:var(--muted);font-size:.8rem}
+.jk-cycle.rev{background:var(--warn-weak)}.jk-cycle.rev b{color:var(--warn)}
+.jk-cycle.test{background:var(--ok-weak)}.jk-cycle.test b{color:var(--ok)}
+.jk-judge{text-align:center}
+.jk-stamp{display:inline-block;margin:0 0 .4rem;padding:.3rem 1.2rem;border:3px solid currentColor;border-radius:12px;font-size:1.4rem;font-weight:800;letter-spacing:.2em;transform:rotate(-4deg)}
+.jk-judge.ok .jk-stamp{color:var(--ok)}.jk-judge.ng .jk-stamp{color:var(--warn)}
+.jk-refl label{display:block;margin:.6rem 0;font-weight:600;font-size:.9rem}
+.jk-refl textarea{display:block;width:100%;box-sizing:border-box;margin-top:.3rem;padding:.6rem;border:1px solid var(--line);border-radius:10px;font:inherit;resize:vertical;background:var(--card);color:var(--text)}
+.jk-notes{list-style:none;margin:0;padding:0}
+.jk-notes li{padding:.6rem 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.jk-notes li:last-child{border-bottom:0}
+.jk-notes small{color:var(--muted)}
+.jk-notes p{margin:.25rem 0;font-size:.9rem;line-height:1.6}
+.jk-notes em{display:inline-block;margin-right:.4rem;padding:0 .4rem;border-radius:6px;background:var(--primary-weak);color:var(--primary);font-style:normal;font-size:.75rem;font-weight:700}
+.jk-effort .big-num{margin:.2rem 0}
+.jk-medal{padding:.2rem .7rem;border-radius:999px;background:var(--line);color:var(--muted);font-size:.8rem;font-weight:700;white-space:nowrap}
+.jk-medal.m0{background:#f3e3d3;color:#8a5a2b}.jk-medal.m1{background:#e9edf2;color:#55606e}.jk-medal.m2{background:#fbf0c9;color:#8a6a00}
+.jk-pts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.3rem .8rem;margin:.6rem 0 0;padding:0;list-style:none;font-size:.82rem;color:var(--muted)}
+.jk-pts b{color:var(--text)}
+.jk-units{list-style:none;margin:.4rem 0 0;padding:0}
+.jk-units li{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .6rem;padding:.5rem 0;border-bottom:1px solid var(--line)}
+.jk-units li a:first-child{flex:1 1 10rem;min-width:0;overflow-wrap:anywhere}
+.jk-clear .row-between{gap:.5rem;flex-wrap:wrap}

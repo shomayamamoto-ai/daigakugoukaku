@@ -160,7 +160,7 @@
     }
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
-      study: renderStudy, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
+      study: renderStudy, jtest: renderJtest, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
       memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, iq: renderIq, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, ctest: renderCtest, map: renderMap, books: renderBooks, etrain: renderEtrain
     }[route] || renderHome;
     var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'iq' && parts[1] && iqInst(parts[1]) && iqInst(parts[1]).inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'ctest' && CT.inMode()) || (route === 'etrain' && ET.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
@@ -771,6 +771,7 @@
     var rm = R.build();
     var tt = R.todayTasks(rm);
     vocabTasks(rm).forEach(function (x) { tt.tasks.push(x); });
+    tt.tasks = jukuTasks(tt).concat(tt.tasks);
     if (WPS.Mind) tt.tasks = WPS.Mind.liteTasks(tt.tasks);
     var streak = WPS.Streak.count();
     var studied = WPS.Streak.studiedToday();
@@ -814,6 +815,7 @@
         return '<div class="day ' + (d.state || '') + (d.d === D.today() ? ' today' : '') + '"><span>' + d.label + '</span><i>' + (d.state === 'study' ? '✓' : d.state === 'frozen' ? '🧊' : '') + '</i></div>';
       }).join('') + '</div></section>';
     html += WPS.Quest.card(h);
+    html += effortCard();
 
     if (s.attempts.length) html += strategyBoard(s, rm, tt);
     if (s.attempts.length) html += dashboard(s, rm.stats);
@@ -826,10 +828,11 @@
       (phase ? '<div class="phase-badge">' + phase.emoji + ' いまは<br><b>' + phase.name + '</b></div>' : '') + '</section>';
     html += goalCard(p);
 
+    html += teikiCards(false);
     // 今日のやる事
     var doneN = tt.tasks.filter(function (x) { return x.done; }).length;
     html += '<section class="card"><div class="row-between"><h2>今日のやる事</h2><span class="time-pill">' + (tt.holiday ? '🌞 休日' : '🏫 平日') + ' の目安 ' + WPS.Time.label(tt.minutesToday) + '</span></div><div class="row-between"><span class="muted">' + doneN + '/' + tt.tasks.length + ' 完了</span></div>' +
-      '<div class="progress"><i style="width:' + Math.round(doneN / tt.tasks.length * 100) + '%"></i></div><ul class="tasks">' +
+      (tt.week ? dayTypeLine(tt.week, D.today()) : '') + '<div class="progress"><i style="width:' + Math.round(doneN / tt.tasks.length * 100) + '%"></i></div><ul class="tasks">' +
       tt.tasks.map(function (x) {
         var check = x.kind === 'manual'
           ? '<button class="check' + (x.done ? ' on' : '') + '" data-task="' + x.key + '" aria-label="完了にする">' + (x.done ? '✓' : '') + '</button>'
@@ -844,7 +847,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#ctest">科目別テスト</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#iq">一問一答(全教科)</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#ctest">科目別テスト</a><a href="#records">定期テスト対策</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#iq">一問一答(全教科)</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -1437,7 +1440,7 @@
   function finishQuiz() {
     var n0 = quiz.results.length, c0 = quiz.results.filter(function (x) { return x.ok; }).length;
     quiz.sec = Math.round((Date.now() - (quiz.t0 || Date.now())) / 1000);
-    showMsgs(WPS.Quest.onSession(n0, c0)); S.save();
+    showMsgs(WPS.Quest.onSession(n0, c0)); jukuFinish(quiz); S.save();
     lastResult = quiz;
     quiz = null;
     go('#result');
@@ -1470,6 +1473,7 @@
       : '大丈夫！ 苦手が見つかったのは大きな一歩。ここから一気に伸ばしていこう！';
     var html = '<section class="card center">' + pinpo(96, mood) + '<h1>' + h(r.title) + ' の結果</h1>' +
       '<div class="big-num">' + c + '<small> / ' + n + ' 問正解</small></div><p>' + msg + '</p>' + lessonTiles(r.xp || 0, ratio, r.sec, r.best) + '</section>';
+    html += jukuResult(r);
     if (r.first && WPS.Streak.studiedToday()) html = streakCelebrate() + html;
     var ids = Object.keys(wrongUnits);
     if (ids.length) {
@@ -1491,6 +1495,168 @@
     return html;
   }
 
+  /* ========== 塾のしくみを取り入れた機能 ==========
+   * ・単元クリアテスト:10問で8割以上なら合格。不合格なら同じ単元をもう一度(武田塾・東進の修了判定を参考)
+   * ・前回の確認テスト:前に勉強した日の単元から5問(早稲田アカデミー・臨海セミナーの授業冒頭テストを参考)
+   * ・週サイクル:4日進む → 2日復習 → 1日確認テスト(武田塾を参考)
+   * ・振り返りノート:わかったことを自分の言葉で書く(明光義塾の振り返りノート、マナビスのショート面談を参考)
+   * ・定期テスト対策:テストの3週間前から、範囲の単元をクリアテストで仕上げる(臨海セミナー・ITTO を参考)
+   * ・努力ポイント:解いた数・合格・振り返り・集中の回数をポイントに(進研ゼミの努力賞、東進の向上得点を参考) */
+  var CLEAR_N = 10, CLEAR_RATE = 0.8;
+  function clearSet(u, n) {
+    var ids = shuffle(u.questions.map(function (q) { return q.id; })).slice(0, n || CLEAR_N);
+    if (u.hasGen) while (ids.length < (n || CLEAR_N)) ids.push(WPS.genId(u.id));
+    return ids;
+  }
+  function clearOf(id) { var c = (S.get().clears || {})[id]; return c || null; }
+  function clearBadge(id) {
+    var c = clearOf(id), f = (S.get().clearFails || {})[id] || 0;
+    return c ? '<span class="jk-badge ok">合格 ' + c.c + '/' + c.n + '</span>' : f ? '<span class="jk-badge ng">挑戦中(' + f + '回)</span>' : '<span class="jk-badge">未挑戦</span>';
+  }
+  // 週の中の何日目か:0〜3日目は進む日、4〜5日目は復習日、6日目は確認テストの日
+  var DAYTYPE = { go: ['進む日', '新しい単元を進める日。今週の単元の要点を読んで、問題を解こう。'], rev: ['復習日', '進んだ単元をふり返る日。間違えた問題と、今週の単元をもう一度。'], test: ['確認テストの日', '今週の単元から10問。8割とれたら合格。届かなければ来週も同じ単元を続けよう。'] };
+  function dayType(w, d) { if (!w) return null; var i = D.diff(w.start, d); return i <= 3 ? 'go' : i <= 5 ? 'rev' : 'test'; }
+  function dayTypeLine(w, d) {
+    var k = dayType(w, d); if (!k) return '';
+    var i = D.diff(w.start, d) + 1;
+    return '<p class="jk-cycle ' + k + '"><b>' + DAYTYPE[k][0] + '</b><span>(週の' + i + '日目)</span>' + h(DAYTYPE[k][1]) + '</p>';
+  }
+  function weekQs(w, n) {
+    var all = [];
+    (w.units || []).forEach(function (id) { var u = WPS.UNIT_MAP[id]; if (u) all = all.concat(clearSet(u, 4)); });
+    return shuffle(all).slice(0, n);
+  }
+  // 前回(今日より前で、最後に問題を解いた日)の単元
+  function lastStudy() {
+    var s = S.get(), today = D.today(), last = '';
+    s.attempts.forEach(function (a) { if (a.q && a.d < today && a.src !== 'school' && a.src !== 'card' && a.d > last) last = a.d; });
+    if (!last) return null;
+    var ids = {}; s.attempts.forEach(function (a) { if (a.d === last && a.q && a.src !== 'school' && a.src !== 'card' && WPS.UNIT_MAP[a.u]) ids[a.u] = 1; });
+    return { d: last, units: Object.keys(ids) };
+  }
+  function recapQs(ls) {
+    var all = [];
+    ls.units.forEach(function (id) { all = all.concat(clearSet(WPS.UNIT_MAP[id], 3)); });
+    return shuffle(all).slice(0, 5);
+  }
+  // 今日のやる事に、塾式のタスクを足す
+  function jukuTasks(tt) {
+    var s = S.get(), today = D.today(), w = tt.week, out = [];
+    var todays = s.attempts.filter(function (a) { return a.d === today; });
+    var ls = lastStudy();
+    if (ls && ls.units.length) out.push({ key: 'recap', kind: 'auto', icon: '⏪', title: '前回の確認テスト(5問)', sub: D.label(ls.d) + 'に勉強した単元から。授業のはじめの小テストと同じで、忘れる前に確かめよう', done: s.recapDone === today, action: '#jtest/recap' });
+    var k = dayType(w, today);
+    if (k === 'rev' && w.units.length) {
+      var rv = todays.filter(function (a) { return a.src === 'rev'; }).length;
+      out.push({ key: 'rev', kind: 'auto', icon: '🔁', title: '復習日:今週の単元をふり返る(5問)', sub: '進む日に解いた単元を、もう一度。間違えた問題は「間違い直し」でも確認しよう', done: rv >= 5, progress: Math.min(rv, 5) + '/5', action: '#jtest/rev' });
+    }
+    if (k === 'test' && w.units.length) {
+      var wt = (s.weekTests || {})[w.start];
+      out.push({ key: 'weektest', kind: 'auto', icon: '✅', title: '今週の確認テスト(10問・8割で合格)', sub: wt ? (wt.ok ? '合格しました(' + wt.c + '/' + wt.n + ')' : '前回は ' + wt.c + '/' + wt.n + '。もう一度挑戦できます') : '今週ねらった単元から出題。合格すれば、来週は次の単元へ', done: !!(wt && wt.ok), action: '#jtest/week' });
+    }
+    return out;
+  }
+  // 「やる」ボタンから、塾式のテストを始める
+  function renderJtest(arg) {
+    var parts = String(arg || '').split(':'), kind = parts[0], rm = R.build(), w = R.currentWeek(rm), ids = [], title = '', unit = null;
+    if (kind === 'clear' && WPS.UNIT_MAP[parts[1]]) { unit = parts[1]; ids = clearSet(WPS.UNIT_MAP[unit]); title = WPS.UNIT_MAP[unit].name + ' クリアテスト'; }
+    else if (kind === 'recap') { var ls = lastStudy(); if (ls) { ids = recapQs(ls); title = '前回の確認テスト'; } }
+    else if (kind === 'rev' && w) { ids = weekQs(w, 5); title = '今週の復習'; }
+    else if (kind === 'week' && w) { ids = weekQs(w, CLEAR_N); title = '今週の確認テスト'; }
+    history.replaceState(null, '', '#home');
+    if (!ids.length) { toast('出題できる問題がありませんでした'); setTimeout(render, 0); return ''; }
+    startQuiz(ids, kind, title);
+    quiz.unit = unit; quiz.week = w ? w.start : '';
+    return '';
+  }
+  // テストが終わったときの記録
+  function jukuFinish(q) {
+    var s = S.get(), n = q.results.length, c = q.results.filter(function (x) { return x.ok; }).length, ok = n && c / n >= CLEAR_RATE;
+    if (q.src === 'clear' && q.unit) {
+      s.clears = s.clears || {}; s.clearFails = s.clearFails || {};
+      if (ok) s.clears[q.unit] = { d: D.today(), c: c, n: n }; else s.clearFails[q.unit] = (s.clearFails[q.unit] || 0) + 1;
+    }
+    if (q.src === 'week' && q.week) { s.weekTests = s.weekTests || {}; var o = s.weekTests[q.week]; if (!o || !o.ok) s.weekTests[q.week] = { d: D.today(), c: c, n: n, ok: !!ok }; }
+    if (q.src === 'recap') s.recapDone = D.today();
+    q.pass = !!ok;
+  }
+  function jukuResult(r) {
+    var n = r.results.length, c = r.results.filter(function (x) { return x.ok; }).length, html = '';
+    if (r.src === 'clear' || r.src === 'week') {
+      var need = Math.ceil(n * CLEAR_RATE);
+      html += '<section class="card jk-judge ' + (r.pass ? 'ok' : 'ng') + '"><p class="jk-stamp">' + (r.pass ? '合格' : 'もう一歩') + '</p>' +
+        '<p>' + (r.pass ? '合格ラインの' + need + '問をこえました。' + (r.src === 'clear' ? 'この単元はクリアです。次の単元に進もう。' : '今週の単元はクリア。来週は次の単元へ進もう。')
+          : '合格ラインは' + need + '問(8割)です。あと' + (need - c) + '問。間違えた問題の解説を読んでから、もう一度挑戦しよう。') + '</p>' +
+        (!r.pass && r.src === 'clear' ? '<a class="btn primary" href="#jtest/clear:' + r.unit + '">もう一度クリアテスト</a>' : '') +
+        (!r.pass && r.src === 'week' ? '<a class="btn primary" href="#jtest/week">もう一度確認テスト</a>' : '') + '</section>';
+    }
+    // 振り返りノート(自分の言葉で書くと、わかったつもりを防げる)
+    html += '<section class="card jk-refl"><h2>振り返りノート</h2><p class="muted small">今日わかったことを、人に説明するつもりで書いてみよう。うまく書けないところが、まだあやふやなところです。</p>' +
+      '<label>わかったこと(自分の言葉で)<textarea id="jkLearn" maxlength="300" rows="3" placeholder="例:二次関数の最大・最小は、軸が範囲の中か外かで場合分けする"></textarea></label>' +
+      '<label>まだあやふやなこと・次の課題<textarea id="jkIssue" maxlength="200" rows="2" placeholder="例:軸が文字のときの場合分けが、まだ自信がない"></textarea></label>' +
+      '<button type="button" class="btn primary" id="jkSave">ノートに残す</button></section>';
+    return html;
+  }
+  function bindRefl(title, units) {
+    var b = document.getElementById('jkSave'); if (!b) return;
+    b.addEventListener('click', function () {
+      var l = document.getElementById('jkLearn').value.trim(), i = document.getElementById('jkIssue').value.trim();
+      if (!l && !i) { toast('どちらかを書いてね'); return; }
+      var s = S.get(); s.refl = s.refl || []; s.refl.unshift({ d: D.today(), t: Date.now(), title: title || '', u: units || [], l: l, i: i }); if (s.refl.length > 300) s.refl.length = 300;
+      S.save(); b.disabled = true; b.textContent = '残しました'; toast('振り返りノートに残しました。先生・保護者のレポートにも出ます');
+    });
+  }
+  function reflList(list, n) {
+    list = (list || []).slice(0, n);
+    if (!list.length) return '<p class="muted">まだありません。問題を解いたあとの「振り返りノート」に書くと、ここに出ます。</p>';
+    return '<ul class="jk-notes">' + list.map(function (x) { return '<li><small>' + h(x.d.slice(5).replace('-', '/')) + (x.title ? '・' + h(x.title) : '') + '</small>' + (x.l ? '<p><em>わかった</em>' + h(x.l) + '</p>' : '') + (x.i ? '<p><em>課題</em>' + h(x.i) + '</p>' : '') + '</li>'; }).join('') + '</ul>';
+  }
+  // 努力ポイント(その月の取り組みを数える。成績ではなく「どれだけやったか」)
+  var MEDALS = [[300, '銅'], [800, '銀'], [1500, '金']];
+  function effort(month) {
+    var s = S.get(), inM = function (d) { return d && d.slice(0, 7) === month; }, p = { q: 0, clear: 0, week: 0, refl: 0, pomo: 0, days: 0 };
+    s.attempts.forEach(function (a) { if (inM(a.d) && a.src !== 'school') p.q++; });
+    Object.keys(s.clears || {}).forEach(function (k) { if (inM(s.clears[k].d)) p.clear++; });
+    Object.keys(s.weekTests || {}).forEach(function (k) { var o = s.weekTests[k]; if (o.ok && inM(o.d)) p.week++; });
+    (s.refl || []).forEach(function (x) { if (inM(x.d)) p.refl++; });
+    (s.pomoLog || []).forEach(function (x) { if (inM(x.d)) p.pomo++; });
+    var st = WPS.Streak.studiedDays(); Object.keys(st).forEach(function (d) { if (inM(d) && st[d] === 'study') p.days++; });
+    p.total = p.q + p.clear * 10 + p.week * 20 + p.refl * 5 + p.pomo * 5 + p.days * 3;
+    return p;
+  }
+  function effortCard() {
+    var m = D.today().slice(0, 7), p = effort(m), got = MEDALS.filter(function (x) { return p.total >= x[0]; }).pop(), nx = MEDALS.filter(function (x) { return p.total < x[0]; })[0];
+    var max = nx ? nx[0] : MEDALS[MEDALS.length - 1][0];
+    return '<section class="card jk-effort"><div class="row-between"><h2>今月の努力ポイント</h2><span class="jk-medal' + (got ? ' m' + MEDALS.indexOf(got) : '') + '">' + (got ? got[1] + 'メダル' : 'メダルまで あと' + (MEDALS[0][0] - p.total)) + '</span></div>' +
+      '<p class="big-num">' + p.total + '<small> pt</small></p><div class="progress"><i style="width:' + Math.min(100, Math.round(p.total / max * 100)) + '%"></i></div>' +
+      '<p class="muted small">' + (nx ? nx[1] + 'メダル(' + nx[0] + 'pt)まで あと' + (nx[0] - p.total) + 'pt' : '金メダル達成！ 今月の努力は満点です') + '</p>' +
+      '<ul class="jk-pts"><li>解いた問題 <b>' + p.q + '</b>×1</li><li>クリアテスト合格 <b>' + p.clear + '</b>×10</li><li>週の確認テスト合格 <b>' + p.week + '</b>×20</li><li>振り返りノート <b>' + p.refl + '</b>×5</li><li>集中タイマー <b>' + p.pomo + '</b>×5</li><li>学習した日 <b>' + p.days + '</b>×3</li></ul>' +
+      '<p class="hint">成績ではなく「どれだけ取り組んだか」のポイントです。毎月1日にリセットされます。</p></section>';
+  }
+  // 定期テスト対策(テストの3週間前から)
+  function teikiPlan(t) {
+    var left = D.diff(D.today(), t.date);
+    return left > 14 ? ['範囲の総点検', '範囲の単元を、1つずつクリアテストで確かめよう。合格した単元は後回しでOK。'] : left > 7 ? ['苦手の集中練習', '不合格・未挑戦の単元にしぼって練習し、もう一度クリアテストへ。'] : left > 0 ? ['仕上げ', 'すべての単元を合格に。間違い直しと、学校のワーク・プリントの解き直しも。'] : ['本番', '今日がテスト。落ち着いて、見直しの時間を残そう。'];
+  }
+  function teikiCards(full) {
+    var s = S.get(), today = D.today(), list = (s.teiki || []).filter(function (t) { return t.date >= today && (full || D.diff(today, t.date) <= 21); }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    return list.map(function (t) {
+      var done = t.units.filter(function (id) { return clearOf(id); }).length, pl = teikiPlan(t);
+      return '<section class="card jk-teiki"><div class="row-between"><h2>定期テスト対策:' + h(t.name) + '</h2><span class="time-pill">あと' + D.diff(today, t.date) + '日</span></div>' +
+        '<p class="muted small">' + h(t.date) + '・' + h(WPS.SUBJECTS[t.subj] ? WPS.SUBJECTS[t.subj].name : '') + ' ／ 範囲 ' + t.units.length + '単元のうち <b>' + done + '</b> 単元が合格</p>' +
+        '<div class="progress"><i style="width:' + (t.units.length ? Math.round(done / t.units.length * 100) : 0) + '%"></i></div>' +
+        '<p class="jk-cycle go"><b>' + pl[0] + '</b>' + h(pl[1]) + '</p>' +
+        '<ul class="jk-units">' + t.units.map(function (id) { var u = WPS.UNIT_MAP[id]; if (!u) return ''; return '<li><a href="#study/' + id + '">' + h(u.name) + '</a>' + clearBadge(id) + (clearOf(id) ? '' : '<a class="btn small" href="#jtest/clear:' + id + '">クリアテスト</a>') + '</li>'; }).join('') + '</ul></section>';
+    }).join('');
+  }
+  WPS.Juku = { effort: effort, reflList: reflList, clearOf: clearOf };
+
+  renderResult.after = function () {
+    var r = lastResult; if (!r) return;
+    var us = {}; r.results.forEach(function (x) { var q = WPS.Q(x.q); if (q) us[q.unit] = 1; });
+    bindRefl(r.title, Object.keys(us).slice(0, 8));
+  };
+
   /* ========== 単元ページ ========== */
   function renderStudy(id) {
     var u = WPS.UNIT_MAP[id];
@@ -1510,8 +1676,10 @@
         (roots.length ? '<p class="root">🔍 先にここを固めると、ぐっとわかりやすくなるよ。</p>' : '<p class="muted">土台はバッチリ！</p>') +
         '<div class="unit-list">' + u.prereq.map(function (p) { return unitRow(p, stats); }).join('') + '</div></section>';
     }
+    html += '<section class="card jk-clear"><div class="row-between"><h2>単元クリアテスト</h2>' + clearBadge(id) + '</div><p class="muted small">' + CLEAR_N + '問のうち8割(' + Math.ceil(CLEAR_N * CLEAR_RATE) + '問)以上で合格。合格するまで、何度でも挑戦できます。</p>' +
+      '<a class="btn primary big" href="#jtest/clear:' + id + '">クリアテストを受ける</a></section>';
     html += '<section class="card"><div class="stack">' +
-      '<button class="btn primary big" id="practice">✏️ 問題を解く(' + unitSet(u).length + '問)</button><p class="hint center">この単元の問題数:' + unitCount(u) + '</p>' +
+      '<button class="btn big" id="practice">✏️ 問題を解く(' + unitSet(u).length + '問)</button><p class="hint center">この単元の問題数:' + unitCount(u) + '</p>' +
       '<button class="btn big" id="toCards">🃏 この単元を単語帳で練習</button>' +
       '<a class="btn big" href="#memo/' + id + '">✏️ 先生に質問したいことを書く</a></div></section>';
     var gd = WPS.SUBJECT_GUIDE[u.subj];
@@ -1588,7 +1756,7 @@
     items2.filter(function (x) { return x.kind === 'ms'; }).forEach(function (x) { html += '<p class="cal-ms">マイルストーン:' + h(x.text) + '</p>'; });
     if (w && sd <= t.exam) {
       var ph = WPS.PHASES.filter(function (x) { return x.key === w.phase; })[0];
-      html += '<p class="muted small">この週(' + D.label(w.start) + '〜' + D.label(w.end) + ')' + (ph ? '・' + h(ph.name) : '') + '</p>' +
+      html += '<p class="muted small">この週(' + D.label(w.start) + '〜' + D.label(w.end) + ')' + (ph ? '・' + h(ph.name) : '') + '</p>' + dayTypeLine(w, sd) +
         (w.units.length ? '<ol class="steps">' + w.units.map(function (id) { var u = WPS.UNIT_MAP[id]; return '<li><a href="#study/' + id + '">' + h(u.name) + '</a> <small class="muted">' + h(WPS.SUBJECTS[u.subj].name) + '・' + u.stage + '・' + STATUS[rm.stats[id].status].label + '</small></li>'; }).join('') + '</ol>' : '<p class="small">これまでの苦手単元の復習と、過去問・演習に取り組む週です。</p>') +
         '<p class="small">毎日のやること:単語帳の復習(5〜10分)+ その週の単元の練習' + (WPS.Time.isHoliday(sd) ? '(休日の目安 ' : '(平日の目安 ') + WPS.Time.label(WPS.Time.isHoliday(sd) ? (+p0().minutesHoliday || 120) : (+p0().minutesWeekday || 60)) + ')</p>';
     } else if (sd > t.exam) html += '<p class="muted small">本番の後の日です。</p>';
@@ -2403,6 +2571,7 @@
     html += '<section class="card"><h2>③ 生徒からの質問(授業の最初に解消)</h2>' + (memos.length ? '<ul class="bullets">' + memos.slice(-10).map(function (m) {
       return '<li>' + (m.unit ? '[' + h(WPS.UNIT_MAP[m.unit].name) + '] ' : '') + h(m.text) + '</li>';
     }).join('') + '</ul>' : '<p class="muted">未解決の質問はありません。</p>') + '</section>';
+    html += '<section class="card"><h2>生徒の振り返りノート(直近5件)</h2><p class="muted small">「わかった」が説明として正しいかを授業の最初に確認し、「課題」から指導を始めてください。</p>' + reflList(s.refl, 5) + '</section>';
 
     // 次回の授業プラン
     var main = top[0] ? WPS.UNIT_MAP[top[0]] : null;
@@ -2686,11 +2855,28 @@
         return '<li>' + h(r.date) + ' ' + h(r.kind) + '・' + WPS.SUBJECTS[r.subj].name + ':' + r.score + '/' + r.max + '点</li>';
       }).join('') + '</ul></section>';
     }
+    html += parentMonthly(s);
     html += '<section class="card"><h2>ご家庭でできること</h2><ul class="bullets">' +
       '<li>点数よりも「続けていること」をほめてください。連続記録は本人の自信になります。</li>' +
       '<li>夜' + h(p.reminder) + 'ごろに、学習がまだのときはアプリから本人に通知が届きます。声かけはその後で十分です。</li>' +
       '<li>わからない問題は「先生への質問メモ」にたまり、30分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
     return html;
+  }
+
+  // 保護者用:今月のまとめ(塾の月例報告にあたる)
+  function parentMonthly(s) {
+    var today = D.today(), m = today.slice(0, 7), inM = function (a) { return a.d && a.d.slice(0, 7) === m && a.src !== 'school'; };
+    var at = s.attempts.filter(inM), q = at.filter(function (a) { return a.src !== 'card'; }), ef = effort(m);
+    var acc0 = q.length ? Math.round(q.filter(function (a) { return a.ok; }).length / q.length * 100) + '%' : '—';
+    var pm = (s.pomoLog || []).filter(function (x) { return x.d.slice(0, 7) === m; }).reduce(function (a, x) { return a + x.m; }, 0);
+    var cl = Object.keys(s.clears || {}).filter(function (k) { return s.clears[k].d.slice(0, 7) === m; });
+    var tk = (s.teiki || []).filter(function (t) { return t.date >= today; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    return '<section class="card"><h2>今月のまとめ(' + (+m.slice(5)) + '月)</h2><div class="stat-row"><div><b>' + ef.days + '<small>日</small></b><small>学習した日</small></div><div><b>' + at.length + '</b><small>解いた問題</small></div><div><b>' + acc0 + '</b><small>正答率</small></div></div>' +
+      '<table class="kv"><tr><th>集中タイマー</th><td>' + (pm ? WPS.Time.label(pm) : '記録なし') + '</td></tr>' +
+      '<tr><th>クリアテスト合格</th><td>' + (cl.length ? cl.length + '単元(' + cl.slice(0, 6).map(function (k) { return h(WPS.UNIT_MAP[k] ? WPS.UNIT_MAP[k].name : k); }).join('、') + (cl.length > 6 ? ' など' : '') + ')' : 'まだありません') + '</td></tr>' +
+      '<tr><th>努力ポイント</th><td>' + ef.total + 'pt' + (ef.total >= 1500 ? '(金メダル)' : ef.total >= 800 ? '(銀メダル)' : ef.total >= 300 ? '(銅メダル)' : '') + '</td></tr>' +
+      (tk.length ? '<tr><th>次の定期テスト</th><td>' + h(tk[0].name) + '(' + h(tk[0].date) + '・あと' + D.diff(today, tk[0].date) + '日)範囲 ' + tk[0].units.length + '単元のうち ' + tk[0].units.filter(function (id) { return clearOf(id); }).length + ' 単元が合格</td></tr>' : '') +
+      '</table><h3>本人の振り返りノート</h3>' + reflList(s.refl, 3) + '</section>';
   }
 
   /* ========== 単語・用語の一覧(教科別) ========== */
@@ -3367,6 +3553,14 @@
       '<fieldset><legend>間違えた・自信がなかった単元(いくつでも)</legend><div id="recUnits" class="check-grid"></div></fieldset>' +
       '<details><summary>よくできた単元も記録する(任意)</summary><div id="recGood" class="check-grid"></div></details>' +
       '<button class="btn primary big" type="submit">記録する</button></form></section>';
+    html += '<section class="card" id="teiki"><h2>定期テストの予定(対策モード)</h2><p class="muted small">テストの日と範囲の単元を登録すると、3週間前からホームに対策カードが出ます。範囲の単元を「クリアテスト」で1つずつ合格にしていきます。</p>' +
+      '<form id="tkForm" class="form"><div class="form-2"><label>テストの名前<input name="name" maxlength="20" required placeholder="例:2学期 中間テスト"></label><label>日付<input type="date" name="date" min="' + D.today() + '" required></label></div>' +
+      '<label>科目<select name="subj" id="tkSubj">' + subjOpts + '</select></label>' +
+      '<fieldset><legend>範囲の単元(いくつでも)</legend><div id="tkUnits" class="check-grid"></div></fieldset>' +
+      '<button class="btn primary" type="submit">登録する</button></form>' +
+      ((s.teiki || []).length ? '<ul class="memos">' + s.teiki.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).map(function (t) {
+        return '<li><div><small>' + h(t.date) + '・' + h(WPS.SUBJECTS[t.subj] ? WPS.SUBJECTS[t.subj].name : '') + '</small><b>' + h(t.name) + '</b> 範囲 ' + t.units.length + '単元・合格 ' + t.units.filter(function (id) { return clearOf(id); }).length + '</div><button class="btn small ghost" data-deltk="' + t.id + '" aria-label="削除">🗑</button></li>';
+      }).join('') + '</ul>' : '') + '</section>' + teikiCards(true);
     var recs = (s.records || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
     html += '<section class="card"><h2>これまでの記録</h2>' + (recs.length ? recordsChart(s.records) + '<ul class="memos">' + recs.map(function (r) {
       return '<li><div><small>' + h(r.date) + '・' + h(r.kind) + '</small><b>' + WPS.SUBJECTS[r.subj].name + ' ' + r.score + ' / ' + r.max + '点</b>(' + Math.round(r.score / r.max * 100) + '%)' +
@@ -3376,6 +3570,20 @@
     return html;
   }
   renderRecords.after = function () {
+    var ts = document.getElementById('tkSubj');
+    function tfill() { document.getElementById('tkUnits').innerHTML = WPS.UNITS.filter(function (u) { return u.subj === ts.value; }).map(function (u) { return '<label class="ck"><input type="checkbox" name="u" value="' + u.id + '"> ' + h(u.name) + '<small>' + u.stage + '</small></label>'; }).join(''); }
+    ts.addEventListener('change', tfill); tfill();
+    document.getElementById('tkForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var fd = new FormData(e.target), us = fd.getAll('u');
+      if (!us.length) { toast('範囲の単元を1つ以上選んでね'); return; }
+      var s = S.get(); s.teiki = s.teiki || []; s.teiki.push({ id: Date.now(), name: String(fd.get('name')).trim(), date: fd.get('date'), subj: fd.get('subj'), units: us });
+      S.save(); toast('定期テストを登録しました'); render();
+    });
+    view.querySelectorAll('[data-deltk]').forEach(function (b) { b.addEventListener('click', function () {
+      if (!confirm('この定期テストの予定を削除しますか?')) return;
+      var s = S.get(); s.teiki = (s.teiki || []).filter(function (t) { return String(t.id) !== b.getAttribute('data-deltk'); }); S.save(); render();
+    }); });
     var sel = document.getElementById('recSubj');
     function fill() {
       var us = WPS.UNITS.filter(function (u) { return u.subj === sel.value; });
