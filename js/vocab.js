@@ -439,6 +439,7 @@ WPS.makeVocab = function (ctx) {
         opt('voice', '読み上げ声色', [['female', '女性'], ['male', '男性']]) +
         '<div class="vt-vsel" id="vtVoiceSel" aria-live="polite"></div>' +
         '<p class="hint">ふつうは、端末に入っている声の中から、機械っぽくない自然な女性の声を自動で選びます。上の「この端末の声を選ぶ」で、聞き比べて選ぶこともできます。声をもっと自然にしたいときは、高品質な声(「拡張」「プレミアム」と付いたもの)を端末にダウンロードしてください。iPhone・iPad:「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」。Mac:「システム設定」→「アクセシビリティ」→「読み上げコンテンツ」→「システムの声」→「声を管理」。パソコンでは Microsoft Edge で開くと自然な声が使えます。</p>' : '') +
+      '<p class="hint">英単語のイラストには、Microsoft の「Fluent Emoji」(MIT ライセンス)を使っています。© Microsoft Corporation</p>' +
       '</details></section>';
     html += recordCard() + WPS.Quest.card(h);
     return html;
