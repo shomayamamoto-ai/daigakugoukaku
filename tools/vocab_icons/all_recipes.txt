@@ -10277,3 +10277,6 @@ tick-off|index-pointing-up,anger-symbol|
 trump-up|lying-face,scroll|
 waver-between|left-right-arrow,thinking-face|
 weigh-in|man-raising-hand,speech-balloon|
+suicide|wilted-flower|
+crucify|latin-cross|
+breast|anatomical-heart,lungs|plus
