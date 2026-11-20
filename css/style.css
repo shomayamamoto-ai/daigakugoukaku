@@ -3386,3 +3386,23 @@ body.tl-full { overflow: hidden; }
   .trk-mark { font-size: 64px; bottom: 22%; }
   .trk-fb { bottom: calc(6px + env(safe-area-inset-bottom)); padding: 4px 12px; font-size: 13px; }
 }
+/* トロッコ:メニュー(遊び方の2つ・クリアテストを選ぶ欄・教科ごとの見出し)と、4択の画面 */
+.trk-two { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 10px 0; }
+@media (min-width: 640px) { .trk-two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.trk-two > div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.trk-two b { display: block; font-size: 15px; }
+.trk-two small { display: block; color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 2px; }
+.trk-test { border: 2px solid var(--primary); }
+.trk-pick { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 10px 0 12px; }
+@media (min-width: 640px) { .trk-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.trk-pick label { display: block; font-size: 13px; font-weight: 700; min-width: 0; }
+.trk-pick select { display: block; width: 100%; max-width: 100%; margin-top: 4px; }
+.trk-gh { margin: 18px 0 8px; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.trk-text.long { font-size: 14.5px; line-height: 1.55; }
+.trk-full .trk-q { max-height: 30vh; overflow-y: auto; }
+.trk-btn.sm span { font-size: 13.5px; line-height: 1.4; }
+.trk-full.k4 .trk-ab { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.trk-full.k4 .trk-btn { min-height: 58px; flex-direction: row; justify-content: flex-start; gap: 8px; padding: 6px 10px; }
+.trk-full.k4 .trk-btn i { flex: none; }
+.trk-full.k4 .trk-btn span { text-align: left; min-width: 0; }
+@media (min-width: 900px) { .trk-full.k4 .trk-top { max-width: 980px; } .trk-full.k4 .trk-ab { grid-template-columns: repeat(4, minmax(0, 1fr)); } .trk-full.k4 .trk-btn { flex-direction: column; justify-content: center; min-height: 76px; } .trk-full.k4 .trk-btn span { text-align: center; } }

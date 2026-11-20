@@ -1184,14 +1184,14 @@
     setTimeout(function () { d.classList.add('out'); }, 650);
     setTimeout(function () { if (d.parentNode) d.remove(); }, 1000);
   }
-  function startQuiz(qids, src, title) {
+  function startQuiz(qids, src, title, noGo) {
     quiz = {
       items: qids.map(function (id) { return { q: id, dig: false }; }), i: 0, src: src, title: title,
       results: [], answered: false, order: null, asked: {}, digs: 0,
       t0: Date.now(), xp: 0, combo: 0, best: 0, first: !WPS.Streak.studiedToday()
     };
     qids.forEach(function (id) { quiz.asked[id] = true; });
-    go('#quiz');
+    if (!noGo) go('#quiz');
   }
 
   // 問題を解いている間は単元名を出さない(「未来完了」などの単元名で答えがわかってしまうため)。
@@ -1559,16 +1559,36 @@
   // 「やる」ボタンから、塾式のテストを始める
   function renderJtest(arg) {
     var parts = String(arg || '').split(':'), kind = parts[0], rm = R.build(), w = R.currentWeek(rm), ids = [], title = '', unit = null;
+    var plain = kind === 'clearp'; if (plain) kind = 'clear';   // clearp = トロッコ形式ではない、ふつうの4択
     if (kind === 'clear' && WPS.UNIT_MAP[parts[1]]) { unit = parts[1]; ids = clearSet(WPS.UNIT_MAP[unit]); title = WPS.UNIT_MAP[unit].name + ' クリアテスト'; }
     else if (kind === 'recap') { var ls = lastStudy(); if (ls) { ids = recapQs(ls); title = '前回の確認テスト'; } }
     else if (kind === 'rev' && w) { ids = weekQs(w, 5); title = '今週の復習'; }
     else if (kind === 'week' && w) { ids = weekQs(w, CLEAR_N); title = '今週の確認テスト'; }
     history.replaceState(null, '', '#home');
     if (!ids.length) { toast('出題できる問題がありませんでした'); setTimeout(render, 0); return ''; }
-    startQuiz(ids, kind, title);
+    // 単元クリアテストは、4択のトロッコ形式で出す(記録と合否は、ふつうのテストと同じ)
+    var tk = kind === 'clear' && !plain;
+    if (tk) history.replaceState(null, '', '#study/' + unit);
+    startQuiz(ids, kind, title, tk);
     quiz.unit = unit; quiz.week = w ? w.start : '';
+    if (tk) { if (TK.startTest(ids, title, Math.ceil(ids.length * CLEAR_RATE))) go('#torokko'); else go('#quiz'); }
     return '';
   }
+  // トロッコ形式のクリアテストから呼ばれる:1問ごとの記録(ふつうのテストの answer と同じ内容)・終了・中止
+  var tkTest = {
+    answer: function (qid, chosen) {
+      var q = WPS.Q(qid); if (!q || !quiz) return;
+      var ok = chosen !== null && String(chosen) === String(q.answer), s = S.get();
+      s.attempts.push({ q: q.id, u: q.unit, s: q.subj, ok: ok, ch: chosen, unsure: false, mode: 'choice', src: quiz.src, t: Date.now(), d: D.today() });
+      quiz.results.push({ q: q.id, ok: ok, unsure: false, dig: false });
+      WPS.Streak.touch();
+      var xr = WPS.Quest.onAnswer(ok, { hard: diffOf(q) === 3 });
+      quiz.xp += xr.xp; quiz.combo = ok ? quiz.combo + 1 : 0; if (quiz.combo > quiz.best) quiz.best = quiz.combo;
+      S.save();
+    },
+    done: function () { if (quiz) finishQuiz(); },
+    quit: function (silent) { var u = quiz && quiz.unit; quiz = null; if (!silent) { toast('クリアテストを中止しました(合否はつきません)'); go(u ? '#study/' + u : '#torokko'); } }
+  };
   // テストが終わったときの記録
   function jukuFinish(q) {
     var s = S.get(), n = q.results.length, c = q.results.filter(function (x) { return x.ok; }).length, ok = n && c / n >= CLEAR_RATE;
@@ -1677,7 +1697,8 @@
         '<div class="unit-list">' + u.prereq.map(function (p) { return unitRow(p, stats); }).join('') + '</div></section>';
     }
     html += '<section class="card jk-clear"><div class="row-between"><h2>単元クリアテスト</h2>' + clearBadge(id) + '</div><p class="muted small">' + CLEAR_N + '問のうち8割(' + Math.ceil(CLEAR_N * CLEAR_RATE) + '問)以上で合格。合格するまで、何度でも挑戦できます。</p>' +
-      '<a class="btn primary big" href="#jtest/clear:' + id + '">クリアテストを受ける</a></section>';
+      '<a class="btn primary big" href="#jtest/clear:' + id + '">クリアテストを受ける(4択・トロッコ形式)</a>' +
+      '<p class="hint">全画面で、A〜D の4本の線路から答えを選びます。1問ごとに制限時間があります。<a href="#jtest/clearp:' + id + '">時間制限のない、ふつうの形式で受ける</a></p></section>';
     html += '<section class="card"><div class="stack">' +
       '<button class="btn big" id="practice">✏️ 問題を解く(' + unitSet(u).length + '問)</button><p class="hint center">この単元の問題数:' + unitCount(u) + '</p>' +
       '<button class="btn big" id="toCards">🃏 この単元を単語帳で練習</button>' +
@@ -3174,7 +3195,7 @@
   var RJ = WPS.makeRonjutsu({ h: h, toast: toast, shuffle: shuffle, render: render });
   function renderRon() { return RJ.render(); }
   var ET = WPS.makeEtrain({ h: h, toast: toast, shuffle: shuffle, render: render });
-  var TK = WPS.makeTorokko({ h: h, toast: toast, shuffle: shuffle, render: render });
+  var TK = WPS.makeTorokko({ h: h, toast: toast, shuffle: shuffle, render: render, clearOf: clearOf, test: tkTest });
   function renderEtrain(arg) { return ET.render(arg); }
   renderEtrain.after = function (arg) { ET.after(arg); };
   var WQ = WPS.makeWhq({ h: h, toast: toast, shuffle: shuffle, judgeMark: judgeMark, render: render });
