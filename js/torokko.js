@@ -150,12 +150,12 @@ WPS.makeTorokko = function (ctx) {
 
   function stage() {
     var fs = document.documentElement.requestFullscreen ? '<button type="button" class="trk-hbtn" id="tkFs">全画面</button>' : '';
-    var test = g.mode === 'test', goalTxt = test ? g.pass + '問以上で合格' : g.goal + '問でゴール';
+    var test = g.mode !== 'game', goalTxt = g.mode === 'test' ? g.pass + '問以上で合格' : g.mode === 'drv' ? h(g.drv.title || '') : g.goal + '問でゴール';
     return '<div class="trk-full' + (g.k === 4 ? ' k4' : '') + '" id="tkGame">' +
       '<canvas class="trk-cv" id="tkCv" aria-label="奥へのびる線路と、分かれ道"></canvas>' +
       '<div class="trk-top">' +
       '<div class="trk-hud">' + (test ? '<span class="trk-pts">正解 <b id="tkScore">0</b>問</span>' : '<span class="trk-lives" id="tkLives" aria-label="のこりライフ"></span><span class="trk-pts"><b id="tkScore">0</b>点</span>') + '<span class="trk-combo" id="tkCombo"></span>' + fs + '<button type="button" class="trk-hbtn" id="tkQuit">やめる</button></div>' +
-      '<div class="trk-prog"><span class="trk-prog-t"><b id="tkNo">1</b> / ' + g.goal + '問<small>(' + goalTxt + ')</small></span><span class="trk-bar"><i id="tkProg"></i></span><span class="trk-flag" aria-hidden="true">GOAL</span></div>' +
+      '<div class="trk-prog"><span class="trk-prog-t"><b id="tkNo">1</b> / <span id="tkGoal">' + g.goal + '</span>問<small>(' + goalTxt + ')</small></span><span class="trk-bar"><i id="tkProg"></i></span><span class="trk-flag" aria-hidden="true">GOAL</span></div>' +
       '<div class="trk-time"><span class="trk-sec" aria-label="残り時間">残り <b id="tkSec">0</b> 秒</span><span class="trk-bar trk-tbar"><i id="tkTime"></i></span></div>' +
       '<section class="trk-q"><p class="trk-kind" id="tkKind"></p><p class="trk-text" id="tkText" aria-live="polite"></p></section>' +
       '<div class="trk-ab">' + g.lanes.map(function (o, i) { return '<button type="button" class="trk-btn" data-lane="' + i + '"><i>' + 'ABCD'[i] + '</i><span></span>' + (g.k === 2 ? '<em>' + (i ? '右の線路 →' : '← 左の線路') + '</em>' : '') + '</button>'; }).join('') + '</div>' +
@@ -279,11 +279,18 @@ WPS.makeTorokko = function (ctx) {
     last = null;
     return true;
   }
+  // ほかの画面(単語帳の4択テストなど)が問題を出し、記録も受け持つ形。drv = { title, total(), q(), limit(), shown(), answer(lane, timeout), more(), done(), quit(silent) }
+  function startDrive(drv) {
+    g = { mode: 'drv', drv: drv, k: 4, lanes: lanesFor(4), goal: drv.total(), qs: [], i: -1, n: 0, score: 0, combo: 0, maxCombo: 0, okN: 0, lives: 1, miss: [], phase: 'idle', s: 0, side: -1, fade: 0 };
+    last = null;
+    return true;
+  }
   function el(id) { return document.getElementById(id); }
   function btns() { return [].slice.call(document.querySelectorAll('#tkGame .trk-btn')); }
   function hud() {
     if (g.mode === 'game') { var l = '', i; for (i = 0; i < LIVES; i++) l += '<i class="' + (i < g.lives ? 'on' : '') + '"></i>'; el('tkLives').innerHTML = l; }
-    el('tkScore').textContent = g.mode === 'test' ? g.okN : g.score;
+    el('tkScore').textContent = g.mode !== 'game' ? g.okN : g.score;
+    var gl = el('tkGoal'); if (gl) gl.textContent = g.goal;
     el('tkCombo').textContent = g.combo >= 2 ? g.combo + '連続' : '';
     el('tkNo').textContent = Math.min(g.goal, g.n);
     el('tkProg').style.width = Math.round((g.n - (g.phase === 'run' || g.phase === 'go' ? 1 : 0)) / g.goal * 100) + '%';
@@ -293,22 +300,27 @@ WPS.makeTorokko = function (ctx) {
     left = Math.max(0, left);
     sec.textContent = Math.ceil(left / 1000);
     bar.style.width = (left / g.limit * 100).toFixed(1) + '%';
-    var low = left <= (g.mode === 'test' ? 5000 : 3000); sec.parentNode.classList.toggle('low', low); bar.classList.toggle('low', low);
+    var low = left <= (g.mode === 'test' ? 5000 : 3000) && left < g.limit; sec.parentNode.classList.toggle('low', low); bar.classList.toggle('low', low);
   }
   function next() {
     if (!g) return;
     g.i++; g.n++;
-    if (g.i >= g.qs.length) { g.qs = shuffle(g.qs); g.i = 0; }
-    var q = g.qs[g.i], opts = shuffle(q.opts.slice());
-    g.opts = opts; g.okLane = opts.indexOf(q.ok);
+    var q, opts;
+    if (g.drv) { q = g.drv.q(); opts = q.opts; g.okLane = q.okIdx; g.goal = g.drv.total(); }
+    else {
+      if (g.i >= g.qs.length) { g.qs = shuffle(g.qs); g.i = 0; }
+      q = g.qs[g.i]; opts = shuffle(q.opts.slice()); g.okLane = opts.indexOf(q.ok);
+    }
+    g.q = q; g.opts = opts;
     g.side = -1; g.phase = 'run'; g.s = 0; g.fade = g.n > 1 ? 1 : 0; g.t0 = performance.now();
-    g.limit = (g.mode === 'test' ? (T_TEST[q.lv] || 30) + (q.t.length > 80 ? 10 : 0) : Math.max(T_MIN, T_START - Math.floor(g.okN / 5))) * 1000;
-    el('tkKind').textContent = q.word ? '意味はどっち?' : (g.n === g.goal ? 'さいごの問題' : '');
+    g.limit = (g.drv ? g.drv.limit() : g.mode === 'test' ? (T_TEST[q.lv] || 30) + (q.t.length > 80 ? 10 : 0) : Math.max(T_MIN, T_START - Math.floor(g.okN / 5))) * 1000;
+    el('tkKind').textContent = q.kind || (q.word ? '意味はどっち?' : (g.n === g.goal ? 'さいごの問題' : ''));
     var tx = el('tkText'); tx.textContent = q.t; tx.className = 'trk-text' + (q.word ? ' word' : '') + (q.t.length > 60 ? ' long' : '');
     var longOpt = opts.some(function (o) { return o.length > 14; });
     btns().forEach(function (b, k) { b.querySelector('span').textContent = opts[k]; b.className = 'trk-btn' + (longOpt ? ' sm' : ''); b.disabled = false; });
     var m = el('tkMark'); m.textContent = ''; m.className = 'trk-mark'; el('tkFb').textContent = '';
     hud(); clock(g.limit); size(); loop();
+    if (g.drv && g.drv.shown) g.drv.shown();
   }
   function choose(lane) {
     if (!g || g.phase !== 'run' || !(lane >= 0 && lane < g.k)) return;
@@ -339,10 +351,11 @@ WPS.makeTorokko = function (ctx) {
     });
   }
   function judge(ok, timeout) {
-    var q = g.qs[g.i], test = g.mode === 'test'; g.phase = 'show';
+    var q = g.q, test = g.mode !== 'game'; g.phase = 'show';
     btns().forEach(function (b, k) { b.disabled = true; if (k === g.okLane) b.classList.add('ok'); else if (k === g.side) b.classList.add('ng'); });
     var mark = el('tkMark'), fb = el('tkFb');
-    if (test && ctx.test) ctx.test.answer(q.id, g.side >= 0 ? g.opts[g.side] : null);
+    if (g.mode === 'test' && ctx.test) ctx.test.answer(q.id, g.side >= 0 ? g.opts[g.side] : null);
+    if (g.drv) g.drv.answer(g.side, timeout);
     if (ok) {
       g.combo++; g.okN++; g.maxCombo = Math.max(g.maxCombo, g.combo);
       var gain = 10 + Math.min(10, (g.combo - 1) * 2) + Math.round(Math.max(0, g.left) / g.limit * 5);
@@ -351,14 +364,15 @@ WPS.makeTorokko = function (ctx) {
     } else {
       g.combo = 0; if (!test) g.lives--; g.miss.push(q);
       mark.textContent = '✕'; mark.className = 'trk-mark ng';
-      fb.textContent = (timeout ? '時間切れ。' : '') + '正解は ' + 'ABCD'[g.okLane] + '「' + q.ok + '」';
+      fb.textContent = (timeout ? '時間切れ。' : '') + '正解は ' + 'ABCD'[g.okLane] + '「' + g.opts[g.okLane] + '」';
       el('tkGame').classList.add('shake'); setTimeout(function () { var x = el('tkGame'); if (x) x.classList.remove('shake'); }, 400);
     }
     hud();
-    var goal = g.n >= g.goal && g.lives > 0;
+    var goal = !g.drv && g.n >= g.goal && g.lives > 0;
     if (goal && !test) { g.bonus = g.lives * LIFE_BONUS; g.score += g.bonus; }
     setTimeout(function () {
       if (!g || !el('tkGame')) return;
+      if (g.drv) { var d = g.drv; if (d.more()) next(); else { leave(); d.done(); } return; }
       if (goal && test) {
         var pass = g.okN >= g.pass; g.phase = 'end';
         mark.textContent = pass ? '合格' : 'もう一歩'; mark.className = 'trk-mark ' + (pass ? 'goal' : 'ng small'); fb.textContent = g.goal + '問中 ' + g.okN + '問 正解';
@@ -373,6 +387,7 @@ WPS.makeTorokko = function (ctx) {
   function finish(goal) {
     if (!g) return;
     if (g.mode === 'test') { endTest(false); return; }
+    if (g.drv) { var d = g.drv; leave(); d.quit(); return; }
     var r = rec(), old = r.best[g.course] || 0, played = g.okN + g.miss.length;
     last = { course: g.course, score: g.score, okN: g.okN, n: g.n, goal: goal === true, bonus: goal === true ? g.bonus : 0, maxCombo: g.maxCombo, miss: g.miss.slice(0, 20), newBest: g.score > old && g.score > 0 };
     if (played) { r.plays = (r.plays || 0) + 1; if (g.score > old) r.best[g.course] = g.score; S.save(); }
@@ -407,7 +422,7 @@ WPS.makeTorokko = function (ctx) {
       if (go) go.addEventListener('click', function () { if (un && un.value) location.hash = '#jtest/clear:' + un.value; });
       return;
     }
-    if (g.phase !== 'idle') { var wasTest = g.mode === 'test'; leave(); if (wasTest && ctx.test) ctx.test.quit(true); ctx.render(); return; }   // 画面を作り直したときは、メニューにもどす
+    if (g.phase !== 'idle') { var wasTest = g.mode === 'test', od = g.drv; leave(); if (wasTest && ctx.test) ctx.test.quit(true); if (od) od.quit(true); ctx.render(); return; }   // 画面を作り直したときは、メニューにもどす
     cv = el('tkCv'); c2 = cv.getContext('2d');
     btns().forEach(function (b) { b.addEventListener('click', function () { choose(+b.getAttribute('data-lane')); }); });
     el('tkQuit').addEventListener('click', function () { finish(); });
@@ -417,5 +432,5 @@ WPS.makeTorokko = function (ctx) {
     if (fs) fs.addEventListener('click', function () { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { } });
     next();
   };
-  return { render: renderFn, inMode: function () { return !!g; }, startTest: startTest, pool: pool, shelf: shelf, goal: GOAL };
+  return { render: renderFn, inMode: function () { return !!g; }, startTest: startTest, startDrive: startDrive, pool: pool, shelf: shelf, goal: GOAL };
 };

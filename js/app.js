@@ -3188,7 +3188,7 @@
   })();
   /* ========== 単語トレーニング(js/vocab.js) ========== */
   var VT = WPS.makeVocab({
-    h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems,
+    h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems, trolley: function () { return TK; },
     okList: function (L) { return wordListOk(L, S.get().profile.grade, A.allStats()); }
   });
   function renderVocab() { return VT.render(); }

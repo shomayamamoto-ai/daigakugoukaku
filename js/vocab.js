@@ -28,7 +28,7 @@ WPS.makeVocab = function (ctx) {
       v.kbm = 1;
     }
     v.daily = v.daily || {};
-    var c = v.cfg, d = { grad: 2, allm: 0, retry: 1, order: 'rand', dir: 'e2j', n: 10, timer: 0, speak: 1, lang: 'both', rate: 'normal', voice: 'female', hide: 'm' };
+    var c = v.cfg, d = { grad: 2, allm: 0, retry: 1, trk: 1, order: 'rand', dir: 'e2j', n: 10, timer: 0, speak: 1, lang: 'both', rate: 'normal', voice: 'female', hide: 'm' };
     Object.keys(d).forEach(function (k) { if (c[k] === undefined) c[k] = d[k]; });
     return v;
   }
@@ -403,7 +403,7 @@ WPS.makeVocab = function (ctx) {
     html += '</div></details></section>';
     // 学び方
     var m = [
-      ['quiz', '4択テスト', 'テンポよく答えて、○✕ですぐ確認。結果は品詞ごとにわかる'],
+      ['quiz', '4択テスト', +c.trk ? 'トロッコに乗って、A〜D の4本の線路から答えを選ぶ。結果は品詞ごとにわかる' : 'テンポよく答えて、○✕ですぐ確認。結果は品詞ごとにわかる'],
       ['sheet', '赤シート', SEC + '語を一気に確認。タップでめくり、覚えていない語にマーカー'],
       ['sort', '苦手選別', '6語から苦手をタップで選ぶ。長押しで意味を確認'],
       ['listen', '聞き流し', '英語→日本語を自動で読み上げ。移動中やスキマ時間に'],
@@ -427,6 +427,8 @@ WPS.makeVocab = function (ctx) {
       opt('order', '出題順', [['rand', 'ランダム'], ['seq', '単語帳の順番'], ['rev', '単語帳の逆順']]) +
       opt('dir', '出題形式', [['e2j', '見出し→意味'], ['j2e', '意味→見出し']]) +
       opt('n', '問題数', [[10, '10問'], [20, '20問'], [50, '50問']]) +
+      opt('trk', '4択テストの画面', [[1, 'トロッコ(全画面)'], [0, 'ふつう']]) +
+      '<p class="hint">トロッコでは、A〜D の4本の線路から答えを選びます。制限時間が「なし」のときは、1問10秒になります。</p>' +
       opt('timer', '制限時間', [[0, 'なし'], [10, '1問10秒'], [5, '1問5秒']]) +
       opt('retry', '間違えた問題', [[1, '最後にもう一度出す'], [0, '出さない']]) +
       opt('grad', '苦手な単語の卒業', [[1, '1回'], [2, '2回'], [3, '3回'], [4, '4回'], [5, '5回']]) +
@@ -494,7 +496,7 @@ WPS.makeVocab = function (ctx) {
   }
   var tmr = null;
   function clearT() { if (tmr) { clearTimeout(tmr); tmr = null; } }
-  function answer(kind, pick) {
+  function answer(kind, pick, quiet) {   // quiet = トロッコの画面から(画面の作り直しや自動の「次へ」をしない)
     if (!qz || qz.ans) return;
     clearT();
     var x = qz.items[qz.i], ok = kind === 'pick' && qz.ch[pick] === x;
@@ -508,13 +510,14 @@ WPS.makeVocab = function (ctx) {
     // 学習モード:間違えた単語は最後にもう一度出す(1回だけ)
     if (!ok && !qz.diag && +vt().cfg.retry && !qz.again[x.key]) { qz.again[x.key] = 1; qz.items.push(x); }
     save();
+    if (quiet) { sayItem(qz.L, x); return; }
     if (kind === 'pick') judgeMark(ok ? 'ok' : 'ng');
     sayItem(qz.L, x);
     ctx.render();
     if (ok) tmr = setTimeout(function () { if (qz && qz.ans && location.hash === '#vocab') next(); }, 1300);
   }
   function toasts(ms) { (ms || []).forEach(function (m, i) { setTimeout(function () { toast(m); }, 900 + i * 2400); }); }
-  function next() {
+  function next(quiet) {
     clearT();
     if (!qz) return;
     qz.i++;
@@ -525,9 +528,42 @@ WPS.makeVocab = function (ctx) {
       if (qz.diag && !S.isView()) { var d = diagCalc(qz.res), v = vt(); v.diag = (v.diag || []).concat([{ d: D.today(), list: qz.L[2], p: Math.round(d.p * 1000) / 1000, est: round10(d.p * qz.all.length) }]).slice(-30); save(); }
     }
     else prepQ();
-    ctx.render();
+    if (quiet !== true) ctx.render();
+  }
+  /* ---------- 4択テストをトロッコの画面(全画面・A〜Dの4本の線路)で出す ---------- */
+  function useTrk() { return !!(qz && !qz.diag && +vt().cfg.trk && ctx.trolley && ctx.trolley()); }
+  function trkLaunch() {
+    var my = qz, c = vt().cfg, mine = function () { return qz === my; };
+    if (my.trk) {   // トロッコの途中で、単語帳の画面にもどってきた:中断としてあつかう
+      my.trk = 0; clearT();
+      if (my.res.length) st.mode = 'result'; else { qz = null; st.mode = null; }
+      return render();
+    }
+    my.trk = 1;
+    ctx.trolley().startDrive({
+      title: my.L[1],
+      total: function () { return my.items.length; },
+      q: function () {
+        var x = my.items[my.i], e2j = my.dir === 'e2j';
+        return { t: e2j ? x.t : x.m, opts: my.ch.map(function (y) { return e2j ? y.m : y.t; }), okIdx: my.ch.indexOf(x), word: 1, kind: my.i >= my.base ? 'もう一度やってみましょう' : (e2j ? '意味はどれ?' : 'あてはまることばはどれ?') };
+      },
+      limit: function () { return +c.timer || 10; },
+      shown: function () { if (mine() && c.speak && my.dir === 'e2j' && c.lang !== 'ja') { stopSpeak(); say1(my.items[my.i].t, isEn(my.L) ? 'en' : 'ja'); } },
+      answer: function (lane, timeout) { if (mine()) answer(lane >= 0 ? 'pick' : 'time', lane, true); },
+      more: function () { if (!mine()) return false; next(true); return st.mode === 'quiz'; },
+      done: function () { my.trk = 0; location.hash = '#vocab'; },
+      quit: function (silent) {
+        if (!mine()) return;
+        my.trk = 0; clearT(); stopSpeak();
+        if (my.res.length) st.mode = 'result'; else { qz = null; st.mode = null; }
+        if (!silent) location.hash = '#vocab';
+      }
+    });
+    location.hash = '#torokko';
+    return '<section class="card bk-loading" aria-busy="true"><p>トロッコの画面を開いています…</p></section>';
   }
   function quizAfter(view) {
+    if (qz && qz.trk) return;
     var x = qz.items[qz.i], c = vt().cfg;
     view.querySelector('#vqQuit').addEventListener('click', function () {
       clearT(); stopSpeak();
@@ -1274,7 +1310,7 @@ WPS.makeVocab = function (ctx) {
 
   /* ========== 画面の組み立て ========== */
   function render() {
-    if (st.mode === 'quiz' && qz) return quizHTML();
+    if (st.mode === 'quiz' && qz) return useTrk() || qz.trk ? trkLaunch() : quizHTML();
     if (st.mode === 'result' && qz) return resultHTML();
     if (st.mode === 'sheet' && sh) return sheetHTML();
     if (st.mode === 'sort' && so) return sortHTML();
