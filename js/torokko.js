@@ -15,6 +15,29 @@ WPS.makeTorokko = function (ctx) {
   var raf = 0;
   var pick = { book: '', unit: '' };   // クリアテストの選びかけ
 
+  /* ---------- 効果音(ファイルを使わず、その場で音を作る)。設定は S.get().torokko.mute ---------- */
+  var ac = null;
+  function muted() { return !!rec().mute; }
+  function tone(freq, t, dur, type, vol) {
+    var o = ac.createOscillator(), v = ac.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    v.gain.setValueAtTime(0.0001, ac.currentTime + t); v.gain.exponentialRampToValueAtTime(vol || 0.12, ac.currentTime + t + 0.015); v.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + dur);
+    o.connect(v); v.connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + dur + 0.02);
+  }
+  function sfx(kind) {
+    if (muted()) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      if (kind === 'ok') { tone(880, 0, 0.12); tone(1320, 0.1, 0.2); }
+      else if (kind === 'ng') { tone(196, 0, 0.28, 'sawtooth', 0.08); tone(147, 0.12, 0.3, 'sawtooth', 0.08); }
+      else if (kind === 'tick') tone(660, 0, 0.06, 'square', 0.05);
+      else if (kind === 'pick') tone(520, 0, 0.07, 'triangle', 0.08);
+      else if (kind === 'goal') { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * 0.13, 0.25); }); }
+    } catch (e) { }
+  }
+  function buzz(ms) { try { if (!muted() && navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
+
   function rec() { var s = S.get(); s.torokko = s.torokko || { best: {}, plays: 0 }; s.torokko.best = s.torokko.best || {}; return s.torokko; }
   function isJh() { return /^中/.test((S.get().profile || {}).grade || ''); }
   function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -154,14 +177,15 @@ WPS.makeTorokko = function (ctx) {
     return '<div class="trk-full' + (g.k === 4 ? ' k4' : '') + '" id="tkGame">' +
       '<canvas class="trk-cv" id="tkCv" aria-label="奥へのびる線路と、分かれ道"></canvas>' +
       '<div class="trk-top">' +
-      '<div class="trk-hud">' + (test ? '<span class="trk-pts">正解 <b id="tkScore">0</b>問</span>' : '<span class="trk-lives" id="tkLives" aria-label="のこりライフ"></span><span class="trk-pts"><b id="tkScore">0</b>点</span>') + '<span class="trk-combo" id="tkCombo"></span>' + fs + '<button type="button" class="trk-hbtn" id="tkQuit">やめる</button></div>' +
+      '<div class="trk-hud">' + (test ? '<span class="trk-pts">正解 <b id="tkScore">0</b>問</span>' : '<span class="trk-lives" id="tkLives" aria-label="のこりライフ"></span><span class="trk-pts"><b id="tkScore">0</b>点</span>') + '<span class="trk-combo" id="tkCombo"></span><button type="button" class="trk-hbtn" id="tkSnd" aria-pressed="' + (muted() ? 'false' : 'true') + '">' + (muted() ? '音なし' : '音あり') + '</button>' + fs + '<button type="button" class="trk-hbtn" id="tkQuit">やめる</button></div>' +
       '<div class="trk-prog"><span class="trk-prog-t"><b id="tkNo">1</b> / <span id="tkGoal">' + g.goal + '</span>問<small>(' + goalTxt + ')</small></span><span class="trk-bar"><i id="tkProg"></i></span><span class="trk-flag" aria-hidden="true">GOAL</span></div>' +
       '<div class="trk-time"><span class="trk-sec" aria-label="残り時間">残り <b id="tkSec">0</b> 秒</span><span class="trk-bar trk-tbar"><i id="tkTime"></i></span></div>' +
       '<section class="trk-q"><p class="trk-kind" id="tkKind"></p><p class="trk-text" id="tkText" aria-live="polite"></p></section>' +
       '<div class="trk-ab">' + g.lanes.map(function (o, i) { return '<button type="button" class="trk-btn" data-lane="' + i + '"><i>' + 'ABCD'[i] + '</i><span></span>' + (g.k === 2 ? '<em>' + (i ? '右の線路 →' : '← 左の線路') + '</em>' : '') + '</button>'; }).join('') + '</div>' +
+      (test ? '<button type="button" class="trk-idk" id="tkIdk">わからない(答えを見る)</button>' : '') +
       '</div>' +
       '<p class="trk-mark" id="tkMark" aria-hidden="true"></p>' +
-      '<p class="trk-fb" id="tkFb" aria-live="polite"></p></div>';
+      '<div class="trk-fb" id="tkFb" aria-live="polite"></div></div>';
   }
 
   /* ---------- セミ3Dの絵(キャンバス) ----------
@@ -238,6 +262,18 @@ WPS.makeTorokko = function (ctx) {
     c2.fillStyle = 'rgba(255,255,255,.16)'; c2.fillRect(-0.62 * k, -1.2 * k, 0.16 * k, 0.8 * k); c2.fillRect(0.46 * k, -1.2 * k, 0.16 * k, 0.8 * k);
     c2.restore();
   }
+  // 正解したときの、きらきら(トロッコのまわりから星がはじける)
+  function sparks(now, o) {
+    if (!g.spark) return;
+    var t = (now - g.spark) / 700; if (t >= 1) { g.spark = 0; return; }
+    var p = pj(px(g.s, o), g.s, 1.2); if (!p) return;
+    for (var i = 0; i < 12; i++) {
+      var a = i / 12 * 6.283 + 0.4, r = (0.6 + 2.6 * t) * p[2] * (0.7 + (i % 3) * 0.2), x = p[0] + Math.cos(a) * r, y = p[1] + Math.sin(a) * r * 0.8 - t * p[2] * 0.6, sz = (1 - t) * p[2] * 0.22;
+      c2.fillStyle = i % 2 ? '#fbbf24' : '#ffffff'; c2.globalAlpha = 1 - t;
+      c2.beginPath(); c2.moveTo(x, y - sz); c2.lineTo(x + sz * 0.35, y - sz * 0.35); c2.lineTo(x + sz, y); c2.lineTo(x + sz * 0.35, y + sz * 0.35); c2.lineTo(x, y + sz); c2.lineTo(x - sz * 0.35, y + sz * 0.35); c2.lineTo(x - sz, y); c2.lineTo(x - sz * 0.35, y - sz * 0.35); c2.closePath(); c2.fill();
+    }
+    c2.globalAlpha = 1;
+  }
   function draw(now) {
     if (!c2) return;
     var o = g.side >= 0 ? g.lanes[g.side] : 0, i, z, far = F + L + 14;
@@ -258,6 +294,7 @@ WPS.makeTorokko = function (ctx) {
     if (g.side >= 0) rails(Math.max(camZ, g.s), F + L, o, '#2f5bd3');
     show.forEach(gate);
     cart(now, o);
+    sparks(now, o);
     if (g.fade > 0) { c2.fillStyle = 'rgba(255,255,255,' + g.fade.toFixed(2) + ')'; c2.fillRect(0, 0, vw, vh); }
   }
 
@@ -298,7 +335,9 @@ WPS.makeTorokko = function (ctx) {
   function clock(left) {
     var sec = el('tkSec'), bar = el('tkTime'); if (!sec) return;
     left = Math.max(0, left);
-    sec.textContent = Math.ceil(left / 1000);
+    var sc = Math.ceil(left / 1000);
+    sec.textContent = sc;
+    if (g.phase === 'run' && sc <= 3 && sc >= 1 && sc !== g.tickS && left < g.limit) { g.tickS = sc; sfx('tick'); }
     bar.style.width = (left / g.limit * 100).toFixed(1) + '%';
     var low = left <= (g.mode === 'test' ? 5000 : 3000) && left < g.limit; sec.parentNode.classList.toggle('low', low); bar.classList.toggle('low', low);
   }
@@ -318,7 +357,9 @@ WPS.makeTorokko = function (ctx) {
     var tx = el('tkText'); tx.textContent = q.t; tx.className = 'trk-text' + (q.word ? ' word' : '') + (q.t.length > 60 ? ' long' : '');
     var longOpt = opts.some(function (o) { return o.length > 14; });
     btns().forEach(function (b, k) { b.querySelector('span').textContent = opts[k]; b.className = 'trk-btn' + (longOpt ? ' sm' : ''); b.disabled = false; });
-    var m = el('tkMark'); m.textContent = ''; m.className = 'trk-mark'; el('tkFb').textContent = '';
+    var m = el('tkMark'); m.textContent = ''; m.className = 'trk-mark'; el('tkFb').textContent = ''; el('tkFb').className = 'trk-fb';
+    var ik = el('tkIdk'); if (ik) ik.hidden = false;
+    g.wait = null; g.tickS = -1;
     hud(); clock(g.limit); size(); loop();
     if (g.drv && g.drv.shown) g.drv.shown();
   }
@@ -327,6 +368,7 @@ WPS.makeTorokko = function (ctx) {
     var now = performance.now();
     g.side = lane; g.phase = 'go'; g.t1 = now; g.s1 = g.s;
     g.left = g.limit - (now - g.t0);
+    sfx('pick'); var ik = el('tkIdk'); if (ik) ik.hidden = true;
     btns().forEach(function (b, k) { b.disabled = true; if (k === lane) b.classList.add('sel'); });
   }
   function loop() {
@@ -350,38 +392,47 @@ WPS.makeTorokko = function (ctx) {
       raf = requestAnimationFrame(step);                     // 判定を見せているあいだも、絵は描きつづける
     });
   }
-  function judge(ok, timeout) {
+  function judge(ok, timeout, idk) {
     var q = g.q, test = g.mode !== 'game'; g.phase = 'show';
     btns().forEach(function (b, k) { b.disabled = true; if (k === g.okLane) b.classList.add('ok'); else if (k === g.side) b.classList.add('ng'); });
-    var mark = el('tkMark'), fb = el('tkFb');
+    var mark = el('tkMark'), fb = el('tkFb'), ik = el('tkIdk'); if (ik) ik.hidden = true;
     if (g.mode === 'test' && ctx.test) ctx.test.answer(q.id, g.side >= 0 ? g.opts[g.side] : null);
-    if (g.drv) g.drv.answer(g.side, timeout);
+    if (g.drv) g.drv.answer(g.side, timeout, idk);
     if (ok) {
       g.combo++; g.okN++; g.maxCombo = Math.max(g.maxCombo, g.combo);
       var gain = 10 + Math.min(10, (g.combo - 1) * 2) + Math.round(Math.max(0, g.left) / g.limit * 5);
       g.score += gain;
       mark.textContent = '○'; mark.className = 'trk-mark ok'; fb.textContent = test ? '正解!' : '正解! +' + gain + '点';
+      g.spark = performance.now(); sfx('ok');
     } else {
       g.combo = 0; if (!test) g.lives--; g.miss.push(q);
       mark.textContent = '✕'; mark.className = 'trk-mark ng';
-      fb.textContent = (timeout ? '時間切れ。' : '') + '正解は ' + 'ABCD'[g.okLane] + '「' + g.opts[g.okLane] + '」';
+      mark.textContent = idk ? '' : '✕';
+      var head = (timeout ? '時間切れ。' : '') + '正解は ' + 'ABCD'[g.okLane] + '「' + g.opts[g.okLane] + '」', note = q.note || q.exp || '';
+      // テストでは、解説を読んでから自分で「次へ」を押す(ゲームは自動で進む)
+      if (test) { fb.className = 'trk-fb open'; fb.innerHTML = '<b>' + h(head) + '</b>' + (note ? '<small>' + h(note) + '</small>' : '') + '<button type="button" class="btn primary" id="tkNext">次へ</button>'; }
+      else fb.textContent = head;
+      sfx('ng'); buzz(120);
       el('tkGame').classList.add('shake'); setTimeout(function () { var x = el('tkGame'); if (x) x.classList.remove('shake'); }, 400);
     }
     hud();
     var goal = !g.drv && g.n >= g.goal && g.lives > 0;
     if (goal && !test) { g.bonus = g.lives * LIFE_BONUS; g.score += g.bonus; }
-    setTimeout(function () {
+    var go = function () {
       if (!g || !el('tkGame')) return;
+      g.wait = null;
       if (g.drv) { var d = g.drv; if (d.more()) next(); else { leave(); d.done(); } return; }
       if (goal && test) {
         var pass = g.okN >= g.pass; g.phase = 'end';
-        mark.textContent = pass ? '合格' : 'もう一歩'; mark.className = 'trk-mark ' + (pass ? 'goal' : 'ng small'); fb.textContent = g.goal + '問中 ' + g.okN + '問 正解';
+        mark.textContent = pass ? '合格' : 'もう一歩'; mark.className = 'trk-mark ' + (pass ? 'goal' : 'ng small'); fb.className = 'trk-fb'; fb.textContent = g.goal + '問中 ' + g.okN + '問 正解'; if (pass) sfx('goal');
         setTimeout(function () { if (g && el('tkGame')) endTest(true); }, 1400);
       }
-      else if (goal) { g.phase = 'end'; mark.textContent = 'GOAL'; mark.className = 'trk-mark goal'; fb.textContent = 'ゴール! ライフのボーナス +' + g.bonus + '点'; hud(); setTimeout(function () { if (g && el('tkGame')) finish(true); }, 1500); }
+      else if (goal) { g.phase = 'end'; mark.textContent = 'GOAL'; mark.className = 'trk-mark goal'; sfx('goal'); fb.textContent = 'ゴール! ライフのボーナス +' + g.bonus + '点'; hud(); setTimeout(function () { if (g && el('tkGame')) finish(true); }, 1500); }
       else if (g.lives <= 0) { g.phase = 'end'; mark.textContent = '脱線'; mark.className = 'trk-mark ng small'; setTimeout(function () { if (g && el('tkGame')) finish(false); }, 1100); }
       else next();
-    }, ok ? 850 : (test ? 2400 : 2000));
+    };
+    if (!ok && test) { g.wait = go; var nb = el('tkNext'); if (nb) { nb.addEventListener('click', go); try { nb.focus(); } catch (e) { } } }
+    else setTimeout(go, ok ? 850 : 2000);
   }
   function leave() { cancelAnimationFrame(raf); g = null; cv = c2 = null; try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { } }
   function finish(goal) {
@@ -403,12 +454,20 @@ WPS.makeTorokko = function (ctx) {
   document.addEventListener('keydown', function (e) {
     if (!g || !el('tkGame')) return;
     if (e.key === 'Escape' && !document.fullscreenElement) { finish(); return; }
+    if (g.wait && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); g.wait(); return; }
     if (g.phase !== 'run') return;
     var k = e.key, lane = -1;
     if (g.k === 2) lane = k === 'ArrowLeft' ? 0 : k === 'ArrowRight' ? 1 : -1;
     if (lane < 0 && /^[1-4]$/.test(k)) lane = +k - 1;
     if (lane < 0 && /^[a-dA-D]$/.test(k)) lane = 'abcd'.indexOf(k.toLowerCase());
     if (lane >= 0 && lane < g.k) { e.preventDefault(); choose(lane); }
+  });
+  // ほかのタブやアプリに切りかえているあいだは、時計を止める
+  var hidAt = 0;
+  document.addEventListener('visibilitychange', function () {
+    if (!g) return;
+    if (document.hidden) hidAt = performance.now();
+    else if (hidAt) { var d = performance.now() - hidAt; hidAt = 0; if (g.phase === 'run') g.t0 += d; else if (g.phase === 'go') g.t1 += d; if (el('tkGame')) loop(); }
   });
   window.addEventListener('resize', function () { if (g && el('tkGame')) size(); });
 
@@ -426,6 +485,10 @@ WPS.makeTorokko = function (ctx) {
     cv = el('tkCv'); c2 = cv.getContext('2d');
     btns().forEach(function (b) { b.addEventListener('click', function () { choose(+b.getAttribute('data-lane')); }); });
     el('tkQuit').addEventListener('click', function () { finish(); });
+    var sb = el('tkSnd');
+    sb.addEventListener('click', function () { var r = rec(); r.mute = r.mute ? 0 : 1; S.save(); sb.textContent = r.mute ? '音なし' : '音あり'; sb.setAttribute('aria-pressed', r.mute ? 'false' : 'true'); if (!r.mute) sfx('pick'); });
+    var ik = el('tkIdk');
+    if (ik) ik.addEventListener('click', function () { if (g && g.phase === 'run') { g.left = 0; draw(performance.now()); judge(false, false, true); } });
     // 絵を押しても選べる(画面を線路の本数で等分して、押した位置の線路)
     cv.addEventListener('click', function (e) { var r = cv.getBoundingClientRect(); choose(Math.min(g.k - 1, Math.floor((e.clientX - r.left) / r.width * g.k))); });
     var fs = el('tkFs');

@@ -545,11 +545,11 @@ WPS.makeVocab = function (ctx) {
       total: function () { return my.items.length; },
       q: function () {
         var x = my.items[my.i], e2j = my.dir === 'e2j';
-        return { t: e2j ? x.t : x.m, opts: my.ch.map(function (y) { return e2j ? y.m : y.t; }), okIdx: my.ch.indexOf(x), word: 1, kind: my.i >= my.base ? 'もう一度やってみましょう' : (e2j ? '意味はどれ?' : 'あてはまることばはどれ?') };
+        return { t: e2j ? x.t : x.m, opts: my.ch.map(function (y) { return e2j ? y.m : y.t; }), okIdx: my.ch.indexOf(x), word: 1, note: x.t + ' ＝ ' + x.m, kind: my.i >= my.base ? 'もう一度やってみましょう' : (e2j ? '意味はどれ?' : 'あてはまることばはどれ?') };
       },
       limit: function () { return +c.timer || 10; },
       shown: function () { if (mine() && c.speak && my.dir === 'e2j' && c.lang !== 'ja') { stopSpeak(); say1(my.items[my.i].t, isEn(my.L) ? 'en' : 'ja'); } },
-      answer: function (lane, timeout) { if (mine()) answer(lane >= 0 ? 'pick' : 'time', lane, true); },
+      answer: function (lane, timeout, idk) { if (mine()) answer(lane >= 0 ? 'pick' : idk ? 'idk' : 'time', lane, true); },
       more: function () { if (!mine()) return false; next(true); return st.mode === 'quiz'; },
       done: function () { my.trk = 0; location.hash = '#vocab'; },
       quit: function (silent) {

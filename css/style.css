@@ -3406,3 +3406,11 @@ body.tl-full { overflow: hidden; }
 .trk-full.k4 .trk-btn i { flex: none; }
 .trk-full.k4 .trk-btn span { text-align: left; min-width: 0; }
 @media (min-width: 900px) { .trk-full.k4 .trk-top { max-width: 980px; } .trk-full.k4 .trk-ab { grid-template-columns: repeat(4, minmax(0, 1fr)); } .trk-full.k4 .trk-btn { flex-direction: column; justify-content: center; min-height: 76px; } .trk-full.k4 .trk-btn span { text-align: center; } }
+/* トロッコ:「わからない」ボタン、まちがえたときの解説と「次へ」 */
+.trk-idk { display: block; margin: 8px auto 0; font: inherit; font-size: 13px; font-weight: 700; padding: 7px 16px; min-height: 36px; border-radius: 999px; border: 1.5px solid #94a3b8; background: rgba(255, 255, 255, .92); color: #334155; cursor: pointer; }
+.trk-idk[hidden] { display: none; }
+.trk-fb.open { pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 14px; box-shadow: 0 8px 20px rgba(15, 23, 42, .2); max-height: 46vh; overflow-y: auto; -webkit-user-select: text; user-select: text; }
+.trk-fb.open b { font-size: 16px; line-height: 1.5; }
+.trk-fb.open small { font-size: 13.5px; font-weight: 400; line-height: 1.7; color: #334155; text-align: left; }
+.trk-fb.open .btn { min-width: 160px; margin-top: 4px; }
+@media (max-width: 420px) { .trk-hud { gap: 6px; padding-left: 10px; padding-right: 10px; } .trk-hbtn { padding: 6px 9px; font-size: 12px; } }
