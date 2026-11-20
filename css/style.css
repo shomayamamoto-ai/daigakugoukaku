@@ -3414,3 +3414,15 @@ body.tl-full { overflow: hidden; }
 .trk-fb.open small { font-size: 13.5px; font-weight: 400; line-height: 1.7; color: #334155; text-align: left; }
 .trk-fb.open .btn { min-width: 160px; margin-top: 4px; }
 @media (max-width: 420px) { .trk-hud { gap: 6px; padding-left: 10px; padding-right: 10px; } .trk-hbtn { padding: 6px 9px; font-size: 12px; } }
+/* トロッコ:スタートの合図、単語のイラスト、スマホ横向き(左に問題・右に線路) */
+.trk-mark.start { color: #0f172a; font-size: 56px; letter-spacing: .08em; }
+.trk-fb .trk-img { width: 84px; height: 84px; border-radius: 12px; object-fit: contain; background: #fff; }
+@media (max-height: 480px) and (min-width: 600px) and (orientation: landscape) {
+  .trk-top { width: 56%; max-width: none; margin: 0; }
+  .trk-cv { left: 56%; width: 44%; }
+  .trk-mark { left: 56%; bottom: 34%; }
+  .trk-fb { left: calc(56% + 8px); right: 8px; max-width: none; }
+  .trk-fb.open { max-height: 80vh; }
+  .trk-full.k4 .trk-btn { min-height: 44px; }
+  .trk-idk { margin-top: 5px; min-height: 30px; padding: 4px 14px; }
+}
