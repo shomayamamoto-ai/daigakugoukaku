@@ -3316,39 +3316,73 @@ body.tl-full { overflow: hidden; }
 .trk-miss p { margin: 0 0 4px; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
 .trk-ans { display: inline-block; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: var(--ok-weak); margin-right: 8px; }
 .trk-miss small { color: var(--muted); font-size: 13px; }
-.trk-game { max-width: 520px; margin: 0 auto; }
-.trk-game.shake { animation: trk-shake .35s; }
-@keyframes trk-shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
-@media (prefers-reduced-motion: reduce) { .trk-game.shake { animation: none; } }
-.trk-hud { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; }
-.trk-lives { display: inline-flex; gap: 5px; }
-.trk-lives i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ng); }
-.trk-lives i.on { background: var(--ng); }
-.trk-pts { font-size: 13px; color: var(--muted); }
-.trk-pts b { font-size: 20px; color: var(--text); margin-right: 2px; }
-.trk-combo { font-size: 13px; font-weight: 700; color: var(--warn); min-width: 4em; }
-.trk-hud .btn { margin-left: auto; }
-.trk-q { margin-bottom: 10px; min-height: 108px; }
-.trk-no { margin: 0 0 4px; font-size: 12px; color: var(--muted); }
-.trk-text { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.7; overflow-wrap: anywhere; }
-.trk-text.word { font-size: 28px; text-align: center; }
+/* 遊ぶ画面:全画面。うしろにキャンバス(線路の絵)、上に問題と A・B のボタンを重ねる */
+.trk-full { position: fixed; inset: 0; z-index: 2500; background: #dff2fb; overflow: hidden; color: #0f172a; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.trk-full.shake { animation: trk-shake .35s; }
+@keyframes trk-shake { 25% { transform: translateX(-7px); } 50% { transform: translateX(7px); } 75% { transform: translateX(-3px); } }
+@media (prefers-reduced-motion: reduce) { .trk-full.shake { animation: none; } }
+.trk-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
+.trk-top { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 0 calc(10px + env(safe-area-inset-left)); pointer-events: none; }
+.trk-top > * { pointer-events: auto; }
+.trk-hud, .trk-prog, .trk-time { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, .92); padding: 6px 12px; min-width: 0; }
+.trk-hud { border-radius: 14px 14px 0 0; padding-top: 8px; }
+.trk-time { border-radius: 0 0 14px 14px; padding-bottom: 9px; margin-bottom: 8px; box-shadow: 0 6px 14px rgba(15, 23, 42, .12); }
+.trk-lives { display: inline-flex; gap: 5px; flex: none; }
+.trk-lives i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #dc2626; }
+.trk-lives i.on { background: #dc2626; }
+.trk-pts { font-size: 13px; color: #475569; white-space: nowrap; }
+.trk-pts b { font-size: 20px; color: #0f172a; margin-right: 2px; }
+.trk-combo { font-size: 13px; font-weight: 700; color: #b45309; flex: 1; min-width: 0; white-space: nowrap; }
+.trk-hbtn { flex: none; font: inherit; font-size: 13px; font-weight: 700; padding: 6px 12px; min-height: 36px; border-radius: 999px; border: 1.5px solid #94a3b8; background: #fff; color: #0f172a; cursor: pointer; }
+.trk-prog-t { flex: none; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.trk-prog-t b { font-size: 18px; }
+.trk-prog-t small { font-weight: 400; color: #475569; margin-left: 4px; font-size: 11px; }
+.trk-bar { flex: 1; min-width: 0; height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.trk-bar i { display: block; height: 100%; width: 0; border-radius: 999px; background: #2f5bd3; transition: width .3s; }
+.trk-flag { flex: none; font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 2px 7px; border-radius: 4px; background: #0f172a; color: #fff; }
+.trk-sec { flex: none; font-size: 13px; font-weight: 700; white-space: nowrap; min-width: 5.6em; }
+.trk-sec b { display: inline-block; min-width: 1.3em; text-align: center; font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.trk-sec.low { color: #dc2626; }
+.trk-tbar i { background: #16a34a; transition: none; }
+.trk-tbar i.low { background: #dc2626; }
+.trk-full .trk-q { background: rgba(255, 255, 255, .95); border-radius: 14px; padding: 10px 14px; margin: 0 0 8px; box-shadow: 0 6px 14px rgba(15, 23, 42, .12); max-width: none; min-height: 0; }
+.trk-kind { margin: 0; font-size: 12px; color: #475569; }
+.trk-kind:empty { display: none; }
+.trk-text { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.65; overflow-wrap: anywhere; }
+.trk-text.word { font-size: 30px; text-align: center; }
 .trk-ab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.trk-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 92px; min-width: 0; padding: 10px 8px; border: 2px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
-.trk-btn i { font-style: normal; font-weight: 700; font-size: 13px; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; background: var(--primary); color: #fff; }
-.trk-btn span { font-size: 16px; font-weight: 700; line-height: 1.5; text-align: center; overflow-wrap: anywhere; }
-.trk-btn:not(:disabled):hover, .trk-btn:focus-visible { border-color: var(--primary); }
+.trk-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 84px; min-width: 0; padding: 8px; border: 3px solid #cbd5e1; border-radius: 14px; background: rgba(255, 255, 255, .96); color: #0f172a; font: inherit; cursor: pointer; box-shadow: 0 6px 14px rgba(15, 23, 42, .14); }
+.trk-btn i { font-style: normal; font-weight: 700; font-size: 13px; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; background: #475569; color: #fff; }
+.trk-btn span { font-size: 16px; font-weight: 700; line-height: 1.45; text-align: center; overflow-wrap: anywhere; }
+.trk-btn em { font-style: normal; font-size: 11px; color: #64748b; }
+.trk-btn:not(:disabled):hover, .trk-btn:focus-visible { border-color: #2f5bd3; }
 .trk-btn:disabled { cursor: default; opacity: 1; }
-.trk-btn.sel { border-color: var(--primary); background: var(--primary-weak); }
-.trk-btn.ok { border-color: var(--ok); background: var(--ok-weak); }
-.trk-btn.ng { border-color: var(--ng); background: var(--ng-weak); }
-.trk-rail { display: block; width: 100%; height: auto; max-height: 38vh; }
-.trk-line { fill: none; stroke: var(--muted); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
-.trk-ties line { stroke: var(--line); stroke-width: 5; stroke-linecap: round; }
-.trk-sel { fill: none; stroke: var(--primary); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
-.trk-body { fill: var(--primary); }
-.trk-rim { fill: var(--text); }
-.trk-wheel { fill: var(--text); stroke: var(--card); stroke-width: 2; }
-.trk-mark { font-size: 64px; font-weight: 700; }
-.trk-mark.ok { fill: var(--ok); }
-.trk-mark.ng { fill: var(--ng); }
-.trk-fb { min-height: 1.8em; margin: 6px 0 0; text-align: center; font-weight: 700; overflow-wrap: anywhere; }
+.trk-btn.sel { border-color: #2f5bd3; background: #e8eefc; }
+.trk-btn.ok { border-color: #16a34a; background: #dcfce7; }
+.trk-btn.ng { border-color: #dc2626; background: #fee2e2; }
+.trk-mark { position: absolute; left: 0; right: 0; bottom: 30%; margin: 0; text-align: center; font-size: 110px; line-height: 1; font-weight: 700; pointer-events: none; text-shadow: 0 0 14px #fff, 0 0 4px #fff; z-index: 1; }
+.trk-mark.ok { color: #16a34a; }
+.trk-mark.ng { color: #dc2626; }
+.trk-mark.small { font-size: 56px; }
+.trk-mark.goal { color: #b45309; font-size: 64px; letter-spacing: .06em; }
+.trk-fb { position: absolute; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom)); margin: 0 auto; max-width: 560px; text-align: center; font-weight: 700; padding: 8px 14px; border-radius: 12px; background: rgba(255, 255, 255, .94); overflow-wrap: anywhere; z-index: 1; pointer-events: none; }
+.trk-fb:empty { display: none; }
+@media (max-height: 620px) { .trk-btn { min-height: 62px; } .trk-btn em { display: none; } .trk-text { font-size: 15px; } .trk-mark { font-size: 80px; } }
+/* 高さの低い画面(スマホの横向きなど):上のパネルを小さくまとめて、線路が見えるようにする */
+@media (max-height: 480px) {
+  .trk-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0; max-width: 860px; padding-top: calc(4px + env(safe-area-inset-top)); }
+  .trk-hud, .trk-full .trk-q, .trk-ab { grid-column: 1 / -1; }
+  .trk-hud { padding: 4px 10px 2px; }
+  .trk-hbtn { min-height: 30px; padding: 3px 10px; }
+  .trk-prog { border-radius: 0 0 0 14px; padding: 2px 10px 6px; margin-bottom: 5px; }
+  .trk-time { border-radius: 0 0 14px 0; padding: 2px 10px 6px; margin-bottom: 5px; box-shadow: none; }
+  .trk-prog-t small, .trk-flag { display: none; }
+  .trk-sec b { font-size: 20px; }
+  .trk-full .trk-q { padding: 5px 12px; margin-bottom: 5px; }
+  .trk-text { font-size: 14px; line-height: 1.5; }
+  .trk-text.word { font-size: 22px; }
+  .trk-btn { min-height: 46px; flex-direction: row; gap: 8px; padding: 4px 8px; }
+  .trk-btn span { font-size: 14px; }
+  .trk-mark { font-size: 64px; bottom: 22%; }
+  .trk-fb { bottom: calc(6px + env(safe-area-inset-bottom)); padding: 4px 12px; font-size: 13px; }
+}
