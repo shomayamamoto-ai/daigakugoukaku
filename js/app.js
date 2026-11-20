@@ -148,7 +148,7 @@
     });
     // 「その他」にまとめた画面を開いているときは「その他」を光らせる
     var more = document.querySelector('.nav .nav-more');
-    if (more) more.classList.toggle('active', ['timer', 'tutor', 'search', 'settings'].indexOf(route) >= 0);
+    if (more) more.classList.toggle('active', ['timer', 'tutor', 'search', 'settings', 'torokko'].indexOf(route) >= 0);
     navSheet(false);
     // 科目別テストの最中は、どの画面でも「資料」を開けない
     document.body.classList.toggle('no-tools', !!(CT && CT.inMode()));
@@ -161,9 +161,9 @@
     var fn = {
       home: hubHome, onboard: renderOnboard, test: hubTest, quiz: renderQuiz, result: renderResult,
       study: renderStudy, jtest: renderJtest, roadmap: renderRoadmap, cards: renderCards, tutor: renderTutor, mind: renderMind,
-      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, iq: renderIq, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, ctest: renderCtest, map: renderMap, books: renderBooks, etrain: renderEtrain
+      memo: renderMemo, settings: renderSettings, share: renderShared, cloud: renderShared, records: renderRecords, parent: renderParent, univ: renderUniv, words: renderWords, exam: renderExam, timer: renderTimer, vocab: renderVocab, ronjutsu: renderRon, iq: renderIq, whq: renderWhq, jhq: renderJhq, search: renderSearch, mock: renderMock, ctest: renderCtest, map: renderMap, books: renderBooks, etrain: renderEtrain, torokko: TK.render
     }[route] || renderHome;
-    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'iq' && parts[1] && iqInst(parts[1]) && iqInst(parts[1]).inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'ctest' && CT.inMode()) || (route === 'etrain' && ET.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
+    var band = (route === 'cards' && deck) || route === 'quiz' || (route === 'vocab' && VT.inMode && VT.inMode()) || (route === 'ronjutsu' && RJ.inMode()) || (route === 'whq' && WQ.inMode()) || (route === 'iq' && parts[1] && iqInst(parts[1]) && iqInst(parts[1]).inMode()) || (route === 'jhq' && JQ.inMode()) || (route === 'mock' && MK.inMode()) || (route === 'ctest' && CT.inMode()) || (route === 'etrain' && ET.inMode()) || (route === 'torokko' && TK.inMode()) ? '' : pageBand(route === 'test' ? 'home' : route);
     var arg = route === 'books' ? parts.slice(1).join('/') : parts[1];
     view.innerHTML = noEmoji((route === 'books' && arg ? '' : band) + fn(arg));
     if (fn.after) fn.after(arg);
@@ -177,7 +177,7 @@
     home: ['Home', 'ホーム'], test: ['Diagnosis', '診断・練習'], roadmap: ['Roadmap', 'ロードマップ'], cards: ['Flashcards', '単語帳'],
     words: ['Words', '単語・用語の一覧'], tutor: ['For Tutors', '先生用・保護者用レポート'], parent: ['For Parents', '保護者用レポート'],
     univ: ['Universities', '大学データ'], mind: ['Mind', 'こころの部屋'], settings: ['Settings', '設定'], memo: ['Questions', '先生への質問メモ'], records: ['Records', 'テスト・模試の記録'],
-    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], iq: ['Q&A', '一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], ctest: ['Subject Test', '科目別テスト'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト'], etrain: ['English Training', '英語 リスニング・ライティング']
+    study: ['Study', '単元の学習'], result: ['Result', '診断の結果'], onboard: ['Welcome', 'はじめまして'], share: ['Report', '共有レポート'], cloud: ['Report', '共有レポート'], exam: ['Admissions', '入試のしくみ・日程'], timer: ['Focus Timer', 'ポモドーロタイマー'], vocab: ['Vocabulary', '単語トレーニング'], ronjutsu: ['Essay Practice', '論述カットイン(日本史・世界史)'], whq: ['World History', '世界史 一問一答'], iq: ['Q&A', '一問一答'], jhq: ['Japanese History', '日本史 一問一答'], search: ['Search', 'アプリ内検索'], mock: ['Mock Exam', '模試モード'], ctest: ['Subject Test', '科目別テスト'], map: ['Unit Map', '単元マップ'], books: ['Textbooks', 'テキスト'], etrain: ['English Training', '英語 リスニング・ライティング'], torokko: ['Trolley Game', 'トロッコゲーム']
   };
   function pageBand(route) {
     var b = BANDS[route];
@@ -847,7 +847,7 @@
     if (wl.length) html += '<section class="card retry"><div class="row-between"><div><h2>間違い直し</h2><p class="muted small">まだ正解できていない問題が ' + wl.length + ' 問あります。解けるようになるまで、ここに残ります。</p></div><button class="btn primary" id="retryWrong">' + Math.min(10, wl.length) + '問 解き直す</button></div></section>';
     html += weekSummary();
     html += whyCard();
-    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#ctest">科目別テスト</a><a href="#records">定期テスト対策</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#iq">一問一答(全教科)</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
+    html += '<section class="quick"><a href="#mind">こころの部屋</a><a href="manual.html" target="_blank" rel="noopener">使い方(動画)</a><a href="#map">単元マップ</a><a href="#ctest">科目別テスト</a><a href="#records">定期テスト対策</a><a href="#torokko">トロッコゲーム</a><a href="#mock">模試モード</a><a href="#search">検索</a><a href="#iq">一問一答(全教科)</a><a href="#ronjutsu">論述カットイン</a><a href="#etrain/listen">英語リスニング</a><a href="#etrain/write">英語ライティング</a><a href="#exam">入試のしくみ・日程</a><a href="#records">テスト結果を記録</a><a href="#memo">質問メモ</a><a href="#univ">大学データ</a></section>';
     // 今週の単元
     if (tt.week && tt.week.units.length) {
       html += '<section class="card"><h2>今週ねらう単元</h2><div class="unit-list">' + tt.week.units.map(function (id) { return unitRow(id, rm.stats); }).join('') + '</div>' +
@@ -3174,6 +3174,7 @@
   var RJ = WPS.makeRonjutsu({ h: h, toast: toast, shuffle: shuffle, render: render });
   function renderRon() { return RJ.render(); }
   var ET = WPS.makeEtrain({ h: h, toast: toast, shuffle: shuffle, render: render });
+  var TK = WPS.makeTorokko({ h: h, toast: toast, shuffle: shuffle, render: render });
   function renderEtrain(arg) { return ET.render(arg); }
   renderEtrain.after = function (arg) { ET.after(arg); };
   var WQ = WPS.makeWhq({ h: h, toast: toast, shuffle: shuffle, judgeMark: judgeMark, render: render });

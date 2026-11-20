@@ -3296,3 +3296,59 @@ body.tl-full { overflow: hidden; }
 .jk-units li{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .6rem;padding:.5rem 0;border-bottom:1px solid var(--line)}
 .jk-units li a:first-child{flex:1 1 10rem;min-width:0;overflow-wrap:anywhere}
 .jk-clear .row-between{gap:.5rem;flex-wrap:wrap}
+
+/* ========== トロッコゲーム ========== */
+.trk-rule { margin: 10px 0 0; padding-left: 1.2em; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.trk-courses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 720px) { .trk-courses { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.trk-course { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 12px 14px; min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+.trk-course:hover, .trk-course:focus-visible { border-color: var(--primary); background: var(--primary-weak); }
+.trk-course b { font-size: 15px; }
+.trk-course small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.trk-course em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--primary); }
+.trk-score { margin: 4px 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.trk-score b { font-size: 44px; line-height: 1.1; color: var(--primary); }
+.trk-score span { font-weight: 700; }
+.trk-score em { font-style: normal; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--warn-weak); color: var(--text); }
+.trk-result h3 { margin: 18px 0 6px; font-size: 15px; }
+.trk-miss { list-style: none; margin: 0; padding: 0; }
+.trk-miss li { padding: 10px 0; border-top: 1px solid var(--line); }
+.trk-miss p { margin: 0 0 4px; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.trk-ans { display: inline-block; font-weight: 700; padding: 1px 10px; border-radius: 999px; background: var(--ok-weak); margin-right: 8px; }
+.trk-miss small { color: var(--muted); font-size: 13px; }
+.trk-game { max-width: 520px; margin: 0 auto; }
+.trk-game.shake { animation: trk-shake .35s; }
+@keyframes trk-shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+@media (prefers-reduced-motion: reduce) { .trk-game.shake { animation: none; } }
+.trk-hud { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; }
+.trk-lives { display: inline-flex; gap: 5px; }
+.trk-lives i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ng); }
+.trk-lives i.on { background: var(--ng); }
+.trk-pts { font-size: 13px; color: var(--muted); }
+.trk-pts b { font-size: 20px; color: var(--text); margin-right: 2px; }
+.trk-combo { font-size: 13px; font-weight: 700; color: var(--warn); min-width: 4em; }
+.trk-hud .btn { margin-left: auto; }
+.trk-q { margin-bottom: 10px; min-height: 108px; }
+.trk-no { margin: 0 0 4px; font-size: 12px; color: var(--muted); }
+.trk-text { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.7; overflow-wrap: anywhere; }
+.trk-text.word { font-size: 28px; text-align: center; }
+.trk-ab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.trk-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 92px; min-width: 0; padding: 10px 8px; border: 2px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+.trk-btn i { font-style: normal; font-weight: 700; font-size: 13px; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; background: var(--primary); color: #fff; }
+.trk-btn span { font-size: 16px; font-weight: 700; line-height: 1.5; text-align: center; overflow-wrap: anywhere; }
+.trk-btn:not(:disabled):hover, .trk-btn:focus-visible { border-color: var(--primary); }
+.trk-btn:disabled { cursor: default; opacity: 1; }
+.trk-btn.sel { border-color: var(--primary); background: var(--primary-weak); }
+.trk-btn.ok { border-color: var(--ok); background: var(--ok-weak); }
+.trk-btn.ng { border-color: var(--ng); background: var(--ng-weak); }
+.trk-rail { display: block; width: 100%; height: auto; max-height: 38vh; }
+.trk-line { fill: none; stroke: var(--muted); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+.trk-ties line { stroke: var(--line); stroke-width: 5; stroke-linecap: round; }
+.trk-sel { fill: none; stroke: var(--primary); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.trk-body { fill: var(--primary); }
+.trk-rim { fill: var(--text); }
+.trk-wheel { fill: var(--text); stroke: var(--card); stroke-width: 2; }
+.trk-mark { font-size: 64px; font-weight: 700; }
+.trk-mark.ok { fill: var(--ok); }
+.trk-mark.ng { fill: var(--ng); }
+.trk-fb { min-height: 1.8em; margin: 6px 0 0; text-align: center; font-weight: 700; overflow-wrap: anywhere; }
