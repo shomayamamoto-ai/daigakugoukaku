@@ -142,6 +142,7 @@ WPS.makeVocab = function (ctx) {
   }
   function daily(ds) { var v = vt(); ds = ds || D.today(); return v.daily[ds] || (v.daily[ds] = { a: 0, u: 0, ok: 0, weak: 0 }); }
   // 意味を1つずつに分ける(「、」「,」「;」区切り)
+  function mKey(t) { return String(t).replace(/[(（].*?[)）]/g, '').replace(/[~〜～\s]/g, ''); }   // 意味をくらべるときの形(かっこ・「〜」をのぞく)
   function meanings(m) { return String(m || '').split(/[、,;；／]/).map(function (x) { return x.trim(); }).filter(Boolean); }
   function meaningsHTML(x, cls) {
     var ms = meanings(x.m), all = +vt().cfg.allm, head = all ? ms : ms.slice(0, 2), rest = all ? [] : ms.slice(2);
@@ -461,7 +462,10 @@ WPS.makeVocab = function (ctx) {
   }
   function prepQ() {
     var x = qz.items[qz.i], c = vt().cfg, L = qz.L, p = posOf(L, x);
-    var others = qz.all.filter(function (y) { return y.t !== x.t && y.m !== x.m; });
+    // まちがいの選択肢には、正解と意味が重なる語(「増える」と「増える、育つ」など)を使わない
+    var xm = {}; meanings(x.m).forEach(function (t) { xm[mKey(t)] = 1; });
+    var others = qz.all.filter(function (y) { return y.t !== x.t && y.m !== x.m && !meanings(y.m).some(function (t) { return xm[mKey(t)]; }); });
+    if (others.length < 3) others = qz.all.filter(function (y) { return y.t !== x.t && y.m !== x.m; });
     // 誤答の選択肢:歴史の用語集は「同じ時代・同じ地域(分野)」→「同じ時代」→「同じ地域(分野)」の順に選ぶ。
     // ほかの単語帳は品詞が同じ語を優先する。足りないときは単語帳全体から補う。
     var tiers = [];

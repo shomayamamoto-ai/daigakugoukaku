@@ -234,7 +234,7 @@ eloquent|雄弁な
   function keigo(r) {
     var B = WPS.BANK.kokeigo, it = pk(r, B), ask = ri(r, 0, 1);
     if (ask) return Q(3, '古文の「' + it.t + '」は、どの種類の敬語?', [it.k].concat(['尊敬語', '謙譲語', '丁寧語'].filter(function (x) { return x !== it.k; })), '「' + it.t + '」＝' + it.k + '(' + it.m + ')\n💡 尊敬語は動作をする人、謙譲語は動作を受ける人、丁寧語は聞き手(読み手)への敬意。');
-    var others = shuffle(r, B.filter(function (x) { return x.m !== it.m; })).slice(0, 3);
+    var others = shuffle(r, B.filter(function (x) { return x.m !== it.m && WPS.mHead(x.m) !== WPS.mHead(it.m); })).slice(0, 3);
     return Q(3, '古文の敬語「' + it.t + '」の意味(もとの動詞)は?', [it.m].concat(others.map(function (o) { return o.m; })), '「' + it.t + '」＝' + it.k + '、' + it.m);
   }
   G.hd_jpn = mix([jodo, keigo, H.fact('nango', { q0: function (it) { return '評論語「' + it.t + '」の意味は?'; }, q1: function (it) { return '「' + it.m + '」を表す評論語は?'; } })]);

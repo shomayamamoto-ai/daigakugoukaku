@@ -65,17 +65,24 @@ WPS.makeTorokko = function (ctx) {
     list.forEach(function (x) { (by[x.yo] = by[x.yo] || []).push(x.a); });
     list.forEach(function (x) {
       if (!x.q || !x.a || x.q.length > 70 || x.a.length > 18) return;
-      var ng = '', k = 0, src = by[x.yo].length > 3 ? by[x.yo] : list.map(function (y) { return y.a; });
-      while (k++ < 12) { ng = rnd(src); if (ng && ng !== x.a && ng.length <= 18) break; ng = ''; }
+      var ng = '', k = 0, src = by[x.yo].length > 3 ? by[x.yo] : list.map(function (y) { return y.a; }), kd = kindOf(x.a);
+      // 同じ分野で、答えの種類(年・人名のカタカナなど)と長さが近いものを先にさがす。問題文に出てくる語は使わない
+      while (k++ < 40) { ng = rnd(src); if (ng && ng !== x.a && ng.length <= 18 && x.q.indexOf(ng) < 0 && (k > 28 || (kindOf(ng) === kd && Math.abs(ng.length - x.a.length) <= 4))) break; ng = ''; }
       if (ng) out.push({ t: x.q, ok: x.a, ng: ng, exp: '' });
     });
   }
+  function toks(m) { return String(m || '').split(/[、,;；／]/).map(function (t) { return t.replace(/[(（].*?[)）]/g, '').replace(/[~〜～\s]/g, ''); }).filter(Boolean); }
+  // 答えの「見た目の種類」(数字をふくむ・カタカナ・英字・そのほか)。種類がちがうと、消去法ですぐ分かってしまう
+  function kindOf(a) { return /[0-9０-９]/.test(a) ? 'n' : /^[ァ-ヶー・＝=\s]+$/.test(a) ? 'k' : /^[A-Za-z0-9 .'\-]+$/.test(a) ? 'e' : 'j'; }
   function fromBank(bank, out) {
-    var ms = bank.map(function (x) { return x.m; });
+    var ms = bank.map(function (x) { return x.m; }), same = {};
+    bank.forEach(function (x) { (same[x.t] = same[x.t] || []).push(x.m); });   // 同じ見出しが2回のっている単語帳がある(別の意味)
     bank.forEach(function (x) {
       if (!x.t || !x.m || x.m.length > 18 || x.t.length > 40) return;
-      var ng = '', k = 0;
-      while (k++ < 12) { ng = rnd(ms); if (ng && ng !== x.m && ng.length <= 18) break; ng = ''; }
+      var ng = '', k = 0, mine = {};
+      same[x.t].forEach(function (m) { toks(m).forEach(function (t) { mine[t] = 1; }); });
+      // まちがいの選択肢:正解と意味が重なるもの(同じ語の別の意味、「増える」と「増える、育つ」など)は使わない
+      while (k++ < 20) { ng = rnd(ms); if (ng && ng !== x.m && ng.length <= 18 && !toks(ng).some(function (t) { return mine[t]; })) break; ng = ''; }
       if (ng) out.push({ t: x.t, ok: x.m, ng: ng, exp: '', word: 1 });
     });
   }
@@ -171,17 +178,26 @@ WPS.makeTorokko = function (ctx) {
     return html + '</section>';
   }
 
+  function btnsHTML() {
+    return g.lanes.map(function (o, i) { return '<button type="button" class="trk-btn" data-lane="' + i + '"><i>' + 'ABCD'[i] + '</i><span></span>' + (g.k === 2 ? '<em>' + (i ? '右の線路 →' : '← 左の線路') + '</em>' : '') + '</button>'; }).join('');
+  }
+  // 選択肢の数(2〜4)に合わせて、線路の本数とボタンを作り直す。選択肢が3つや2つの問題もあるため
+  function setLanes(k) {
+    k = Math.max(2, Math.min(4, k));
+    if (k !== g.k) { g.k = k; g.lanes = lanesFor(k); el('tkAb').innerHTML = btnsHTML(); el('tkGame').classList.toggle('k4', k >= 3); }
+    btns().forEach(function (b) { if (!b.tkBound) { b.tkBound = 1; b.addEventListener('click', function () { choose(+b.getAttribute('data-lane')); }); } });
+  }
   function stage() {
     var fs = document.documentElement.requestFullscreen ? '<button type="button" class="trk-hbtn" id="tkFs">全画面</button>' : '';
     var test = g.mode !== 'game', goalTxt = g.mode === 'test' ? g.pass + '問以上で合格' : g.mode === 'drv' ? h(g.drv.title || '') : g.goal + '問でゴール';
-    return '<div class="trk-full' + (g.k === 4 ? ' k4' : '') + '" id="tkGame">' +
+    return '<div class="trk-full' + (g.k >= 3 ? ' k4' : '') + '" id="tkGame">' +
       '<canvas class="trk-cv" id="tkCv" aria-label="奥へのびる線路と、分かれ道"></canvas>' +
       '<div class="trk-top">' +
       '<div class="trk-hud">' + (test ? '<span class="trk-pts">正解 <b id="tkScore">0</b>問</span>' : '<span class="trk-lives" id="tkLives" aria-label="のこりライフ"></span><span class="trk-pts"><b id="tkScore">0</b>点</span>') + '<span class="trk-combo" id="tkCombo"></span><button type="button" class="trk-hbtn" id="tkSnd" aria-pressed="' + (muted() ? 'false' : 'true') + '">' + (muted() ? '音なし' : '音あり') + '</button>' + fs + '<button type="button" class="trk-hbtn" id="tkQuit">やめる</button></div>' +
       '<div class="trk-prog"><span class="trk-prog-t"><b id="tkNo">1</b> / <span id="tkGoal">' + g.goal + '</span>問<small>(' + goalTxt + ')</small></span><span class="trk-bar"><i id="tkProg"></i></span><span class="trk-flag" aria-hidden="true">GOAL</span></div>' +
       '<div class="trk-time"><span class="trk-sec" aria-label="残り時間">残り <b id="tkSec">0</b> 秒</span><span class="trk-bar trk-tbar"><i id="tkTime"></i></span></div>' +
       '<section class="trk-q"><p class="trk-kind" id="tkKind"></p><p class="trk-text" id="tkText" aria-live="polite"></p></section>' +
-      '<div class="trk-ab">' + g.lanes.map(function (o, i) { return '<button type="button" class="trk-btn" data-lane="' + i + '"><i>' + 'ABCD'[i] + '</i><span></span>' + (g.k === 2 ? '<em>' + (i ? '右の線路 →' : '← 左の線路') + '</em>' : '') + '</button>'; }).join('') + '</div>' +
+      '<div class="trk-ab" id="tkAb">' + btnsHTML() + '</div>' +
       (test ? '<button type="button" class="trk-idk" id="tkIdk">わからない(答えを見る)</button>' : '') +
       '</div>' +
       '<p class="trk-mark" id="tkMark" aria-hidden="true"></p>' +
@@ -207,7 +223,7 @@ WPS.makeTorokko = function (ctx) {
     if (tr && tr.right <= r.left + 2) th = vh * 0.14;   // 横ならび(スマホの横向き):パネルが絵に重ならない
     // 地平線は、上の問題パネルのすぐ下あたりに置く(パネルが大きいときも、線路が見えるように)
     hy = Math.min(vh * 0.7, th + (vh - th) * 0.16);
-    fl = Math.min((vh - hy) * 1.75, vw * (g && g.k === 4 ? 1.35 : 1.9));
+    fl = Math.min((vh - hy) * 1.75, vw * (g && g.k === 4 ? 1.35 : g && g.k === 3 ? 1.6 : 1.9));
   }
   function quad(a, b, c, d, col) { if (!a || !b || !c || !d) return; c2.fillStyle = col; c2.beginPath(); c2.moveTo(a[0], a[1]); c2.lineTo(b[0], b[1]); c2.lineTo(c[0], c[1]); c2.lineTo(d[0], d[1]); c2.closePath(); c2.fill(); }
   function bed(from, to, o) {
@@ -231,7 +247,7 @@ WPS.makeTorokko = function (ctx) {
     });
   }
   function gate(i) {
-    var z = F + L, x = g.lanes[i], hw = g.k === 4 ? 1.7 : 1.9, a = pj(x - hw, z), b = pj(x + hw, z), ta = pj(x - hw, z, 3.6), tb = pj(x + hw, z, 3.6);
+    var z = F + L, x = g.lanes[i], hw = g.k >= 3 ? 1.7 : 1.9, a = pj(x - hw, z), b = pj(x + hw, z), ta = pj(x - hw, z, 3.6), tb = pj(x + hw, z, 3.6);
     if (!a || !b || !ta || !tb) return;
     var k = a[2], shown = g.phase === 'show' || g.phase === 'end';
     var st = shown ? (i === g.okLane ? 'ok' : (i === g.side ? 'ng' : '')) : (i === g.side ? 'sel' : '');
@@ -302,7 +318,7 @@ WPS.makeTorokko = function (ctx) {
   }
 
   /* ---------- 進行 ---------- */
-  function lanesFor(k) { return k === 4 ? [-7.8, -2.6, 2.6, 7.8] : [-6, 6]; }
+  function lanesFor(k) { return k === 4 ? [-7.8, -2.6, 2.6, 7.8] : k === 3 ? [-6.5, 0, 6.5] : [-6, 6]; }
   // only = まちがえた問題だけを出すとき、その問題のリスト(このときは、ベスト記録を書きかえない)
   function start(course, only) {
     var qs = shuffle(only ? only.slice() : pool(course));
@@ -356,6 +372,7 @@ WPS.makeTorokko = function (ctx) {
       q = g.qs[g.i]; opts = shuffle(q.opts.slice()); g.okLane = opts.indexOf(q.ok);
     }
     g.q = q; g.opts = opts;
+    setLanes(opts.length);
     g.side = -1; g.phase = 'run'; g.s = 0; g.fade = g.n > 1 ? 1 : 0; g.t0 = performance.now() + (g.n === 1 ? READY_MS : 0);   // 1問目は、合図のあとで時計が動きだす
     g.limit = (g.drv ? g.drv.limit() : g.mode === 'test' ? (T_TEST[q.lv] || 30) + (q.t.length > 80 ? 10 : 0) : Math.max(T_MIN, T_START - Math.floor(g.okN / 5))) * 1000;
     el('tkKind').textContent = q.kind || (q.word ? '意味はどっち?' : (g.n === g.goal ? 'さいごの問題' : ''));
@@ -490,7 +507,6 @@ WPS.makeTorokko = function (ctx) {
     }
     if (g.phase !== 'idle') { var wasTest = g.mode === 'test', od = g.drv; leave(); if (wasTest && ctx.test) ctx.test.quit(true); if (od) od.quit(true); ctx.render(); return; }   // 画面を作り直したときは、メニューにもどす
     cv = el('tkCv'); c2 = cv.getContext('2d');
-    btns().forEach(function (b) { b.addEventListener('click', function () { choose(+b.getAttribute('data-lane')); }); });
     el('tkQuit').addEventListener('click', function () { finish(); });
     var sb = el('tkSnd');
     sb.addEventListener('click', function () { var r = rec(); r.mute = r.mute ? 0 : 1; S.save(); sb.textContent = r.mute ? '音なし' : '音あり'; sb.setAttribute('aria-pressed', r.mute ? 'false' : 'true'); if (!r.mute) sfx('pick'); });

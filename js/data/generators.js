@@ -56,6 +56,10 @@ window.WPS = window.WPS || {};
   }
   function numChoices(ans, cands) { return choices(num(ans), cands.map(num).concat([num(ans + 1), num(ans - 1), num(ans * 2 + 1)])); }
   function uniq(a) { return a.filter(function (x, i) { return x !== undefined && a.indexOf(x) === i; }); }
+  // 意味の「見出し」の部分(かっこの中を取りのぞいたもの)。「追加(さらに)」と「追加(そのうえ)」のように、
+  // かっこの中だけがちがう意味は、どちらも正解に見えてしまうので、まちがいの選択肢に使わない。
+  function mHead(m) { return String(m || '').replace(/[(（].*?[)）]/g, '').replace(/\s+/g, ''); }
+  WPS.mHead = mHead;
   function uniqBy(list, key) { var seen = {}; return list.filter(function (x) { if (seen[x[key]]) return false; seen[x[key]] = true; return true; }); }
   function Q(lv, text, ch, exp, extra) {
     var o = { lv: lv, text: text, choices: uniq(ch), exp: exp, why: {} };
@@ -75,7 +79,8 @@ window.WPS = window.WPS || {};
       var bank = WPS.BANK[bankKey], N = bank.length;
       var idx = seed % N, type = Math.floor(seed / N) % 2; // 正誤(○×)問題は出さず、日本語→英語/英語→日本語 の4択だけ
       var it = bank[idx];
-      var others = uniqBy(shuffle(r, bank.filter(function (x) { return x.m !== it.m && x.t !== it.t; })), 'm');
+      var hd = mHead(it.m);
+      var others = uniqBy(shuffle(r, bank.filter(function (x) { return x.m !== it.m && x.t !== it.t && (!hd || mHead(x.m) !== hd); })), 'm');
       var ds = others.slice(0, 3);
       var tip = it.h ? '\n💡 ' + it.h : '';
       var note = o.note ? '\n' + o.note : '';
@@ -792,7 +797,7 @@ window.WPS = window.WPS || {};
     return q;
   };
   G.j_h3 = function (r, seed) {
-    var B = WPS.BANK.kokeigo, it = B[seed % B.length], type = Math.floor(seed / B.length) % 3, others = uniqBy(shuffle(r, B.filter(function (x) { return x !== it && x.m !== it.m; })), 'm'), q;
+    var B = WPS.BANK.kokeigo, it = B[seed % B.length], type = Math.floor(seed / B.length) % 3, others = uniqBy(shuffle(r, B.filter(function (x) { return x !== it && x.m !== it.m && mHead(x.m) !== mHead(it.m); })), 'm'), q;
     var memo = '\n【' + it.t + '】' + it.k + '・' + it.m + '\n💡 尊敬語＝動作をする人への敬意 ／ 謙譲語＝動作を受ける人への敬意 ／ 丁寧語＝聞き手・読み手への敬意';
     if (type === 0) q = Q(1, '古文の「' + it.t + '」は何という敬語?', [it.k].concat(['尊敬語', '謙譲語', '丁寧語', '敬語ではない'].filter(function (x) { return x !== it.k; })).slice(0, 4), memo);
     else if (type === 1) { var ds = others.slice(0, 3); q = Q(1, '古文の「' + it.t + '」の意味は?', [it.m].concat(ds.map(function (x) { return x.m; })), memo); ds.forEach(function (d) { q.why[d.m] = 'これは「' + d.t + '」の意味です。'; }); }
