@@ -475,8 +475,11 @@ WPS.Roadmap = (function () {
       warnings.push('苦手単元の数に対して残り時間が少なめです。1日の勉強時間を少し増やすか、優先度の高い単元から順に取り組みましょう(目安:週' + need + '単元)。');
       pace = Math.min(6, need);
     }
-    // 予定の詰めこみ度(稼働率):週の勉強時間のうち、単元の学習に使う割合
-    var load = Math.min(0.99, pace * UM / Math.max(15, minutes * 7));
+    // 1単元の時間(教科ごと)と、週に使える予定時間
+    var utime = function (id) { var u = WPS.UNIT_MAP[id], b = u && cap.unitBy && cap.unitBy[u.subj]; return b ? b.m : UM; };
+    var budget = minutes * 7 * cap.rate;
+    // 苦手が多くて「週 need 単元」が必要なときは、そのぶん予定時間を広げる(詰めこみ度で知らせる)
+    if (pace > Math.round(budget / UM)) budget = pace * UM;
 
     // 中学範囲の穴が多いときは「土台の修復」フェーズを設ける
     var repairUnits = ids.filter(function (id) {
@@ -495,10 +498,15 @@ WPS.Roadmap = (function () {
       else if (D.diff(cursor, practiceStart) <= 0) phase = 'practice';
       else if (repairUnits.indexOf(queue[idx]) >= 0) phase = 'repair';
       else phase = 'standard';
-      var n = phase === 'practice' ? Math.max(1, Math.floor(pace / 2)) : phase === 'final' ? 0 : pace;
-      var units = queue.slice(idx, idx + n);
-      idx += units.length;
-      weeks.push({ start: cursor, end: end, phase: phase, units: units });
+      // 週の単元は「時間」で決める:その週の予定時間(勉強時間 × 予定を入れる割合)に収まるまで入れる。
+      // 1単元の時間は教科ごとの実績(なければ全体の実績、それもなければ150分)。演習期は半分、直前期は0
+      var bud = phase === 'practice' ? budget / 2 : phase === 'final' ? 0 : budget, units = [], used = 0;
+      while (bud > 0 && idx < queue.length && units.length < 6) {
+        var tm = utime(queue[idx]);
+        if (units.length && used + tm > bud * 1.05) break;   // 1単元目は、予定より長くても入れる(進まない週を作らない)
+        units.push(queue[idx]); used += tm; idx++;
+      }
+      weeks.push({ start: cursor, end: end, phase: phase, units: units, min: Math.round(used), load: Math.min(0.99, used / Math.max(15, minutes * 7)) });
       cursor = D.add(end, 1);
       if (weeks.length > 120) break;
     }
@@ -515,6 +523,10 @@ WPS.Roadmap = (function () {
       p.name = def.name; p.emoji = def.emoji; p.desc = def.desc; p.howto = def.howto;
     });
 
+    // 予定の詰めこみ度(稼働率):今週(なければ最初の、単元のある週)の予定時間 ÷ 週の勉強時間
+    var lw = weeks.filter(function (w) { return D.diff(w.start, today) >= 0 && D.diff(today, w.end) >= 0 && w.units.length; })[0] || weeks.filter(function (w) { return w.units.length; })[0];
+    var load = lw ? lw.load : 0;
+    pace = lw ? lw.units.length : pace;
     var untested = ids.filter(function (id) { return stats[id].status === 'untested'; }).length;
     if (untested > 0 && knownWeak === 0) {
       warnings.push('まだ診断テストのデータが少ないため、学年相当の単元を順番に並べています。診断テストを受けると、あなた専用のロードマップに変わります。');
@@ -826,16 +838,24 @@ WPS.Time = (function () {
       var gap = last[a.d] ? (a.t - last[a.d]) / 1000 : 30; last[a.d] = a.t;
       if (clears[a.u] && a.d <= clears[a.u].d) qs[a.u] = (qs[a.u] || 0) + Math.max(5, Math.min(120, gap));
     });
-    var xs = Object.keys(clears).filter(function (id) { return rs[id] > 0 && qs[id] > 0; }).map(function (id) { return (rs[id] + qs[id]) / 60; }).sort(function (a, b) { return a - b; });
-    if (xs.length < 3) return { m: 150, n: xs.length };
-    var md = xs.length % 2 ? xs[(xs.length - 1) / 2] : (xs[xs.length / 2 - 1] + xs[xs.length / 2]) / 2;
-    return { m: Math.round(Math.max(45, Math.min(300, md)) / 5) * 5, n: xs.length };
+    var ok = Object.keys(clears).filter(function (id) { return rs[id] > 0 && qs[id] > 0 && WPS.UNIT_MAP[id]; });
+    var med = function (ids) {
+      var xs = ids.map(function (id) { return (rs[id] + qs[id]) / 60; }).sort(function (a, b) { return a - b; });
+      var md = xs.length % 2 ? xs[(xs.length - 1) / 2] : (xs[xs.length / 2 - 1] + xs[xs.length / 2]) / 2;
+      return Math.round(Math.max(45, Math.min(300, md)) / 5) * 5;
+    };
+    var out = { m: ok.length >= 3 ? med(ok) : 150, n: ok.length, by: {} };
+    // 教科ごと:その教科で3単元以上あれば、教科ごとの中央値(数学と英語で、1単元の時間はちがうため)
+    var bySubj = {};
+    ok.forEach(function (id) { var sj = WPS.UNIT_MAP[id].subj; (bySubj[sj] = bySubj[sj] || []).push(id); });
+    Object.keys(bySubj).forEach(function (sj) { if (bySubj[sj].length >= 3) out.by[sj] = { m: med(bySubj[sj]), n: bySubj[sj].length }; });
+    return out;
   }
   function capacity(p) {
-    var set = weeklyMinutes(p) / 7, out = { set: Math.round(set), use: set, rate: PLAN_RATE, n: 0, avg: null, cv: null, v: 1, unit: 150, unitN: 0 };
+    var set = weeklyMinutes(p) / 7, out = { set: Math.round(set), use: set, rate: PLAN_RATE, n: 0, avg: null, cv: null, v: 1, unit: 150, unitN: 0, unitBy: {} };
     var by = WPS.minutesByDay ? WPS.minutesByDay() : null, s = WPS.Store.get();
     if (!by || !s.attempts || !s.attempts.length) return out;
-    var um = unitMinutes(s); out.unit = um.m; out.unitN = um.n;
+    var um = unitMinutes(s); out.unit = um.m; out.unitN = um.n; out.unitBy = um.by;
     var first = s.attempts.reduce(function (a, x) { return x.d && x.d < a ? x.d : a; }, '9999');
     var today = WPS.date.today(), xs = [];
     for (var i = 1; i <= 14; i++) { var d = WPS.date.add(today, -i); if (d >= first) xs.push(by[d] || 0); }

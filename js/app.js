@@ -1567,7 +1567,8 @@
       '<li><span>直近' + cap.n + '日の実績</span><b>1日 ' + WPS.Time.label(cap.avg) + '</b></li>' +
       '<li><span>日ごとのばらつき</span><b>' + cvL + '(' + cap.cv + ')</b></li>' +
       '<li><span>予定を入れる割合</span><b>' + Math.round(cap.rate * 100) + '%</b></li>' +
-      '<li class="w"><span>1単元にかかる時間</span><b>' + WPS.Time.label(cap.unit) + '</b><small>' + (cap.unitN >= 3 ? '合格した ' + cap.unitN + '単元の実績(解説を読む時間＋問題を解く時間)の中央値' : '目安の値。解説を読んでクリアテストに合格した単元が3つたまると、あなたの実績に変わります(いま ' + cap.unitN + '単元)') + '</small></li></ul>' +
+      '<li class="w"><span>1単元にかかる時間</span><b>' + WPS.Time.label(cap.unit) + '</b><small>' + (cap.unitN >= 3 ? '合格した ' + cap.unitN + '単元の実績(解説を読む時間＋問題を解く時間)の中央値' : '目安の値。解説を読んでクリアテストに合格した単元が3つたまると、あなたの実績に変わります(いま ' + cap.unitN + '単元)') + '</small>' +
+      (Object.keys(cap.unitBy || {}).length ? '<small>教科ごと:' + Object.keys(cap.unitBy).map(function (k) { return WPS.SUBJECTS[k].name + ' ' + WPS.Time.label(cap.unitBy[k].m) + '(' + cap.unitBy[k].n + '単元)'; }).join('、') + '。その教科の単元は、この時間で計画します。</small>' : '') + '</li></ul>' +
       '<p class="hint">' + (cap.avg < cap.set ? '実績が設定より少ないので、実績の時間で計画しています。設定を見直すか、勉強時間をふやすと、進むペースが上がります。' : '設定どおりに勉強できています。計画は設定の時間で立てています。') +
       (cap.rate < 0.78 ? '日によって勉強時間の差が大きいので、余白を多めにとっています。' : cap.rate > 0.82 ? '毎日の勉強時間が安定しているので、余白を少なめにしています。' : '') + '</p>';
   }
@@ -2250,6 +2251,7 @@
       var cur = wk === cw;
       var extra = wk.phase === 'practice' ? '＋ 過去問演習(週2〜3回)' : wk.phase === 'final' ? '＋ 総復習・本番の時間割で演習' : '';
       html += '<div class="wk' + (cur ? ' current' : '') + (i > 7 ? ' more' : '') + '"><div class="wk-head"><b>' + (cur ? '▶ 今週 ' : '') + D.label(wk.start) + '〜' + D.label(wk.end) + '</b><span class="tag tl-' + wk.phase + '">' + ph.emoji + ' ' + ph.name + '</span></div>' +
+        (wk.min ? '<small class="wk-min">単元の学習 約' + WPS.Time.label(Math.round(wk.min / 5) * 5) + '(週の勉強時間の' + Math.round(wk.load * 100) + '%)</small>' : '') +
         (wk.units.length ? '<div class="wk-units">' + wk.units.map(function (id) {
           var u = WPS.UNIT_MAP[id];
           return '<a href="#study/' + id + '" class="mini ' + STATUS[rm.stats[id].status].cls + '">' + WPS.SUBJECTS[u.subj].name + '：' + h(u.name) + '</a>';
