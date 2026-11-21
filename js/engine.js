@@ -466,7 +466,8 @@ WPS.Roadmap = (function () {
     // 精度を上げるため、記録が7日分以上あれば「実際に勉強できている時間」と「日ごとのばらつき」を使う(WPS.Time.capacity)
     var cap = WPS.Time.capacity(s.profile);
     var minutes = Math.max(15, cap.use);
-    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 * cap.rate / 150)));   // 1単元150分は目安なので、四捨五入(8割前後になる)
+    var UM = cap.unit;   // 1単元にかかる時間(分)。合格した単元の実績から。足りなければ150分
+    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 * cap.rate / UM)));   // 1単元150分は目安なので、四捨五入(8割前後になる)
     var learnWeeks = Math.max(1, Math.floor(D.diff(today, practiceStart) / 7));
     var knownWeak = ids.filter(function (id) { return stats[id].status !== 'untested'; }).length;
     if (knownWeak > learnWeeks * pace) {
@@ -475,7 +476,7 @@ WPS.Roadmap = (function () {
       pace = Math.min(6, need);
     }
     // 予定の詰めこみ度(稼働率):週の勉強時間のうち、単元の学習に使う割合
-    var load = Math.min(0.99, pace * 150 / Math.max(15, minutes * 7));
+    var load = Math.min(0.99, pace * UM / Math.max(15, minutes * 7));
 
     // 中学範囲の穴が多いときは「土台の修復」フェーズを設ける
     var repairUnits = ids.filter(function (id) {
@@ -816,10 +817,25 @@ WPS.Time = (function () {
   //  ・日ごとのばらつきが大きいほど、余白を多めにとる。待ち行列理論の「キングマンの近似式」:
   //    待ち時間 ≒ (ばらつきの大きさ) × ρ/(1−ρ) × 処理時間。ばらつきが標準(V=1)で ρ=0.8 のときと同じ待ち時間(4)に
   //    なる ρ を、ρ = 4 ÷ (4 + V) で求める。V = (1 + 日ごとの時間の変動係数²) ÷ 2(来るタイミングのばらつきは標準の1とおく)
+  // 1単元にかかる時間(分)の実績:「単元クリアテスト」に合格した単元について、合格の日までに
+  //  その単元の解説を読んだ時間 ＋ その単元の問題を解いた時間 を足す。解説を読んだ記録がある単元が3つ以上あれば中央値を使う
+  function unitMinutes(s) {
+    var clears = s.clears || {}, rs = s.unitRead || {}, last = {}, qs = {};
+    s.attempts.slice().sort(function (a, b) { return a.t - b.t; }).forEach(function (a) {
+      if (!a.t || !a.u || a.src === 'school') return;
+      var gap = last[a.d] ? (a.t - last[a.d]) / 1000 : 30; last[a.d] = a.t;
+      if (clears[a.u] && a.d <= clears[a.u].d) qs[a.u] = (qs[a.u] || 0) + Math.max(5, Math.min(120, gap));
+    });
+    var xs = Object.keys(clears).filter(function (id) { return rs[id] > 0 && qs[id] > 0; }).map(function (id) { return (rs[id] + qs[id]) / 60; }).sort(function (a, b) { return a - b; });
+    if (xs.length < 3) return { m: 150, n: xs.length };
+    var md = xs.length % 2 ? xs[(xs.length - 1) / 2] : (xs[xs.length / 2 - 1] + xs[xs.length / 2]) / 2;
+    return { m: Math.round(Math.max(45, Math.min(300, md)) / 5) * 5, n: xs.length };
+  }
   function capacity(p) {
-    var set = weeklyMinutes(p) / 7, out = { set: Math.round(set), use: set, rate: PLAN_RATE, n: 0, avg: null, cv: null, v: 1 };
+    var set = weeklyMinutes(p) / 7, out = { set: Math.round(set), use: set, rate: PLAN_RATE, n: 0, avg: null, cv: null, v: 1, unit: 150, unitN: 0 };
     var by = WPS.minutesByDay ? WPS.minutesByDay() : null, s = WPS.Store.get();
     if (!by || !s.attempts || !s.attempts.length) return out;
+    var um = unitMinutes(s); out.unit = um.m; out.unitN = um.n;
     var first = s.attempts.reduce(function (a, x) { return x.d && x.d < a ? x.d : a; }, '9999');
     var today = WPS.date.today(), xs = [];
     for (var i = 1; i <= 14; i++) { var d = WPS.date.add(today, -i); if (d >= first) xs.push(by[d] || 0); }

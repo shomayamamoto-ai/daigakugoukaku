@@ -278,6 +278,9 @@ WPS.makeVocab = function (ctx) {
     });
     var v = s.vt || {}, out = {};
     Object.keys(v.min || {}).forEach(function (d) { by[d] = (by[d] || 0) + v.min[d]; });
+    // 解説を読んでいた時間(秒)と、アプリの外で勉強した時間(分。自分で記録)
+    Object.keys(s.readSec || {}).forEach(function (d) { by[d] = (by[d] || 0) + s.readSec[d]; });
+    Object.keys(s.extMin || {}).forEach(function (d) { by[d] = (by[d] || 0) + s.extMin[d] * 60; });
     var pw = 25; try { pw = (JSON.parse(localStorage.getItem('wps_pomo') || 'null') || {}).work || 25; } catch (e) { /* 無視 */ }
     Object.keys(s.pomo || {}).forEach(function (d) { by[d] = Math.max(by[d] || 0, s.pomo[d] * pw * 60); });
     Object.keys(by).forEach(function (d) { out[d] = Math.round(by[d] / 60); });

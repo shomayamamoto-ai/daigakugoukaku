@@ -1527,11 +1527,24 @@
     '<p>このアプリは、計画を勉強時間の<b>8割</b>で立て、残り2割を<b>余白</b>として空けています。週の中では「復習日」がその余白です。</p>' +
     '<p>また、待ち行列は「ばらつき」が大きいほど長くなります。毎日の勉強時間が日によって大きくちがう人ほど、余白を多めに(最大35%)、安定している人ほど少なめに(最小15%)します。記録が7日分たまると、自動で調整されます。</p>' +
     '<p class="hint">計算は「M/M/1」という基本のモデル(待ち時間＝処理時間×稼働率÷(1−稼働率))と、ばらつきを考える「キングマンの近似式」によるもので、実際の行列や勉強にそのまま当てはまるわけではありません。考え方の目安です。</p></details>';
+  // 学校の課題や紙の問題集など、アプリの外で勉強した時間を記録する(実績の勉強時間に入る)
+  function extRow() {
+    var m = (S.get().extMin || {})[D.today()] || 0;
+    return '<div class="qx"><p class="qx-h">アプリの外で勉強した時間(学校の課題・問題集など)<b>' + (m ? WPS.Time.label(m) : '0分') + '</b></p>' +
+      [15, 30, 60].map(function (x) { return '<button type="button" class="btn small" data-ext="' + x + '">+' + x + '分</button>'; }).join('') +
+      (m ? '<button type="button" class="vt-link" data-ext="0">取り消す</button>' : '') + '</div>';
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ext]'); if (!b || (S.isView && S.isView())) return;
+    var s = S.get(), d = D.today(), x = +b.getAttribute('data-ext');
+    s.extMin = s.extMin || {}; s.extMin[d] = x ? Math.min(960, (s.extMin[d] || 0) + x) : 0; if (!s.extMin[d]) delete s.extMin[d];
+    S.save(); toast(x ? 'アプリの外の勉強を ' + x + '分 記録しました' : '今日の記録を取り消しました'); render();
+  });
   function bufferLine(tt) {
     if (!(tt.minutesToday >= 10)) return '';
     return '<div class="qb"><div class="qb-bar" aria-hidden="true"><i style="width:' + Math.round(tt.planToday / tt.minutesToday * 100) + '%"></i></div>' +
       '<p class="qb-l"><span><b>予定</b> ' + WPS.Time.label(tt.planToday) + '</span><span><b>余白</b> ' + WPS.Time.label(tt.bufferToday) + '</span></p>' +
-      '<p class="hint">余白は、やり残し・急な宿題・休けいのための時間です。何もなければ、早めに切り上げてOK。' + (tt.cap && tt.cap.avg !== null ? '(予定は' + Math.round(tt.cap.rate * 100) + '%:直近' + tt.cap.n + '日の記録から)' : '') + '</p>' + QUEUE_NOTE + '</div>';
+      extRow() + '<p class="hint">余白は、やり残し・急な宿題・休けいのための時間です。何もなければ、早めに切り上げてOK。' + (tt.cap && tt.cap.avg !== null ? '(予定は' + Math.round(tt.cap.rate * 100) + '%:直近' + tt.cap.n + '日の記録から)' : '') + '</p>' + QUEUE_NOTE + '</div>';
   }
   // 計画の詰めこみ度。8割をこえると、やり残しが積み上がりやすい
   function loadGauge(load, cap) {
@@ -1545,6 +1558,7 @@
       '<p class="small">' + msg + '(目安は' + Math.round((cap ? cap.rate : 0.8) * 100) + '%まで)</p>' + capNote(cap) + QUEUE_NOTE + '</div>';
   }
   // 計画のもとにした数字(設定・実績・ばらつき)
+  function rmCap() { return WPS.Time.capacity(S.get().profile); }
   function capNote(cap) {
     if (!cap) return '';
     if (cap.avg === null) return '<p class="hint">いまは設定の勉強時間(1日平均 ' + WPS.Time.label(cap.set) + ')で計算しています。記録が7日分たまると、実際に勉強できた時間とその日ごとのばらつきから、計画を自動で調整します' + (cap.n ? '(いま ' + cap.n + '日分)' : '') + '。</p>';
@@ -1552,7 +1566,8 @@
     return '<ul class="qg-d"><li><span>設定の勉強時間</span><b>1日 ' + WPS.Time.label(cap.set) + '</b></li>' +
       '<li><span>直近' + cap.n + '日の実績</span><b>1日 ' + WPS.Time.label(cap.avg) + '</b></li>' +
       '<li><span>日ごとのばらつき</span><b>' + cvL + '(' + cap.cv + ')</b></li>' +
-      '<li><span>予定を入れる割合</span><b>' + Math.round(cap.rate * 100) + '%</b></li></ul>' +
+      '<li><span>予定を入れる割合</span><b>' + Math.round(cap.rate * 100) + '%</b></li>' +
+      '<li class="w"><span>1単元にかかる時間</span><b>' + WPS.Time.label(cap.unit) + '</b><small>' + (cap.unitN >= 3 ? '合格した ' + cap.unitN + '単元の実績(解説を読む時間＋問題を解く時間)の中央値' : '目安の値。解説を読んでクリアテストに合格した単元が3つたまると、あなたの実績に変わります(いま ' + cap.unitN + '単元)') + '</small></li></ul>' +
       '<p class="hint">' + (cap.avg < cap.set ? '実績が設定より少ないので、実績の時間で計画しています。設定を見直すか、勉強時間をふやすと、進むペースが上がります。' : '設定どおりに勉強できています。計画は設定の時間で立てています。') +
       (cap.rate < 0.78 ? '日によって勉強時間の差が大きいので、余白を多めにとっています。' : cap.rate > 0.82 ? '毎日の勉強時間が安定しているので、余白を少なめにしています。' : '') + '</p>';
   }
@@ -3238,6 +3253,18 @@
   })();
   /* ========== 単語トレーニング(js/vocab.js) ========== */
   WPS.minutesByDay = function () { return VT.minutesByDay ? VT.minutesByDay() : {}; };   // 実際の勉強時間(計画の精度に使う)
+  // 解説を読んでいる時間を数える(単元のページ・テキストの単元)。画面が見えていて、2分以内に操作があったときだけ、15秒ずつ足す
+  var lastAct = Date.now();
+  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) { window.addEventListener(ev, function () { lastAct = Date.now(); }, { passive: true }); });
+  setInterval(function () {
+    if (document.hidden || Date.now() - lastAct > 120000 || S.isView && S.isView()) return;
+    var p = (location.hash || '').slice(1).split('/'), u = p[0] === 'study' ? p[1] : p[0] === 'books' ? p[2] : '';
+    if (!u || !WPS.UNIT_MAP[u]) return;
+    var s = S.get(), d = D.today();
+    s.readSec = s.readSec || {}; s.readSec[d] = (s.readSec[d] || 0) + 15;
+    s.unitRead = s.unitRead || {}; s.unitRead[u] = (s.unitRead[u] || 0) + 15;
+    S.save();
+  }, 15000);
   var VT = WPS.makeVocab({
     h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems, trolley: function () { return TK; },
     okList: function (L) { return wordListOk(L, S.get().profile.grade, A.allStats()); }
@@ -3391,7 +3418,7 @@
     var weakU = testedU.filter(function (u) { return rm.stats[u.id].status === 'weak' || rm.stats[u.id].status === 'soso'; });
     var ratio = testedU.length ? weakU.length / testedU.length : 0.5;
     var guess = Math.round(untested.length * ratio), need = weak.length + guess;
-    var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / WPS.Time.PLAN_RATE / 5) * 5;   // 予定は8割まで:余白をふくめた時間
+    var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * (rmCap().unit || 150) / daysLeft / (rmCap().rate || WPS.Time.PLAN_RATE) / 5) * 5;   // 予定は8割まで:余白をふくめた時間
     var probs = need * 30;
     var capH = Math.min(goalH, Math.max(60, nowH)), hardN = goalH > capH ? Math.ceil((goalH - capH) / 2.5) * 60 : 0;
     if (diff > 0) html += '<h3>あとこれだけやれば届く(目安)</h3>' +
@@ -3401,7 +3428,7 @@
       '<div class="tg"><small>苦手単元を「得意」に</small><b class="tg-num">' + need + '<em>単元</em></b><span>判明 ' + weak.length + '＋未診断から見込み ' + guess + '/週 ' + perWeek + ' 単元(' + weeksLeft + '週)</span></div>' +
       '<div class="tg"><small>解く問題の目安</small><b class="tg-num">' + probs + '<em>問</em></b><span>1単元 約30問 × ' + need + '単元</span></div>' +
       (hardN ? '<div class="tg"><small>標準・難関レベルの問題</small><b class="tg-num">' + hardN + '<em>問</em></b><span>偏差値 ' + capH + '→' + goalH + ' の分(2.5 上げるごとに約60問)</span></div><div class="tg"><small>志望校の過去問</small><b class="tg-num">5<em>年分</em></b><span>実戦期から、時間を計って解く</span></div>' : '') +
-      '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約150分)＋余白2割</span></div>' +
+      '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約' + (rmCap().unit || 150) + '分)＋余白' + Math.round((1 - (rmCap().rate || 0.8)) * 100) + '%</span></div>' +
       '</div>' + (untested.length ? '<p class="hint">まだ診断していない単元が ' + untested.length + ' あります(今の苦手の割合から ' + guess + ' 単元を見込みに入れています)。診断を進めると、必要な量がより正確になります。</p>' : '');
     // ③ 教科ごとの差(どの教科を上げると近づくか)
     var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; }).map(function (k) { var e = A.estimate(k); return { k: k, h: e.hensa, w: t.weights[k] }; }).filter(function (x) { return x.h !== null; });

@@ -3455,3 +3455,11 @@ body.tl-full { overflow: hidden; }
 .qg-d li { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-width: 0; }
 .qg-d span { display: block; font-size: 11px; color: var(--muted); }
 .qg-d b { font-size: 14px; }
+.qg-d li.w { grid-column: 1 / -1; }
+.qg-d li small { display: block; font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 2px; }
+.qx { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; font-size: 13px; }
+.qx > span { color: var(--muted); }
+.qx > b { margin-right: 4px; }
+.qx-h { flex: 1 1 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
+.qx-h b { color: var(--text); font-size: 14px; margin-left: 6px; }
+.qx .btn.small { min-height: 34px; padding: 4px 12px; }
