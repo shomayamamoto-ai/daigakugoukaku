@@ -32,7 +32,7 @@
   G.hd_m2 = function (r) {
     var t = ri(r, 0, 4);
     if (t === 0) { var tt = nz(r, -3, 3), a = ri(r, 0, 6), m = 3 * tt * tt - a, b = -2 * tt * tt * tt;
-      return Q(3, '曲線 y＝x³' + (a ? '−' + a + 'x' : '') + ' 上の x＝' + tt + ' の点における接線の方程式は?', choices('y＝' + poly([[m, 'x'], [b, '']]), ['y＝' + poly([[m, 'x'], [-b, '']]), 'y＝' + poly([[3 * tt * tt, 'x'], [b, '']]), 'y＝' + poly([[m, 'x'], [tt * tt * tt - a * tt, '']])]),
+      return Q(3, '曲線 y＝x³' + (a ? '−' + (a === 1 ? '' : a) + 'x' : '') + ' 上の x＝' + tt + ' の点における接線の方程式は?', choices('y＝' + poly([[m, 'x'], [b, '']]), ['y＝' + poly([[m, 'x'], [-b, '']]), 'y＝' + poly([[3 * tt * tt, 'x'], [b, '']]), 'y＝' + poly([[m, 'x'], [tt * tt * tt - a * tt, '']])]),
         '①接点 (' + tt + ', ' + (tt * tt * tt - a * tt) + ')、傾き f′(' + tt + ')＝3×' + (tt * tt) + (a ? '−' + a : '') + '＝' + m + '\n②y−(' + (tt * tt * tt - a * tt) + ')＝' + m + '(x−(' + tt + ')) → y＝' + poly([[m, 'x'], [b, '']])); }
     if (t === 1) { var k = ri(r, 1, 6);
       return Q(3, '2つの放物線 y＝x² と y＝−x²＋' + (2 * k) + 'x で囲まれた部分の面積は?', choices(frac(k * k * k, 3), [frac(k * k * k, 6), frac(2 * k * k * k, 3), String(k * k)]),
@@ -44,8 +44,9 @@
       // log2(x−p)＋log2(x−q)＝c、解 x0 は x0−p, x0−q が2の累乗
       var X = pk(r, [[1, 2], [2, 4], [1, 4], [2, 8], [4, 8]]).slice(); var x0 = q + X[0]; p = x0 - X[1];
       var c = Math.log2(X[0] * X[1]);
-      return Q(3, '方程式 log₂(x−' + p + ')＋log₂(x−' + q + ')＝' + c + ' を解くと?', choices('x＝' + x0, ['x＝' + x0 + ', ' + (p + q - x0), 'x＝' + (p + q - x0), 'x＝' + (x0 + 1)]),
-        '①真数条件:x＞' + q + '\n②log₂{(x−' + p + ')(x−' + q + ')}＝' + c + ' → (x−' + p + ')(x−' + q + ')＝' + (X[0] * X[1]) + '\n③解くと x＝' + x0 + ', ' + (p + q - x0) + ' のうち、真数条件を満たすのは x＝' + x0 + '\n💡 真数条件を忘れると、余分な解が残る。'); }
+      var xm = function (v) { return v > 0 ? 'x−' + v : v < 0 ? 'x＋' + (-v) : 'x'; };   // x−(−1) は x＋1 と書く
+      return Q(3, '方程式 log₂(' + xm(p) + ')＋log₂(x−' + q + ')＝' + c + ' を解くと?', choices('x＝' + x0, ['x＝' + x0 + ', ' + (p + q - x0), 'x＝' + (p + q - x0), 'x＝' + (x0 + 1)]),
+        '①真数条件:x＞' + q + '\n②log₂{(' + xm(p) + ')(x−' + q + ')}＝' + c + ' → (' + xm(p) + ')(x−' + q + ')＝' + (X[0] * X[1]) + '\n③解くと x＝' + x0 + ', ' + (p + q - x0) + ' のうち、真数条件を満たすのは x＝' + x0 + '\n💡 真数条件を忘れると、余分な解が残る。'); }
     var F = pk(r, [['x³−3x', [-1, 2], [1, -2], function (x) { return x * x * x - 3 * x; }], ['x³−12x', [-2, 16], [2, -16], function (x) { return x * x * x - 12 * x; }], ['x³−3x²', [0, 0], [2, -4], function (x) { return x * x * x - 3 * x * x; }]]);
     var lo = F[1][0] - ri(r, 1, 2), hi = F[2][0] + ri(r, 0, 2), vals = [lo, F[1][0], F[2][0], hi].map(F[3]), mx = Math.max.apply(null, vals);
     return Q(3, 'f(x)＝' + F[0] + '(' + lo + '≦x≦' + hi + ')の最大値は?', numChoices(mx, [F[1][1], F[3](hi), F[3](lo)].filter(function (v) { return v !== mx; })),

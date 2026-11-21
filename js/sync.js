@@ -109,7 +109,8 @@ WPS.Sync = (function () {
 
   // 同じ場所でサーバーが動いているか(アプリをサーバーから開いている場合は自動で見つかる)
   function detect() {
-    if (location.protocol === 'file:') return Promise.resolve('');
+    // GitHub Pages など、サーバーを置けない場所では問い合わせない(毎回 404 のエラーが出るため)
+    if (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname)) return Promise.resolve('');
     return fetch(location.origin + '/api/health').then(function (r) { return r.ok ? location.origin : ''; }).catch(function () { return ''; });
   }
 

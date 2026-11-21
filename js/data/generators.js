@@ -43,14 +43,23 @@ window.WPS = window.WPS || {};
   }
   function sgn(n) { return n < 0 ? '(' + n + ')' : String(n); }
   // 正解＋候補から重複のない4択を作る(足りなければ数字をずらした誤答で補う)
+  // 選択肢をくらべるときの形:かけ算の順番だけがちがう式((x−8)(x＋8) と (x＋8)(x−8))は同じものとみなす。
+  // まちがいの選択肢が、じつは正解と同じ式になって「正解が2つ」になるのを防ぐ
+  function canon(c) {
+    var t = String(c).replace(/\s+/g, '').replace(/[−–－]/g, '-').replace(/＋/g, '+');
+    var m = t.match(/^(-?\d*)((?:\([^()]*\))+)$/);
+    if (!m || (m[2].match(/\(/g) || []).length < 2) return t;
+    return m[1] + m[2].match(/\([^()]*\)/g).sort().join('');
+  }
   function choices(correct, cands) {
-    var out = [String(correct)];
-    cands.forEach(function (c) { c = String(c); if (out.length < 4 && out.indexOf(c) < 0) out.push(c); });
+    var out = [String(correct)], seen = [canon(correct)];
+    var add = function (c) { var k = canon(c); if (out.length < 4 && out.indexOf(c) < 0 && seen.indexOf(k) < 0) { out.push(c); seen.push(k); } };
+    cands.forEach(function (c) { add(String(c)); });
     var shifts = [1, -1, 2, -2, 3, -3, 5, 10, -10, 20];
     for (var k = 0; out.length < 4 && k < shifts.length * 3; k++) {
       var sh = shifts[k % shifts.length], idx = Math.floor(k / shifts.length), cnt = -1;
       var f = String(correct).replace(/\d+(\.\d+)?/g, function (m) { cnt++; return cnt === idx ? String(Math.abs(Math.round((+m + sh) * 1000) / 1000)) : m; });
-      if (out.indexOf(f) < 0) out.push(f);
+      add(f);
     }
     return out;
   }
@@ -1023,7 +1032,7 @@ window.WPS = window.WPS || {};
     var a = nz(r, -3, 3), x1 = ri(r, -4, 2), x2 = x1 + ri(r, 1, 3), type = ri(r, 0, 1);
     if (type === 0) return Q(2, 'y＝' + poly([[a, 'x²']]) + ' で、x が ' + x1 + ' から ' + x2 + ' まで増えるときの変化の割合は?', numChoices(a * (x1 + x2), [-a * (x1 + x2), a * (x2 - x1), a * x2 * x2]), '変化の割合＝(yの増加量)÷(xの増加量)\ny は ' + (a * x1 * x1) + ' → ' + (a * x2 * x2) + '、x は ' + x1 + ' → ' + x2 + '\n(' + (a * x2 * x2) + '−' + sgn(a * x1 * x1) + ')÷' + (x2 - x1) + '＝' + (a * (x1 + x2)) + '\n💡 近道:a×(はじめのx＋終わりのx)', { fig: { type: 'parabola', a: a, h: 0, k: 0, pts: [[x1, a * x1 * x1], [x2, a * x2 * x2]] } });
     var aa = Math.abs(a), lo = -ri(r, 1, 3), hi = ri(r, 1, 4), ymax = aa * Math.max(lo * lo, hi * hi);
-    return Q(3, 'y＝' + aa + 'x² で、x の変域が ' + lo + '≦x≦' + hi + ' のとき、y の変域は?', choices('0≦y≦' + ymax, [(aa * lo * lo) + '≦y≦' + (aa * hi * hi), (aa * Math.min(lo * lo, hi * hi)) + '≦y≦' + ymax, '0≦y≦' + (aa * hi * hi + 1)]), 'x の変域に 0 がふくまれるので、y の最小値は 0(グラフの谷底)!\n最大値は 0 から遠い方の端:x＝' + (Math.abs(lo) > hi ? lo : hi) + ' のとき y＝' + ymax, { fig: { type: 'parabola', a: aa, h: 0, k: 0, range: [lo, hi] } });
+    return Q(3, 'y＝' + (aa === 1 ? '' : aa) + 'x² で、x の変域が ' + lo + '≦x≦' + hi + ' のとき、y の変域は?', choices('0≦y≦' + ymax, [(aa * lo * lo) + '≦y≦' + (aa * hi * hi), (aa * Math.min(lo * lo, hi * hi)) + '≦y≦' + ymax, '0≦y≦' + (aa * hi * hi + 1)]), 'x の変域に 0 がふくまれるので、y の最小値は 0(グラフの谷底)!\n最大値は 0 から遠い方の端:x＝' + (Math.abs(lo) > hi ? lo : hi) + ' のとき y＝' + ymax, { fig: { type: 'parabola', a: aa, h: 0, k: 0, range: [lo, hi] } });
   };
   G.m_m11 = function (r) {
     var t = pk(r, [[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10], [7, 24, 25]]), k = ri(r, 1, 3), a = t[0] * k, b = t[1] * k, c = t[2] * k;
