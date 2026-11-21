@@ -460,9 +460,11 @@ WPS.Roadmap = (function () {
     var finalStart = D.add(t.exam, -finalDays);
     if (D.diff(today, practiceStart) < 0) practiceStart = today;
 
-    // 1週間で仕上げられる単元数(1単元に約150分かかる想定)
+    // 1週間で仕上げられる単元数(1単元に約150分かかる想定)。
+    // 待ち行列理論:予定を勉強時間の100%まで詰めると、急な宿題や体調不良が1つ入っただけで後ろがすべてずれる。
+    // そこで計画は勉強時間の8割(PLAN_RATE)で立て、残り2割は「余白」として空けておく。
     var minutes = Math.max(15, WPS.Time.weeklyMinutes(s.profile) / 7);
-    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 / 150)));
+    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 * WPS.Time.PLAN_RATE / 150)));   // 1単元150分は目安なので、四捨五入(8割前後になる)
     var learnWeeks = Math.max(1, Math.floor(D.diff(today, practiceStart) / 7));
     var knownWeak = ids.filter(function (id) { return stats[id].status !== 'untested'; }).length;
     if (knownWeak > learnWeeks * pace) {
@@ -470,6 +472,8 @@ WPS.Roadmap = (function () {
       warnings.push('苦手単元の数に対して残り時間が少なめです。1日の勉強時間を少し増やすか、優先度の高い単元から順に取り組みましょう(目安:週' + need + '単元)。');
       pace = Math.min(6, need);
     }
+    // 予定の詰めこみ度(稼働率):週の勉強時間のうち、単元の学習に使う割合
+    var load = Math.min(0.99, pace * 150 / Math.max(15, minutes * 7));
 
     // 中学範囲の穴が多いときは「土台の修復」フェーズを設ける
     var repairUnits = ids.filter(function (id) {
@@ -515,7 +519,7 @@ WPS.Roadmap = (function () {
 
     return {
       target: t, today: today, days: totalDays, weeks: weeks, phases: phases,
-      units: ids, stats: stats, pace: pace, warnings: warnings
+      units: ids, stats: stats, pace: pace, load: load, warnings: warnings
     };
   }
 
@@ -537,6 +541,7 @@ WPS.Roadmap = (function () {
     var tasks = [];
     var todays = s.attempts.filter(function (a) { return a.d === today; });
     var minutesToday = WPS.Time.minutesFor(s.profile, today);
+    var planToday = WPS.Time.planOf(minutesToday);
 
     // ① 単語帳
     var due = WPS.SRS.dueCards().length;
@@ -587,7 +592,7 @@ WPS.Roadmap = (function () {
     tasks.push({ key: 'memo', kind: 'manual', icon: '✏️', title: 'わからなかったことを「先生への質問メモ」に書く', sub: '30分の授業を、疑問の解決だけに使えるようにしよう', action: '#memo' });
 
     tasks.forEach(function (t) { if (t.kind === 'manual') t.done = !!day.checks[t.key]; });
-    return { week: w, tasks: tasks, minutesToday: minutesToday, holiday: WPS.Time.isHoliday(today) };
+    return { week: w, tasks: tasks, minutesToday: minutesToday, planToday: planToday, bufferToday: minutesToday - planToday, holiday: WPS.Time.isHoliday(today) };
   }
 
   return { build: build, target: target, currentWeek: currentWeek, todayTasks: todayTasks, gradeIndex: gradeIndex };
@@ -800,7 +805,12 @@ WPS.Time = (function () {
   function label(m) { m = +m; return m < 60 ? m + '分' : (m % 60 ? Math.floor(m / 60) + '時間' + (m % 60) + '分' : (m / 60) + '時間'); }
   // 選べる時間:15分〜18時間
   var OPTIONS = [15, 30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080];
-  return { isHoliday: isHoliday, holidayName: holidayName, minutesFor: minutesFor, weeklyMinutes: weeklyMinutes, label: label, OPTIONS: OPTIONS };
+  // 予定は8割まで(待ち行列理論)。勉強時間のうち、予定を入れるのは8割。5分単位で、余白は最低5分
+  var PLAN_RATE = 0.8;
+  function planOf(m) { m = +m || 0; if (m < 10) return m; return Math.min(m - 5, Math.max(5, Math.round(m * PLAN_RATE / 5) * 5)); }
+  // 待ち時間の目安(M/M/1 という待ち行列のモデル):1件の処理時間を1としたときの待ち時間 ＝ ρ ÷ (1 − ρ)。ρ は稼働率
+  function waitFactor(rho) { rho = Math.min(0.99, Math.max(0, rho)); return rho / (1 - rho); }
+  return { isHoliday: isHoliday, holidayName: holidayName, minutesFor: minutesFor, weeklyMinutes: weeklyMinutes, label: label, OPTIONS: OPTIONS, PLAN_RATE: PLAN_RATE, planOf: planOf, waitFactor: waitFactor };
 })();
 
 /* ========== 7. レベル(経験値) ========== */

@@ -832,6 +832,7 @@
     // 今日のやる事
     var doneN = tt.tasks.filter(function (x) { return x.done; }).length;
     html += '<section class="card"><div class="row-between"><h2>今日のやる事</h2><span class="time-pill">' + (tt.holiday ? '🌞 休日' : '🏫 平日') + ' の目安 ' + WPS.Time.label(tt.minutesToday) + '</span></div><div class="row-between"><span class="muted">' + doneN + '/' + tt.tasks.length + ' 完了</span></div>' +
+      bufferLine(tt) +
       (tt.week ? dayTypeLine(tt.week, D.today()) : '') + '<div class="progress"><i style="width:' + Math.round(doneN / tt.tasks.length * 100) + '%"></i></div><ul class="tasks">' +
       tt.tasks.map(function (x) {
         var check = x.kind === 'manual'
@@ -1514,7 +1515,34 @@
     return c ? '<span class="jk-badge ok">合格 ' + c.c + '/' + c.n + '</span>' : f ? '<span class="jk-badge ng">挑戦中(' + f + '回)</span>' : '<span class="jk-badge">未挑戦</span>';
   }
   // 週の中の何日目か:0〜3日目は進む日、4〜5日目は復習日、6日目は確認テストの日
-  var DAYTYPE = { go: ['進む日', '新しい単元を進める日。今週の単元の要点を読んで、問題を解こう。'], rev: ['復習日', '進んだ単元をふり返る日。間違えた問題と、今週の単元をもう一度。'], test: ['確認テストの日', '今週の単元から10問。8割とれたら合格。届かなければ来週も同じ単元を続けよう。'] };
+  var DAYTYPE = { go: ['進む日', '新しい単元を進める日。今週の単元の要点を読んで、問題を解こう。'], rev: ['復習日', '進む日のやり残しを、まず片づける日(週の余白)。そのあと、間違えた問題と今週の単元をもう一度。'], test: ['確認テストの日', '今週の単元から10問。8割とれたら合格。届かなければ来週も同じ単元を続けよう。'] };
+  /* ---------- 予定は8割まで(待ち行列理論) ---------- */
+  // レジの行列と同じで、予定を勉強時間いっぱいに詰めると、急な宿題が1つ入っただけで後ろが大きくずれる。
+  // 計画は8割で立てて、2割は「余白」として空けておく。余白は、やり残し・急な用事・休けいに使う。
+  var QUEUE_NOTE = '<details class="qn"><summary>なぜ「予定は8割まで」?</summary>' +
+    '<p>お店のレジは、客がバラバラに来るので、平均では空いている時間があっても、来るタイミングが重なると行列ができます。待ち行列理論という数学では、レジの忙しさ(稼働率)と待ち時間の関係が次のようになります(1人の会計に1分かかるレジの例)。</p>' +
+    '<table class="qn-t"><thead><tr><th>1時間の客数</th><th>忙しさ</th><th>平均の待ち時間</th></tr></thead><tbody>' +
+    [[48, 0.8], [54, 0.9], [57, 0.95]].map(function (r) { return '<tr><td>' + r[0] + '人</td><td>' + Math.round(r[1] * 100) + '%</td><td>約' + Math.round(WPS.Time.waitFactor(r[1])) + '分</td></tr>'; }).join('') + '</tbody></table>' +
+    '<p>忙しさが8割から9割、9割5分と少し上がるだけで、待ち時間は4分→9分→19分と急にふえます。勉強の予定も同じで、時間いっぱいに詰めると、急な宿題や体調不良が1つ入っただけで、やり残しが次の日へ、次の週へと積み上がります。</p>' +
+    '<p>このアプリは、計画を勉強時間の<b>8割</b>で立て、残り2割を<b>余白</b>として空けています。週の中では「復習日」がその余白です。</p>' +
+    '<p class="hint">計算は「M/M/1」という基本のモデル(待ち時間＝処理時間×稼働率÷(1−稼働率))によるもので、実際の行列や勉強にそのまま当てはまるわけではありません。考え方の目安です。</p></details>';
+  function bufferLine(tt) {
+    if (!(tt.minutesToday >= 10)) return '';
+    return '<div class="qb"><div class="qb-bar" aria-hidden="true"><i style="width:' + Math.round(tt.planToday / tt.minutesToday * 100) + '%"></i></div>' +
+      '<p class="qb-l"><span><b>予定</b> ' + WPS.Time.label(tt.planToday) + '</span><span><b>余白</b> ' + WPS.Time.label(tt.bufferToday) + '</span></p>' +
+      '<p class="hint">余白は、やり残し・急な宿題・休けいのための時間です。何もなければ、早めに切り上げてOK。</p>' + QUEUE_NOTE + '</div>';
+  }
+  // 計画の詰めこみ度。8割をこえると、やり残しが積み上がりやすい
+  function loadGauge(load) {
+    if (!(load > 0)) return '';
+    var pc = Math.round(load * 100), lv = load <= 0.85 ? 'ok' : load <= 0.9 ? 'warn' : 'ng';   // 1単元150分は目安なので、8割前後(85%まで)は「ちょうどよい」とする
+    var msg = lv === 'ok' ? (load > 0.8 ? '8割前後に収まっています。' : '') + '余白が残っているので、急な用事が入っても計画がくずれにくい状態です。'
+      : lv === 'warn' ? '予定が8割をこえています。急な用事が入ると、やり残しが積み上がりやすくなります。1日の勉強時間を少しふやすか、単元をしぼりましょう。'
+      : '予定がほぼ時間いっぱいです。このままだと、1つの遅れが次々に後ろへ響きます。1日の勉強時間をふやすか、優先度の高い単元からに絞りましょう。';
+    return '<div class="qg ' + lv + '"><div class="row-between"><b>予定の詰めこみ度</b><span class="qg-n">' + pc + '%</span></div>' +
+      '<div class="qg-bar" aria-hidden="true"><i style="width:' + Math.min(100, pc) + '%"></i><b style="left:80%"></b></div>' +
+      '<p class="small">' + msg + '(目安は8割まで)</p>' + QUEUE_NOTE + '</div>';
+  }
   function dayType(w, d) { if (!w) return null; var i = D.diff(w.start, d); return i <= 3 ? 'go' : i <= 5 ? 'rev' : 'test'; }
   function dayTypeLine(w, d) {
     var k = dayType(w, d); if (!k) return '';
@@ -1658,6 +1686,15 @@
     var left = D.diff(D.today(), t.date);
     return left > 14 ? ['範囲の総点検', '範囲の単元を、1つずつクリアテストで確かめよう。合格した単元は後回しでOK。'] : left > 7 ? ['苦手の集中練習', '不合格・未挑戦の単元にしぼって練習し、もう一度クリアテストへ。'] : left > 0 ? ['仕上げ', 'すべての単元を合格に。間違い直しと、学校のワーク・プリントの解き直しも。'] : ['本番', '今日がテスト。落ち着いて、見直しの時間を残そう。'];
   }
+  // 混む時間をずらす(待ち行列理論):テスト直前に、のこりの単元が集中しないように、1日あたりの目安を前倒しで出す。
+  // テスト前の3日間は「余白」(見直しと、やり残しの回収)として空けておく
+  function teikiPace(t, done) {
+    var left = t.units.length - done, days = D.diff(D.today(), t.date) - 3;
+    if (left <= 0) return '<p class="hint">範囲はすべて合格。テスト前の3日間は、まちがえた問題の見直しにあてよう。</p>';
+    if (days <= 0) return '<p class="hint">テスト直前です。新しい単元を広げるより、合格していない単元の見直しを優先しよう。</p>';
+    var per = left / days, txt = per >= 1 ? '1日 ' + Math.ceil(per) + '単元' : Math.round(1 / per) + '日に1単元';
+    return '<p class="jk-pace"><b>前倒しの目安</b>のこり ' + left + '単元 → <b>' + txt + '</b> のペースで、テストの3日前までに終わらせよう。直前に集中させると、1つの遅れで全部がずれます。</p>';
+  }
   function teikiCards(full) {
     var s = S.get(), today = D.today(), list = (s.teiki || []).filter(function (t) { return t.date >= today && (full || D.diff(today, t.date) <= 21); }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     return list.map(function (t) {
@@ -1665,7 +1702,7 @@
       return '<section class="card jk-teiki"><div class="row-between"><h2>定期テスト対策:' + h(t.name) + '</h2><span class="time-pill">あと' + D.diff(today, t.date) + '日</span></div>' +
         '<p class="muted small">' + h(t.date) + '・' + h(WPS.SUBJECTS[t.subj] ? WPS.SUBJECTS[t.subj].name : '') + ' ／ 範囲 ' + t.units.length + '単元のうち <b>' + done + '</b> 単元が合格</p>' +
         '<div class="progress"><i style="width:' + (t.units.length ? Math.round(done / t.units.length * 100) : 0) + '%"></i></div>' +
-        '<p class="jk-cycle go"><b>' + pl[0] + '</b>' + h(pl[1]) + '</p>' +
+        '<p class="jk-cycle go"><b>' + pl[0] + '</b>' + h(pl[1]) + '</p>' + teikiPace(t, done) +
         '<ul class="jk-units">' + t.units.map(function (id) { var u = WPS.UNIT_MAP[id]; if (!u) return ''; return '<li><a href="#study/' + id + '">' + h(u.name) + '</a>' + clearBadge(id) + (clearOf(id) ? '' : '<a class="btn small" href="#jtest/clear:' + id + '">クリアテスト</a>') + '</li>'; }).join('') + '</ul></section>';
     }).join('');
   }
@@ -2179,7 +2216,7 @@
 
     // 週ごとの計画
     var cw = R.currentWeek(rm);
-    html += '<section class="card"><h2>📅 週ごとの計画</h2><p class="muted">1日' + p.minutes + '分の勉強で、週' + rm.pace + '単元のペース。テストを受けるたびに自動で更新されるよ。</p><div class="weeks">';
+    html += '<section class="card"><h2>📅 週ごとの計画</h2><p class="muted">1日' + p.minutes + '分の勉強で、週' + rm.pace + '単元のペース。テストを受けるたびに自動で更新されるよ。</p>' + loadGauge(rm.load) + '<div class="weeks">';
     rm.weeks.forEach(function (wk, i) {
       var ph = WPS.PHASES.filter(function (x) { return x.key === wk.phase; })[0];
       var cur = wk === cw;
@@ -3340,7 +3377,7 @@
     var weakU = testedU.filter(function (u) { return rm.stats[u.id].status === 'weak' || rm.stats[u.id].status === 'soso'; });
     var ratio = testedU.length ? weakU.length / testedU.length : 0.5;
     var guess = Math.round(untested.length * ratio), need = weak.length + guess;
-    var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / 5) * 5;
+    var perWeek = Math.ceil(need / weeksLeft), minsPerDay = Math.ceil(need * 150 / daysLeft / WPS.Time.PLAN_RATE / 5) * 5;   // 予定は8割まで:余白をふくめた時間
     var probs = need * 30;
     var capH = Math.min(goalH, Math.max(60, nowH)), hardN = goalH > capH ? Math.ceil((goalH - capH) / 2.5) * 60 : 0;
     if (diff > 0) html += '<h3>あとこれだけやれば届く(目安)</h3>' +
@@ -3350,7 +3387,7 @@
       '<div class="tg"><small>苦手単元を「得意」に</small><b class="tg-num">' + need + '<em>単元</em></b><span>判明 ' + weak.length + '＋未診断から見込み ' + guess + '/週 ' + perWeek + ' 単元(' + weeksLeft + '週)</span></div>' +
       '<div class="tg"><small>解く問題の目安</small><b class="tg-num">' + probs + '<em>問</em></b><span>1単元 約30問 × ' + need + '単元</span></div>' +
       (hardN ? '<div class="tg"><small>標準・難関レベルの問題</small><b class="tg-num">' + hardN + '<em>問</em></b><span>偏差値 ' + capH + '→' + goalH + ' の分(2.5 上げるごとに約60問)</span></div><div class="tg"><small>志望校の過去問</small><b class="tg-num">5<em>年分</em></b><span>実戦期から、時間を計って解く</span></div>' : '') +
-      '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約150分)</span></div>' +
+      '<div class="tg"><small>1日の勉強時間の目安</small><b class="tg-num">' + WPS.Time.label(Math.max(15, minsPerDay)) + '</b><span>苦手単元の分(1単元 約150分)＋余白2割</span></div>' +
       '</div>' + (untested.length ? '<p class="hint">まだ診断していない単元が ' + untested.length + ' あります(今の苦手の割合から ' + guess + ' 単元を見込みに入れています)。診断を進めると、必要な量がより正確になります。</p>' : '');
     // ③ 教科ごとの差(どの教科を上げると近づくか)
     var subs = Object.keys(t.weights).filter(function (k) { return t.weights[k] > 0; }).map(function (k) { var e = A.estimate(k); return { k: k, h: e.hensa, w: t.weights[k] }; }).filter(function (x) { return x.h !== null; });
