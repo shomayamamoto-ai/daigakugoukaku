@@ -1525,23 +1525,36 @@
     [[48, 0.8], [54, 0.9], [57, 0.95]].map(function (r) { return '<tr><td>' + r[0] + '人</td><td>' + Math.round(r[1] * 100) + '%</td><td>約' + Math.round(WPS.Time.waitFactor(r[1])) + '分</td></tr>'; }).join('') + '</tbody></table>' +
     '<p>忙しさが8割から9割、9割5分と少し上がるだけで、待ち時間は4分→9分→19分と急にふえます。勉強の予定も同じで、時間いっぱいに詰めると、急な宿題や体調不良が1つ入っただけで、やり残しが次の日へ、次の週へと積み上がります。</p>' +
     '<p>このアプリは、計画を勉強時間の<b>8割</b>で立て、残り2割を<b>余白</b>として空けています。週の中では「復習日」がその余白です。</p>' +
-    '<p class="hint">計算は「M/M/1」という基本のモデル(待ち時間＝処理時間×稼働率÷(1−稼働率))によるもので、実際の行列や勉強にそのまま当てはまるわけではありません。考え方の目安です。</p></details>';
+    '<p>また、待ち行列は「ばらつき」が大きいほど長くなります。毎日の勉強時間が日によって大きくちがう人ほど、余白を多めに(最大35%)、安定している人ほど少なめに(最小15%)します。記録が7日分たまると、自動で調整されます。</p>' +
+    '<p class="hint">計算は「M/M/1」という基本のモデル(待ち時間＝処理時間×稼働率÷(1−稼働率))と、ばらつきを考える「キングマンの近似式」によるもので、実際の行列や勉強にそのまま当てはまるわけではありません。考え方の目安です。</p></details>';
   function bufferLine(tt) {
     if (!(tt.minutesToday >= 10)) return '';
     return '<div class="qb"><div class="qb-bar" aria-hidden="true"><i style="width:' + Math.round(tt.planToday / tt.minutesToday * 100) + '%"></i></div>' +
       '<p class="qb-l"><span><b>予定</b> ' + WPS.Time.label(tt.planToday) + '</span><span><b>余白</b> ' + WPS.Time.label(tt.bufferToday) + '</span></p>' +
-      '<p class="hint">余白は、やり残し・急な宿題・休けいのための時間です。何もなければ、早めに切り上げてOK。</p>' + QUEUE_NOTE + '</div>';
+      '<p class="hint">余白は、やり残し・急な宿題・休けいのための時間です。何もなければ、早めに切り上げてOK。' + (tt.cap && tt.cap.avg !== null ? '(予定は' + Math.round(tt.cap.rate * 100) + '%:直近' + tt.cap.n + '日の記録から)' : '') + '</p>' + QUEUE_NOTE + '</div>';
   }
   // 計画の詰めこみ度。8割をこえると、やり残しが積み上がりやすい
-  function loadGauge(load) {
+  function loadGauge(load, cap) {
     if (!(load > 0)) return '';
-    var pc = Math.round(load * 100), lv = load <= 0.85 ? 'ok' : load <= 0.9 ? 'warn' : 'ng';   // 1単元150分は目安なので、8割前後(85%まで)は「ちょうどよい」とする
-    var msg = lv === 'ok' ? (load > 0.8 ? '8割前後に収まっています。' : '') + '余白が残っているので、急な用事が入っても計画がくずれにくい状態です。'
-      : lv === 'warn' ? '予定が8割をこえています。急な用事が入ると、やり残しが積み上がりやすくなります。1日の勉強時間を少しふやすか、単元をしぼりましょう。'
+    var rt = cap ? cap.rate : 0.8, pc = Math.round(load * 100), lv = load <= rt + 0.05 ? 'ok' : load <= rt + 0.1 ? 'warn' : 'ng';   // 1単元150分は目安なので、予定を入れる割合(rt)の前後5%までは「ちょうどよい」とする
+    var msg = lv === 'ok' ? (load > rt ? '目安(' + Math.round(rt * 100) + '%)の前後に収まっています。' : '') + '余白が残っているので、急な用事が入っても計画がくずれにくい状態です。'
+      : lv === 'warn' ? '予定が目安をこえています。急な用事が入ると、やり残しが積み上がりやすくなります。1日の勉強時間を少しふやすか、単元をしぼりましょう。'
       : '予定がほぼ時間いっぱいです。このままだと、1つの遅れが次々に後ろへ響きます。1日の勉強時間をふやすか、優先度の高い単元からに絞りましょう。';
     return '<div class="qg ' + lv + '"><div class="row-between"><b>予定の詰めこみ度</b><span class="qg-n">' + pc + '%</span></div>' +
-      '<div class="qg-bar" aria-hidden="true"><i style="width:' + Math.min(100, pc) + '%"></i><b style="left:80%"></b></div>' +
-      '<p class="small">' + msg + '(目安は8割まで)</p>' + QUEUE_NOTE + '</div>';
+      '<div class="qg-bar" aria-hidden="true"><i style="width:' + Math.min(100, pc) + '%"></i><b style="left:' + Math.round(rt * 100) + '%"></b></div>' +
+      '<p class="small">' + msg + '(目安は' + Math.round((cap ? cap.rate : 0.8) * 100) + '%まで)</p>' + capNote(cap) + QUEUE_NOTE + '</div>';
+  }
+  // 計画のもとにした数字(設定・実績・ばらつき)
+  function capNote(cap) {
+    if (!cap) return '';
+    if (cap.avg === null) return '<p class="hint">いまは設定の勉強時間(1日平均 ' + WPS.Time.label(cap.set) + ')で計算しています。記録が7日分たまると、実際に勉強できた時間とその日ごとのばらつきから、計画を自動で調整します' + (cap.n ? '(いま ' + cap.n + '日分)' : '') + '。</p>';
+    var cvL = cap.cv < 0.5 ? '小さい' : cap.cv < 1 ? 'ふつう' : '大きい';
+    return '<ul class="qg-d"><li><span>設定の勉強時間</span><b>1日 ' + WPS.Time.label(cap.set) + '</b></li>' +
+      '<li><span>直近' + cap.n + '日の実績</span><b>1日 ' + WPS.Time.label(cap.avg) + '</b></li>' +
+      '<li><span>日ごとのばらつき</span><b>' + cvL + '(' + cap.cv + ')</b></li>' +
+      '<li><span>予定を入れる割合</span><b>' + Math.round(cap.rate * 100) + '%</b></li></ul>' +
+      '<p class="hint">' + (cap.avg < cap.set ? '実績が設定より少ないので、実績の時間で計画しています。設定を見直すか、勉強時間をふやすと、進むペースが上がります。' : '設定どおりに勉強できています。計画は設定の時間で立てています。') +
+      (cap.rate < 0.78 ? '日によって勉強時間の差が大きいので、余白を多めにとっています。' : cap.rate > 0.82 ? '毎日の勉強時間が安定しているので、余白を少なめにしています。' : '') + '</p>';
   }
   function dayType(w, d) { if (!w) return null; var i = D.diff(w.start, d); return i <= 3 ? 'go' : i <= 5 ? 'rev' : 'test'; }
   function dayTypeLine(w, d) {
@@ -2216,7 +2229,7 @@
 
     // 週ごとの計画
     var cw = R.currentWeek(rm);
-    html += '<section class="card"><h2>📅 週ごとの計画</h2><p class="muted">1日' + p.minutes + '分の勉強で、週' + rm.pace + '単元のペース。テストを受けるたびに自動で更新されるよ。</p>' + loadGauge(rm.load) + '<div class="weeks">';
+    html += '<section class="card"><h2>📅 週ごとの計画</h2><p class="muted">1日' + p.minutes + '分の勉強で、週' + rm.pace + '単元のペース。テストを受けるたびに自動で更新されるよ。</p>' + loadGauge(rm.load, rm.cap) + '<div class="weeks">';
     rm.weeks.forEach(function (wk, i) {
       var ph = WPS.PHASES.filter(function (x) { return x.key === wk.phase; })[0];
       var cur = wk === cw;
@@ -3224,6 +3237,7 @@
     }, { passive: true });
   })();
   /* ========== 単語トレーニング(js/vocab.js) ========== */
+  WPS.minutesByDay = function () { return VT.minutesByDay ? VT.minutesByDay() : {}; };   // 実際の勉強時間(計画の精度に使う)
   var VT = WPS.makeVocab({
     h: h, toast: toast, judgeMark: judgeMark, shuffle: shuffle, render: render, WORD_LISTS: WORD_LISTS, wordItems: wordItems, trolley: function () { return TK; },
     okList: function (L) { return wordListOk(L, S.get().profile.grade, A.allStats()); }

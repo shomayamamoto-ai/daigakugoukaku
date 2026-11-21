@@ -3451,3 +3451,7 @@ body.tl-full { overflow: hidden; }
 .qg .small { margin: 4px 0 0; }
 .jk-pace { font-size: 13px; line-height: 1.7; margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: var(--primary-weak); }
 .jk-pace b:first-child { margin-right: 6px; }
+.qg-d { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.qg-d li { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-width: 0; }
+.qg-d span { display: block; font-size: 11px; color: var(--muted); }
+.qg-d b { font-size: 14px; }

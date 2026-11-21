@@ -463,8 +463,10 @@ WPS.Roadmap = (function () {
     // 1週間で仕上げられる単元数(1単元に約150分かかる想定)。
     // 待ち行列理論:予定を勉強時間の100%まで詰めると、急な宿題や体調不良が1つ入っただけで後ろがすべてずれる。
     // そこで計画は勉強時間の8割(PLAN_RATE)で立て、残り2割は「余白」として空けておく。
-    var minutes = Math.max(15, WPS.Time.weeklyMinutes(s.profile) / 7);
-    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 * WPS.Time.PLAN_RATE / 150)));   // 1単元150分は目安なので、四捨五入(8割前後になる)
+    // 精度を上げるため、記録が7日分以上あれば「実際に勉強できている時間」と「日ごとのばらつき」を使う(WPS.Time.capacity)
+    var cap = WPS.Time.capacity(s.profile);
+    var minutes = Math.max(15, cap.use);
+    var pace = Math.max(1, Math.min(5, Math.round(minutes * 7 * cap.rate / 150)));   // 1単元150分は目安なので、四捨五入(8割前後になる)
     var learnWeeks = Math.max(1, Math.floor(D.diff(today, practiceStart) / 7));
     var knownWeak = ids.filter(function (id) { return stats[id].status !== 'untested'; }).length;
     if (knownWeak > learnWeeks * pace) {
@@ -519,7 +521,7 @@ WPS.Roadmap = (function () {
 
     return {
       target: t, today: today, days: totalDays, weeks: weeks, phases: phases,
-      units: ids, stats: stats, pace: pace, load: load, warnings: warnings
+      units: ids, stats: stats, pace: pace, load: load, cap: cap, warnings: warnings
     };
   }
 
@@ -541,7 +543,8 @@ WPS.Roadmap = (function () {
     var tasks = [];
     var todays = s.attempts.filter(function (a) { return a.d === today; });
     var minutesToday = WPS.Time.minutesFor(s.profile, today);
-    var planToday = WPS.Time.planOf(minutesToday);
+    var cap = rm.cap || WPS.Time.capacity(s.profile);
+    var planToday = WPS.Time.planOf(minutesToday, cap.rate);
 
     // ① 単語帳
     var due = WPS.SRS.dueCards().length;
@@ -592,7 +595,7 @@ WPS.Roadmap = (function () {
     tasks.push({ key: 'memo', kind: 'manual', icon: '✏️', title: 'わからなかったことを「先生への質問メモ」に書く', sub: '30分の授業を、疑問の解決だけに使えるようにしよう', action: '#memo' });
 
     tasks.forEach(function (t) { if (t.kind === 'manual') t.done = !!day.checks[t.key]; });
-    return { week: w, tasks: tasks, minutesToday: minutesToday, planToday: planToday, bufferToday: minutesToday - planToday, holiday: WPS.Time.isHoliday(today) };
+    return { week: w, tasks: tasks, minutesToday: minutesToday, planToday: planToday, cap: cap, bufferToday: minutesToday - planToday, holiday: WPS.Time.isHoliday(today) };
   }
 
   return { build: build, target: target, currentWeek: currentWeek, todayTasks: todayTasks, gradeIndex: gradeIndex };
@@ -807,10 +810,31 @@ WPS.Time = (function () {
   var OPTIONS = [15, 30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080];
   // 予定は8割まで(待ち行列理論)。勉強時間のうち、予定を入れるのは8割。5分単位で、余白は最低5分
   var PLAN_RATE = 0.8;
-  function planOf(m) { m = +m || 0; if (m < 10) return m; return Math.min(m - 5, Math.max(5, Math.round(m * PLAN_RATE / 5) * 5)); }
+  function planOf(m, rate) { m = +m || 0; if (m < 10) return m; return Math.min(m - 5, Math.max(5, Math.round(m * (rate || PLAN_RATE) / 5) * 5)); }
+  // 実際の勉強時間(直近14日。今日はのぞく)から、計画に使う「1日の時間」と「予定を入れる割合」を決める。
+  //  ・実績の平均が設定より少なければ、実績の平均で計画する(設定どおりに勉強できていない分、計画が遅れていくため)
+  //  ・日ごとのばらつきが大きいほど、余白を多めにとる。待ち行列理論の「キングマンの近似式」:
+  //    待ち時間 ≒ (ばらつきの大きさ) × ρ/(1−ρ) × 処理時間。ばらつきが標準(V=1)で ρ=0.8 のときと同じ待ち時間(4)に
+  //    なる ρ を、ρ = 4 ÷ (4 + V) で求める。V = (1 + 日ごとの時間の変動係数²) ÷ 2(来るタイミングのばらつきは標準の1とおく)
+  function capacity(p) {
+    var set = weeklyMinutes(p) / 7, out = { set: Math.round(set), use: set, rate: PLAN_RATE, n: 0, avg: null, cv: null, v: 1 };
+    var by = WPS.minutesByDay ? WPS.minutesByDay() : null, s = WPS.Store.get();
+    if (!by || !s.attempts || !s.attempts.length) return out;
+    var first = s.attempts.reduce(function (a, x) { return x.d && x.d < a ? x.d : a; }, '9999');
+    var today = WPS.date.today(), xs = [];
+    for (var i = 1; i <= 14; i++) { var d = WPS.date.add(today, -i); if (d >= first) xs.push(by[d] || 0); }
+    if (xs.length < 7) { out.n = xs.length; return out; }
+    var avg = xs.reduce(function (a, x) { return a + x; }, 0) / xs.length;
+    var sd = Math.sqrt(xs.reduce(function (a, x) { return a + (x - avg) * (x - avg); }, 0) / xs.length);
+    var cv = avg > 0 ? sd / avg : 2, v = (1 + cv * cv) / 2;
+    out.n = xs.length; out.avg = Math.round(avg); out.cv = Math.round(cv * 100) / 100; out.v = Math.round(v * 100) / 100;
+    out.rate = Math.max(0.65, Math.min(0.85, 4 / (4 + v)));
+    if (avg > 0 && avg < set) out.use = Math.max(15, avg);
+    return out;
+  }
   // 待ち時間の目安(M/M/1 という待ち行列のモデル):1件の処理時間を1としたときの待ち時間 ＝ ρ ÷ (1 − ρ)。ρ は稼働率
   function waitFactor(rho) { rho = Math.min(0.99, Math.max(0, rho)); return rho / (1 - rho); }
-  return { isHoliday: isHoliday, holidayName: holidayName, minutesFor: minutesFor, weeklyMinutes: weeklyMinutes, label: label, OPTIONS: OPTIONS, PLAN_RATE: PLAN_RATE, planOf: planOf, waitFactor: waitFactor };
+  return { isHoliday: isHoliday, holidayName: holidayName, minutesFor: minutesFor, weeklyMinutes: weeklyMinutes, label: label, OPTIONS: OPTIONS, PLAN_RATE: PLAN_RATE, planOf: planOf, waitFactor: waitFactor, capacity: capacity };
 })();
 
 /* ========== 7. レベル(経験値) ========== */
