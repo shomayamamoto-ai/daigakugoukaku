@@ -605,7 +605,7 @@ WPS.Roadmap = (function () {
     }
 
     // ④ 先生への質問メモ
-    tasks.push({ key: 'memo', kind: 'manual', icon: '✏️', title: 'わからなかったことを「先生への質問メモ」に書く', sub: '30分の授業を、疑問の解決だけに使えるようにしよう', action: '#memo' });
+    tasks.push({ key: 'memo', kind: 'manual', icon: '✏️', title: 'わからなかったことを「先生への質問メモ」に書く', sub: '60分の授業を、疑問の解決だけに使えるようにしよう', action: '#memo' });
 
     tasks.forEach(function (t) { if (t.kind === 'manual') t.done = !!day.checks[t.key]; });
     return { week: w, tasks: tasks, minutesToday: minutesToday, planToday: planToday, cap: cap, bufferToday: minutesToday - planToday, holiday: WPS.Time.isHoliday(today) };

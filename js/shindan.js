@@ -300,7 +300,7 @@
     html += ttl('Next step', '次にやること') + '<section class="sd-card sd-next"><ol>' +
       (lowest ? '<li>いちばん伸びしろが大きいのは<b>' + h(CN(lowest)) + '</b>です。</li>' : '') +
       (res.roots.length ? '<li>まずは「根っこ」の単元(' + h(res.roots[0][1]) + ')を、基本から確かめましょう。</li>' : res.weak.length ? '<li>まちがえた単元の「土台になる単元」から確かめると、原因が見つかりやすくなります。</li>' : '') +
-      '<li>15問の診断で分かることには限りがあります。Aqualium の受講では、全286単元の診断と、あなた専用の教材・1回30分の個別指導で、弱点を一つずつ解消していきます。</li></ol>' +
+      '<li>15問の診断で分かることには限りがあります。Aqualium の受講では、全286単元の診断と、あなた専用の教材・1回60分の個別指導で、弱点を一つずつ解消していきます。</li></ol>' +
       '<div class="sd-ctas"><a class="btn btn-grad" href="home.html#contact">受講について相談する</a><a class="btn btn-line" href="home.html#price">料金を見る</a><button type="button" class="btn btn-line" id="sdAgain">もう一度診断する</button></div>' +
       '<p class="sd-note">この結果は、この端末だけに保存されています。</p></section>' +
       ttl('Column', 'あわせて読みたい') + '<section class="sd-card"><ul class="sd-links"><li><a href="guide/nigate.html">本当の苦手単元の見つけ方</a></li><li><a href="guide/plan.html">志望校から逆算する受験勉強の計画の立て方</a></li></ul></section>';

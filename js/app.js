@@ -2663,14 +2663,16 @@
 
     // 次回の授業プラン
     var main = top[0] ? WPS.UNIT_MAP[top[0]] : null;
-    html += '<section class="card"><h2>④ 次回30分の授業プラン</h2><table class="plan">' +
-      '<tr><th>0〜5分</th><td><b>質問の解消</b>:③の質問から優先度の高いものを解説' + (memos.length ? '(' + memos.length + '件)' : '') + '</td></tr>' +
-      '<tr><th>5〜20分</th><td><b>根本単元の解説</b>:' + (main ? '「' + h(main.name) + '」— ' + h(main.tip) : '過去問の解き直し') + '</td></tr>' +
-      '<tr><th>20〜30分</th><td><b>口頭試問</b>:' + (main ? main.oral.map(h).join(' ／ ') : '解き方の方針を生徒に説明させる') + '<br><small>→ 説明できなかった点は、次回までの宿題として単語帳に追加</small></td></tr></table>' +
+    html += '<section class="card"><h2>④ 次回60分の授業プラン</h2><table class="plan">' +
+      '<tr><th>0〜5分</th><td><b>振り返りの確認</b>:生徒の振り返りノートと、前回の宿題の確認</td></tr>' +
+      '<tr><th>5〜20分</th><td><b>質問の解消</b>:③の質問から優先度の高いものを解説' + (memos.length ? '(' + memos.length + '件)' : '') + '</td></tr>' +
+      '<tr><th>20〜40分</th><td><b>根本単元の解説</b>:' + (main ? '「' + h(main.name) + '」— ' + h(main.tip) : '過去問の解き直し') + '</td></tr>' +
+      '<tr><th>40〜55分</th><td><b>口頭試問</b>:' + (main ? main.oral.map(h).join(' ／ ') : '解き方の方針を生徒に説明させる') + '<br><small>→ 説明できなかった点は、次回までの宿題として単語帳に追加</small></td></tr>' +
+      '<tr><th>55〜60分</th><td><b>次の1週間の確認</b>:アプリの「今週ねらう単元」と宿題を、生徒といっしょに決める</td></tr></table>' +
       '<p class="hint">企画書の方針どおり、「問題を解かせる時間」は授業に入れず、事前の自習(単語帳・問題集)に回しています。</p></section>';
 
-    // 1か月(8回)の指導計画
-    html += '<section class="card"><h2>⑤ 今後8回(約1か月)の指導計画</h2><table class="plan">';
+    // 今後8回の指導計画
+    html += '<section class="card"><h2>⑤ 今後8回の指導計画(基本プランは週1回で約2か月、集中オプションは週2回で約1か月)</h2><table class="plan">';
     for (var k = 0; k < 8; k++) {
       var uid = top.length ? top[Math.floor(k / 2) % top.length] : null;
       var uu = uid ? WPS.UNIT_MAP[uid] : null;
@@ -2734,7 +2736,7 @@
   /* ========== 質問メモ ========== */
   function renderMemo(unitId) {
     var s = S.get();
-    var html = say('わからなかったことは、ここに書いておこう。家庭教師の先生の30分授業で、まとめて解決できるよ。', 'normal', 56);
+    var html = say('わからなかったことは、ここに書いておこう。家庭教師の先生の60分授業で、まとめて解決できるよ。', 'normal', 56);
     html += '<section class="card"><form id="memoForm" class="form"><label>単元(任意)<select name="unit"><option value="">選ばない</option>' +
       WPS.UNITS.map(function (u) { return '<option value="' + u.id + '"' + (u.id === unitId ? ' selected' : '') + '>' + WPS.SUBJECTS[u.subj].name + ':' + h(u.name) + '</option>'; }).join('') +
       '</select></label><label>質問したいこと<textarea name="text" rows="3" required placeholder="例:平方完成で、なぜ半分にして2乗するのかわからない"></textarea></label>' +
@@ -2947,7 +2949,7 @@
     html += '<section class="card"><h2>ご家庭でできること</h2><ul class="bullets">' +
       '<li>点数よりも「続けていること」をほめてください。連続記録は本人の自信になります。</li>' +
       '<li>夜' + h(p.reminder) + 'ごろに、学習がまだのときはアプリから本人に通知が届きます。声かけはその後で十分です。</li>' +
-      '<li>わからない問題は「先生への質問メモ」にたまり、30分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
+      '<li>わからない問題は「先生への質問メモ」にたまり、60分の授業で解決します。家で教えきれなくても大丈夫です。</li></ul></section>';
     return html;
   }
 
